@@ -275,44 +275,46 @@ class CustomerAuthController extends Controller{
 			$status=DB::Table('tbl_customer')->where('CustomerID',$CustomerID)->update($data);
 			if($status){
 				$AIDs=[];
-                $SAddress=json_decode($req->SAddress,true);
-				foreach($SAddress as $row){
-					if($row['AID']){
-						$AIDs[] = $row['AID'];
-						$data=array(
-							"Address"=>$row['Address'],
-							"PostalCodeID"=>$row['PostalCodeID'],
-							"CityID"=>$row['CityID'],
-							"TalukID"=>$row['TalukID'],
-							"DistrictID"=>$row['DistrictID'],
-							"StateID"=>$row['StateID'],
-							"CountryID"=>$row['CountryID'],
-							"isDefault"=>$row['isDefault'],
-							"UpdatedOn"=>date("Y-m-d H:i:s")
-						);
-						$status=DB::Table('tbl_customer_address')->where('CustomerID',$CustomerID)->where('AID',$row['AID'])->update($data);
-					}else{
-						$AID=DocNum::getDocNum(docTypes::CustomerAddress->value,"",Helper::getCurrentFY());
-						$AIDs[] = $AID;
-						$tmp=array(
-							"AID"=>$AID,
-							"CustomerID"=>$CustomerID,
-							"Address"=>$row['Address'],
-							"PostalCodeID"=>$row['PostalCodeID'],
-							"CityID"=>$row['CityID'],
-							"TalukID"=>$row['TalukID'],
-							"DistrictID"=>$row['DistrictID'],
-							"StateID"=>$row['StateID'],
-							"CountryID"=>$row['CountryID'],
-							"isDefault"=>$row['isDefault'],
-							"CreatedOn"=>date("Y-m-d H:i:s")
-						);
-						$status=DB::Table('tbl_customer_address')->insert($tmp);
-						if($status==true){
-							DocNum::updateDocNum(docTypes::CustomerAddress->value);
-						}
-					}
-				}
+				if($req->has('SAddress')){
+                    $SAddress=json_decode($req->SAddress,true);
+                    foreach($SAddress as $row){
+                        if($row['AID']){
+                            $AIDs[] = $row['AID'];
+                            $data=array(
+                                "Address"=>$row['Address'],
+                                "PostalCodeID"=>$row['PostalCodeID'],
+                                "CityID"=>$row['CityID'],
+                                "TalukID"=>$row['TalukID'],
+                                "DistrictID"=>$row['DistrictID'],
+                                "StateID"=>$row['StateID'],
+                                "CountryID"=>$row['CountryID'],
+                                "isDefault"=>$row['isDefault'],
+                                "UpdatedOn"=>date("Y-m-d H:i:s")
+                            );
+                            $status=DB::Table('tbl_customer_address')->where('CustomerID',$CustomerID)->where('AID',$row['AID'])->update($data);
+                        }else{
+                            $AID=DocNum::getDocNum(docTypes::CustomerAddress->value,"",Helper::getCurrentFY());
+                            $AIDs[] = $AID;
+                            $tmp=array(
+                                "AID"=>$AID,
+                                "CustomerID"=>$CustomerID,
+                                "Address"=>$row['Address'],
+                                "PostalCodeID"=>$row['PostalCodeID'],
+                                "CityID"=>$row['CityID'],
+                                "TalukID"=>$row['TalukID'],
+                                "DistrictID"=>$row['DistrictID'],
+                                "StateID"=>$row['StateID'],
+                                "CountryID"=>$row['CountryID'],
+                                "isDefault"=>$row['isDefault'],
+                                "CreatedOn"=>date("Y-m-d H:i:s")
+                            );
+                            $status=DB::Table('tbl_customer_address')->insert($tmp);
+                            if($status==true){
+                                DocNum::updateDocNum(docTypes::CustomerAddress->value);
+                            }
+                        }
+                    }
+                }
 			}
 			if(count($AIDs)>0){
 				DB::table('tbl_customer_address')->where('CustomerID',$CustomerID)->whereNotIn('AID',$AIDs)->delete();
