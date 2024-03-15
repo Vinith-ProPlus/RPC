@@ -259,6 +259,7 @@ class CustomerAuthController extends Controller{
                 "GenderID"=>$req->GenderID,
                 "DOB"=>$req->DOB,
 				"CusTypeID"=>$req->CusTypeID,
+                "ConTypeIDs"=>serialize(json_decode($req->ConTypeIDs)),
 				"Address"=>$req->Address,
 				"PostalCodeID"=>$req->PostalCodeID,
 				"CityID"=>$req->CityID,
