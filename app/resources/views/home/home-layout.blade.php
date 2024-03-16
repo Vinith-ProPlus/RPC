@@ -88,17 +88,27 @@
                                     <h6 class="font-weight-bold text-dark">Delivery Location - </h6>
                                 </div>
                             </div>
+
+
                             <div class="header-dropdown" style="display: inline-block;margin-left:0">
-                                <a href="#" style="margin-top:10px">
-                                    @if(isset($ShippingAddress[0])) {{ $ShippingAddress[0]->Address ?? '' }}, {{ $ShippingAddress[0]->CityName }}, {{ $ShippingAddress[0]->TalukName }}, {{ $ShippingAddress[0]->DistrictName }}, {{ $ShippingAddress[0]->StateName }},{{ $ShippingAddress[0]->CountryName }} - {{ $ShippingAddress[0]->PostalCode }}.@endif
-                                </a>
-                                <div class="header-menu">
-                                    <ul>
-                                        @foreach ($ShippingAddress as $item)
-                                        <li><a href="#">{{ $item->Address }}, {{ $item->CityName }}, {{ $item->TalukName }}, {{ $item->DistrictName }}, {{ $item->StateName }},{{ $item->CountryName }} - {{ $item->PostalCode }}.</a></li>
+                                @if(count($ShippingAddress) > 0)
+                                    <a href="#" style="margin-top:10px" id="customerSelectedAddress"
+                                       data-selected-postal-id="{{ $ShippingAddress[0]->PostalCodeID }}" data-selected-latitude="{{ '11.048274' }}" data-selected-longitude="{{ '76.9885352' }}">
+                                        {{ $ShippingAddress[0]->Address ?? '' }}
+                                        , {{ $ShippingAddress[0]->CityName }}, {{ $ShippingAddress[0]->TalukName }}
+                                        , {{ $ShippingAddress[0]->DistrictName }}, {{ $ShippingAddress[0]->StateName }}
+                                        ,{{ $ShippingAddress[0]->CountryName }} - {{ $ShippingAddress[0]->PostalCode }}.
+                                    </a>
+                                    <ul id="changeCustomerAddressUl">
+                                        @foreach ($ShippingAddress as $key => $item)
+                                            <li><a href="#" data-postal-id="{{ $item->PostalCodeID }}" data-latitude="{{ $key.'11.048274' }}" data-longitude="{{ $key.'76.9885352' }}">
+                                                    {{ $item->Address }}, {{ $item->CityName }}
+                                                    , {{ $item->TalukName }}, {{ $item->DistrictName }}
+                                                    , {{ $item->StateName }},{{ $item->CountryName }}
+                                                    - {{ $item->PostalCode }}.</a></li>
                                         @endforeach
                                     </ul>
-                                </div>
+                                @endif
                             </div>
                         </div>
                     @endif
@@ -771,6 +781,15 @@
                     Parent.html('<span>Your Cart is Empty!</span>');
                 }
             });
+
+             $('#changeCustomerAddressUl li a').on('click', function(e){
+                 e.preventDefault();
+                 let selectedAddress = $('#customerSelectedAddress');
+                 selectedAddress.attr('data-selected-postal-id', $(this).data('postal-id'));
+                 selectedAddress.attr('data-selected-latitude', $(this).data('latitude'));
+                 selectedAddress.attr('data-selected-longitude', $(this).data('longitude'));
+                 selectedAddress.html($(this).html());
+             });
         });
     </script>
 
