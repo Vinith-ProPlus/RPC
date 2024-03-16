@@ -17,7 +17,7 @@
                     <h2 class="font1 font-weight-normal text-uppercase mb-0 appear-animate" data-animation-name="fadeInUpShorter" data-animation-delay="200">
                     </h2>
                     <h1 class="font1 font-weight-bold text-uppercase appear-animate" data-animation-name="fadeInUpShorter" data-animation-delay="500">
-                        
+
                     </h1>
                     <h2 class="font1 font-weight-normal text-uppercase mb-3 appear-animate" data-animation-name="fadeInUpShorter" data-animation-delay="800">
                         </h2>
@@ -205,7 +205,7 @@
             </div>
         @endfor
 
-            
+
         </div>
     </div>
 </section>
@@ -232,7 +232,7 @@
     <svg class="custom-svg-3 appear-animate" data-animation-name="fadeIn" version="1.1"
         xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
         viewBox="0 0 649 578">
-        <path fill="#f26100"
+        <path fill="#0f43b0"
             d="M-225.5,154.7l358.45,456.96c7.71,9.83,21.92,11.54,31.75,3.84l456.96-358.45c9.83-7.71,11.54-21.92,3.84-31.75
             L267.05-231.66c-7.71-9.83-21.92-11.54-31.75-3.84l-456.96,358.45C-231.49,130.66-233.2,144.87-225.5,154.7z">
         </path>
@@ -344,13 +344,13 @@
         </div>
 
     </div>
-</section>  
+</section>
 @endsection
 @section('scripts')
     <script>
         $(document).ready(function(){
 
-            
+
 
         });
     </script>
