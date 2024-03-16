@@ -60,7 +60,7 @@ class HomeAuthController extends Controller{
 		foreach($PCatagories as $row){
 			$row->PCImage = $row->PCImage ? url('/').'/'.$row->PCImage :url('/') . '/'.'assets/images/no-image-b.png';
 			$row->PSCData = DB::table('tbl_product_subcategory')->where('ActiveStatus','Active')->where('DFlag',0)->where('PCID',$row->PCID)->select('PSCID','PSCName','PSCImage')->get();
-			/* foreach($row->PSCData as $item){
+			foreach($row->PSCData as $item){
 				$item->PSCImage = $item->PSCImage ? url('/').'/'.$item->PSCImage :url('/') . '/'.'assets/images/no-image-b.png';
 				$item->ProductData = DB::table('tbl_products')->where('ActiveStatus','Active')->where('DFlag',0)->where('CID',$row->PCID)->where('SCID',$item->PSCID)->select('ProductID','ProductName','ProductImage')->get();
 				foreach($item->ProductData as $data){
@@ -68,7 +68,7 @@ class HomeAuthController extends Controller{
 					$data->ProductImage = $data->ProductImage ? 'https://rpc.prodemo.in/'.$data->ProductImage :url('/') . '/'.'assets/images/no-image-b.png';
 					$data->gImages=DB::table('tbl_products_gallery')->where('ProductID',$data->ProductID)->select(DB::raw('CONCAT("' . url('/') . '/", gImage) AS gImage'))->get();
 				}
-			} */
+			}
 		}
 		$RecentProducts = DB::table('tbl_products as P')->leftJoin('tbl_product_subcategory as PSC','PSC.PSCID','P.SCID')->where('P.ActiveStatus','Active')->where('P.DFlag',0)->select('P.ProductID','P.ProductName','P.ProductImage','PSC.PSCName')
         ->inRandomOrder()->take(18)->get()->toArray();
@@ -105,142 +105,6 @@ class HomeAuthController extends Controller{
 		$FormData['isRegister']=true;
 		$FormData['Cart']=$this->getCart();
 		return view('home.register',$FormData);
-    }
-	public function Checkout(Request $req){
-		$CustomerID = $this->ReferID;
-		
-		$FormData['Company']=$this->Company;
-		$FormData['UserData']=$this->UserData['data'];
-		$FormData['PCategories']=$this->PCategories;
-		$FormData['isEdit']=false;
-		$FormData['isRegister']=false;
-		$FormData['ShippingAddress']=DB::table('tbl_customer_address as CA')->where('CustomerID',$CustomerID)
-		->join($this->generalDB.'tbl_countries as C','C.CountryID','CA.CountryID')
-		->join($this->generalDB.'tbl_states as S', 'S.StateID', 'CA.StateID')
-		->join($this->generalDB.'tbl_districts as D', 'D.DistrictID', 'CA.DistrictID')
-		->join($this->generalDB.'tbl_taluks as T', 'T.TalukID', 'CA.TalukID')
-		->join($this->generalDB.'tbl_cities as CI', 'CI.CityID', 'CA.CityID')
-		->join($this->generalDB.'tbl_postalcodes as PC', 'PC.PID', 'CA.PostalCodeID')
-		->select('CA.AID', 'CA.Address', 'CA.isDefault', 'CA.CountryID', 'C.CountryName', 'CA.StateID', 'S.StateName', 'CA.DistrictID', 'D.DistrictName', 'CA.TalukID', 'T.TalukName', 'CA.CityID', 'CI.CityName', 'CA.PostalCodeID', 'PC.PostalCode')
-		->get();
-		$FormData['CustomerData']=DB::table('tbl_customer as CU')->where('CustomerID',$CustomerID)
-		->join($this->generalDB.'tbl_countries as C','C.CountryID','CU.CountryID')
-		->join($this->generalDB.'tbl_states as S', 'S.StateID', 'CU.StateID')
-		->join($this->generalDB.'tbl_districts as D', 'D.DistrictID', 'CU.DistrictID')
-		->join($this->generalDB.'tbl_taluks as T', 'T.TalukID', 'CU.TalukID')
-		->join($this->generalDB.'tbl_cities as CI', 'CI.CityID', 'CU.CityID')
-		->join($this->generalDB.'tbl_postalcodes as PC', 'PC.PID', 'CU.PostalCodeID')
-		->select('CU.Address', 'CU.CountryID', 'C.CountryName', 'CU.StateID', 'S.StateName', 'CU.DistrictID', 'D.DistrictName', 'CU.TalukID', 'T.TalukName', 'CU.CityID', 'CI.CityName', 'CU.PostalCodeID', 'PC.PostalCode','CU.MobileNo1','CU.CustomerName')
-		->first();
-		$FormData['DeliveryAddress']=DB::table('tbl_customer_address as CA')->where('CustomerID',$CustomerID)->where('CA.isDefault',1)
-		->join($this->generalDB.'tbl_countries as C','C.CountryID','CA.CountryID')
-		->join($this->generalDB.'tbl_states as S', 'S.StateID', 'CA.StateID')
-		->join($this->generalDB.'tbl_districts as D', 'D.DistrictID', 'CA.DistrictID')
-		->join($this->generalDB.'tbl_taluks as T', 'T.TalukID', 'CA.TalukID')
-		->join($this->generalDB.'tbl_cities as CI', 'CI.CityID', 'CA.CityID')
-		->join($this->generalDB.'tbl_postalcodes as PC', 'PC.PID', 'CA.PostalCodeID')
-		->select('CA.AID', 'CA.Address', 'CA.isDefault', 'CA.CountryID', 'C.CountryName', 'CA.StateID', 'S.StateName', 'CA.DistrictID', 'D.DistrictName', 'CA.TalukID', 'T.TalukName', 'CA.CityID', 'CI.CityName', 'CA.PostalCodeID', 'PC.PostalCode')
-		->first();
-		$FormData['Cart']=$this->getCart();
-		if($FormData['Cart'])
-		return view('home.checkout',$FormData);
-    }
-	public function PlaceOrder(Request $req){	
-        DB::beginTransaction();
-        $status=false;
-        $CustomerID=$this->ReferID;
-        try {
-            $CustomerData = DB::table('tbl_customer')->where('CustomerID',$CustomerID)->first();
-            $EnqID = DocNum::getDocNum(docTypes::Enquiry->value,$this->logDB,Helper::getCurrentFY());
-            $BuildingImage = "";
-            if($req->BuildingImage != null) {
-                $dir = "uploads/transaction/enquiry/" . $EnqID . "/";
-                if (!file_exists($dir)) {
-                    mkdir($dir, 0777, true);
-                }
-                if ($req->hasFile('BuildingImage')) {
-                    $file = $req->file('BuildingImage');
-                    $fileName = md5($file->getClientOriginalName() . time());
-                    $fileName1 = $fileName . "." . $file->getClientOriginalExtension();
-                    $file->move($dir, $fileName1);
-                    $BuildingImage = $dir . $fileName1;
-                } else if (Helper::isJSON($req->BuildingImage) == true) {
-                    $Img = json_decode($req->BuildingImage);
-                    if (file_exists($Img->uploadPath)) {
-                        $fileName1 = $Img->fileName != "" ? $Img->fileName : Helper::RandomString(10) . "png";
-                        copy($Img->uploadPath, $dir . $fileName1);
-                        $BuildingImage = $dir . $fileName1;
-                        // unlink($Img->uploadPath);
-                    }
-                }
-            }
-            $data=[
-                'EnqID' => $EnqID,
-                'EnqNo' =>DocNum::getInvNo("Quote-Enquiry"),
-                'EnqDate' => date('Y-m-d'),
-                'EnqExpiryDate' => date('Y-m-d', strtotime('+15 days')),
-                'CustomerID' => $CustomerID,
-                'ReceiverName' => $req->ReceiverName,
-                'ReceiverMobNo' => $req->ReceiverMobNo,
-                'ExpectedDeliveryDate' => $req->ExpectedDeliveryDate,
-                'Address' => $req->Address,
-                'CountryID' => $req->CountryID,
-                'StateID' => $req->StateID,
-                'DistrictID' => $req->DistrictID,
-                'TalukID' => $req->TalukID,
-                'CityID' => $req->CityID,
-                'PostalCodeID' => $req->PostalCodeID,
-                'DAddress' => $req->Address,
-                'DCountryID' => $req->CountryID,
-                'DStateID' => $req->StateID,
-                'DDistrictID' => $req->DistrictID,
-                'DTalukID' => $req->TalukID,
-                'DCityID' => $req->CityID,
-                'DPostalCodeID' => $req->PostalCodeID,
-                'StageID' => $req->StageID,
-                'BuildingMeasurementID' => $req->BuildingMeasurementID,
-                'BuildingMeasurement' => $req->BuildingMeasurement,
-                'BuildingImage' => $BuildingImage,
-                'CreatedOn' => date('Y-m-d H:i:s'),
-                'CreatedBy' => $CustomerID,
-            ];
-            $status=DB::table($this->logDB.'tbl_enquiry')->insert($data);
-            if($status){
-                $ProductData = json_decode($req->ProductData,true);
-                if($ProductData){
-					foreach($ProductData as $item){
-						$EnquiryDetailID = DocNum::getDocNum(docTypes::EnquiryDetails->value,$this->logDB,Helper::getCurrentFY());
-						$data1=[
-							'DetailID' => $EnquiryDetailID,
-							'EnqID'=>$EnqID,
-							'CID'=>$item['PCID'],
-							'SCID'=>$item['PSCID'],
-							'ProductID'=>$item['ProductID'],
-							'Qty'=>$item['Qty'],
-							'UOMID'=>$item['UID'],
-							'CreatedOn'=>date('Y-m-d H:i:s'),
-							'CreatedBy'=>$CustomerID,
-						];
-						$status = DB::table($this->logDB.'tbl_enquiry_details')->insert($data1);
-						if($status){
-							DocNum::updateDocNum(docTypes::EnquiryDetails->value,$this->logDB);
-						}
-					}
-				}
-                DocNum::updateDocNum(docTypes::Enquiry->value,$this->logDB);
-            }
-        }catch(Exception $e) {
-            $status=false;
-        }
-        if($status==true){
-            DB::commit();
-            DocNum::updateInvNo("Quote-Enquiry");
-            DB::table('tbl_customer_cart')->where('CustomerID',$CustomerID)->delete();
-            return response()->json(['status' => true,'message' => "Order Placed Successfully"]);
-        }else{
-            DB::rollback();
-            return response()->json(['status' => false,'message' => "Order Placing Failed!"]);
-        }
     }
     public function Profile(Request $req){
 		$CustomerID = $this->ReferID;
@@ -548,6 +412,166 @@ class HomeAuthController extends Controller{
 			return array('status'=>false,'message'=>"Customer Update Failed");
 		}
 	}
+
+	public function getCategory(Request $req){
+        if($req->PostalID){
+            $AllVendors = DB::table('tbl_vendors as V')->leftJoin('tbl_vendors_service_locations as VSL','V.VendorID','VSL.VendorID')->where('V.ActiveStatus',"Active")->where('V.DFlag',0)->where('VSL.PostalCodeID',$req->PostalID)->groupBy('VSL.VendorID')->pluck('VSL.VendorID')->toArray();
+            
+            $PCatagories= DB::table('tbl_vendors_product_mapping as VPM')
+            ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'VPM.PCID')
+            ->where('VPM.Status',1)->WhereIn('VPM.VendorID',$AllVendors)
+            ->groupBy('PC.PCID', 'PC.PCName','PC.PCImage')
+            ->select('PC.PCID','PC.PCName', DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PCImage, ""), "assets/images/no-image-b.png")) AS CategoryImage'))->get();
+            foreach($PCatagories as $row){
+                $row->PSCData = DB::table('tbl_vendors_product_mapping as VPM')
+                ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'VPM.PSCID')
+                ->where('VPM.Status',1)->WhereIn('VPM.VendorID',$AllVendors)
+                ->groupBy('PSC.PSCID', 'PSC.PSCName')
+                ->select('PSC.PSCID','PSC.PSCName')->get();
+            }
+            return $PCatagories;
+        }else{
+            return [];
+        }
+    }
+	
+	public function Checkout(Request $req){
+		$CustomerID = $this->ReferID;
+		
+		$FormData['Company']=$this->Company;
+		$FormData['UserData']=$this->UserData['data'];
+		$FormData['PCategories']=$this->PCategories;
+		$FormData['isEdit']=false;
+		$FormData['isRegister']=false;
+		$FormData['ShippingAddress']=DB::table('tbl_customer_address as CA')->where('CustomerID',$CustomerID)
+		->join($this->generalDB.'tbl_countries as C','C.CountryID','CA.CountryID')
+		->join($this->generalDB.'tbl_states as S', 'S.StateID', 'CA.StateID')
+		->join($this->generalDB.'tbl_districts as D', 'D.DistrictID', 'CA.DistrictID')
+		->join($this->generalDB.'tbl_taluks as T', 'T.TalukID', 'CA.TalukID')
+		->join($this->generalDB.'tbl_cities as CI', 'CI.CityID', 'CA.CityID')
+		->join($this->generalDB.'tbl_postalcodes as PC', 'PC.PID', 'CA.PostalCodeID')
+		->select('CA.AID', 'CA.Address', 'CA.isDefault', 'CA.CountryID', 'C.CountryName', 'CA.StateID', 'S.StateName', 'CA.DistrictID', 'D.DistrictName', 'CA.TalukID', 'T.TalukName', 'CA.CityID', 'CI.CityName', 'CA.PostalCodeID', 'PC.PostalCode')
+		->get();
+		$FormData['CustomerData']=DB::table('tbl_customer as CU')->where('CustomerID',$CustomerID)
+		->join($this->generalDB.'tbl_countries as C','C.CountryID','CU.CountryID')
+		->join($this->generalDB.'tbl_states as S', 'S.StateID', 'CU.StateID')
+		->join($this->generalDB.'tbl_districts as D', 'D.DistrictID', 'CU.DistrictID')
+		->join($this->generalDB.'tbl_taluks as T', 'T.TalukID', 'CU.TalukID')
+		->join($this->generalDB.'tbl_cities as CI', 'CI.CityID', 'CU.CityID')
+		->join($this->generalDB.'tbl_postalcodes as PC', 'PC.PID', 'CU.PostalCodeID')
+		->select('CU.Address', 'CU.CountryID', 'C.CountryName', 'CU.StateID', 'S.StateName', 'CU.DistrictID', 'D.DistrictName', 'CU.TalukID', 'T.TalukName', 'CU.CityID', 'CI.CityName', 'CU.PostalCodeID', 'PC.PostalCode','CU.MobileNo1','CU.CustomerName')
+		->first();
+		$FormData['DeliveryAddress']=DB::table('tbl_customer_address as CA')->where('CustomerID',$CustomerID)->where('CA.isDefault',1)
+		->join($this->generalDB.'tbl_countries as C','C.CountryID','CA.CountryID')
+		->join($this->generalDB.'tbl_states as S', 'S.StateID', 'CA.StateID')
+		->join($this->generalDB.'tbl_districts as D', 'D.DistrictID', 'CA.DistrictID')
+		->join($this->generalDB.'tbl_taluks as T', 'T.TalukID', 'CA.TalukID')
+		->join($this->generalDB.'tbl_cities as CI', 'CI.CityID', 'CA.CityID')
+		->join($this->generalDB.'tbl_postalcodes as PC', 'PC.PID', 'CA.PostalCodeID')
+		->select('CA.AID', 'CA.Address', 'CA.isDefault', 'CA.CountryID', 'C.CountryName', 'CA.StateID', 'S.StateName', 'CA.DistrictID', 'D.DistrictName', 'CA.TalukID', 'T.TalukName', 'CA.CityID', 'CI.CityName', 'CA.PostalCodeID', 'PC.PostalCode')
+		->first();
+		$FormData['Cart']=$this->getCart();
+		if($FormData['Cart'])
+		return view('home.checkout',$FormData);
+    }
+	public function PlaceOrder(Request $req){	
+        DB::beginTransaction();
+        $status=false;
+        $CustomerID=$this->ReferID;
+        try {
+            $CustomerData = DB::table('tbl_customer')->where('CustomerID',$CustomerID)->first();
+            $EnqID = DocNum::getDocNum(docTypes::Enquiry->value,$this->logDB,Helper::getCurrentFY());
+            $BuildingImage = "";
+            if($req->BuildingImage != null) {
+                $dir = "uploads/transaction/enquiry/" . $EnqID . "/";
+                if (!file_exists($dir)) {
+                    mkdir($dir, 0777, true);
+                }
+                if ($req->hasFile('BuildingImage')) {
+                    $file = $req->file('BuildingImage');
+                    $fileName = md5($file->getClientOriginalName() . time());
+                    $fileName1 = $fileName . "." . $file->getClientOriginalExtension();
+                    $file->move($dir, $fileName1);
+                    $BuildingImage = $dir . $fileName1;
+                } else if (Helper::isJSON($req->BuildingImage) == true) {
+                    $Img = json_decode($req->BuildingImage);
+                    if (file_exists($Img->uploadPath)) {
+                        $fileName1 = $Img->fileName != "" ? $Img->fileName : Helper::RandomString(10) . "png";
+                        copy($Img->uploadPath, $dir . $fileName1);
+                        $BuildingImage = $dir . $fileName1;
+                        // unlink($Img->uploadPath);
+                    }
+                }
+            }
+            $data=[
+                'EnqID' => $EnqID,
+                'EnqNo' =>DocNum::getInvNo("Quote-Enquiry"),
+                'EnqDate' => date('Y-m-d'),
+                'EnqExpiryDate' => date('Y-m-d', strtotime('+15 days')),
+                'CustomerID' => $CustomerID,
+                'ReceiverName' => $req->ReceiverName,
+                'ReceiverMobNo' => $req->ReceiverMobNo,
+                'ExpectedDeliveryDate' => $req->ExpectedDeliveryDate,
+                'Address' => $req->Address,
+                'CountryID' => $req->CountryID,
+                'StateID' => $req->StateID,
+                'DistrictID' => $req->DistrictID,
+                'TalukID' => $req->TalukID,
+                'CityID' => $req->CityID,
+                'PostalCodeID' => $req->PostalCodeID,
+                'DAddress' => $req->Address,
+                'DCountryID' => $req->CountryID,
+                'DStateID' => $req->StateID,
+                'DDistrictID' => $req->DistrictID,
+                'DTalukID' => $req->TalukID,
+                'DCityID' => $req->CityID,
+                'DPostalCodeID' => $req->PostalCodeID,
+                'StageID' => $req->StageID,
+                'BuildingMeasurementID' => $req->BuildingMeasurementID,
+                'BuildingMeasurement' => $req->BuildingMeasurement,
+                'BuildingImage' => $BuildingImage,
+                'CreatedOn' => date('Y-m-d H:i:s'),
+                'CreatedBy' => $CustomerID,
+            ];
+            $status=DB::table($this->logDB.'tbl_enquiry')->insert($data);
+            if($status){
+                $ProductData = json_decode($req->ProductData,true);
+                if($ProductData){
+					foreach($ProductData as $item){
+						$EnquiryDetailID = DocNum::getDocNum(docTypes::EnquiryDetails->value,$this->logDB,Helper::getCurrentFY());
+						$data1=[
+							'DetailID' => $EnquiryDetailID,
+							'EnqID'=>$EnqID,
+							'CID'=>$item['PCID'],
+							'SCID'=>$item['PSCID'],
+							'ProductID'=>$item['ProductID'],
+							'Qty'=>$item['Qty'],
+							'UOMID'=>$item['UID'],
+							'CreatedOn'=>date('Y-m-d H:i:s'),
+							'CreatedBy'=>$CustomerID,
+						];
+						$status = DB::table($this->logDB.'tbl_enquiry_details')->insert($data1);
+						if($status){
+							DocNum::updateDocNum(docTypes::EnquiryDetails->value,$this->logDB);
+						}
+					}
+				}
+                DocNum::updateDocNum(docTypes::Enquiry->value,$this->logDB);
+            }
+        }catch(Exception $e) {
+            $status=false;
+        }
+        if($status==true){
+            DB::commit();
+            DocNum::updateInvNo("Quote-Enquiry");
+            DB::table('tbl_customer_cart')->where('CustomerID',$CustomerID)->delete();
+            return response()->json(['status' => true,'message' => "Order Placed Successfully"]);
+        }else{
+            DB::rollback();
+            return response()->json(['status' => false,'message' => "Order Placing Failed!"]);
+        }
+    }
+
 	public function getCart(){
         $Cart = DB::table('tbl_customer_cart as C')->join('tbl_products as P','P.ProductID','C.ProductID')->join('tbl_product_category as PC', 'PC.PCID', 'P.CID')->join('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')->join('tbl_uom as U', 'U.UID', 'P.UID')
         ->where('C.CustomerID', $this->ReferID)->where('P.ActiveStatus', 'Active')->where('P.DFlag', 0)->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)->where('PSC.ActiveStatus', 'Active')->where('PSC.DFlag', 0)
@@ -616,5 +640,8 @@ class HomeAuthController extends Controller{
             return response()->json(['status' => false,'message' => "Product Deleted Failed!"]);
         }
     }
+	
+
+
 	
 }
