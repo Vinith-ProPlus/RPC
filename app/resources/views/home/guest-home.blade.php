@@ -23,7 +23,7 @@
 	<link rel="stylesheet" href="{{url('/')}}/home/assets/css/demo42.min.css">
     <link rel="stylesheet" type="text/css" href="{{url('/')}}/home/assets/vendor/fontawesome-free/css/all.min.css">
     {{-- <link rel="stylesheet" type="text/css" href="{{url('/')}}/assets/css/bootstrap.css?r={{date('YmdHis')}}"> --}}
-    
+
 
 <script>
     WebFontConfig = {
@@ -36,7 +36,7 @@
         s.parentNode.insertBefore( wf, s );
     } )( document );
 </script>
-    
+
 </head>
 
 <body>
@@ -74,7 +74,7 @@
                     <div class="header-right header-dropdowns ml-0 ml-md-auto w-md-100">
                         <div class="header-dropdown mr-auto mr-md-0">
                             <div class="header-menu">
-                                
+
                             </div><!-- End .header-menu -->
                         </div><!-- End .header-dropown -->
 						<ul class="top-links mega-menu d-none d-xl-flex mb-0 pr-2">
@@ -136,7 +136,7 @@
                         </div>
 
                         <span class="separator d-none d-lg-block mr-4"></span>
-                        <a href="{{url('/')}}/social/auth/google" class="d-lg-block d-none">
+                        <a href="{{url('/')}}/social/auth/google" class="d-lg-block d-none" id="loginBtn">
                             <div class="header-user">
                                 <div class="header-userinfo">
                                     <span>Welcome</span>
@@ -168,7 +168,7 @@
 
                                 <div class="dropdownmenu-wrapper custom-scrollbar">
                                     <div class="dropdown-cart-header">Shopping Cart</div>
-                                   
+
 									<span>Your Cart is Empty!</span>
 
                                     <div class="dropdown-cart-action">
@@ -245,7 +245,7 @@
         </header><!-- End .header -->
 
         <main class="main">
-            
+
             <section class="intro-section">
                 <div class="home-slider slide-animate owl-carousel owl-theme owl-carousel-lazy dot-inside" data-owl-options="{
                     'nav': false,
@@ -262,7 +262,7 @@
                                 <h2 class="font1 font-weight-normal text-uppercase mb-0 appear-animate" data-animation-name="fadeInUpShorter" data-animation-delay="200">
                                 </h2>
                                 <h1 class="font1 font-weight-bold text-uppercase appear-animate" data-animation-name="fadeInUpShorter" data-animation-delay="500">
-                                    
+
                                 </h1>
                                 <h2 class="font1 font-weight-normal text-uppercase mb-3 appear-animate" data-animation-name="fadeInUpShorter" data-animation-delay="800">
                                     </h2>
@@ -341,7 +341,7 @@
                     </div>
                 </div>
             </section>
-            
+
             <section class="category-section container">
                 <div class="d-lg-flex align-items-center appear-animate" data-animation-name="fadeInLeftShorter">
                     <h2 class="title title-underline divider">Shop Categories</h2>
@@ -424,7 +424,7 @@
                                     {{-- <span class="product-label label-sale">-13%</span> --}}
                                 </div>
                                 <div class="btn-icon-group">
-                                    <a href="#" class="btn-icon btn-add-cart product-type-simple"><i
+                                    <a href="#" class="btn-icon redirectLogin product-type-simple"><i
                                             class="icon-shopping-cart"></i></a>
                                 </div>
                                 <a href="#" class="btn-quickview" title="Quick View">Quick View</a>
@@ -448,8 +448,8 @@
                             </div>
                         </div>
                     @endfor
-            
-                        
+
+
                     </div>
                 </div>
             </section>
@@ -521,7 +521,7 @@
                                 {{-- <span class="product-label label-sale">-13%</span> --}}
                             </div>
                             <div class="btn-icon-group">
-                                <a href="#" class="btn-icon btn-add-cart product-type-simple"><i
+                                <a href="#" class="btn-icon redirectLogin product-type-simple"><i
                                         class="icon-shopping-cart"></i></a>
                             </div>
                             <a href="#" class="btn-quickview" title="Quick View">Quick View</a>
@@ -861,7 +861,7 @@
                 <div class="row justify-content-center">
                     <div class="col-6 justify-content-center">
                         <a href="{{url('/')}}/social/auth/google"><button type="button" class="btn btn-info btn-block rounded">Sign in to select address</button></a>
-                        
+
                         {{-- <input type="button" class="btn btn-warning" value="Submit" id="btnCurrentPincode"> --}}
                     </div>
                 </div>
@@ -869,7 +869,7 @@
                     <div class="col-4">
                         <h5 class="text-center my-3">or</h5>
                     </div>
-                </div>               
+                </div>
                 <div class="row justify-content-center">
                     <div class="col-8 newsletter-popup-content" id="divLocationInputs">
                         <div class="input-group">
@@ -899,8 +899,9 @@
     <script src="{{url('/')}}/home/assets/js/main.js"></script>
     <script>
          $(document).ready(function() {
-
-
+             $('.redirectLogin').on('click', function(){
+                 window.location.replace($('#loginBtn').attr('href'));
+             });
         });
     </script>
 </body>

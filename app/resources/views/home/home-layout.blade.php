@@ -697,27 +697,31 @@
                 });
             };
 
-            $(document).on('click', '.btnAddCart', function () {
+             $(document).on('click', '.btnAddCart', function () {
 
-                let FormData = {
-                    'ProductID' : $(this).attr('id'),
-                }
-                $.ajax({
-                    type:"post",
-                    data: FormData,
-                    url:"{{ route('add-cart') }}",
-                    headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
-                    dataType:"json",
-                    error:function(e, x, settings, exception){ajaxErrors(e, x, settings, exception);},
-                    complete: function(e, x, settings, exception){},
-                    success:function(response){
-                        if(response.status){
-                            LoadCart(response.data);
-                            UpdateItemQtyCount(response.data.length);
-                        }
-                    }
-                });
-            });
+                 let FormData = {
+                     'ProductID': $(this).attr('id'),
+                 }
+                 $.ajax({
+                     type: "post",
+                     data: FormData,
+                     url: "{{ route('add-cart') }}",
+                     headers: {'X-CSRF-Token': $('meta[name=_token]').attr('content')},
+                     dataType: "json",
+                     error: function (e, x, settings, exception) {
+                         ajaxErrors(e, x, settings, exception);
+                     },
+                     complete: function (e, x, settings, exception) {
+                     },
+                     success: function (response) {
+                         if (response.status) {
+                             LoadCart(response.data);
+                             UpdateItemQtyCount(response.data.length);
+                         }
+                     }
+                 });
+             });
+
             $(document).on('input', '.txtUpdateQty', function () {
                 let Qty = $(this).val();
                 if(Qty > 0){
