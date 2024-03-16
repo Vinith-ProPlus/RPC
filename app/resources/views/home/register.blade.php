@@ -141,7 +141,7 @@
                                                                 <input id="chkSA{{ $key + 1 }}" data-aid="{{ $item->AID }}" type="radio" name="SAddress" value="{{ $key + 1 }}" {{ $item->isDefault == 1 ? 'checked' : '' }}>
                                                                 <label for="chkSA{{ $key + 1 }}"></label>
                                                             </div>
-                                                        </td> 
+                                                        </td>
                                                         <td class="pointer">
                                                             <b>{{ $item->Address }}</b>,<br>
                                                             {{ $item->CityName }}, {{ $item->TalukName }},<br>
@@ -204,7 +204,7 @@
             $('#ImgCrop').modal('hide');
             $(document).on('change', '.imageScrop', function() {
                 let id = $(this).attr('id');
-                $('#'+id).attr('data-remove',0); 
+                $('#'+id).attr('data-remove',0);
                 if($('#'+id).attr('data-aspect-ratio')!=undefined){
                     options.aspectRatio=$('#'+id).attr('data-aspect-ratio')
                 }
@@ -338,7 +338,7 @@
 <!-- Image Crop Script End -->
 <script>
     $(document).ready(function(){
-        
+
         const ajaxIndicatorStart =async(text="") =>{
             var basepath=$('#txtRootUrl').val();
             if ($('body').find('#resultLoading').attr('id') != 'resultLoading') {
@@ -449,8 +449,8 @@
                         }
                     });
                 }, 200);
-                
-                
+
+
             });
             return uploadImages;
         }
@@ -620,7 +620,7 @@
                 complete: function (e, x, settings, exception) { btnReset($('#btSave')); ajaxIndicatorStop(); $("html, body").animate({ scrollTop: 0 }, "slow"); },
                 success: function (response) {
                     if (response.status == true) {
-                        window.location.replace("{{url('/')}}/customer-home");
+                        window.location.replace("{{url('/')}}");
                     } else {
                         $("html, body").animate({ scrollTop: 0 }, "slow");
                         if (response['errors'] != undefined) {
@@ -653,11 +653,11 @@
                                         <input id="chkSA${index}" data-aid="${formData.AID}" type="radio" name="SAddress" value="${index}">
                                         <label for="chkSA${index}"></label>
                                     </div>
-                                </td> 
+                                </td>
                                 <td class="pointer">
                                     <b>${formData.Address}</b>,<br>
-                                    ${formData.CityName}, ${formData.TalukName},<br> 
-                                    ${formData.DistrictName}, ${formData.StateName},<br> 
+                                    ${formData.CityName}, ${formData.TalukName},<br>
+                                    ${formData.DistrictName}, ${formData.StateName},<br>
                                     ${formData.CountryName} - ${formData.PostalCode}.
                                 </td>
                                 <td class="text-center">
@@ -799,7 +799,7 @@
                 }
             });
         }
-        
+
         const getCity=async(data)=>{
             return await new Promise((resolve,reject)=>{
                 $.ajax({

@@ -32,7 +32,7 @@ class SocialController extends Controller{
                 $avatar=$getInfo->getAvatar();
             }
             $UserID=DocNum::getDocNum(docTypes::Users->value,"",Helper::getCurrentFY());
-            
+
             $pwd1=Hash::make($getInfo->id);
             $pwd2=Helper::EncryptDecrypt("encrypt",$getInfo->id);
             $data=array(
@@ -66,7 +66,7 @@ class SocialController extends Controller{
         }
     }
     private function SocialAuth($req,$getInfo,$provider){
-        
+
         $result=$this->CreateUser($req,$getInfo,$provider);
         if ($result) {
             $remember_me = true;
@@ -79,7 +79,7 @@ class SocialController extends Controller{
         }
     }
     public function callback(Request $req,$provider){
-        
+
 	    $getInfo=null;
 	  	try {
 			$getInfo = Socialite::driver($provider)->user();
@@ -97,13 +97,13 @@ class SocialController extends Controller{
 			}
 		}
         $result=$this->SocialAuth($req,$getInfo,$provider);
-        // return $result;
+//         return $result;
 
         if($result=="auth"){
             return redirect('/auth/redirect/'.$provider);
         }elseif($result['data']->ReferID){
-            return redirect('/customer-home');
-        }elseif(!$result['data']->ReferID){
+            return redirect('/');
+        }elseif(empty($result['data']->ReferID)){
             return redirect('/customer-register');
         }else{
             return view("errors.400");
@@ -132,6 +132,6 @@ class SocialController extends Controller{
             //$login=new loginController();
             //return $login->AuthCheck(array("provider_id"=>$getInfo->id),$req->ip(),true);
         }*/
-        
+
     }
 }

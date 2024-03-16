@@ -30,7 +30,7 @@
     <link rel="stylesheet" type="text/css" href="{{url('/')}}/assets/css/select2.css?r={{date('YmdHis')}}">
     <link rel="stylesheet" type="text/css" href="{{url('/')}}/assets/css/select2.css?r={{date('YmdHis')}}">
     {{-- <link rel="stylesheet" type="text/css" href="{{url('/')}}/assets/css/bootstrap.css?r={{date('YmdHis')}}"> --}}
-    
+
 <script>
     WebFontConfig = {
         google: { families: [ 'Open+Sans:400,600', 'Poppins:400,500,600,700' ] }
@@ -42,7 +42,7 @@
         s.parentNode.insertBefore( wf, s );
     } )( document );
 </script>
-    
+
 </head>
 
 <body>
@@ -89,7 +89,9 @@
                                 </div>
                             </div>
                             <div class="header-dropdown" style="display: inline-block;margin-left:0">
-                                <a href="#" style="margin-top:10px">{{ $ShippingAddress[0]->Address }}, {{ $ShippingAddress[0]->CityName }}, {{ $ShippingAddress[0]->TalukName }}, {{ $ShippingAddress[0]->DistrictName }}, {{ $ShippingAddress[0]->StateName }},{{ $ShippingAddress[0]->CountryName }} - {{ $ShippingAddress[0]->PostalCode }}.</a>                                
+                                <a href="#" style="margin-top:10px">
+                                    @if(isset($ShippingAddress[0])) {{ $ShippingAddress[0]->Address ?? '' }}, {{ $ShippingAddress[0]->CityName }}, {{ $ShippingAddress[0]->TalukName }}, {{ $ShippingAddress[0]->DistrictName }}, {{ $ShippingAddress[0]->StateName }},{{ $ShippingAddress[0]->CountryName }} - {{ $ShippingAddress[0]->PostalCode }}.@endif
+                                </a>
                                 <div class="header-menu">
                                     <ul>
                                         @foreach ($ShippingAddress as $item)
@@ -104,7 +106,7 @@
                     <div class="header-right header-dropdowns ml-0 ml-md-auto w-md-100">
                         <div class="header-dropdown mr-auto mr-md-0">
                             <div class="header-menu">
-                                
+
                             </div><!-- End .header-menu -->
                         </div><!-- End .header-dropown -->
 						<ul class="top-links mega-menu d-none d-xl-flex mb-0 pr-2">
@@ -202,7 +204,7 @@
                                                         <h4 class="product-title">
                                                             <a href="#">{{$item->ProductName}}</a>
                                                         </h4>
-        
+
                                                         <span class="cart-product-info">
                                                             <span class="cart-product-qty">
                                                                 <div class="input-group" style="width: 80%;">
@@ -210,11 +212,11 @@
                                                                     <div class="input-group-append">
                                                                         <span class="input-group-text">{{$item->UName}} ({{$item->UName}})</span>
                                                                     </div>
-                                                                </div>                                                         
+                                                                </div>
                                                             </span>
                                                         </span>
                                                     </div>
-        
+
                                                     <figure class="product-image-container">
                                                         <a href="demo42-product.html" class="product-image">
                                                             <img src="{{$item->ProductImage}}" alt="product" width="80" height="80">
@@ -226,7 +228,7 @@
                                         @else
                                         <span>Your Cart is Empty!</span>
                                         @endif
-                                        
+
                                         {{-- <div class="product">
                                             <div class="product-details">
                                                 <h4 class="product-title">
@@ -639,7 +641,7 @@
     <script src="{{url('/')}}/home/assets/js/plugins.min.js"></script>
     <script src="{{url('/')}}/home/assets/js/jquery.appear.min.js"></script>
     <script src="{{url('/')}}/home/assets/js/jquery.plugin.min.js"></script>
-    <script src="{{url('/')}}/home/assets/js/main.js"></script>		
+    <script src="{{url('/')}}/home/assets/js/main.js"></script>
     <script src="{{url('/')}}/assets/plugins/dropify/js/dropify.js?r={{date('YmdHis')}}"></script>
     <script src="{{url('/')}}/assets/plugins/image-cropper/cropper.js?r={{date('YmdHis')}}"></script>
     <script src="{{url('/')}}/assets/js/address-web.js?r={{date('YmdHis')}}"></script>
@@ -679,7 +681,7 @@
                                                         <div class="input-group-append">
                                                             <span class="input-group-text">${item.UName} (${item.UName})</span>
                                                         </div>
-                                                    </div>                                                         
+                                                    </div>
                                                 </span>
                                             </span>
                                         </div>
@@ -696,7 +698,7 @@
             };
 
             $(document).on('click', '.btnAddCart', function () {
-                
+
                 let FormData = {
                     'ProductID' : $(this).attr('id'),
                 }

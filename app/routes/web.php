@@ -73,16 +73,16 @@ Route::controller(generalController::class)->group(function () {
     Route::post('/get/vehicle-type','getVehicleType');
     Route::post('/get/vehicle-brand','getVehicleBrand');
     Route::post('/get/vehicle-model','getVehicleModel');
-    
+
     Route::POST('/vehicle-type/create-form','getNewVehicleType');
     Route::POST('/vehicle-type/create','createVehicleType');
-    
+
     Route::POST('/vehicle-brand/create-form','getNewVehicleBrand');
     Route::POST('/vehicle-brand/create','createVehicleBrand');
-    
+
     Route::POST('/vehicle-model/create-form','getNewVehicleModel');
     Route::POST('/vehicle-model/create','createVehicleModel');
-    
+
     Route::POST('/tax/create-form','getNewTax');
     Route::POST('/uom/create-form','getNewUOM');
 
@@ -99,7 +99,7 @@ Route::controller(generalController::class)->group(function () {
     Route::POST('/bank-account-type/create','createBankAccountType');
 
     Route::POST('address-form','getNewAddress');
-    
+
     Route::middleware('auth')->group(function () {
         Route::post('/theme/update','themeUpdate');
         Route::POST('/financial-year/update-active','updateActiveFinancialYear');
@@ -108,13 +108,14 @@ Route::controller(generalController::class)->group(function () {
 Route::controller(HomeController::class)->group(function () {
     Route::get('/', 'GuestView');
 });
+
 Route::controller(HomeAuthController::class)->group(function () {
-    Route::get('/customer-register', 'Register');
+    Route::get('/customer-register', 'Register')->name('customer-register');
     Route::get('/customer-profile', 'Profile');
     Route::post('/save', 'Save');
     Route::post('/update', 'Update');
     Route::get('/customer-home', 'Home');
-    
+
     Route::post('/get/cart','getCart');
     Route::post('/add-cart','AddCart')->name('add-cart');
     Route::post('/update-cart','UpdateCart');
@@ -165,7 +166,7 @@ Route::group(['prefix'=>'admin'],function (){
         Route::group(['prefix'=>'users-and-permissions'],function (){
             require __DIR__.'/web/users.php';
         });
-        
+
     });
 });
 require __DIR__.'/auth.php';
