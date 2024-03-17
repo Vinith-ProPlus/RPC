@@ -33,7 +33,7 @@ class QuoteEnquiryController extends Controller{
     public function __construct(){
 		$this->ActiveMenuName=activeMenuNames::QuoteEnquiry->value;
 		$this->PageTitle="Quote Enquiry";
-        $this->middleware('auth');    
+        $this->middleware('auth');
 		$this->middleware(function ($request, $next) {
 			$this->UserID=auth()->user()->UserID;
 			$this->general=new general($this->UserID,$this->ActiveMenuName);
@@ -171,11 +171,11 @@ class QuoteEnquiryController extends Controller{
 				}elseif($EnqData->Status == "Converted to Quotation"){
 					$FinalQuoteData = DB::Table($this->currfyDB.'tbl_quotation_details as QD')->join($this->currfyDB.'tbl_quotation as Q','Q.QID','QD.QID')->join('tbl_vendors as V','V.VendorID','QD.VendorID')->join('tbl_products as P','P.ProductID','QD.ProductID')->join('tbl_uom as UOM','UOM.UID','P.UID')->where('Q.EnqID',$EnqID)->get();
 				}
-				
+
 				$FormData['PData'] = $PData;
 				$FormData['VendorQuote'] = $VendorQuote;
 				$FormData['FinalQuoteData'] = $FinalQuoteData;
-				// return $FormData['VendorQuote'];	
+				// return $FormData['VendorQuote'];
 				return view('app.transaction.quote-enquiry.quote-view', $FormData);
 			}else{
 				return view('errors.403');
@@ -220,7 +220,7 @@ class QuoteEnquiryController extends Controller{
 										"ProductID" => $item->ProductID,
 										"Qty" => $item->Qty,
 									];
-									
+
 									$status = DB::table($this->currfyDB . 'tbl_vendor_quotation_details')->insert($data1);
 									if ($status) {
 										DocNum::updateDocNum(docTypes::VendorQuotationDetails->value, $this->currfyDB);
@@ -249,7 +249,7 @@ class QuoteEnquiryController extends Controller{
 			return array('status'=>false,'message'=>'Access denined');
 		}
 	}
-	
+
 	public function AddQuotePrice(Request $req){
 		DB::beginTransaction();
         try {
@@ -315,7 +315,7 @@ class QuoteEnquiryController extends Controller{
             return response()->json(['status' => false,'message' => "Quote Reject Failed!"]);
         }
 	}
-	
+
     public function QuoteConvert(Request $req,$EnqID){
 		if($this->general->isCrudAllow($this->CRUD,"edit")==true){
 			$OldData=array();$NewData=array();
@@ -359,7 +359,7 @@ class QuoteEnquiryController extends Controller{
 						$totalCGST += $cgstAmount;
 						$totalSGST += $sgstAmount;
 						$totalQuoteValue += $totalAmount;
-					
+
 						$QDetailID = DocNum::getDocNum(docTypes::QuotationDetails->value, $this->currfyDB,Helper::getCurrentFy());
 						$data1=[
 							"DetailID" => $QDetailID,
@@ -439,7 +439,7 @@ class QuoteEnquiryController extends Controller{
 			return array('status'=>false,'message'=>'Access denined');
 		}
 	}
-	
+
 	public function Delete(Request $req,$EnqID){
 		$OldData=$NewData=array();
 		if($this->general->isCrudAllow($this->CRUD,"delete")==true){
@@ -449,7 +449,7 @@ class QuoteEnquiryController extends Controller{
 				$OldData=DB::table($this->currfyDB.'tbl_enquiry')->where('EnqID',$EnqID)->get();
 				$status=DB::table($this->currfyDB.'tbl_enquiry')->where('EnqID',$EnqID)->update(array("Status"=>"Cancelled","DeletedBy"=>$this->UserID,"CancelledBy"=>$this->UserID,"DeletedOn"=>date("Y-m-d H:i:s")));
 			}catch(Exception $e) {
-				
+
 			}
 			if($status==true){
 				DB::commit();
@@ -474,7 +474,7 @@ class QuoteEnquiryController extends Controller{
 				$OldData=DB::table($this->currfyDB.'tbl_enquiry')->where('EnqID',$EnqID)->get();
 				$status=DB::table($this->currfyDB.'tbl_enquiry')->where('EnqID',$EnqID)->update(array("Status"=>"New","UpdatedBy"=>$this->UserID,"UpdatedOn"=>date("Y-m-d H:i:s")));
 			}catch(Exception $e) {
-				
+
 			}
 			if($status==true){
 				DB::commit();
@@ -502,7 +502,7 @@ class QuoteEnquiryController extends Controller{
 				array( 'db' => 'CustomerID', 'dt' => '5',
 					'formatter' => function( $d, $row ) {
 						return DB::table('tbl_customer')->where('CustomerID',$d)->value('Email');
-					} 
+					}
 				),
 				array( 'db' => 'Status','dt' => '6',
 					'formatter' => function( $d, $row ) {
@@ -517,10 +517,10 @@ class QuoteEnquiryController extends Controller{
 							$html="<span class='badge badge-success m-1'>".$d."</span>";
 						}
 						return $html;
-					} 
+					}
 				),
-				array( 
-						'db' => 'EnqID', 
+				array(
+						'db' => 'EnqID',
 						'dt' => '7',
 						'formatter' => function( $d, $row ) {
 							$html='';
@@ -535,7 +535,7 @@ class QuoteEnquiryController extends Controller{
 								$html.='<button type="button" data-id="'.$d.'" class="btn btn-outline-danger '.$this->general->UserInfo['Theme']['button-size'].'  btnDelete" data-original-title="Delete">Cancel</button>';
 							}
 							return $html;
-						} 
+						}
 				)
 			);
 			$data=array();
@@ -572,7 +572,7 @@ class QuoteEnquiryController extends Controller{
 							$html="<span class='badge badge-success m-1'>".$d."</span>";
 						}
 						return $html;
-					} 
+					}
 				),
 				array( 'db' => 'VendorID','dt' => '7',
 					'formatter' => function( $d, $row ) {
@@ -583,8 +583,8 @@ class QuoteEnquiryController extends Controller{
 						}
 					}
 				),
-				array( 
-						'db' => 'QID', 
+				array(
+						'db' => 'QID',
 						'dt' => '8',
 						'formatter' => function( $d, $row ) {
 							$html='';
@@ -599,7 +599,7 @@ class QuoteEnquiryController extends Controller{
 								$html.='<button type="button" data-id="'.$d.'" class="btn btn-outline-danger '.$this->general->UserInfo['Theme']['button-size'].'  btnDelete" data-original-title="Delete">Cancel</button>';
 							}
 							return $html;
-						} 
+						}
 				)
 			);
 			$data=array();
@@ -627,15 +627,15 @@ class QuoteEnquiryController extends Controller{
 				array( 'db' => 'CustomerID', 'dt' => '5',
 					'formatter' => function( $d, $row ) {
 						return DB::table('tbl_customer')->where('CustomerID',$d)->value('Email');
-					} 
+					}
 				),
 				array( 'db' => 'Status','dt' => '6',
 					'formatter' => function( $d, $row ) {
 						return "<span class='badge badge-danger m-1'>".$d."</span>";
-					} 
+					}
 				),
-				array( 
-						'db' => 'EnqID', 
+				array(
+						'db' => 'EnqID',
 						'dt' => '7',
 						'formatter' => function( $d, $row ) {
 							$html='';
@@ -643,7 +643,7 @@ class QuoteEnquiryController extends Controller{
 								$html='<button type="button" data-id="'.$d.'" class="btn btn-outline-success btn-sm  m-2 btnRestore"> <i class="fa fa-repeat" aria-hidden="true"></i> </button>';
 							}
 							return $html;
-						} 
+						}
 				)
 			);
 			$data=array();
@@ -672,7 +672,7 @@ class QuoteEnquiryController extends Controller{
 			->where('CU.DFlag', 0)->where('CU.ActiveStatus', 'Active')
 			->select('CU.*','C.CountryName','S.StateName','D.DistrictName','T.TalukName','CI.CityName','PC.PostalCode')
 			->get();
-	
+
 			foreach($Customers as $customer){
 				$billingAddressParts = array_map('trim', [
 					$customer->Address,
@@ -684,7 +684,7 @@ class QuoteEnquiryController extends Controller{
 					$customer->PostalCode
 				]);
 				$customer->BillingAddress = json_encode($billingAddressParts);
-			
+
 				$customer->DeliverAddress = [];
 				$ShippingAddresses = DB::table('tbl_customer_address as CA')
 					->join($this->generalDB.'tbl_countries as C','C.CountryID','CA.CountryID')
@@ -696,7 +696,7 @@ class QuoteEnquiryController extends Controller{
 					->where('CA.CustomerID', $customer->CustomerID)
 					->select('CA.*','C.CountryName','S.StateName','D.DistrictName','T.TalukName','CI.CityName','PC.PostalCode')
 					->get();
-			
+
 				foreach($ShippingAddresses as $shippingAddress){
 					$addressParts = array_map('trim', [
 						$shippingAddress->Address,
@@ -709,13 +709,13 @@ class QuoteEnquiryController extends Controller{
 					]);
 					$customer->DeliverAddress[] = json_encode($addressParts);
 				}
-			
+
 				$customer->DeliverAddress = count($customer->DeliverAddress) > 0 ? json_encode($customer->DeliverAddress) : [];
 			}
-	
+
 		return $Customers;
 	}
-	
+
 	public function GetVendorQuote(request $req){
 		$QuoteReqData = DB::table($this->currfyDB.'tbl_vendor_quotation as VQ')
 		->leftJoin($this->currfyDB.'tbl_enquiry as E','E.EnqID','VQ.EnqID')
@@ -736,7 +736,7 @@ class QuoteEnquiryController extends Controller{
             ->get();
 		return $QuoteReqData;
 	}
-	
+
 	public function GetVendorQuoteDetails(request $req){
 		$VendorDB = Helper::getVendorDB($req->VendorID, $this->UserID);
 		return DB::Table($VendorDB.'tbl_quotation_sent_details as QSD')->join('tbl_products as P','P.ProductID','QSD.ProductID')->join('tbl_uom as UOM','UOM.UID','QSD.UOMID')->where('QSD.QuoteSentID',$req->QuoteSentID)
