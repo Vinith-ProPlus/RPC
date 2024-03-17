@@ -425,16 +425,23 @@ class HomeAuthController extends Controller{
             foreach($PCatagories as $row){
                 $row->PSCData = DB::table('tbl_vendors_product_mapping as VPM')
                 ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'VPM.PSCID')
-                ->where('VPM.Status',1)->WhereIn('VPM.VendorID',$AllVendors)
+                ->where('VPM.Status',1)->where('PSC.PCID',$row->PCID)->WhereIn('VPM.VendorID',$AllVendors)
                 ->groupBy('PSC.PSCID', 'PSC.PSCName')
                 ->select('PSC.PSCID','PSC.PSCName')->get();
+                foreach($row->PSCData as $item){
+					$item->ProductData = DB::table('tbl_vendors_product_mapping as VPM')
+                    ->leftJoin('tbl_products as P', 'P.ProductID', 'VPM.ProductID')
+                    ->where('VPM.Status',1)->where('P.CID',$row->PCID)->where('P.SCID',$item->PSCID)->WhereIn('VPM.VendorID',$AllVendors)
+                    ->groupBy('P.ProductID', 'P.ProductName')
+                    ->select('P.ProductID','P.ProductName')->get();
+				}
             }
             return $PCatagories;
         }else{
             return [];
         }
     }
-	
+
 	public function Checkout(Request $req){
 		$CustomerID = $this->ReferID;
 		
@@ -640,8 +647,5 @@ class HomeAuthController extends Controller{
             return response()->json(['status' => false,'message' => "Product Deleted Failed!"]);
         }
     }
-	
-
-
 	
 }
