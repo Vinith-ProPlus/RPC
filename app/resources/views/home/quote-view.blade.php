@@ -8,24 +8,14 @@
 }
 </style>
 <div class="container-fluid">
-	<div class="page-header">
-		<div class="row">
-			<div class="col-sm-12">
-				<ol class="breadcrumb">
-					<li class="breadcrumb-item"><a href="{{ url('/') }}" data-original-title="" title=""><i class="f-16 fa fa-home"></i></a></li>
-					<li class="breadcrumb-item">Transaction</li>
-					<li class="breadcrumb-item"><a href="{{ url('/') }}/admin/transaction/quote-enquiry/" data-original-title="" title="">{{$PageTitle}}</a></li>
-                    <li class="breadcrumb-item">Quote View</li>
-				</ol>
-			</div>
-		</div>
-	</div>
-</div>
-<div class="container-fluid">
 	<div class="row d-flex justify-content-center">
 		<div class="col-12 col-sm-12 col-lg-12">
 			<div class="card">
-				<div class="card-header text-center"><h5 class="mt-10">Quote Enquiry ( {{$EnqData->EnqNo}} )</h5></div>
+                <ul class="checkout-progress-bar d-flex justify-content-center flex-wrap">
+                    <li class="active">
+                        <a href="#">Quote Enquiry ( {{$EnqData->EnqNo}} )</a>
+                    </li>
+                </ul>
 				<div class="card-body">
                     <div class="row">
                         <div class="col-sm-12">

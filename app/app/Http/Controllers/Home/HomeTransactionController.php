@@ -37,6 +37,7 @@ class HomeTransactionController extends Controller{
     private $CRUD;
     private $Settings;
     private $Menus;
+    private $shippingAddress;
 
 
     public function __construct()
@@ -63,6 +64,15 @@ class HomeTransactionController extends Controller{
             $this->Menus=$this->general->loadMenu();
             $this->CRUD=$this->general->getCrudOperations($this->ActiveMenuName);
             $this->Settings=$this->general->getSettings();
+            $this->shippingAddress = DB::table('tbl_customer_address as CA')->where('CustomerID',$this->ReferID)
+                ->join($this->generalDB.'tbl_countries as C','C.CountryID','CA.CountryID')
+                ->join($this->generalDB.'tbl_states as S', 'S.StateID', 'CA.StateID')
+                ->join($this->generalDB.'tbl_districts as D', 'D.DistrictID', 'CA.DistrictID')
+                ->join($this->generalDB.'tbl_taluks as T', 'T.TalukID', 'CA.TalukID')
+                ->join($this->generalDB.'tbl_cities as CI', 'CI.CityID', 'CA.CityID')
+                ->join($this->generalDB.'tbl_postalcodes as PC', 'PC.PID', 'CA.PostalCodeID')
+                ->select('CA.AID', 'CA.Address', 'CA.isDefault', 'CA.CountryID', 'C.CountryName', 'CA.StateID', 'S.StateName', 'CA.DistrictID', 'D.DistrictName', 'CA.TalukID', 'T.TalukName', 'CA.CityID', 'CI.CityName', 'CA.PostalCodeID', 'PC.PostalCode')
+                ->get();
             return $next($request);
         });
     }
@@ -80,15 +90,7 @@ class HomeTransactionController extends Controller{
         $FormData['PCategories']=$this->PCategories;
         $FormData['isRegister']=false;
         $FormData['Cart']=$this->getCart();
-        $FormData['ShippingAddress']=DB::table('tbl_customer_address as CA')->where('CustomerID',$CustomerID)
-            ->join($this->generalDB.'tbl_countries as C','C.CountryID','CA.CountryID')
-            ->join($this->generalDB.'tbl_states as S', 'S.StateID', 'CA.StateID')
-            ->join($this->generalDB.'tbl_districts as D', 'D.DistrictID', 'CA.DistrictID')
-            ->join($this->generalDB.'tbl_taluks as T', 'T.TalukID', 'CA.TalukID')
-            ->join($this->generalDB.'tbl_cities as CI', 'CI.CityID', 'CA.CityID')
-            ->join($this->generalDB.'tbl_postalcodes as PC', 'PC.PID', 'CA.PostalCodeID')
-            ->select('CA.AID', 'CA.Address', 'CA.isDefault', 'CA.CountryID', 'C.CountryName', 'CA.StateID', 'S.StateName', 'CA.DistrictID', 'D.DistrictName', 'CA.TalukID', 'T.TalukName', 'CA.CityID', 'CI.CityName', 'CA.PostalCodeID', 'PC.PostalCode')
-            ->get();
+        $FormData['ShippingAddress']= $this->shippingAddress;
         return view('home.quotations', $FormData);
     }
 
@@ -157,6 +159,7 @@ class HomeTransactionController extends Controller{
         $FormData['isEdit'] = false;
         $FormData['isRegister']=false;
         $FormData['Cart']=$this->getCart();
+        $FormData['ShippingAddress']= $this->shippingAddress;
         $FormData['Settings'] = $this->Settings;
         $EnqData = DB::Table($this->currfyDB . 'tbl_enquiry as E')
                 ->leftJoin('tbl_customer as CU', 'CU.CustomerID', 'E.CustomerID')
