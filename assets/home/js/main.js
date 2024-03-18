@@ -770,308 +770,308 @@
 				this.classList.remove( 'gutter-lg' );
 			}
 
-			var sliderCustomOptionsArray = {
-				'.home-slider': {
-					lazyLoad: false,
-					autoplay: false,
-					dots: false,
-					nav: true,
-					autoplayTimeout: 12000,
-					animateOut: 'fadeOut',
-					navText: [ '<i class="icon-left-open-big">', '<i class="icon-right-open-big">' ],
-					loop: true
-				},
-				'.testimonials-carousel': {
-					lazyLoad: false,
-					autoHeight: true,
-					responsive: {
-						992: {
-							items: 2
-						}
-					}
-				},
-				'.featured-products': {
-					loop: false,
-					margin: 30,
-					autoplay: false,
-					responsive: {
-						0: {
-							items: 2
-						},
-						700: {
-							items: 3,
-							margin: 15
-						},
-						1200: {
-							items: 4
-						}
-					}
-				},
-				'.cats-slider': {
-					loop: false,
-					margin: 20,
-					autoplay: false,
-					nav: true,
-					dots: false,
-					items: 2,
-					responsive: {
-						576: {
-							items: 3
-						},
-						992: {
-							items: 4,
-						},
-						1200: {
-							items: 5,
-						},
-						1400: {
-							items: 6
-						}
-					}
-				},
-
-				'.products-slider.5col': {
-					loop: false,
-					margin: 20,
-					autoplay: false,
-					dots: false,
-					items: 2,
-					responsive: {
-						576: {
-							items: 3
-						},
-						768: {
-							items: 4
-						},
-						992: {
-							items: 5,
-						}
-					}
-				},
-
-				'.products-slider': {
-					loop: false,
-					margin: 20,
-					autoplay: false,
-					dots: true,
-					items: 2,
-					responsive: {
-						576: {
-							items: 3
-						},
-						992: {
-							items: 4,
-						}
-					}
-				},
-
-				'.home-slider': {
-					lazyLoad: false,
-					autoplay: false,
-					dots: false,
-					nav: true,
-					autoplayTimeout: 12000,
-					animateOut: 'fadeOut',
-					navText: [ '<i class="icon-left-open-big">', '<i class="icon-right-open-big">' ],
-					loop: true
-				},
-
-				'.quantity-inputs': {
-					items: 2,
-					margin: 20,
-					dots: false,
-					nav: true,
-					responsive: {
-						992: {
-							items: 4
-						},
-						768: {
-							items: 3
-						}
-					},
-					onInitialized: function () {
-						this.$element.find( '.horizontal-quantity' ).val( 1 );
-					}
-				},
-
-				'.banners-slider': {
-					dots: true,
-					loop: false,
-					margin: 20,
-					responsive: {
-						576: {
-							items: 2
-						},
-						992: {
-							items: 3
-						}
-					}
-				},
-
-				'.brands-slider': {
-					loop: false,
-					margin: 20,
-					autoHeight: true,
-					autoplay: false,
-					dots: false,
-					navText: [ '<i class="icon-left-open-big">', '<i class="icon-right-open-big">' ],
-					items: 2,
-					responsive: {
-						0: {
-							items: 2
-						},
-						480: {
-							items: 3
-						},
-						768: {
-							items: 4
-						},
-						991: {
-							items: 5
-						},
-						1200: {
-							items: 6
-						}
-					}
-				},
-
-				'.instagram-feed-carousel': {
-					loop: true,
-					dots: false,
-					autoplay: false,
-					responsive: {
-						0: {
-							items: 2
-						},
-						480: {
-							items: 3
-						},
-						768: {
-							items: 5
-						},
-						992: {
-							items: 6
-						},
-						1200: {
-							items: 7
-						},
-						1400: {
-							items: 8
-						},
-						1600: {
-							items: 9
-						},
-						1800: {
-							items: 10
-						}
-					}
-				},
-
-				'.widget-featured-products': {
-					margin: 20,
-					lazyLoad: true,
-					nav: true,
-					navText: [ '<i class="icon-angle-left">', '<i class="icon-angle-right">' ],
-					dots: false,
-					autoHeight: true
-				},
-
-				'.entry-slider': {
-					margin: 0,
-					lazyLoad: true,
-				},
-
-				// Single.html - Related posts
-				'.related-posts-carousel': {
-					loop: false,
-					margin: 30,
-					autoplay: false,
-					responsive: {
-						480: {
-							items: 2
-						},
-						1200: {
-							items: 3
-						}
-					}
-				},
-
-				'.boxed-slider': {
-					lazyLoad: true,
-					autoplayTimeout: 20000,
-					animateOut: 'fadeOut',
-					dots: false
-				},
-
-				// About Slider
-				'.about-slider': {
-					margin: 0,
-					lazyLoad: true
-				},
-
-				// Product single carousel - Default layout
-				'.product-single-default .product-single-carousel': {
-					margin: 0,
-					nav: true,
-					loop: false,
-					dotsContainer: '#carousel-custom-dots',
-					autoplay: false,
-					onResized: function () {
-						var $source = this.$element;
-
-						if ( $.fn.elevateZoom ) {
-							$source.find( 'img' ).each( function () {
-								var $this = $( this ),
-									zoomConfig = {
-										responsive: true,
-										zoomWindowFadeIn: 350,
-										zoomWindowFadeOut: 200,
-										borderSize: 0,
-										zoomContainer: $this.parent(),
-										zoomType: 'inner',
-										cursor: 'grab'
-									};
-
-								$this.elevateZoom( zoomConfig );
-							} );
-						}
-					},
-
-					onInitialized: function () {
-						var $source = this.$element;
-
-						if ( $.fn.elevateZoom ) {
-							$source.find( 'img' ).each( function () {
-								var $this = $( this ),
-									zoomConfig = {
-										responsive: true,
-										zoomWindowFadeIn: 350,
-										zoomWindowFadeOut: 200,
-										borderSize: 0,
-										zoomContainer: $this.parent(),
-										zoomType: 'inner',
-										cursor: 'grab'
-									};
-
-								$this.elevateZoom( zoomConfig );
-							} );
-						}
-					}
-				},
-
-				// Product single carousel - Extended layout
-				'.product-single-extended .product-single-carousel': {
-					dots: false,
-					autoplay: false,
-					center: true,
-					items: 1,
-					responsive: {
-						768: {
-							items: 3
-						}
-					}
-				}
-			};
+			// var sliderCustomOptionsArray = {
+			// 	'.home-slider': {
+			// 		lazyLoad: false,
+			// 		autoplay: false,
+			// 		dots: false,
+			// 		nav: true,
+			// 		autoplayTimeout: 12000,
+			// 		animateOut: 'fadeOut',
+			// 		navText: [ '<i class="icon-left-open-big">', '<i class="icon-right-open-big">' ],
+			// 		loop: true
+			// 	},
+			// 	'.testimonials-carousel': {
+			// 		lazyLoad: false,
+			// 		autoHeight: true,
+			// 		responsive: {
+			// 			992: {
+			// 				items: 2
+			// 			}
+			// 		}
+			// 	},
+			// 	'.featured-products': {
+			// 		loop: false,
+			// 		margin: 30,
+			// 		autoplay: false,
+			// 		responsive: {
+			// 			0: {
+			// 				items: 2
+			// 			},
+			// 			700: {
+			// 				items: 3,
+			// 				margin: 15
+			// 			},
+			// 			1200: {
+			// 				items: 4
+			// 			}
+			// 		}
+			// 	},
+			// 	'.cats-slider': {
+			// 		loop: false,
+			// 		margin: 20,
+			// 		autoplay: false,
+			// 		nav: true,
+			// 		dots: false,
+			// 		items: 2,
+			// 		responsive: {
+			// 			576: {
+			// 				items: 3
+			// 			},
+			// 			992: {
+			// 				items: 4,
+			// 			},
+			// 			1200: {
+			// 				items: 5,
+			// 			},
+			// 			1400: {
+			// 				items: 6
+			// 			}
+			// 		}
+			// 	},
+			//
+			// 	'.products-slider.5col': {
+			// 		loop: false,
+			// 		margin: 20,
+			// 		autoplay: false,
+			// 		dots: false,
+			// 		items: 2,
+			// 		responsive: {
+			// 			576: {
+			// 				items: 3
+			// 			},
+			// 			768: {
+			// 				items: 4
+			// 			},
+			// 			992: {
+			// 				items: 5,
+			// 			}
+			// 		}
+			// 	},
+			//
+			// 	'.products-slider': {
+			// 		loop: false,
+			// 		margin: 20,
+			// 		autoplay: false,
+			// 		dots: true,
+			// 		items: 2,
+			// 		responsive: {
+			// 			576: {
+			// 				items: 3
+			// 			},
+			// 			992: {
+			// 				items: 4,
+			// 			}
+			// 		}
+			// 	},
+			//
+			// 	'.home-slider': {
+			// 		lazyLoad: false,
+			// 		autoplay: false,
+			// 		dots: false,
+			// 		nav: true,
+			// 		autoplayTimeout: 12000,
+			// 		animateOut: 'fadeOut',
+			// 		navText: [ '<i class="icon-left-open-big">', '<i class="icon-right-open-big">' ],
+			// 		loop: true
+			// 	},
+			//
+			// 	'.quantity-inputs': {
+			// 		items: 2,
+			// 		margin: 20,
+			// 		dots: false,
+			// 		nav: true,
+			// 		responsive: {
+			// 			992: {
+			// 				items: 4
+			// 			},
+			// 			768: {
+			// 				items: 3
+			// 			}
+			// 		},
+			// 		onInitialized: function () {
+			// 			this.$element.find( '.horizontal-quantity' ).val( 1 );
+			// 		}
+			// 	},
+			//
+			// 	'.banners-slider': {
+			// 		dots: true,
+			// 		loop: false,
+			// 		margin: 20,
+			// 		responsive: {
+			// 			576: {
+			// 				items: 2
+			// 			},
+			// 			992: {
+			// 				items: 3
+			// 			}
+			// 		}
+			// 	},
+			//
+			// 	'.brands-slider': {
+			// 		loop: false,
+			// 		margin: 20,
+			// 		autoHeight: true,
+			// 		autoplay: false,
+			// 		dots: false,
+			// 		navText: [ '<i class="icon-left-open-big">', '<i class="icon-right-open-big">' ],
+			// 		items: 2,
+			// 		responsive: {
+			// 			0: {
+			// 				items: 2
+			// 			},
+			// 			480: {
+			// 				items: 3
+			// 			},
+			// 			768: {
+			// 				items: 4
+			// 			},
+			// 			991: {
+			// 				items: 5
+			// 			},
+			// 			1200: {
+			// 				items: 6
+			// 			}
+			// 		}
+			// 	},
+			//
+			// 	'.instagram-feed-carousel': {
+			// 		loop: true,
+			// 		dots: false,
+			// 		autoplay: false,
+			// 		responsive: {
+			// 			0: {
+			// 				items: 2
+			// 			},
+			// 			480: {
+			// 				items: 3
+			// 			},
+			// 			768: {
+			// 				items: 5
+			// 			},
+			// 			992: {
+			// 				items: 6
+			// 			},
+			// 			1200: {
+			// 				items: 7
+			// 			},
+			// 			1400: {
+			// 				items: 8
+			// 			},
+			// 			1600: {
+			// 				items: 9
+			// 			},
+			// 			1800: {
+			// 				items: 10
+			// 			}
+			// 		}
+			// 	},
+			//
+			// 	'.widget-featured-products': {
+			// 		margin: 20,
+			// 		lazyLoad: true,
+			// 		nav: true,
+			// 		navText: [ '<i class="icon-angle-left">', '<i class="icon-angle-right">' ],
+			// 		dots: false,
+			// 		autoHeight: true
+			// 	},
+			//
+			// 	'.entry-slider': {
+			// 		margin: 0,
+			// 		lazyLoad: true,
+			// 	},
+			//
+			// 	// Single.html - Related posts
+			// 	'.related-posts-carousel': {
+			// 		loop: false,
+			// 		margin: 30,
+			// 		autoplay: false,
+			// 		responsive: {
+			// 			480: {
+			// 				items: 2
+			// 			},
+			// 			1200: {
+			// 				items: 3
+			// 			}
+			// 		}
+			// 	},
+			//
+			// 	'.boxed-slider': {
+			// 		lazyLoad: true,
+			// 		autoplayTimeout: 20000,
+			// 		animateOut: 'fadeOut',
+			// 		dots: false
+			// 	},
+			//
+			// 	// About Slider
+			// 	'.about-slider': {
+			// 		margin: 0,
+			// 		lazyLoad: true
+			// 	},
+			//
+			// 	// Product single carousel - Default layout
+			// 	'.product-single-default .product-single-carousel': {
+			// 		margin: 0,
+			// 		nav: true,
+			// 		loop: false,
+			// 		dotsContainer: '#carousel-custom-dots',
+			// 		autoplay: false,
+			// 		onResized: function () {
+			// 			var $source = this.$element;
+			//
+			// 			if ( $.fn.elevateZoom ) {
+			// 				$source.find( 'img' ).each( function () {
+			// 					var $this = $( this ),
+			// 						zoomConfig = {
+			// 							responsive: true,
+			// 							zoomWindowFadeIn: 350,
+			// 							zoomWindowFadeOut: 200,
+			// 							borderSize: 0,
+			// 							zoomContainer: $this.parent(),
+			// 							zoomType: 'inner',
+			// 							cursor: 'grab'
+			// 						};
+			//
+			// 					$this.elevateZoom( zoomConfig );
+			// 				} );
+			// 			}
+			// 		},
+			//
+			// 		onInitialized: function () {
+			// 			var $source = this.$element;
+			//
+			// 			if ( $.fn.elevateZoom ) {
+			// 				$source.find( 'img' ).each( function () {
+			// 					var $this = $( this ),
+			// 						zoomConfig = {
+			// 							responsive: true,
+			// 							zoomWindowFadeIn: 350,
+			// 							zoomWindowFadeOut: 200,
+			// 							borderSize: 0,
+			// 							zoomContainer: $this.parent(),
+			// 							zoomType: 'inner',
+			// 							cursor: 'grab'
+			// 						};
+			//
+			// 					$this.elevateZoom( zoomConfig );
+			// 				} );
+			// 			}
+			// 		}
+			// 	},
+			//
+			// 	// Product single carousel - Extended layout
+			// 	'.product-single-extended .product-single-carousel': {
+			// 		dots: false,
+			// 		autoplay: false,
+			// 		center: true,
+			// 		items: 1,
+			// 		responsive: {
+			// 			768: {
+			// 				items: 3
+			// 			}
+			// 		}
+			// 	}
+			// };
 
 			// Init custom carousels
 			var selectors = Object.keys( sliderCustomOptionsArray );
@@ -2413,30 +2413,30 @@
 			}
 
 		return {
-			init: function () {
-				// init area for cart popup
-				var area = document.createElement( 'div' );
-				area.className = "minipopup-area";
-				$( '.page-wrapper' )[ 0 ].appendChild( area );
-
-				$area = $( area );
-				$area.on( 'click', '.mfp-close', function ( e ) {
-					self.close( $( this ).closest( '.minipopup-box' ).index() );
-				} );
-
-				// init area for wishlsit popup
-				var areaWishlistPopup = document.createElement( 'div' );
-				var areaWishlistPopupMsg = document.createElement( 'div' );
-				areaWishlistPopup.className = "wishlist-popup";
-				areaWishlistPopupMsg.className = "wishlist-popup-msg";
-				areaWishlistPopupMsg.innerText = "Product added!";
-				$( '.page-wrapper' )[ 0 ].appendChild( areaWishlistPopup );
-				$( '.wishlist-popup' ).append( areaWishlistPopupMsg );
-
-				// bind methods
-				this.close = this.close.bind( this );
-				timerClock = timerClock.bind( this );
-			},
+			// init: function () {
+			// 	// init area for cart popup
+			// 	var area = document.createElement( 'div' );
+			// 	area.className = "minipopup-area";
+			// 	$( '.page-wrapper' )[ 0 ].appendChild( area );
+			//
+			// 	$area = $( area );
+			// 	$area.on( 'click', '.mfp-close', function ( e ) {
+			// 		self.close( $( this ).closest( '.minipopup-box' ).index() );
+			// 	} );
+			//
+			// 	// init area for wishlsit popup
+			// 	var areaWishlistPopup = document.createElement( 'div' );
+			// 	var areaWishlistPopupMsg = document.createElement( 'div' );
+			// 	areaWishlistPopup.className = "wishlist-popup";
+			// 	areaWishlistPopupMsg.className = "wishlist-popup-msg";
+			// 	areaWishlistPopupMsg.innerText = "Product added!";
+			// 	$( '.page-wrapper' )[ 0 ].appendChild( areaWishlistPopup );
+			// 	$( '.wishlist-popup' ).append( areaWishlistPopupMsg );
+			//
+			// 	// bind methods
+			// 	this.close = this.close.bind( this );
+			// 	timerClock = timerClock.bind( this );
+			// },
 
 			open: function ( options, callback ) {
 				var self = this,

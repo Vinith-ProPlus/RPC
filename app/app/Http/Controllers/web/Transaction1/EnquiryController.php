@@ -32,7 +32,7 @@ class EnquiryController extends Controller{
     public function __construct(){
 		$this->ActiveMenuName=activeMenuNames::Enquiry->value;
 		$this->PageTitle="Enquiry";
-        $this->middleware('auth');    
+        $this->middleware('auth');
 		$this->middleware(function ($request, $next) {
 			$this->UserID=auth()->user()->UserID;
 			$this->general=new general($this->UserID,$this->ActiveMenuName);
@@ -243,9 +243,9 @@ class EnquiryController extends Controller{
 					`UpdatedOn` timestamp NULL DEFAULT NULL,
 					`UpdatedBy` varchar(50) DEFAULT NULL
 				)");
-				
+
 				$EnqData = DB::table($this->logDB.'tbl_enquiry_details as ED')->join($this->logDB.'tbl_enquiry as E','E.EnqID','ED.EnqID')->where('ED.EnqID',$EnqID)->get();
-				
+
 				// return $EnqData;
 				$isEnqIDExists = DB::table($this->logDB.'tbl_quotation')->where('EnqID',$EnqID)->exists();
 				if(!$isEnqIDExists){
@@ -329,7 +329,7 @@ class EnquiryController extends Controller{
 				$OldData=DB::table($this->logDB.'tbl_enquiry')->where('EnqID',$EnqID)->get();
 				$status=DB::table($this->logDB.'tbl_enquiry')->where('EnqID',$EnqID)->update(array("Status"=>"Cancelled","DeletedBy"=>$this->UserID,"DeletedOn"=>date("Y-m-d H:i:s")));
 			}catch(Exception $e) {
-				
+
 			}
 			if($status==true){
 				DB::commit();
@@ -353,7 +353,7 @@ class EnquiryController extends Controller{
 				$OldData=DB::table($this->logDB.'tbl_enquiry')->where('EnqID',$EnqID)->get();
 				$status=DB::table($this->logDB.'tbl_enquiry')->where('EnqID',$EnqID)->update(array("Status"=>"New","UpdatedBy"=>$this->UserID,"UpdatedOn"=>date("Y-m-d H:i:s")));
 			}catch(Exception $e) {
-				
+
 			}
 			if($status==true){
 				DB::commit();
@@ -388,10 +388,10 @@ class EnquiryController extends Controller{
 							$html="<span class='badge badge-secondary m-1'>".$d."</span>";
 						}
 						return $html;
-					} 
+					}
 				),
-				array( 
-						'db' => 'EnqID', 
+				array(
+						'db' => 'EnqID',
 						'dt' => '7',
 						'formatter' => function( $d, $row ) {
 							$html='';
@@ -408,7 +408,7 @@ class EnquiryController extends Controller{
 								$html.='<button type="button" data-id="'.$d.'" class="btn btn-outline-danger '.$this->general->UserInfo['Theme']['button-size'].' btnDelete" data-original-title="Delete">Cancel</button>';
 							}
 							return $html;
-						} 
+						}
 				)
 			);
 			$data=array();
@@ -437,10 +437,10 @@ class EnquiryController extends Controller{
 				array( 'db' => 'Status','dt' => '6',
 					'formatter' => function( $d, $row ) {
 						return "<span class='badge badge-danger m-1'>".$d."</span>";
-					} 
+					}
 				),
-				array( 
-						'db' => 'EnqID', 
+				array(
+						'db' => 'EnqID',
 						'dt' => '7',
 						'formatter' => function( $d, $row ) {
 							$html='';
@@ -448,7 +448,7 @@ class EnquiryController extends Controller{
 								$html='<button type="button" data-id="'.$d.'" class="btn btn-outline-success btn-sm  m-2 btnRestore"> <i class="fa fa-repeat" aria-hidden="true"></i> </button>';
 							}
 							return $html;
-						} 
+						}
 				)
 			);
 			$data=array();
