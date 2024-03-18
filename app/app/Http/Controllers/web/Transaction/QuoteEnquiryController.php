@@ -188,7 +188,7 @@ class QuoteEnquiryController extends Controller{
     }
 
     public function RequestQuote(Request $req,$EnqID){
-		if($this->general->isCrudAllow($this->CRUD,"add")==true){
+		if($this->general->isCrudAllow($this->CRUD,"edit")==true){
 			$OldData=$NewData=[];
 			DB::beginTransaction();
 			$status=false;
@@ -251,71 +251,130 @@ class QuoteEnquiryController extends Controller{
 	}
 	
 	public function AddQuotePrice(Request $req){
-		DB::beginTransaction();
-        try {
-            $OldData=$NewData=[];
-            $ProductData = json_decode($req->ProductData);
-            // return $ProductData;
-            $data=[
-                'SubTotal'=>$req->SubTotal ?? 0,
-                'TaxAmount'=>$req->TaxAmount ?? 0,
-                'TotalAmount'=>$req->TotalAmount ?? 0,
-                'LabourCost'=>$req->LabourCost ?? 0,
-                'TransportCost'=>$req->TransportCost ?? 0,
-                'AdditionalCost'=>$req->TransportCost + $req->LabourCost ?? 0,
-                'Status' => 'Sent',
-                'QSentOn'=>date('Y-m-d'),
-                'UpdatedBy'=>$this->UserID,
-                'UpdatedOn'=>date('Y-m-d H:i:s')
-            ];
-            $status = DB::Table($this->currfyDB.'tbl_vendor_quotation')->where('VendorID',$req->VendorID)->where('VQuoteID',$req->VQuoteID)->update($data);
-            if($status){
-                foreach($ProductData as $item){
-                    $PDetails= DB::table('tbl_products as P')->leftJoin('tbl_tax as T', 'T.TaxID', 'P.TaxID')->where('ProductID',$item->ProductID)->first();
-                    $data=[
-                        'Taxable'=>$item->Taxable ?? 0,
-                        'TaxAmt'=>$item->TaxAmt ?? 0,
-                        'TaxID'=>$PDetails->TaxID ?? 0,
-                        'TaxPer'=>$PDetails->TaxPercentage ?? 0,
-                        'TaxType'=>$PDetails->TaxType ?? 0,
-                        'TotalAmt'=>$item->TotalAmt ?? 0,
-                        'Price'=>$item->Price ?? 0,
-                        'Status'=>'Price Sent',
-                        'UpdatedOn'=>date('Y-m-d H:i:s')
-                    ];
-                    $status = DB::Table($this->currfyDB.'tbl_vendor_quotation_details')->where('VQuoteID',$req->VQuoteID)->where('ProductID',$item->ProductID)->update($data);
-                }
-            }
-        }catch(Exception $e) {
-            $status=false;
-        }
-        if($status==true){
-            DB::commit();
-            $NewData=DB::table($this->currfyDB.'tbl_vendor_quotation_details')->where('VQuoteID',$req->VQuoteID)->get();
-            $logData=array("Description"=>"Vendor Quote Price Updated","ModuleName"=>"Quote Enquiry","Action"=>"Add","ReferID"=>$req->VQuoteID,"OldData"=>$OldData,"NewData"=>$NewData,"UserID"=>$this->UserID,"IP"=>$req->ip());
-            logs::Store($logData);
-            return response()->json(['status' => true ,'message' => "Quote Price Updated Successfully!"]);
-        }else{
-            DB::rollback();
-            return response()->json(['status' => false,'message' => "Quote Price Update Failed!"]);
-        }
+		if($this->general->isCrudAllow($this->CRUD,"edit")==true){
+			DB::beginTransaction();
+			try {
+				$OldData=$NewData=[];
+				$ProductData = json_decode($req->ProductData);
+				// return $ProductData;
+				$data=[
+					'SubTotal'=>$req->SubTotal ?? 0,
+					'TaxAmount'=>$req->TaxAmount ?? 0,
+					'TotalAmount'=>$req->TotalAmount ?? 0,
+					'LabourCost'=>$req->LabourCost ?? 0,
+					'TransportCost'=>$req->TransportCost ?? 0,
+					'AdditionalCost'=>$req->TransportCost + $req->LabourCost ?? 0,
+					'Status' => 'Sent',
+					'QSentOn'=>date('Y-m-d'),
+					'UpdatedBy'=>$this->UserID,
+					'UpdatedOn'=>date('Y-m-d H:i:s')
+				];
+				$status = DB::Table($this->currfyDB.'tbl_vendor_quotation')->where('VendorID',$req->VendorID)->where('VQuoteID',$req->VQuoteID)->update($data);
+				if($status){
+					foreach($ProductData as $item){
+						$PDetails= DB::table('tbl_products as P')->leftJoin('tbl_tax as T', 'T.TaxID', 'P.TaxID')->where('ProductID',$item->ProductID)->first();
+						$data=[
+							'Taxable'=>$item->Taxable ?? 0,
+							'TaxAmt'=>$item->TaxAmt ?? 0,
+							'TaxID'=>$PDetails->TaxID ?? 0,
+							'TaxPer'=>$PDetails->TaxPercentage ?? 0,
+							'TaxType'=>$PDetails->TaxType ?? 0,
+							'TotalAmt'=>$item->TotalAmt ?? 0,
+							'Price'=>$item->Price ?? 0,
+							'Status'=>'Price Sent',
+							'UpdatedOn'=>date('Y-m-d H:i:s')
+						];
+						$status = DB::Table($this->currfyDB.'tbl_vendor_quotation_details')->where('VQuoteID',$req->VQuoteID)->where('ProductID',$item->ProductID)->update($data);
+					}
+				}
+			}catch(Exception $e) {
+				$status=false;
+			}
+			if($status==true){
+				DB::commit();
+				$NewData=DB::table($this->currfyDB.'tbl_vendor_quotation_details')->where('VQuoteID',$req->VQuoteID)->get();
+				$logData=array("Description"=>"Vendor Quote Price Updated","ModuleName"=>"Quote Enquiry","Action"=>"Add","ReferID"=>$req->VQuoteID,"OldData"=>$OldData,"NewData"=>$NewData,"UserID"=>$this->UserID,"IP"=>$req->ip());
+				logs::Store($logData);
+				return response()->json(['status' => true ,'message' => "Quote Price Updated Successfully!"]);
+			}else{
+				DB::rollback();
+				return response()->json(['status' => false,'message' => "Quote Price Update Failed!"]);
+			}
+		}else{
+			return array('status'=>false,'message'=>'Access denined');
+		}
+		
 	}
+
 	public function RejectQuote(Request $req){
-		DB::beginTransaction();
-        try {
-            $status = DB::Table($this->currfyDB.'tbl_vendor_quotation')->where('VendorID',$req->VendorID)->where('VQuoteID',$req->VQuoteID)->update(['Status'=>'Rejected','UpdatedOn'=>date('Y-m-d H:i:s')]);
-        }catch(Exception $e) {
-            $status=false;
-        }
-        if($status==true){
-            DB::commit();
-            return response()->json(['status' => true ,'message' => "Quote Rejected Successfully!"]);
-        }else{
-            DB::rollback();
-            return response()->json(['status' => false,'message' => "Quote Reject Failed!"]);
-        }
+		if($this->general->isCrudAllow($this->CRUD,"edit")==true){
+			DB::beginTransaction();
+			try {
+				$status = DB::Table($this->currfyDB.'tbl_vendor_quotation')->where('VendorID',$req->VendorID)->where('VQuoteID',$req->VQuoteID)->update(['Status'=>'Rejected','UpdatedOn'=>date('Y-m-d H:i:s')]);
+			}catch(Exception $e) {
+				$status=false;
+			}
+			if($status==true){
+				DB::commit();
+				return response()->json(['status' => true ,'message' => "Quote Rejected Successfully!"]);
+			}else{
+				DB::rollback();
+				return response()->json(['status' => false,'message' => "Quote Reject Failed!"]);
+			}
+		}else{
+			return array('status'=>false,'message'=>'Access denined');
+		}
 	}
-	
+
+	public function DeleteQuoteItem(Request $req){
+		if($this->general->isCrudAllow($this->CRUD,"edit")==true){
+			DB::beginTransaction();
+			try {
+				$status = DB::Table($this->currfyDB.'tbl_quotation_details')->where('DetailID',$req->DetailID)->update(['isCancelled'=>1,'CancelledBy'=>$this->UserID,'CancelledOn'=>date('Y-m-d'),'UpdatedOn'=>date('Y-m-d H:i:s')]);
+				if($status){
+					$QData = DB::table($this->currfyDB.'tbl_quotation_details as QD')->leftJoin($this->currfyDB.'tbl_quotation as Q','Q.QID','QD.QID')->where('QD.QID',$req->QID)->where('QD.isCancelled',0)->get();
+						$totalTaxable = 0;
+						$totalTaxAmount = 0;
+						$totalCGST = 0;
+						$totalSGST = 0;
+						$totalIGST = 0;
+						$totalQuoteValue = 0;
+						foreach ($QData as $item) {
+							$totalTaxable += $item->Taxable;
+							$totalTaxAmount += $item->TaxAmt;
+							$totalCGST += $item->CGSTAmt;
+							$totalSGST += $item->SGSTAmt;
+							$totalIGST += $item->IGSTAmt;
+							$totalQuoteValue += $item->TotalAmt;
+						}
+						$data=[
+							'SubTotal' => $totalTaxable,
+							'TaxAmount' => $totalTaxAmount,
+							'CGSTAmount' => $totalCGST,
+							'SGSTAmount' => $totalSGST,
+							'IGSTAmount' => $totalIGST,
+							'TotalAmount' => $totalQuoteValue,
+							'OverAllAmount' => $totalQuoteValue + $QData[0]->AdditionalCost,
+							'UpdatedOn' => date('Y-m-d H:i:s'),
+							'UpdatedBy' => $this->UserID,
+						];
+						$status=DB::table($this->currfyDB.'tbl_quotation')->where('QID',$req->QID)->update($data);
+				}
+			}catch(Exception $e) {
+				$status=false;
+			}
+			if($status==true){
+				DB::commit();
+				return response()->json(['status' => true ,'message' => "Quote Item Rejected Successfully!"]);
+			}else{
+				DB::rollback();
+				return response()->json(['status' => false,'message' => "Quote Item Reject Failed!"]);
+			}
+		}else{
+			return array('status'=>false,'message'=>'Access denined');
+		}
+	}
+
     public function QuoteConvert(Request $req,$EnqID){
 		if($this->general->isCrudAllow($this->CRUD,"edit")==true){
 			$OldData=array();$NewData=array();
@@ -465,6 +524,7 @@ class QuoteEnquiryController extends Controller{
 			return response(array('status'=>false,'message'=>"Access Denied"), 403);
 		}
 	}
+
 	public function Restore(Request $req,$EnqID){
 		$OldData=$NewData=array();
 		if($this->general->isCrudAllow($this->CRUD,"restore")==true){
@@ -552,6 +612,7 @@ class QuoteEnquiryController extends Controller{
 			return response(array('status'=>false,'message'=>"Access Denied"), 403);
 		}
 	}
+
 	public function QTableView(Request $request){
 		if($this->general->isCrudAllow($this->CRUD,"view")==true){
 			$columns = array(
@@ -616,6 +677,7 @@ class QuoteEnquiryController extends Controller{
 			return response(array('status'=>false,'message'=>"Access Denied"), 403);
 		}
 	}
+
 	public function TrashTableView(Request $request){
 		if($this->general->isCrudAllow($this->CRUD,"view")==true){
 			$columns = array(
@@ -736,12 +798,13 @@ class QuoteEnquiryController extends Controller{
             ->get();
 		return $QuoteReqData;
 	}
-	
+
 	public function GetVendorQuoteDetails(request $req){
 		$VendorDB = Helper::getVendorDB($req->VendorID, $this->UserID);
 		return DB::Table($VendorDB.'tbl_quotation_sent_details as QSD')->join('tbl_products as P','P.ProductID','QSD.ProductID')->join('tbl_uom as UOM','UOM.UID','QSD.UOMID')->where('QSD.QuoteSentID',$req->QuoteSentID)
 		->select('QSD.Amount','QSD.Price','QSD.TaxAmount','QSD.Taxable','QSD.TaxType','QSD.CGSTPer','QSD.SGSTPer','QSD.CGSTAmount','QSD.SGSTAmount','QSD.Qty','P.ProductName','UOM.UCode','UOM.UName')->get();
 	}
+	
 	public function GetVendorRatings(request $req){
 		return DB::Table('tbl_vendor_ratings as VR')->join('tbl_vendors as V','V.VendorID','VR.VendorID')
 				->join($this->generalDB.'tbl_states as S','S.StateID','V.StateID')

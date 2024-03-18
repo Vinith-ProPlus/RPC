@@ -166,6 +166,7 @@
                 btnLoading($('#btnSubmitSupport'));
                 let formData = new FormData();
                 formData.append('UserID', TicketFor == "Vendor" ? $('#lstVendor').val() : $('#lstCustomer').val());
+                formData.append('TicketFor', $('#lstTicketFor').val());
                 formData.append('Priority', $('#lstPriority').val());
                 formData.append('SupportType', $('#lstSupportType').val());
                 formData.append('Subject', $('#txtSubject').val().split("'").join("").split('"').join(""));

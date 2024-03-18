@@ -227,7 +227,8 @@
                     url:"{{url('/')}}/admin/support/deactivate/{{$SID}}",
                     headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
                     success:function(response){
-                        // window.location.reload();
+                        window.location.replace("{{url('/')}}/admin/support/");
+
                     }
                 });
             });

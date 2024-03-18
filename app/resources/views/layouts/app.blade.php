@@ -580,6 +580,9 @@
 		<script src="{{url('/')}}/assets/js/custom.js?r={{date('YmdHis')}}"></script>
 		<script src="{{url('/')}}/assets/js/address.js?r={{date('YmdHis')}}"></script>
 		<script src="{{url('/')}}/assets/js/app-init.js?r={{date('YmdHis')}}"></script>
+		
+		<script src="{{url('/')}}/assets/plugins/ckeditor/ckeditor.js"></script>
+    	<script src="{{url('/')}}/assets/plugins/ckeditor/custom.js"></script>
 		<script>/*
 			$(document).ready(function(){
 				if ('WebSocket' in window) {

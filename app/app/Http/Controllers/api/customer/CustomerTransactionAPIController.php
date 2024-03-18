@@ -213,8 +213,9 @@ class CustomerTransactionAPIController extends Controller{
                 ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'P.CID')
                 ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')
                 ->leftJoin('tbl_uom as U','U.UID','P.UID')
+                ->leftJoin('users as US','US.UserID','QD.CancelledBy')
                 ->where('ED.EnqID',$quote->EnqID)
-                ->select('QD.DetailID','P.ProductID','P.ProductName','ED.Qty','QD.Price','QD.Taxable','PC.PCName','PSC.PSCName','QD.isCancelled','CancelledBy')
+                ->select('QD.DetailID','P.ProductID','P.ProductName','ED.Qty','QD.Price','QD.Taxable','PC.PCName','PSC.PSCName','QD.isCancelled','US.LoginType as CancelledBy')
                 ->get();
         }
         
@@ -333,14 +334,14 @@ class CustomerTransactionAPIController extends Controller{
             return response()->json(['status' => false,'message' => "Quote Reject Failed!"]);
         }
 	}
+
     public function RejectQuoteItem(Request $req){
         $CustomerID = $this->ReferID;
 		DB::beginTransaction();
         try {
-            $status = DB::Table($this->currfyDB.'tbl_quotation_details')->where('DetailID',$req->DetailID)->update(['isCancelled'=>1,'CancelledBy'=>$CustomerID,'CancelledOn'=>date('Y-m-d'),'UpdatedOn'=>date('Y-m-d H:i:s')]);
+            $status = DB::Table($this->currfyDB.'tbl_quotation_details')->where('DetailID',$req->DetailID)->update(['isCancelled'=>1,'CancelledBy'=>$this->UserID,'CancelledOn'=>date('Y-m-d'),'UpdatedOn'=>date('Y-m-d H:i:s')]);
             if($status){
-                $QData = DB::table($this->currfyDB.'tbl_quotation_details')->where('QID',$req->QID)->where('isCancelled',0)->get();
-                return $QData;
+                $QData = DB::table($this->currfyDB.'tbl_quotation_details as QD')->leftJoin($this->currfyDB.'tbl_quotation as Q','Q.QID','QD.QID')->where('QD.QID',$req->QID)->where('QD.isCancelled',0)->get();
 					$totalTaxable = 0;
 					$totalTaxAmount = 0;
 					$totalCGST = 0;
@@ -362,6 +363,7 @@ class CustomerTransactionAPIController extends Controller{
                         'SGSTAmount' => $totalSGST,
                         'IGSTAmount' => $totalIGST,
                         'TotalAmount' => $totalQuoteValue,
+                        'OverAllAmount' => $totalQuoteValue + $QData[0]->AdditionalCost,
                         'UpdatedOn' => date('Y-m-d H:i:s'),
                         'UpdatedBy' => $CustomerID,
                     ];
@@ -401,6 +403,34 @@ class CustomerTransactionAPIController extends Controller{
                 ->get();
         }
         return response()->json(['status' => true,'data' => $OrderData]);
+    }
+    public function getCategory(Request $req){
+        if($req->PostalID){
+            $AllVendors = DB::table('tbl_vendors as V')->leftJoin('tbl_vendors_service_locations as VSL','V.VendorID','VSL.VendorID')->where('V.ActiveStatus',"Active")->where('V.DFlag',0)->where('VSL.PostalCodeID',$req->PostalID)->groupBy('VSL.VendorID')->pluck('VSL.VendorID')->toArray();
+            
+            $PCatagories= DB::table('tbl_vendors_product_mapping as VPM')
+            ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'VPM.PCID')
+            ->where('VPM.Status',1)->WhereIn('VPM.VendorID',$AllVendors)
+            ->groupBy('PC.PCID', 'PC.PCName','PC.PCImage')
+            ->select('PC.PCID','PC.PCName', DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PCImage, ""), "assets/images/no-image-b.png")) AS CategoryImage'))->get();
+            foreach($PCatagories as $row){
+                $row->PSCData = DB::table('tbl_vendors_product_mapping as VPM')
+                ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'VPM.PSCID')
+                ->where('VPM.Status',1)->where('PSC.PCID',$row->PCID)->WhereIn('VPM.VendorID',$AllVendors)
+                ->groupBy('PSC.PSCID', 'PSC.PSCName')
+                ->select('PSC.PSCID','PSC.PSCName')->get();
+                foreach($row->PSCData as $item){
+					$item->ProductData = DB::table('tbl_vendors_product_mapping as VPM')
+                    ->leftJoin('tbl_products as P', 'P.ProductID', 'VPM.ProductID')
+                    ->where('VPM.Status',1)->where('P.CID',$row->PCID)->where('P.SCID',$item->PSCID)->WhereIn('VPM.VendorID',$AllVendors)
+                    ->groupBy('P.ProductID', 'P.ProductName')
+                    ->select('P.ProductID','P.ProductName')->get();
+				}
+            }
+            return $PCatagories;
+        }else{
+            return [];
+        }
     }
 
 }

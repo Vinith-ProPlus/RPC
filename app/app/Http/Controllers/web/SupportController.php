@@ -165,6 +165,7 @@ class SupportController extends Controller{
                     "SupportID"=>$SupportID,
                     "UserID"=>$req->UserID,
                     "Subject"=>$req->Subject,
+                    "TicketFor"=>$req->TicketFor,
                     "Priority"=>$req->Priority,
                     "SupportType"=>$req->SupportType,
                     "DFlag"=>0,

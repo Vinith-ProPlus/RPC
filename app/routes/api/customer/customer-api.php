@@ -26,6 +26,7 @@ Route::controller(CustomerAuthController::class)->group(function () {
     Route::post('/delete-cart','DeleteCart');
 
     Route::post('/get/customer-home','getCustomerHome');
+    Route::post('/get/customer-home-search','getCustomerHomeSearch');
 
 
 });
@@ -46,6 +47,7 @@ Route::controller(CustomerTransactionAPIController::class)->group(function () {
     Route::post('/reject-quote-item','RejectQuoteItem');
 
     Route::post('/get/order','getOrder');
+    Route::post('/get/category','getCategory');
 });
 
 

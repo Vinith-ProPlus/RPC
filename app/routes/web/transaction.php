@@ -44,6 +44,7 @@ Route::group(['prefix'=>'quote-enquiry'],function (){
         Route::post('/get/vendor-quote', 'GetVendorQuote');
         Route::post('/add-quote-price','AddQuotePrice');
         Route::post('/reject-quote','RejectQuote');
+        Route::post('/delete-quote-item','DeleteQuoteItem');
 
 
         Route::post('/get/customers', 'GetCustomers');

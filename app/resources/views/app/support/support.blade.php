@@ -78,7 +78,7 @@
                         <div class="col-sm-2">
                             <div class="form-group text-center mh-60">
                                 <label class="mb-6">Priority</label>
-                                <select class="form-control" id="lstPriority">
+                                <select class="form-control" id="lstFPriority">
                                     <option value="">All</option>
                                     <option value="High">High</option>
                                     <option value="Medium">Medium</option>
@@ -141,7 +141,7 @@
                     FromDate:$('#dtpFromDate').val(),
                     ToDate:$('#dtpToDate').val(),
                     User:$('#lstUser').val(),
-                    Priority:$('#lstPriority').val(),
+                    Priority:$('#lstFPriority').val(),
                     TicketFor:$('#lstFTicketFor').val(),
                     Status:$('#lstStatus').val()
                 }
@@ -157,7 +157,7 @@
                     "lengthMenu": [[20,  50,100,250], [10, 25, 50,100,250]],
                     "bServerSide": true,
                     createdRow: function (row, data, index) {
-                        console.log(data);
+                        // console.log(data);
                         $(row).addClass('btnDetails');
                         $(row).attr('id',data[8]);
                         $(row).find('td:eq(8)').addClass('d-none');
@@ -178,7 +178,7 @@
             $('#lstUser').change(function(){
                 init_DataTable();
             });
-            $('#lstPriority').change(function(){
+            $('#lstFPriority').change(function(){
                 init_DataTable();
             });
             $('#lstFTicketFor').change(function(){

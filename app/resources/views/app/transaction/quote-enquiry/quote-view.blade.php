@@ -265,6 +265,8 @@
                                                                         </div>
                                                                     </div>
                                                                 </th>
+                                                            @else
+                                                            <th></th>
                                                             @endif
                                                         @endforeach
                                                     </tr>
@@ -299,7 +301,8 @@
                                                     <th class="text-center align-middle">IGST %</th>
                                                     <th class="text-center align-middle">IGST Amount<br> (₹)</th>
                                                     <th class="text-center align-middle">Total Amount<br> (₹)</th>
-                                                    <th class="text-center align-middle">Allocated To<br> (₹)</th>
+                                                    <th class="text-center align-middle">Allocated To</th>
+                                                    <th class="text-center align-middle">Action</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -309,19 +312,26 @@
                                                         <td>{{$item->ProductName}}</td>
                                                         <td class="text-right">{{$item->Qty}}</td>
                                                         <td>{{$item->UName}} ({{$item->UCode}})</td>
-                                                        <td class="text-right">{{NumberFormat($item->Price,$Settings['PRICE-DECIMALS'])}}</td>
-                                                        <td>{{$item->TaxType}}</td>
-                                                        <td class="text-right">{{NumberFormat($item->Taxable,$Settings['PRICE-DECIMALS'])}}</td>
-                                                        <td class="text-right">{{NumberFormat($item->TaxAmt,$Settings['PRICE-DECIMALS'])}}</td>
-                                                        <td class="text-right">{{NumberFormat($item->CGSTPer,$Settings['PERCENTAGE-DECIMALS'])}}</td>
-                                                        <td class="text-right">{{NumberFormat($item->CGSTAmt,$Settings['PRICE-DECIMALS'])}}</td>
-                                                        <td class="text-right">{{NumberFormat($item->SGSTPer,$Settings['PERCENTAGE-DECIMALS'])}}</td>
-                                                        <td class="text-right">{{NumberFormat($item->SGSTAmt,$Settings['PRICE-DECIMALS'])}}</td>
-                                                        <td class="text-right">{{NumberFormat($item->IGSTPer,$Settings['PERCENTAGE-DECIMALS'])}}</td>
-                                                        <td class="text-right">{{NumberFormat($item->IGSTAmt,$Settings['PRICE-DECIMALS'])}}</td>
-                                                        <td class="text-right">{{NumberFormat($item->TotalAmt,$Settings['PRICE-DECIMALS'])}}</td>
+                                                        <td class="text-right">{{!$item->isCancelled ? NumberFormat($item->Price, $Settings['PRICE-DECIMALS']) : '--'}}</td>
+                                                        <td>{{!$item->isCancelled ? $item->TaxType : '--'}}</td>
+                                                        <td class="text-right">{{!$item->isCancelled ? NumberFormat($item->Taxable, $Settings['PRICE-DECIMALS']) : '--'}}</td>
+                                                        <td class="text-right">{{!$item->isCancelled ? NumberFormat($item->TaxAmt, $Settings['PRICE-DECIMALS']) : '--'}}</td>
+                                                        <td class="text-right">{{!$item->isCancelled ? NumberFormat($item->CGSTPer, $Settings['PERCENTAGE-DECIMALS']) : '--'}}</td>
+                                                        <td class="text-right">{{!$item->isCancelled ? NumberFormat($item->CGSTAmt, $Settings['PRICE-DECIMALS']) : '--'}}</td>
+                                                        <td class="text-right">{{!$item->isCancelled ? NumberFormat($item->SGSTPer, $Settings['PERCENTAGE-DECIMALS']) : '--'}}</td>
+                                                        <td class="text-right">{{!$item->isCancelled ? NumberFormat($item->SGSTAmt, $Settings['PRICE-DECIMALS']) : '--'}}</td>
+                                                        <td class="text-right">{{!$item->isCancelled ? NumberFormat($item->IGSTPer, $Settings['PERCENTAGE-DECIMALS']) : '--'}}</td>
+                                                        <td class="text-right">{{!$item->isCancelled ? NumberFormat($item->IGSTAmt, $Settings['PRICE-DECIMALS']) : '--'}}</td>
+                                                        <td class="text-right">{{!$item->isCancelled ? NumberFormat($item->TotalAmt, $Settings['PRICE-DECIMALS']) : '--'}}</td>
                                                         <td><span class=" fw-600 text-info text-center">{{$item->VendorName}}</span></td>
-                                                        </tr>
+                                                        <td class="text-center">
+                                                            @if(!$item->isCancelled)
+                                                            <button type="button" data-detail-id="{{$item->DetailID}}" data-q-id="{{$FinalQuoteData[0]->QID}}" class="btn btn-outline-danger btnQItemDelete" data-original-title="Delete"><i class="fa fa-trash" aria-hidden="true"></i></button>
+                                                            @else
+                                                            <span class=" fw-600 text-danger text-center">Cancelled</span>
+                                                            @endif
+                                                        </td>
+                                                    </tr>
                                                 @endforeach
                                             </tbody>
                                         </table>
@@ -952,6 +962,54 @@
                     });
                 });
             }
+        });
+        $(document).on('click', '.btnQItemDelete', function () {
+            let formData = new FormData();
+            formData.append('DetailID',$(this).data('detail-id'));
+            formData.append('QID',$(this).data('q-id'));
+
+            swal({
+                title: "Are you sure?",
+                text: "You want to Delete this Quote Item!",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonClass: "btn-outline-success",
+                confirmButtonText: "Yes, Delete it!",
+                closeOnConfirm: false
+            },function(){
+                swal.close();
+                let postUrl="{{ url('/') }}/admin/transaction/quote-enquiry/delete-quote-item";
+                $.ajax({
+                    type:"post",
+                    url:postUrl,
+                    headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
+                    data:formData,
+                    cache: false,
+                    processData: false,
+                    contentType: false,
+                    error:function(e, x, settings, exception){ajaxErrors(e, x, settings, exception);},
+                    complete: function(e, x, settings, exception){ajaxIndicatorStop();$("html, body").animate({ scrollTop: 0 }, "slow");},
+                    success:function(response){
+                        document.documentElement.scrollTop = 0;
+                        if(response.status==true){
+                            swal({
+                                title: "SUCCESS",
+                                text: response.message,
+                                type: "success",
+                                showCancelButton: false,
+                                confirmButtonClass: "btn-outline-success",
+                                confirmButtonText: "Okay",
+                                closeOnConfirm: false
+                            },function(){
+                                window.location.replace("{{url('/')}}/admin/transaction/quote-enquiry/view/{{$EnqData->EnqID}}");
+                            });
+                            
+                        }else{
+                            toastr.error(response.message, "Failed", {positionClass: "toast-top-right",containerId: "toast-top-right",showMethod: "slideDown",hideMethod: "slideUp",progressBar: !0})
+                        }
+                    }
+                });
+            });
         });
         $(document).on('click', '#btnRejectQuote', function () {
             let formData = new FormData();

@@ -411,13 +411,13 @@ class CustomerAuthController extends Controller{
         $pageNo = $req->PageNo ?? 1;
         $perPage = 15;
     
-        $Category = DB::table('tbl_product_category')->where('ActiveStatus', 'Active')->where('DFlag', 0);
+        $Category = DB::table('tbl_product_category as PC')->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0);
     
         if ($req->has('SearchText') && !empty($req->SearchText)) {
-            $Category->where('PCName', 'like', '%' . $req->SearchText . '%');
+            $Category->where('PC.PCName', 'like', '%' . $req->SearchText . '%');
         }
     
-        $result = $Category->select('PCName', 'PCID', DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PCImage, ""), "assets/images/no-image-b.png")) AS CategoryImage'))
+        $result = $Category->select('PC.PCName', 'PC.PCID', DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PCImage, ""), "assets/images/no-image-b.png")) AS CategoryImage'))
             ->paginate($perPage, ['*'], 'page', $pageNo);
     
         return response()->json([
@@ -572,5 +572,31 @@ class CustomerAuthController extends Controller{
         $CustomerHome['PCategories'] = $PCategories;
         
 		return response()->json(['status' => true, 'data' => $CustomerHome ]);
+	}
+    public function getCustomerHomeSearch(Request $req){
+        $PostalID = $req->PostalID ?? DB::table('tbl_customer')->where('CustomerID',$this->ReferID)->value('PostalCodeID');
+        
+        if($PostalID && $req->SearchText){
+            $AllVendors = DB::table('tbl_vendors as V')->leftJoin('tbl_vendors_service_locations as VSL','V.VendorID','VSL.VendorID')->where('V.ActiveStatus',"Active")->where('V.DFlag',0)->where('VSL.PostalCodeID',$PostalID)->groupBy('VSL.VendorID')->pluck('VSL.VendorID')->toArray();
+            
+            $ProductData = DB::table('tbl_vendors_product_mapping as VPM')
+            ->leftJoin('tbl_products as P', 'P.ProductID', 'VPM.ProductID')
+            ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'P.CID')
+            ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')
+            ->where('VPM.Status', 1)
+
+            ->where(function($query) use ($req) {
+                $query->where('PSC.PSCName', 'like', '%' . $req->SearchText . '%')
+                    ->orWhere('PC.PCName', 'like', '%' . $req->SearchText . '%')
+                    ->orWhere('P.ProductName', 'like', '%' . $req->SearchText . '%');
+            })
+            ->whereIn('VPM.VendorID', $AllVendors)
+            ->groupBy('P.ProductID', 'P.ProductName', 'PC.PCID', 'PC.PCName', 'PSC.PSCID', 'PSC.PSCName')
+            ->select('P.ProductID', 'P.ProductName', 'PC.PCID', 'PC.PCName', 'PSC.PSCID', 'PSC.PSCName')
+            ->get();
+            return response()->json(['status' => true, 'data' => $ProductData ]);
+        }else{
+            return response()->json(['status' => false, 'data' => [] ]);
+        }
 	}
 }

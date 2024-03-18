@@ -123,8 +123,7 @@ class general extends Model{
 		return $settings;
 	}
 	public function getSettings(){
-		$settings=array(
-				);
+		$settings=array();
 		$result=DB::Table('tbl_settings')->get();
 		for($i=0;$i<count($result);$i++){
 			if(strtolower($result[$i]->SType)=="serialize"){

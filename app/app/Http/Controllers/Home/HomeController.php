@@ -22,7 +22,7 @@ class HomeController extends Controller{
             ->inRandomOrder()->take(10)->get()->toArray();
 
         foreach ($RecentProducts as $data) {
-            $data->ProductImage = $data->ProductImage ? 'https://rpc.prodemo.in/' . $data->ProductImage : url('/') . '/' . 'assets/images/no-image-b.png';
+            $data->ProductImage = $data->ProductImage ? url('/') . $data->ProductImage : url('/') . '/' . 'assets/images/no-image-b.png';
         }
 
         $FormData['PCategories'] = $PCatagories;
@@ -38,8 +38,9 @@ class HomeController extends Controller{
             $FormData['isRegister'] = false;
             $FormData['Cart'] = DB::table('tbl_customer_cart as C')->join('tbl_products as P', 'P.ProductID', 'C.ProductID')->join('tbl_product_category as PC', 'PC.PCID', 'P.CID')->join('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')->join('tbl_uom as U', 'U.UID', 'P.UID')
                 ->where('C.CustomerID', $CustomerID)->where('P.ActiveStatus', 'Active')->where('P.DFlag', 0)->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)->where('PSC.ActiveStatus', 'Active')->where('PSC.DFlag', 0)
-                ->select('P.ProductName', 'P.ProductID', 'C.Qty', 'PC.PCName', 'PC.PCID', 'PSC.PSCName', 'U.UName', 'U.UCode', 'U.UID', 'PSC.PSCID', DB::raw('CONCAT(IF(ProductImage != "", "https://rpc.prodemo.in/", "' . url('/') . '/"), COALESCE(NULLIF(ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'))->get();
-            $generalDB = Helper::getGeneralDB();
+                ->select('P.ProductName', 'P.ProductID', 'C.Qty', 'PC.PCName', 'PC.PCID', 'PSC.PSCName', 'U.UName', 'U.UCode', 'U.UID', 'PSC.PSCID', DB::raw('CONCAT(IF(ProductImage != "", "' . url('/') . '/", ""), COALESCE(NULLIF(ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'))->get();
+
+                $generalDB = Helper::getGeneralDB();
             $FormData['ShippingAddress'] = DB::table('tbl_customer_address as CA')->where('CustomerID', $CustomerID)
                 ->join($generalDB . 'tbl_countries as C', 'C.CountryID', 'CA.CountryID')
                 ->join($generalDB . 'tbl_states as S', 'S.StateID', 'CA.StateID')
