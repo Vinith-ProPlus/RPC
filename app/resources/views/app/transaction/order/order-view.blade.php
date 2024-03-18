@@ -33,7 +33,7 @@
                                                 'Customer Name' => $OData->CustomerName,
                                                 'Email' => $OData->Email,
                                                 'Contact Number' => $OData->MobileNo1 . ($OData->MobileNo2 ? ', ' . $OData->MobileNo2 : ''),
-                                                'Order Date' => date($Settings['DATE-FORMAT'], strtotime($OData->OrderDate)),
+                                                'Order Date' => date($Settings['date-format'], strtotime($OData->OrderDate)),
                                             ] as $label => $value)
                                                 <div class="row my-1">
                                                     <div class="col-sm-5 fw-600">{{ $label }}</div>
@@ -122,17 +122,17 @@
                                                     <td>{{$item->ProductName}}</td>
                                                     <td class="text-right">{{$item->Qty}}</td>
                                                     <td>{{$item->UName}} ({{$item->UCode}})</td>
-                                                    <td class="text-right">{{NumberFormat($item->Price,$Settings['PRICE-DECIMALS'])}}</td>
+                                                    <td class="text-right">{{NumberFormat($item->Price,$Settings['price-decimals'])}}</td>
                                                     <td>{{$item->TaxType}}</td>
-                                                    <td class="text-right">{{NumberFormat($item->Taxable,$Settings['PRICE-DECIMALS'])}}</td>
-                                                    <td class="text-right">{{NumberFormat($item->TaxAmount,$Settings['PRICE-DECIMALS'])}}</td>
-                                                    <td class="text-right">{{NumberFormat($item->CGSTPer,$Settings['PERCENTAGE-DECIMALS'])}}</td>
-                                                    <td class="text-right">{{NumberFormat($item->CGSTAmount,$Settings['PRICE-DECIMALS'])}}</td>
-                                                    <td class="text-right">{{NumberFormat($item->SGSTPer,$Settings['PERCENTAGE-DECIMALS'])}}</td>
-                                                    <td class="text-right">{{NumberFormat($item->SGSTAmount,$Settings['PRICE-DECIMALS'])}}</td>
-                                                    <td class="text-right">{{NumberFormat($item->IGSTPer,$Settings['PERCENTAGE-DECIMALS'])}}</td>
-                                                    <td class="text-right">{{NumberFormat($item->IGSTAmount,$Settings['PRICE-DECIMALS'])}}</td>
-                                                    <td class="text-right">{{NumberFormat($item->Amount,$Settings['PRICE-DECIMALS'])}}</td>
+                                                    <td class="text-right">{{NumberFormat($item->Taxable,$Settings['price-decimals'])}}</td>
+                                                    <td class="text-right">{{NumberFormat($item->TaxAmount,$Settings['price-decimals'])}}</td>
+                                                    <td class="text-right">{{NumberFormat($item->CGSTPer,$Settings['percentage-decimals'])}}</td>
+                                                    <td class="text-right">{{NumberFormat($item->CGSTAmount,$Settings['price-decimals'])}}</td>
+                                                    <td class="text-right">{{NumberFormat($item->SGSTPer,$Settings['percentage-decimals'])}}</td>
+                                                    <td class="text-right">{{NumberFormat($item->SGSTAmount,$Settings['price-decimals'])}}</td>
+                                                    <td class="text-right">{{NumberFormat($item->IGSTPer,$Settings['percentage-decimals'])}}</td>
+                                                    <td class="text-right">{{NumberFormat($item->IGSTAmount,$Settings['price-decimals'])}}</td>
+                                                    <td class="text-right">{{NumberFormat($item->Amount,$Settings['price-decimals'])}}</td>
                                                     </tr>
                                             @endforeach
                                         </tbody>
@@ -146,27 +146,27 @@
                                             <div class="row mt-20 fw-600 fs-15 mr-10 justify-content-end">
                                                 <div class="col-4">Sub Total</div>
                                                 <div class="col-1">:</div>
-                                                <div class="col-3 text-right" id="divSubTotal">{{NumberFormat($OrderData[0]->SubTotal,$Settings['PRICE-DECIMALS'])}}</div>
+                                                <div class="col-3 text-right" id="divSubTotal">{{NumberFormat($OrderData[0]->SubTotal,$Settings['price-decimals'])}}</div>
                                             </div>
                                             <div class="row mt-10 fw-600 fs-15 mr-10 justify-content-end">
                                                 <div class="col-4">CGST</div>
                                                 <div class="col-1">:</div>
-                                                <div class="col-3 text-right" id="divCGSTAmount">{{NumberFormat($OrderData[0]->CGSTAmt,$Settings['PRICE-DECIMALS'])}}</div>
+                                                <div class="col-3 text-right" id="divCGSTAmount">{{NumberFormat($OrderData[0]->CGSTAmt,$Settings['price-decimals'])}}</div>
                                             </div>
                                             <div class="row mt-10 fw-600 fs-15 mr-10 justify-content-end">
                                                 <div class="col-4">SGST</div>
                                                 <div class="col-1">:</div>
-                                                <div class="col-3 text-right" id="divSGSTAmount">{{NumberFormat($OrderData[0]->SGSTAmt,$Settings['PRICE-DECIMALS'])}}</div>
+                                                <div class="col-3 text-right" id="divSGSTAmount">{{NumberFormat($OrderData[0]->SGSTAmt,$Settings['price-decimals'])}}</div>
                                             </div>
                                             <div class="row mt-10 fw-600 fs-15 mr-10 justify-content-end">
                                                 <div class="col-4">IGST</div>
                                                 <div class="col-1">:</div>
-                                                <div class="col-3 text-right" id="divIGSTAmount">{{NumberFormat($OrderData[0]->IGSTAmt,$Settings['PRICE-DECIMALS'])}}</div>
+                                                <div class="col-3 text-right" id="divIGSTAmount">{{NumberFormat($OrderData[0]->IGSTAmt,$Settings['price-decimals'])}}</div>
                                             </div>
                                             <div class="row mt-10 fw-600 fs-16 mr-10 justify-content-end text-success">
                                                 <div class="col-4">Total Amount</div>
                                                 <div class="col-1">:</div>
-                                                <div class="col-3 text-right" id="divTotalAmount">{{NumberFormat($OrderData[0]->TotalAmount,$Settings['PRICE-DECIMALS'])}}</div>
+                                                <div class="col-3 text-right" id="divTotalAmount">{{NumberFormat($OrderData[0]->TotalAmount,$Settings['price-decimals'])}}</div>
                                             </div>
                                         </div>
                                     </div>

@@ -200,7 +200,7 @@
                                     <div class="form-group">
                                         <label class="txtIQty">Qty <span class="required"> * </span></label>
                                         <div class="input-group">
-                                            <input type="number" class="form-control"  step="{{NumberSteps($Settings['QTY-DECIMALS'])}}" id="txtIQty">
+                                            <input type="number" class="form-control"  step="{{NumberSteps($Settings['qty-decimals'])}}" id="txtIQty">
                                             <select disabled class="form-control" id="lstIUOM">
                                             </select>
                                         </div>
@@ -244,7 +244,7 @@
                                         </div>
                                         <div class="col-sm-6 divAddShippingCharges"  style="@if($isEdit)@if($EditData[0]['isShippingCharges']==0) display:none @endif @else display:none @endif">
                                             <div class="form-group">
-                                                <input type="number" class="form-control" step="{{NumberSteps($Settings['PRICE-DECIMALS'])}}" id="txtShippingCharge" value="<?php if($isEdit){ echo $EditData[0]['ShippingCharges'];} ?>">
+                                                <input type="number" class="form-control" step="{{NumberSteps($Settings['price-decimals'])}}" id="txtShippingCharge" value="<?php if($isEdit){ echo $EditData[0]['ShippingCharges'];} ?>">
                                                 <div class="errors text-sm" id="txtShippingCharge-err"></div>
                                             </div>
                                         </div>
@@ -258,7 +258,7 @@
                                         <div class="col-sm-6 divAddDiscount"   style="@if($isEdit)@if($EditData[0]['isAddDiscount']==0) display:none @endif @else display:none @endif">
                                             <div class="form-group">
                                                 <div class="input-group">
-                                                    <input type="number" class="form-control" step="{{NumberSteps($Settings['PERCENTAGE-DECIMALS'])}}" id="txtDiscount" value="<?php if($isEdit){ if($EditData[0]['DiscountType']=="Fixed"){echo $EditData[0]['DiscountAmount'];}else{echo $EditData[0]['DiscountPer'];}} ?>">
+                                                    <input type="number" class="form-control" step="{{NumberSteps($Settings['percentage-decimals'])}}" id="txtDiscount" value="<?php if($isEdit){ if($EditData[0]['DiscountType']=="Fixed"){echo $EditData[0]['DiscountAmount'];}else{echo $EditData[0]['DiscountPer'];}} ?>">
                                                     <select class="form-control" id="lstDiscountType">
                                                         <option value="Percentage" @if($isEdit) @if($EditData[0]['DiscountType']=="Percentage") selected @endif @endif>Percentage</option>
                                                         <option value="Fixed"  @if($isEdit) @if($EditData[0]['DiscountType']=="Fixed") selected @endif @endif>Fixed</option>
@@ -363,31 +363,31 @@
                                 <div class="col-sm-6">
                                     <div class="row justify-content-end mt-20 fw-600 fs-16 mr-10">
                                         <div class="col-sm-4">Sub Total <span class="cright">:</span></div>
-                                        <div class="col-sm-4 text-right" id="divSubTotal"> {{NumberFormat(0,$Settings['PRICE-DECIMALS'])}}</div>
+                                        <div class="col-sm-4 text-right" id="divSubTotal"> {{NumberFormat(0,$Settings['price-decimals'])}}</div>
                                     </div>
                                     <div class="row justify-content-end mt-20 fw-600 fs-16 mr-10">
                                         <div class="col-sm-4">CGST <span class="cright">:</span></div>
-                                        <div class="col-sm-4 text-right"  id="divCGSTAmount"> {{NumberFormat(0,$Settings['PRICE-DECIMALS'])}}</div>
+                                        <div class="col-sm-4 text-right"  id="divCGSTAmount"> {{NumberFormat(0,$Settings['price-decimals'])}}</div>
                                     </div>
                                     <div class="row justify-content-end mt-20 fw-600 fs-16 mr-10">
                                         <div class="col-sm-4">SGST <span class="cright">:</span></div>
-                                        <div class="col-sm-4 text-right"  id="divSGSTAmount"> {{NumberFormat(0,$Settings['PRICE-DECIMALS'])}}</div>
+                                        <div class="col-sm-4 text-right"  id="divSGSTAmount"> {{NumberFormat(0,$Settings['price-decimals'])}}</div>
                                     </div>
                                     <div class="row justify-content-end mt-20 fw-600 fs-16 mr-10">
                                         <div class="col-sm-4">IGST <span class="cright">:</span></div>
-                                        <div class="col-sm-4 text-right"  id="divIGSTAmount"> {{NumberFormat(0,$Settings['PRICE-DECIMALS'])}}</div>
+                                        <div class="col-sm-4 text-right"  id="divIGSTAmount"> {{NumberFormat(0,$Settings['price-decimals'])}}</div>
                                     </div>
                                     <div class="row justify-content-end mt-20 fw-600 fs-16 mr-10 divAddShippingCharges" style="display:none">
                                         <div class="col-sm-4">Shipping & Package <span class="cright">:</span></div>
-                                        <div class="col-sm-4 text-right"  id="divShippingChargesAmount"> {{NumberFormat(0,$Settings['PRICE-DECIMALS'])}}</div>
+                                        <div class="col-sm-4 text-right"  id="divShippingChargesAmount"> {{NumberFormat(0,$Settings['price-decimals'])}}</div>
                                     </div>
                                     <div class="row justify-content-end mt-20 fw-600 fs-16 mr-10 divAddDiscount"  style="display:none">
                                         <div class="col-sm-4 ">Discount <span id="divDiscountPercentage" data-percentage="0"></span> <span class="cright">:</span></div>
-                                        <div class="col-sm-4 text-right"  id="divDiscountAmount"> {{NumberFormat(0,$Settings['PRICE-DECIMALS'])}}</div>
+                                        <div class="col-sm-4 text-right"  id="divDiscountAmount"> {{NumberFormat(0,$Settings['price-decimals'])}}</div>
                                     </div>
                                     <div class="row justify-content-end mt-20  fw-700 fs-18 mr-10 text-success">
                                         <div class="col-sm-4">Total Amount <span class="cright">:</span></div>
-                                        <div class="col-sm-4 text-right"  id="divTotalAmount"> {{NumberFormat(0,$Settings['PRICE-DECIMALS'])}} </div>
+                                        <div class="col-sm-4 text-right"  id="divTotalAmount"> {{NumberFormat(0,$Settings['price-decimals'])}} </div>
                                     </div>
                                 </div>
                             </div> --}}

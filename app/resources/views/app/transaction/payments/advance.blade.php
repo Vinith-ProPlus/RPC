@@ -73,7 +73,7 @@
                         <div class="col-sm-12 mt-10">
                             <div class="form-group">
                                 <label for="txtTotalAmount">Amount <span class="required"> * </span></label>
-                                <input type="number" steps="{{NumberSteps($Settings['PRICE-DECIMALS'])}}"  class="form-control" id="txtTotalAmount" value="<?php if($isEdit){ echo NumberFormat($EditData[0]['TotalAmount'],$Settings['PRICE-DECIMALS']); } ?>">
+                                <input type="number" steps="{{NumberSteps($Settings['price-decimals'])}}"  class="form-control" id="txtTotalAmount" value="<?php if($isEdit){ echo NumberFormat($EditData[0]['TotalAmount'],$Settings['price-decimals']); } ?>">
                                 <div class="errors text-sm" id="txtTotalAmount-err"></div>
                             </div>
                         </div>

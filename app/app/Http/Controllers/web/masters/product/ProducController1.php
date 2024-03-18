@@ -276,8 +276,8 @@ class ProductssController extends Controller{
 				array( 'db' => 'PCName', 'dt' => '1' ),
 				array( 'db' => 'PSCName', 'dt' => '2' ),
 				//array( 'db' => 'ProductType', 'dt' => '3' ),
-				array( 'db' => 'PRate', 'dt' => '3','formatter' => function( $d, $row ) { return Helper::NumberFormat($d,$this->Settings['PRICE-DECIMALS']);}),
-				array( 'db' => 'SRate', 'dt' => '4','formatter' => function( $d, $row ) { return Helper::NumberFormat($d,$this->Settings['PRICE-DECIMALS']);}),
+				array( 'db' => 'PRate', 'dt' => '3','formatter' => function( $d, $row ) { return Helper::NumberFormat($d,$this->Settings['price-decimals']);}),
+				array( 'db' => 'SRate', 'dt' => '4','formatter' => function( $d, $row ) { return Helper::NumberFormat($d,$this->Settings['price-decimals']);}),
 				array( 
 					'db' => 'ActiveStatus', 
 					'dt' => '5',
@@ -336,8 +336,8 @@ class ProductssController extends Controller{
 				array( 'db' => 'PCName', 'dt' => '1' ),
 				array( 'db' => 'PSCName', 'dt' => '2' ),
 				//array( 'db' => 'ProductType', 'dt' => '3' ),
-				array( 'db' => 'PRate', 'dt' => '3','formatter' => function( $d, $row ) { return Helper::NumberFormat($d,$this->Settings['PRICE-DECIMALS']);}),
-				array( 'db' => 'SRate', 'dt' => '4','formatter' => function( $d, $row ) { return Helper::NumberFormat($d,$this->Settings['PRICE-DECIMALS']);}),
+				array( 'db' => 'PRate', 'dt' => '3','formatter' => function( $d, $row ) { return Helper::NumberFormat($d,$this->Settings['price-decimals']);}),
+				array( 'db' => 'SRate', 'dt' => '4','formatter' => function( $d, $row ) { return Helper::NumberFormat($d,$this->Settings['price-decimals']);}),
 				array( 
 					'db' => 'ActiveStatus', 
 					'dt' => '5',

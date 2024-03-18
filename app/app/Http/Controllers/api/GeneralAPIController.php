@@ -285,17 +285,18 @@ class GeneralAPIController extends Controller{
 	}
 
 	public function getCMS(request $req){
-		$query = DB::Table('tbl_cms');
-		if ($req->has('Title') && !empty($req->Title)) {
-			$query->where('Title',$req->Title);
+		$query = DB::Table('tbl_page_content');
+		if ($req->has('PageName') && !empty($req->PageName)) {
+			$query->where('PageName',$req->PageName);
 		}
-		$CMS = $query->select('Title', 'Content')->get();
+		$CMS = $query->select('PageName', 'PageContent')->where('DFlag',0)->where('ActiveStatus',1)->get();
 		$return = [
 			'status' => true,
 			'data' => $CMS,
 		];
         return $return;
 	}
+	
 	public function getBannerImages(request $req){
 		$BannerImage = DB::Table('tbl_mobile_ad_banners')->select('Title', DB::raw('CONCAT("' . url('/') . '/", BannerImage) AS BannerImage'))->get();
 		$return = [

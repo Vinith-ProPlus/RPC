@@ -31,7 +31,7 @@
                     <div class="row" id="divAdd">
                         <div class="col-sm-12 text-center">
                             <label>Banner Image <span class="fs-13" style="color:rgba(0,0,0,0.75)"> (Upload Size=1920px X 800px, Radio=12:5)</span></label>
-                            <input type="file" class="dropify imageScrop" id="txtBanner"  {{-- data-min-width=1920 data-min-height=800 data-max-width=1920 data-max-height=800 --}}  data-default-file="<?php if($isEdit==true){if($EditData[0]->BannerImage !=""){ echo url('/')."/".$EditData[0]->BannerImage;}}?>"  data-allowed-file-extensions="jpeg jpg png gif">
+                            <input type="file" class="dropify imageScrop" id="txtBanner"  data-min-width=1920 data-min-height=607 data-max-width=1920 data-max-height=607  data-default-file="<?php if($isEdit==true){if($EditData[0]->BannerImage !=""){ echo url('/')."/".$EditData[0]->BannerImage;}}?>"  data-allowed-file-extensions="jpeg jpg png gif">
                         </div>
                     </div>
                 </div>

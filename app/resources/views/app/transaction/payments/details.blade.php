@@ -24,9 +24,9 @@
                 @for($i=0;$i<count($Details);$i++)
                     <tr>
                         <td>{{$Details[$i]['InvoiceNo']}}</td>
-                        <td class="text-right">{{NumberFormat($Details[$i]['LessFromAdvance'],$Settings['PRICE-DECIMALS'])}}</td>
-                        <td class="text-right">{{NumberFormat($Details[$i]['PaidAmount'],$Settings['PRICE-DECIMALS'])}}</td>
-                        <td class="text-right">{{NumberFormat($Details[$i]['Amount'],$Settings['PRICE-DECIMALS'])}}</td>
+                        <td class="text-right">{{NumberFormat($Details[$i]['LessFromAdvance'],$Settings['price-decimals'])}}</td>
+                        <td class="text-right">{{NumberFormat($Details[$i]['PaidAmount'],$Settings['price-decimals'])}}</td>
+                        <td class="text-right">{{NumberFormat($Details[$i]['Amount'],$Settings['price-decimals'])}}</td>
                     </tr>
                     @php 
                         $TotalAmount+=floatval($Details[$i]['Amount']); 
@@ -38,9 +38,9 @@
             <tfoot>
                 <tr>
                     <th  class="text-right">Total Amount ==></th>
-                    <th class="text-right fw-700 fs-16">{{NumberFormat($LessFromAdvance,$Settings['PRICE-DECIMALS'])}}</th>
-                    <th class="text-right fw-700 fs-16">{{NumberFormat($PaidAmount,$Settings['PRICE-DECIMALS'])}}</th>
-                    <th class="text-right fw-700 fs-16">{{NumberFormat($TotalAmount,$Settings['PRICE-DECIMALS'])}}</th>
+                    <th class="text-right fw-700 fs-16">{{NumberFormat($LessFromAdvance,$Settings['price-decimals'])}}</th>
+                    <th class="text-right fw-700 fs-16">{{NumberFormat($PaidAmount,$Settings['price-decimals'])}}</th>
+                    <th class="text-right fw-700 fs-16">{{NumberFormat($TotalAmount,$Settings['price-decimals'])}}</th>
                 </tr>
             </tfoot>
         </table>

@@ -52,7 +52,7 @@
                         </td>
                         <td>{{$data[$i]->PName}}</td>
                         <td class="text-right">{{$data[$i]->GRQty}} / {{$data[$i]->POQty}} {{$data[$i]->UCode}}</td>
-                        <td class="text-right">{{NumberFormat($data[$i]->Price,$Settings['PRICE-DECIMALS'])}}</td>
+                        <td class="text-right">{{NumberFormat($data[$i]->Price,$Settings['price-decimals'])}}</td>
                         <td class="text-center">
                             @if($data[$i]->TaxType==1)
                                 Exclude
@@ -60,11 +60,11 @@
                              Include
                             @endif
                         </td>
-                        <td class="text-right">{{NumberFormat($data[$i]->Taxable,$Settings['PRICE-DECIMALS'])}}</td>
-                        <td class="text-right">{{NumberFormat($data[$i]->CGSTAmount,$Settings['PRICE-DECIMALS'])}}</td>
-                        <td class="text-right">{{NumberFormat($data[$i]->SGSTAmount,$Settings['PRICE-DECIMALS'])}}</td>
-                        <td class="text-right">{{NumberFormat($data[$i]->IGSTAmount,$Settings['PRICE-DECIMALS'])}}</td>
-                        <td class="text-right">{{NumberFormat($data[$i]->Amount,$Settings['PRICE-DECIMALS'])}}</td>
+                        <td class="text-right">{{NumberFormat($data[$i]->Taxable,$Settings['price-decimals'])}}</td>
+                        <td class="text-right">{{NumberFormat($data[$i]->CGSTAmount,$Settings['price-decimals'])}}</td>
+                        <td class="text-right">{{NumberFormat($data[$i]->SGSTAmount,$Settings['price-decimals'])}}</td>
+                        <td class="text-right">{{NumberFormat($data[$i]->IGSTAmount,$Settings['price-decimals'])}}</td>
+                        <td class="text-right">{{NumberFormat($data[$i]->Amount,$Settings['price-decimals'])}}</td>
                     </tr>
                     <?php
                         $Taxable+=$data[$i]->Taxable;
@@ -90,11 +90,11 @@
                                 <td class="text-right fw-600 text-dark"></td>
                                 <td class="text-right fw-600 text-dark"></td>
                                 <td class="text-right fw-600 text-dark"></td>
-                                <td class="text-right fw-600 text-dark">{{NumberFormat($Taxable,$Settings['PRICE-DECIMALS'])}}</td>
-                                <td class="text-right fw-600 text-dark">{{NumberFormat($CGSTAmount,$Settings['PRICE-DECIMALS'])}}</td>
-                                <td class="text-right fw-600 text-dark">{{NumberFormat($SGSTAmount,$Settings['PRICE-DECIMALS'])}}</td>
-                                <td class="text-right fw-600 text-dark">{{NumberFormat($IGSTAmount,$Settings['PRICE-DECIMALS'])}}</td>
-                                <td class="text-right fw-600 text-dark">{{NumberFormat($Amount,$Settings['PRICE-DECIMALS'])}}</td>
+                                <td class="text-right fw-600 text-dark">{{NumberFormat($Taxable,$Settings['price-decimals'])}}</td>
+                                <td class="text-right fw-600 text-dark">{{NumberFormat($CGSTAmount,$Settings['price-decimals'])}}</td>
+                                <td class="text-right fw-600 text-dark">{{NumberFormat($SGSTAmount,$Settings['price-decimals'])}}</td>
+                                <td class="text-right fw-600 text-dark">{{NumberFormat($IGSTAmount,$Settings['price-decimals'])}}</td>
+                                <td class="text-right fw-600 text-dark">{{NumberFormat($Amount,$Settings['price-decimals'])}}</td>
                             </tr>
                             <?php
                             $TotTaxable+=$Taxable;
@@ -118,11 +118,11 @@
                     <th class="text-right text-primary fw-700" ></th>
                     <th class="text-right text-primary fw-700" ></th>
                     <th class="text-right text-primary fw-700" ></th>
-                    <th class="text-right text-primary fw-700" >{{NumberFormat($TotTaxable,$Settings['PRICE-DECIMALS'])}}</th>
-                    <th class="text-right text-primary fw-700" >{{NumberFormat($TotCGSTAmount,$Settings['PRICE-DECIMALS'])}}</th>
-                    <th class="text-right text-primary fw-700" >{{NumberFormat($TotSGSTAmount,$Settings['PRICE-DECIMALS'])}}</th>
-                    <th class="text-right text-primary fw-700" >{{NumberFormat($TotIGSTAmount,$Settings['PRICE-DECIMALS'])}}</th>
-                    <th class="text-right text-primary fw-700" >{{NumberFormat($TotAmount,$Settings['PRICE-DECIMALS'])}}</th>
+                    <th class="text-right text-primary fw-700" >{{NumberFormat($TotTaxable,$Settings['price-decimals'])}}</th>
+                    <th class="text-right text-primary fw-700" >{{NumberFormat($TotCGSTAmount,$Settings['price-decimals'])}}</th>
+                    <th class="text-right text-primary fw-700" >{{NumberFormat($TotSGSTAmount,$Settings['price-decimals'])}}</th>
+                    <th class="text-right text-primary fw-700" >{{NumberFormat($TotIGSTAmount,$Settings['price-decimals'])}}</th>
+                    <th class="text-right text-primary fw-700" >{{NumberFormat($TotAmount,$Settings['price-decimals'])}}</th>
                 </tr>
             </tfoot>
         </table>

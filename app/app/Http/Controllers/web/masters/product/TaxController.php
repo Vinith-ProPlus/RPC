@@ -266,7 +266,7 @@ class TaxController extends Controller{
 			$columns = array(
 				array( 'db' => 'TaxID', 'dt' => '0' ),
 				array( 'db' => 'TaxName', 'dt' => '1' ),
-				array( 'db' => 'TaxPercentage', 'dt' => '2','formatter' => function( $d, $row ) { return Helper::NumberFormat($d,$this->Settings['PERCENTAGE-DECIMALS']);} ),
+				array( 'db' => 'TaxPercentage', 'dt' => '2','formatter' => function( $d, $row ) { return Helper::NumberFormat($d,$this->Settings['percentage-decimals']);} ),
 				array( 
 						'db' => 'ActiveStatus', 
 						'dt' => '3',

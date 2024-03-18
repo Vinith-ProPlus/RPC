@@ -30,7 +30,7 @@
 					@for($i=0;$i<count($bannerImages);$i++)
 						<figure class="col-xl-4 col-sm-6" data-tran-no="{{$bannerImages[$i]->TranNo}}">
 							<a href="{{url('/')}}/{{$bannerImages[$i]->BannerImage}}" data-lightbox="banner-images">
-								<img src="{{url('/')}}/{{$bannerImages[$i]->BannerImage}}"  alt="Image {{$i}}"  style="width:900px ;height:300px">
+								<img src="{{url('/')}}/{{$bannerImages[$i]->BannerImage}}"  alt="Image {{$i}}"  style="width:1920px;height:607px;">
 							</a>
 								<div class="caption text-center ">
 									@if($crud['edit']==1)
@@ -48,10 +48,10 @@
 	</div>
 </div>
 <!-- Container-fluid Ends-->
-<link rel="stylesheet" href="{{url('/')}}/assets/admin/plugins/lightbox/css/lightbox.css">
+<link rel="stylesheet" href="{{url('/')}}/assets/plugins/lightbox/css/lightbox.css">
 @endsection
 @section('scripts')
-<script src="{{url('/')}}/assets/admin/plugins/lightbox/js/lightbox.js"></script>
+<script src="{{url('/')}}/assets/plugins/lightbox/js/lightbox.js"></script>
 <script>
 	$(document).ready(function(){
 

@@ -45,7 +45,6 @@
                                         <th class="text-center align-middle">Tax Amount <br> (₹)</th>
                                         <th class="text-center align-middle">Total Amount <br> (₹)</th>
                                         <th class="text-center align-middle">Status</th>
-                                        <th class="text-center align-middle">Allocated To</th>
                                         <th class="text-center align-middle noExport">Action</th>
                                     </tr>
                                 </thead>
@@ -84,7 +83,7 @@
 					@if($crud['pdf']==1) ,{extend: 'pdf',className:"{{$Theme['button-size']}}",footer: true,title: "{{$PageTitle}}","action": DataTableExportOption,exportOptions: {columns: "thead th:not(.noExport)"}} @endif
 				],
 				columnDefs: [
-					{"className": "dt-center", "targets":[7,8,9]},
+					{"className": "dt-center", "targets":[7,8]},
 					{"className": "dt-right", "targets":[4,5,6]},
 				]
 			});

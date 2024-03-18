@@ -57,7 +57,7 @@ class VendorAuthController extends Controller{
 	}
 
     public function Register(Request $req){ 
-        return $req;
+        // return $req;
         $reqData = $req->all();
 
         $NewData=$OldData=[];

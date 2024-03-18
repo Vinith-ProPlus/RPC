@@ -33,7 +33,7 @@
                                                 'Customer Name' => $QData->CustomerName,
                                                 'Email' => $QData->Email,
                                                 'Contact Number' => $QData->MobileNo1 . ($QData->MobileNo2 ? ', ' . $QData->MobileNo2 : ''),
-                                                'Quote Date' => date($Settings['DATE-FORMAT'], strtotime($QData->QDate)),
+                                                'Quote Date' => date($Settings['date-format'], strtotime($QData->QDate)),
                                             ] as $label => $value)
                                                 <div class="row my-1">
                                                     <div class="col-sm-5 fw-600">{{ $label }}</div>
@@ -202,7 +202,7 @@
                                                             <td>{{$QData->QNo}}</td>
                                                             <td>{{$item->VendorName}}</td>
                                                             <td>{{$QData->QNo}} - {{$key + 1}}</td>
-                                                            <td class="text-right">{{$item->TotalAmount ? NumberFormat($item->TotalAmount,$Settings['PRICE-DECIMALS']) : ""}}
+                                                            <td class="text-right">{{$item->TotalAmount ? NumberFormat($item->TotalAmount,$Settings['price-decimals']) : ""}}
                                                                 @if($item->isQuoteReceived && $item->TotalAmount) 
                                                                     <button type="button" title="View Quotation Details" data-vendor-id="{{$item->VendorID}}" data-id="{{$item->QuoteSentID}}" class="btn btnQuoteView"><i class="fa fa-eye text-dark"></i></button> 
                                                                 @endif
@@ -252,17 +252,17 @@
                                                         <td>{{$item->ProductName}}</td>
                                                         <td class="text-right">{{$item->Qty}}</td>
                                                         <td>{{$item->UName}} ({{$item->UCode}})</td>
-                                                        <td class="text-right">{{NumberFormat($item->Price,$Settings['PRICE-DECIMALS'])}}</td>
+                                                        <td class="text-right">{{NumberFormat($item->Price,$Settings['price-decimals'])}}</td>
                                                         <td>{{$item->TaxType}}</td>
-                                                        <td class="text-right">{{NumberFormat($item->Taxable,$Settings['PRICE-DECIMALS'])}}</td>
-                                                        <td class="text-right">{{NumberFormat($item->TaxAmount,$Settings['PRICE-DECIMALS'])}}</td>
-                                                        <td class="text-right">{{NumberFormat($item->CGSTPer,$Settings['PERCENTAGE-DECIMALS'])}}</td>
-                                                        <td class="text-right">{{NumberFormat($item->CGSTAmount,$Settings['PRICE-DECIMALS'])}}</td>
-                                                        <td class="text-right">{{NumberFormat($item->SGSTPer,$Settings['PERCENTAGE-DECIMALS'])}}</td>
-                                                        <td class="text-right">{{NumberFormat($item->SGSTAmount,$Settings['PRICE-DECIMALS'])}}</td>
-                                                        <td class="text-right">{{NumberFormat($item->IGSTPer,$Settings['PERCENTAGE-DECIMALS'])}}</td>
-                                                        <td class="text-right">{{NumberFormat($item->IGSTAmount,$Settings['PRICE-DECIMALS'])}}</td>
-                                                        <td class="text-right">{{NumberFormat($item->Amount,$Settings['PRICE-DECIMALS'])}}</td>
+                                                        <td class="text-right">{{NumberFormat($item->Taxable,$Settings['price-decimals'])}}</td>
+                                                        <td class="text-right">{{NumberFormat($item->TaxAmount,$Settings['price-decimals'])}}</td>
+                                                        <td class="text-right">{{NumberFormat($item->CGSTPer,$Settings['percentage-decimals'])}}</td>
+                                                        <td class="text-right">{{NumberFormat($item->CGSTAmount,$Settings['price-decimals'])}}</td>
+                                                        <td class="text-right">{{NumberFormat($item->SGSTPer,$Settings['percentage-decimals'])}}</td>
+                                                        <td class="text-right">{{NumberFormat($item->SGSTAmount,$Settings['price-decimals'])}}</td>
+                                                        <td class="text-right">{{NumberFormat($item->IGSTPer,$Settings['percentage-decimals'])}}</td>
+                                                        <td class="text-right">{{NumberFormat($item->IGSTAmount,$Settings['price-decimals'])}}</td>
+                                                        <td class="text-right">{{NumberFormat($item->Amount,$Settings['price-decimals'])}}</td>
                                                         </tr>
                                                 @endforeach
                                             </tbody>
@@ -276,27 +276,27 @@
                                                 <div class="row mt-20 fw-600 fs-15 mr-10 justify-content-end">
                                                     <div class="col-4">Sub Total</div>
                                                     <div class="col-1">:</div>
-                                                    <div class="col-3 text-right" id="divSubTotal">{{NumberFormat($AllocatedQData[0]->SubTotal,$Settings['PRICE-DECIMALS'])}}</div>
+                                                    <div class="col-3 text-right" id="divSubTotal">{{NumberFormat($AllocatedQData[0]->SubTotal,$Settings['price-decimals'])}}</div>
                                                 </div>
                                                 <div class="row mt-10 fw-600 fs-15 mr-10 justify-content-end">
                                                     <div class="col-4">CGST</div>
                                                     <div class="col-1">:</div>
-                                                    <div class="col-3 text-right" id="divCGSTAmount">{{NumberFormat($AllocatedQData[0]->CGSTAmt,$Settings['PRICE-DECIMALS'])}}</div>
+                                                    <div class="col-3 text-right" id="divCGSTAmount">{{NumberFormat($AllocatedQData[0]->CGSTAmt,$Settings['price-decimals'])}}</div>
                                                 </div>
                                                 <div class="row mt-10 fw-600 fs-15 mr-10 justify-content-end">
                                                     <div class="col-4">SGST</div>
                                                     <div class="col-1">:</div>
-                                                    <div class="col-3 text-right" id="divSGSTAmount">{{NumberFormat($AllocatedQData[0]->SGSTAmt,$Settings['PRICE-DECIMALS'])}}</div>
+                                                    <div class="col-3 text-right" id="divSGSTAmount">{{NumberFormat($AllocatedQData[0]->SGSTAmt,$Settings['price-decimals'])}}</div>
                                                 </div>
                                                 <div class="row mt-10 fw-600 fs-15 mr-10 justify-content-end">
                                                     <div class="col-4">IGST</div>
                                                     <div class="col-1">:</div>
-                                                    <div class="col-3 text-right" id="divIGSTAmount">{{NumberFormat($AllocatedQData[0]->IGSTAmt,$Settings['PRICE-DECIMALS'])}}</div>
+                                                    <div class="col-3 text-right" id="divIGSTAmount">{{NumberFormat($AllocatedQData[0]->IGSTAmt,$Settings['price-decimals'])}}</div>
                                                 </div>
                                                 <div class="row mt-10 fw-600 fs-16 mr-10 justify-content-end text-success">
                                                     <div class="col-4">Total Amount</div>
                                                     <div class="col-1">:</div>
-                                                    <div class="col-3 text-right" id="divTotalAmount">{{NumberFormat($AllocatedQData[0]->TotalAmount,$Settings['PRICE-DECIMALS'])}}</div>
+                                                    <div class="col-3 text-right" id="divTotalAmount">{{NumberFormat($AllocatedQData[0]->TotalAmount,$Settings['price-decimals'])}}</div>
                                                 </div>
                                             </div>
                                         </div>
@@ -418,15 +418,15 @@
                         <td>${item.ProductName}</td>
                         <td class="text-right">${item.Qty}</td>
                         <td>${item.UName} (${item.UCode})</td>
-                        <td class="text-right">${Number(item.Price).toFixed({{$Settings['PRICE-DECIMALS']}})}</td>
+                        <td class="text-right">${Number(item.Price).toFixed({{$Settings['price-decimals']}})}</td>
                         <td>${item.TaxType}</td>
-                        <td class="text-right">${Number(item.Taxable).toFixed({{$Settings['PRICE-DECIMALS']}})}</td>
-                        <td class="text-right">${Number(item.TaxAmount).toFixed({{$Settings['PRICE-DECIMALS']}})}</td>
-                        <td class="text-right">${Number(item.CGSTPer).toFixed({{$Settings['PRICE-DECIMALS']}})}</td>
-                        <td class="text-right">${Number(item.CGSTAmount).toFixed({{$Settings['PRICE-DECIMALS']}})}</td>
-                        <td class="text-right">${Number(item.SGSTPer).toFixed({{$Settings['PRICE-DECIMALS']}})}</td>
-                        <td class="text-right">${Number(item.SGSTAmount).toFixed({{$Settings['PRICE-DECIMALS']}})}</td>
-                        <td class="text-right">${Number(item.Amount).toFixed({{$Settings['PRICE-DECIMALS']}})}</td>`
+                        <td class="text-right">${Number(item.Taxable).toFixed({{$Settings['price-decimals']}})}</td>
+                        <td class="text-right">${Number(item.TaxAmount).toFixed({{$Settings['price-decimals']}})}</td>
+                        <td class="text-right">${Number(item.CGSTPer).toFixed({{$Settings['price-decimals']}})}</td>
+                        <td class="text-right">${Number(item.CGSTAmount).toFixed({{$Settings['price-decimals']}})}</td>
+                        <td class="text-right">${Number(item.SGSTPer).toFixed({{$Settings['price-decimals']}})}</td>
+                        <td class="text-right">${Number(item.SGSTAmount).toFixed({{$Settings['price-decimals']}})}</td>
+                        <td class="text-right">${Number(item.Amount).toFixed({{$Settings['price-decimals']}})}</td>`
                     );
                     tbody.append(row);
                     });
@@ -443,27 +443,27 @@
                                 <div class="row mt-20 fw-600 fs-15 mr-10 justify-content-end">
                                     <div class="col-4">Sub Total</div>
                                     <div class="col-1">:</div>
-                                    <div class="col-3 text-right" id="divSubTotal">${totalTaxable.toFixed({{$Settings['PRICE-DECIMALS']}})}</div>
+                                    <div class="col-3 text-right" id="divSubTotal">${totalTaxable.toFixed({{$Settings['price-decimals']}})}</div>
                                 </div>
                                 <div class="row mt-10 fw-600 fs-15 mr-10 justify-content-end">
                                     <div class="col-4">CGST</div>
                                     <div class="col-1">:</div>
-                                    <div class="col-3 text-right" id="divCGSTAmount">${totalCGST.toFixed({{$Settings['PRICE-DECIMALS']}})}</div>
+                                    <div class="col-3 text-right" id="divCGSTAmount">${totalCGST.toFixed({{$Settings['price-decimals']}})}</div>
                                 </div>
                                 <div class="row mt-10 fw-600 fs-15 mr-10 justify-content-end">
                                     <div class="col-4">SGST</div>
                                     <div class="col-1">:</div>
-                                    <div class="col-3 text-right" id="divSGSTAmount">${totalSGST.toFixed({{$Settings['PRICE-DECIMALS']}})}</div>
+                                    <div class="col-3 text-right" id="divSGSTAmount">${totalSGST.toFixed({{$Settings['price-decimals']}})}</div>
                                 </div>
                                 <div class="row mt-10 fw-600 fs-15 mr-10 justify-content-end">
                                     <div class="col-4">IGST</div>
                                     <div class="col-1">:</div>
-                                    <div class="col-3 text-right" id="divIGSTAmount">${totalIGST.toFixed({{$Settings['PRICE-DECIMALS']}})}</div>
+                                    <div class="col-3 text-right" id="divIGSTAmount">${totalIGST.toFixed({{$Settings['price-decimals']}})}</div>
                                 </div>
                                 <div class="row mt-10 fw-600 fs-16 mr-10 justify-content-end text-success">
                                     <div class="col-4">Total Amount</div>
                                     <div class="col-1">:</div>
-                                    <div class="col-3 text-right" id="divTotalAmount">${totalPrice.toFixed({{$Settings['PRICE-DECIMALS']}})}</div>
+                                    <div class="col-3 text-right" id="divTotalAmount">${totalPrice.toFixed({{$Settings['price-decimals']}})}</div>
                                 </div>
                             </div>
                         </div>`);
@@ -628,9 +628,9 @@
                                     <div class="col-5">
                                         <h6 class="text-center my-2">Key Points</h6>
                                         <div class="mt-2 fs-15">• ${response.VendorName} is with us since <b>${response.TotalYears}.</b></div>
-                                        <div class="my-2 fs-15">• Has completed <b>${response.TotalOrders}</b> orders worth INR <b>${Number(response.OrderValue).toFixed({{$Settings['PRICE-DECIMALS']}})}.</b></div>
+                                        <div class="my-2 fs-15">• Has completed <b>${response.TotalOrders}</b> orders worth INR <b>${Number(response.OrderValue).toFixed({{$Settings['price-decimals']}})}.</b></div>
                                         <div class="my-2 fs-15">• Has ${generateStarRating(response.CustomerRating)} Customer rating and ${generateStarRating(response.AdminRating)} Admin Rating.</div>
-                                        <div class="my-2 fs-15">• Has outstanding of <b>INR ${Number(response.Outstanding).toFixed({{$Settings['PRICE-DECIMALS']}})}.</b></div>
+                                        <div class="my-2 fs-15">• Has outstanding of <b>INR ${Number(response.Outstanding).toFixed({{$Settings['price-decimals']}})}.</b></div>
                                         <div class="my-2 fs-15">• Has an Overall Rating of <b>${response.OverAll}.</b></div>
                                     </div>
                                 </div>                                
@@ -645,7 +645,7 @@
                         if (key === 'CustomerRating' || key === 'AdminRating') {
                             rowContent = generateStarRating(item);
                         }else if (key === 'Outstanding' || key === 'OrderValue') {
-                            rowContent = Number(item).toFixed({{$Settings['PRICE-DECIMALS']}});
+                            rowContent = Number(item).toFixed({{$Settings['price-decimals']}});
                         }else if (key === 'OverAll') {
                             rowContent = '<span class="fw-600">'+item+'</span>';
                         }else {

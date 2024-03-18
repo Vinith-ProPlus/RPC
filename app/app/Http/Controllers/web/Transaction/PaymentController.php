@@ -468,12 +468,12 @@ class PaymentController extends Controller{
 			$ServerSideProcess=new ServerSideProcess();
 			$columns = array(
 				array( 'db' => 'H.TranNo', 'dt' => '0' ),
-				array( 'db' => 'H.Trandate', 'dt' => '1','formatter' => function( $d, $row ) {return date($this->Settings['DATE-FORMAT'],strtotime($d));}),
+				array( 'db' => 'H.Trandate', 'dt' => '1','formatter' => function( $d, $row ) {return date($this->Settings['date-format'],strtotime($d));}),
 				array( 'db' => 'V.VendorName', 'dt' => '2' ),
 				array( 'db' => 'H.MOP', 'dt' => '3' ),
 				array( 'db' => 'H.MOPRefNo', 'dt' => '4' ),
 				array( 'db' => 'H.PaymentType', 'dt' => '5' ),
-				array( 'db' => 'H.TotalAmount', 'dt' => '6','formatter' => function( $d, $row ) {return Helper::NumberFormat($d,$this->Settings['PRICE-DECIMALS']);}),
+				array( 'db' => 'H.TotalAmount', 'dt' => '6','formatter' => function( $d, $row ) {return Helper::NumberFormat($d,$this->Settings['price-decimals']);}),
 				array( 'db' => 'H.TranNo',
 						'dt' => '7',
 						'formatter' => function( $d, $row ) {
@@ -494,7 +494,7 @@ class PaymentController extends Controller{
 			);
 			$columns1 = array(
 				array( 'db' => 'TranNo', 'dt' => '0' ),
-				array( 'db' => 'Trandate', 'dt' => '1','formatter' => function( $d, $row ) {return date($this->Settings['DATE-FORMAT'],strtotime($d));} ),
+				array( 'db' => 'Trandate', 'dt' => '1','formatter' => function( $d, $row ) {return date($this->Settings['date-format'],strtotime($d));} ),
 				array( 'db' => 'VendorName', 'dt' => '2' ),
 				array( 'db' => 'MOP', 'dt' => '3' ),
 				array( 'db' => 'MOPRefNo', 'dt' => '4' ),
@@ -509,7 +509,7 @@ class PaymentController extends Controller{
 						}
 					}
 				),
-				array( 'db' => 'TotalAmount', 'dt' => '6','formatter' => function( $d, $row ) {return Helper::NumberFormat($d,$this->Settings['PRICE-DECIMALS']);} ),
+				array( 'db' => 'TotalAmount', 'dt' => '6','formatter' => function( $d, $row ) {return Helper::NumberFormat($d,$this->Settings['price-decimals']);} ),
 				array(
 						'db' => 'TranNo',
 						'dt' => '7',
@@ -746,11 +746,11 @@ class PaymentController extends Controller{
 			$ServerSideProcess=new ServerSideProcess();
 			$columns = array(
 				array( 'db' => 'H.TranNo', 'dt' => '0' ),
-				array( 'db' => 'H.Trandate', 'dt' => '1','formatter' => function( $d, $row ) {return date($this->Settings['DATE-FORMAT'],strtotime($d));} ),
+				array( 'db' => 'H.Trandate', 'dt' => '1','formatter' => function( $d, $row ) {return date($this->Settings['date-format'],strtotime($d));} ),
 				array( 'db' => 'V.VendorName', 'dt' => '2' ),
 				array( 'db' => 'H.MOP', 'dt' => '3' ),
 				array( 'db' => 'H.MOPRefNo', 'dt' => '4' ),
-				array( 'db' => 'H.TotalAmount', 'dt' => '5','formatter' => function( $d, $row ) {return Helper::NumberFormat($d,$this->Settings['PRICE-DECIMALS']);} ),
+				array( 'db' => 'H.TotalAmount', 'dt' => '5','formatter' => function( $d, $row ) {return Helper::NumberFormat($d,$this->Settings['price-decimals']);} ),
 				array(
 						'db' => 'H.TranNo',
 						'dt' => '6',
@@ -762,11 +762,11 @@ class PaymentController extends Controller{
 			);
 			$columns1 = array(
 				array( 'db' => 'TranNo', 'dt' => '0' ),
-				array( 'db' => 'Trandate', 'dt' => '1','formatter' => function( $d, $row ) {return date($this->Settings['DATE-FORMAT'],strtotime($d));} ),
+				array( 'db' => 'Trandate', 'dt' => '1','formatter' => function( $d, $row ) {return date($this->Settings['date-format'],strtotime($d));} ),
 				array( 'db' => 'VendorName', 'dt' => '2' ),
 				array( 'db' => 'MOP', 'dt' => '3' ),
 				array( 'db' => 'MOPRefNo', 'dt' => '4' ),
-				array( 'db' => 'TotalAmount', 'dt' => '5','formatter' => function( $d, $row ) {return Helper::NumberFormat($d,$this->Settings['PRICE-DECIMALS']);} ),
+				array( 'db' => 'TotalAmount', 'dt' => '5','formatter' => function( $d, $row ) {return Helper::NumberFormat($d,$this->Settings['price-decimals']);} ),
 				array(
 						'db' => 'TranNo',
 						'dt' => '6',

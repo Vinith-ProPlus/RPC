@@ -330,12 +330,12 @@ class OrderrController extends Controller{
 		if($this->general->isCrudAllow($this->CRUD,"view")==true){
 			$columns = array(
 				array( 'db' => 'OrderNo', 'dt' => '0' ),
-				array( 'db' => 'OrderDate', 'dt' => '1','formatter' => function( $d, $row ) {return date($this->Settings['DATE-FORMAT'],strtotime($d));}),
+				array( 'db' => 'OrderDate', 'dt' => '1','formatter' => function( $d, $row ) {return date($this->Settings['date-format'],strtotime($d));}),
 				array( 'db' => 'CustomerName', 'dt' => '2' ),
 				array( 'db' => 'MobileNo1', 'dt' => '3' ),
-				array( 'db' => 'SubTotal', 'dt' => '4','formatter' => function( $d, $row ) {return Helper::NumberFormat($d,$this->Settings['PRICE-DECIMALS']);}),
-				array( 'db' => 'TaxAmt', 'dt' => '5','formatter' => function( $d, $row ) {return Helper::NumberFormat($d,$this->Settings['PRICE-DECIMALS']);}),
-				array( 'db' => 'TotalAmount', 'dt' => '6','formatter' => function( $d, $row ) {return Helper::NumberFormat($d,$this->Settings['PRICE-DECIMALS']);}),
+				array( 'db' => 'SubTotal', 'dt' => '4','formatter' => function( $d, $row ) {return Helper::NumberFormat($d,$this->Settings['price-decimals']);}),
+				array( 'db' => 'TaxAmt', 'dt' => '5','formatter' => function( $d, $row ) {return Helper::NumberFormat($d,$this->Settings['price-decimals']);}),
+				array( 'db' => 'TotalAmount', 'dt' => '6','formatter' => function( $d, $row ) {return Helper::NumberFormat($d,$this->Settings['price-decimals']);}),
 				array( 'db' => 'Status','dt' => '7',
 					'formatter' => function( $d, $row ) {
 						return "<span class='badge badge-danger m-1'>".$d."</span>";
@@ -385,12 +385,12 @@ class OrderrController extends Controller{
 		if($this->general->isCrudAllow($this->CRUD,"view")==true){
 			$columns = array(
 				array( 'db' => 'OrderNo', 'dt' => '0' ),
-				array( 'db' => 'OrderDate', 'dt' => '1','formatter' => function( $d, $row ) {return date($this->Settings['DATE-FORMAT'],strtotime($d));}),
+				array( 'db' => 'OrderDate', 'dt' => '1','formatter' => function( $d, $row ) {return date($this->Settings['date-format'],strtotime($d));}),
 				array( 'db' => 'CustomerName', 'dt' => '2' ),
 				array( 'db' => 'MobileNo1', 'dt' => '3' ),
-				array( 'db' => 'SubTotal', 'dt' => '4','formatter' => function( $d, $row ) {return Helper::NumberFormat($d,$this->Settings['PRICE-DECIMALS']);}),
-				array( 'db' => 'TaxAmt', 'dt' => '5','formatter' => function( $d, $row ) {return Helper::NumberFormat($d,$this->Settings['PRICE-DECIMALS']);}),
-				array( 'db' => 'TotalAmount', 'dt' => '6','formatter' => function( $d, $row ) {return Helper::NumberFormat($d,$this->Settings['PRICE-DECIMALS']);}),
+				array( 'db' => 'SubTotal', 'dt' => '4','formatter' => function( $d, $row ) {return Helper::NumberFormat($d,$this->Settings['price-decimals']);}),
+				array( 'db' => 'TaxAmt', 'dt' => '5','formatter' => function( $d, $row ) {return Helper::NumberFormat($d,$this->Settings['price-decimals']);}),
+				array( 'db' => 'TotalAmount', 'dt' => '6','formatter' => function( $d, $row ) {return Helper::NumberFormat($d,$this->Settings['price-decimals']);}),
 				array( 'db' => 'Status','dt' => '7',
 					'formatter' => function( $d, $row ) {
 						return "<span class='badge badge-danger m-1'>".$d."</span>";

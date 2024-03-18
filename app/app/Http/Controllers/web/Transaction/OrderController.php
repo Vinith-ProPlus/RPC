@@ -98,7 +98,7 @@ class OrderController extends Controller{
 			$FormData['ActiveMenuName']=$this->ActiveMenuName;
 			$FormData['PageTitle']=$this->PageTitle;
 			$FormData['isEdit']=true;
-			$FormData['EditData']=DB::Table('tbl_order')->where('DFlag',0)->Where('OrderID',$OrderID)->get();
+			$FormData['EditData']=DB::Table($this->currfyDB.'tbl_order')->where('DFlag',0)->Where('OrderID',$OrderID)->get();
 			if(count($FormData['EditData'])>0){
 				return view('app.transaction.order.quote',$FormData);
 			}else{
@@ -118,25 +118,26 @@ class OrderController extends Controller{
 			$FormData['ActiveMenuName']=$this->ActiveMenuName;
 			$FormData['PageTitle']=$this->PageTitle;
 			$FormData['isEdit']=false;
-			$OData=DB::Table('tbl_order as O')
-			->join($this->generalDB.'tbl_countries as C','C.CountryID','O.CountryID')
-			->join($this->generalDB.'tbl_states as S', 'S.StateID', 'O.StateID')
-			->join($this->generalDB.'tbl_districts as D', 'D.DistrictID', 'O.DistrictID')
-			->join($this->generalDB.'tbl_taluks as T', 'T.TalukID', 'O.TalukID')
-			->join($this->generalDB.'tbl_cities as CI', 'CI.CityID', 'O.CityID')
-			->join($this->generalDB.'tbl_postalcodes as PC', 'PC.PID', 'O.PostalCodeID')
-			->join($this->generalDB.'tbl_countries as DC','DC.CountryID','O.DCountryID')
-			->join($this->generalDB.'tbl_states as DS', 'DS.StateID', 'O.DStateID')
-			->join($this->generalDB.'tbl_districts as DD', 'DD.DistrictID', 'O.DDistrictID')
-			->join($this->generalDB.'tbl_taluks as DT', 'DT.TalukID', 'O.DTalukID')
-			->join($this->generalDB.'tbl_cities as DCI', 'DCI.CityID', 'O.DCityID')
-			->join($this->generalDB.'tbl_postalcodes as DPC', 'DPC.PID', 'O.DPostalCodeID')
+			$OData=DB::Table($this->currfyDB.'tbl_order as O')
+			->leftJoin('tbl_customer as CU', 'CU.CustomerID', 'O.CustomerID')
+			->leftJoin($this->generalDB.'tbl_countries as C','C.CountryID','CU.CountryID')
+			->leftJoin($this->generalDB.'tbl_states as S', 'S.StateID', 'CU.StateID')
+			->leftJoin($this->generalDB.'tbl_districts as D', 'D.DistrictID', 'CU.DistrictID')
+			->leftJoin($this->generalDB.'tbl_taluks as T', 'T.TalukID', 'CU.TalukID')
+			->leftJoin($this->generalDB.'tbl_cities as CI', 'CI.CityID', 'CU.CityID')
+			->leftJoin($this->generalDB.'tbl_postalcodes as PC', 'PC.PID', 'CU.PostalCodeID')
+			->leftJoin($this->generalDB.'tbl_countries as DC','DC.CountryID','CU.DCountryID')
+			->leftJoin($this->generalDB.'tbl_states as DS', 'DS.StateID', 'CU.DStateID')
+			->leftJoin($this->generalDB.'tbl_districts as DD', 'DD.DistrictID', 'CU.DDistrictID')
+			->leftJoin($this->generalDB.'tbl_taluks as DT', 'DT.TalukID', 'CU.DTalukID')
+			->leftJoin($this->generalDB.'tbl_cities as DCI', 'DCI.CityID', 'CU.DCityID')
+			->leftJoin($this->generalDB.'tbl_postalcodes as DPC', 'DPC.PID', 'CU.DPostalCodeID')
 			->where('O.DFlag',0)->Where('O.OrderID',$OrderID)
-			->select('OrderID','OrderNo','OrderDate','VendorID','Status','CustomerName','MobileNo1','MobileNo2','Email','DDistrictID','Address','C.CountryName','S.StateName','D.DistrictName','T.TalukName','CI.CityName','PC.PostalCode','DAddress','DC.CountryName as DCountryName','DS.StateName as DStateName','DD.DistrictName as DDistrictName','DT.TalukName as DTalukName','DCI.CityName as DCityName','DPC.PostalCode as DPostalCode')
+			->select('OrderID','OrderNo','OrderDate','Status','CU.CustomerName','MobileNo1','MobileNo2','Email','DDistrictID','Address','C.CountryName','S.StateName','D.DistrictName','T.TalukName','CI.CityName','PC.PostalCode','DAddress','DC.CountryName as DCountryName','DS.StateName as DStateName','DD.DistrictName as DDistrictName','DT.TalukName as DTalukName','DCI.CityName as DCityName','DPC.PostalCode as DPostalCode')
 			->first();
 			$FormData['OData']=$OData;
 			if($OData){
-				$OrderData = DB::Table('tbl_order_details as OD')->join('tbl_order as O','O.OrderID','OD.OrderID')->join('tbl_vendors as V','V.VendorID','O.VendorID')->join('tbl_products as P','P.ProductID','OD.ProductID')->join('tbl_uom as UOM','UOM.UID','OD.UOMID')->where('OD.OrderID',$OrderID)->get();
+				$OrderData = DB::Table($this->currfyDB.'tbl_order_details as OD')->join($this->currfyDB.'tbl_order as O','O.OrderID','OD.OrderID')->join('tbl_vendors as V','V.VendorID','O.VendorID')->join('tbl_products as P','P.ProductID','OD.ProductID')->join('tbl_uom as UOM','UOM.UID','OD.UOMID')->where('OD.OrderID',$OrderID)->get();
 				$FormData['OrderData'] = $OrderData;
 				return view('app.transaction.order.order-view',$FormData);
 			}else{
@@ -149,112 +150,7 @@ class OrderController extends Controller{
         }
     }
 
-    public function RequestOrder(Request $req,$OrderID){
-		if($this->general->isCrudAllow($this->CRUD,"add")==true){
-			$OldData=array();$NewData=array();
-			DB::beginTransaction();
-			$status=false;
-			try {
-				DB::beginTransaction();
-
-				$SelectedVendors = json_decode($req->SelectedVendors, true);
-				foreach ($SelectedVendors as $row) {
-					$VendorID = $row;
-					$VendorDB = Helper::getVendorDB($VendorID, $this->UserID);
-
-					if (Helper::checkTableExists($VendorDB, 'tbl_docnum')) {
-						Helper::addVendorDocNum($VendorDB, 'tbl_docnum', docTypes::OrderRequest->value, "QR", 8, 1);
-						Helper::addVendorDocNum($VendorDB, 'tbl_docnum', docTypes::OrderRequestDetails->value, "QRD", 8, 1);
-
-						$status = DB::statement("CREATE TABLE IF NOT EXISTS {$VendorDB}tbl_order_request (OrderReqID VARCHAR(50) PRIMARY KEY,OrderID VARCHAR(50) NULL,Date DATE,VendorID VARCHAR(50) NULL,Status INT(1) DEFAULT 0,CreatedBy VARCHAR(50) NULL,CreatedOn TIMESTAMP NULL)");
-						$status = DB::statement("CREATE TABLE IF NOT EXISTS {$VendorDB}tbl_order_request_details (DetailID VARCHAR(50) PRIMARY KEY,OrderReqID VARCHAR(50) NULL,ProductID VARCHAR(50) NULL,PCID VARCHAR(50) NULL,PSCID VARCHAR(50) NULL,UOMID VARCHAR(50) NULL,Qty DOUBLE,CreatedBy VARCHAR(50) NULL,CreatedOn TIMESTAMP NULL)");
-
-						$OrderReqID = DocNum::getDocNum(docTypes::OrderRequest->value, $VendorDB);
-						$data = [
-							"OrderReqID" => $OrderReqID,
-							"OrderID" => $OrderID,
-							"VendorID" => $VendorID,
-							"Date" => date('Y-m-d'),
-							"CreatedBy" => $this->UserID,
-							"CreatedOn" => date("Y-m-d H:i:s"),
-						];
-						$status = DB::table($VendorDB . 'tbl_order_request')->insert($data);
-						if ($status) {
-							$ProductDetails = json_decode($req->ProductDetails, true);
-
-							foreach ($ProductDetails as $item) {
-								$DetailID = DocNum::getDocNum(docTypes::OrderRequestDetails->value, $VendorDB);
-								$data1 = [
-									"DetailID" => $DetailID,
-									"OrderReqID" => $OrderReqID,
-									"ProductID" => $item['ProductID'],
-									"PCID" => $item['PCID'],
-									"PSCID" => $item['PSCID'],
-									"UOMID" => $item['UOMID'],
-									"Qty" => $item['Qty'],
-								];
-								$status = DB::table($VendorDB . 'tbl_order_request_details')->insert($data1);
-								if ($status) {
-									DocNum::updateDocNum(docTypes::OrderRequestDetails->value, $VendorDB);
-								}
-							}
-
-							DocNum::updateDocNum(docTypes::OrderRequest->value, $VendorDB);
-						}
-					}
-				}
-				$status = DB::table('tbl_order')->where('OrderID',$OrderID)->update(['Status'=>'Order Requested','VendorIDs'=>serialize($SelectedVendors),"UpdatedBy"=>$this->UserID,"UpdatedOn"=>date("Y-m-d H:i:s")]);
-
-			}catch(Exception $e) {
-				$status=false;
-			}
-
-			if($status==true){
-				// DB::commit();
-				$NewData=DB::table('tbl_order')->where('OrderID',$OrderID)->get();
-				$logData=array("Description"=>"Order Request Sent","ModuleName"=>$this->ActiveMenuName,"Action"=>cruds::ADD->value,"ReferID"=>$OrderID,"OldData"=>$OldData,"NewData"=>$NewData,"UserID"=>$this->UserID,"IP"=>$req->ip());
-				logs::Store($logData);
-				return array('status'=>true,'message'=>"Order Request Sent Successfully");
-			}else{
-				DB::rollback();
-				return array('status'=>false,'message'=>"Order Request Failed");
-			}
-		}else{
-			return array('status'=>false,'message'=>'Access denined');
-		}
-	}
-    public function Allocate(Request $req,$OrderSentID){ return $req;
-		if($this->general->isCrudAllow($this->CRUD,"edit")==true){
-			$OldData=array();$NewData=array();
-			try {
-				$VendorDB = Helper::getVendorDB($req->VendorID, $this->UserID);
-				$status = DB::table($VendorDB.'tbl_order_sent')->where('OrderSentID',$OrderSentID)->update(['Status'=>1]);
-				if($status){
-					$ProductPrices = DB::table($VendorDB.'tbl_order_sent_details as QSD')->join($VendorDB.'tbl_order_sent as QS','QS.OrderSentID','QSD.OrderSentID')->where('QSD.OrderSentID',$OrderSentID)->select('QS.OrderID','QSD.ProductID','QSD.Price')->get();
-					$status = DB::table('tbl_order')->where('OrderID',$ProductPrices[0]->OrderID)->update(['VendorID'=>$req->VendorID]);
-					if($status){
-						foreach($ProductPrices as $row){
-							DB::table('tbl_order_details')->where('OrderID',$row->OrderID)->where('ProductID',$row->ProductID)->update(['Price'=>$row->Price]);
-						}
-					}
-				}
-			}catch(Exception $e) {
-				$status=false;
-			}
-			if($status==true){
-				DB::commit();
-				$NewData=DB::table('tbl_order')->get();
-				$logData=array("Description"=>"Order Allocated","ModuleName"=>$this->ActiveMenuName,"Action"=>cruds::UPDATE->value,"ReferID"=>$OrderID,"OldData"=>$OldData,"NewData"=>$NewData,"UserID"=>$this->UserID,"IP"=>$req->ip());
-				logs::Store($logData);
-				return array('status'=>true,'message'=>"Order Allocated Successfully");
-			}else{
-				DB::rollback();
-				return array('status'=>false,'message'=>"Order Allocate Failed");
-			}
-		}else{
-			return array('status'=>false,'message'=>'Access denined');
-		}
-	}
+    
 	
 	public function Delivered(Request $req,$OrderID){
 		$OldData=$NewData=array();
@@ -262,8 +158,8 @@ class OrderController extends Controller{
 			DB::beginTransaction();
 			$status=false;
 			try{
-				$OldData=DB::table('tbl_order')->where('OrderID',$OrderID)->get();
-				$status=DB::table('tbl_order')->where('OrderID',$OrderID)->update(array("Status"=>"Delivered","UpdatedBy"=>$this->UserID,"UpdatedOn"=>date("Y-m-d H:i:s")));
+				$OldData=DB::table($this->currfyDB.'tbl_order')->where('OrderID',$OrderID)->get();
+				$status=DB::table($this->currfyDB.'tbl_order')->where('OrderID',$OrderID)->update(array("Status"=>"Delivered","UpdatedBy"=>$this->UserID,"UpdatedOn"=>date("Y-m-d H:i:s")));
 			}catch(Exception $e) {
 				
 			}
@@ -286,8 +182,8 @@ class OrderController extends Controller{
 			DB::beginTransaction();
 			$status=false;
 			try{
-				$OldData=DB::table('tbl_order')->where('OrderID',$OrderID)->get();
-				$status=DB::table('tbl_order')->where('OrderID',$OrderID)->update(array("Status"=>"Cancelled","DeletedBy"=>$this->UserID,"DeletedOn"=>date("Y-m-d H:i:s")));
+				$OldData=DB::table($this->currfyDB.'tbl_order')->where('OrderID',$OrderID)->get();
+				$status=DB::table($this->currfyDB.'tbl_order')->where('OrderID',$OrderID)->update(array("Status"=>"Cancelled","DeletedBy"=>$this->UserID,"DeletedOn"=>date("Y-m-d H:i:s")));
 			}catch(Exception $e) {
 				
 			}
@@ -310,14 +206,14 @@ class OrderController extends Controller{
 			DB::beginTransaction();
 			$status=false;
 			try{
-				$OldData=DB::table('tbl_order')->where('OrderID',$OrderID)->get();
-				$status=DB::table('tbl_order')->where('OrderID',$OrderID)->update(array("Status"=>"New","UpdatedBy"=>$this->UserID,"UpdatedOn"=>date("Y-m-d H:i:s")));
+				$OldData=DB::table($this->currfyDB.'tbl_order')->where('OrderID',$OrderID)->get();
+				$status=DB::table($this->currfyDB.'tbl_order')->where('OrderID',$OrderID)->update(array("Status"=>"New","UpdatedBy"=>$this->UserID,"UpdatedOn"=>date("Y-m-d H:i:s")));
 			}catch(Exception $e) {
 				
 			}
 			if($status==true){
 				DB::commit();
-				$NewData=DB::table('tbl_order')->where('OrderID',$OrderID)->get();
+				$NewData=DB::table($this->currfyDB.'tbl_order')->where('OrderID',$OrderID)->get();
 				$logData=array("Description"=>"Order has been Restored ","ModuleName"=>$this->ActiveMenuName,"Action"=>cruds::RESTORE->value,"ReferID"=>$OrderID,"OldData"=>$OldData,"NewData"=>$NewData,"UserID"=>$this->UserID,"IP"=>$req->ip());
 				logs::Store($logData);
 				return array('status'=>true,'message'=>"Order Restored Successfully");
@@ -334,25 +230,20 @@ class OrderController extends Controller{
 		if($this->general->isCrudAllow($this->CRUD,"view")==true){
 			$columns = array(
 				array( 'db' => 'OrderNo', 'dt' => '0' ),
-				array( 'db' => 'OrderDate', 'dt' => '1','formatter' => function( $d, $row ) {return date($this->Settings['DATE-FORMAT'],strtotime($d));}),
-				array( 'db' => 'CustomerName', 'dt' => '2' ),
-				array( 'db' => 'MobileNo1', 'dt' => '3' ),
-				array( 'db' => 'SubTotal', 'dt' => '4','formatter' => function( $d, $row ) {return Helper::NumberFormat($d,$this->Settings['PRICE-DECIMALS']);}),
-				array( 'db' => 'TaxAmt', 'dt' => '5','formatter' => function( $d, $row ) {return Helper::NumberFormat($d,$this->Settings['PRICE-DECIMALS']);}),
-				array( 'db' => 'TotalAmount', 'dt' => '6','formatter' => function( $d, $row ) {return Helper::NumberFormat($d,$this->Settings['PRICE-DECIMALS']);}),
+				array( 'db' => 'OrderDate', 'dt' => '1','formatter' => function( $d, $row ) {return date($this->Settings['date-format'],strtotime($d));}),
+				array( 'db' => 'CustomerID', 'dt' => '2','formatter' => function( $d, $row ) {return DB::table('tbl_customer')->where('CustomerID',$d)->value('CustomerName');} ),
+				array( 'db' => 'CustomerID', 'dt' => '3','formatter' => function( $d, $row ) {return DB::table('tbl_customer')->where('CustomerID',$d)->value('MobileNo1');} ),
+				array( 'db' => 'SubTotal', 'dt' => '4','formatter' => function( $d, $row ) {return Helper::NumberFormat($d,$this->Settings['price-decimals']);}),
+				array( 'db' => 'TaxAmount', 'dt' => '5','formatter' => function( $d, $row ) {return Helper::NumberFormat($d,$this->Settings['price-decimals']);}),
+				array( 'db' => 'TotalAmount', 'dt' => '6','formatter' => function( $d, $row ) {return Helper::NumberFormat($d,$this->Settings['price-decimals']);}),
 				array( 'db' => 'Status','dt' => '7',
 					'formatter' => function( $d, $row ) {
-						return "<span class='badge badge-danger m-1'>".$d."</span>";
+						return "<span class='badge badge-info m-1'>".$d."</span>";
 					} 
-				),
-				array( 'db' => 'VendorID','dt' => '8',
-					'formatter' => function( $d, $row ) {
-						return DB::table('tbl_vendors')->where('VendorID',$d)->value('VendorName');
-					}
 				),
 				array( 
 						'db' => 'OrderID', 
-						'dt' => '9',
+						'dt' => '8',
 						'formatter' => function( $d, $row ) {
 							$html='';
 							if($this->general->isCrudAllow($this->CRUD,"view")==true){
@@ -373,7 +264,7 @@ class OrderController extends Controller{
 			);
 			$data=array();
 			$data['POSTDATA']=$request;
-			$data['TABLE']='tbl_order';
+			$data['TABLE']=$this->currfyDB.'tbl_order';
 			$data['PRIMARYKEY']='OrderID';
 			$data['COLUMNS']=$columns;
 			$data['COLUMNS1']=$columns;
@@ -389,12 +280,12 @@ class OrderController extends Controller{
 		if($this->general->isCrudAllow($this->CRUD,"view")==true){
 			$columns = array(
 				array( 'db' => 'OrderNo', 'dt' => '0' ),
-				array( 'db' => 'OrderDate', 'dt' => '1','formatter' => function( $d, $row ) {return date($this->Settings['DATE-FORMAT'],strtotime($d));}),
+				array( 'db' => 'OrderDate', 'dt' => '1','formatter' => function( $d, $row ) {return date($this->Settings['date-format'],strtotime($d));}),
 				array( 'db' => 'CustomerName', 'dt' => '2' ),
 				array( 'db' => 'MobileNo1', 'dt' => '3' ),
-				array( 'db' => 'SubTotal', 'dt' => '4','formatter' => function( $d, $row ) {return Helper::NumberFormat($d,$this->Settings['PRICE-DECIMALS']);}),
-				array( 'db' => 'TaxAmt', 'dt' => '5','formatter' => function( $d, $row ) {return Helper::NumberFormat($d,$this->Settings['PRICE-DECIMALS']);}),
-				array( 'db' => 'TotalAmount', 'dt' => '6','formatter' => function( $d, $row ) {return Helper::NumberFormat($d,$this->Settings['PRICE-DECIMALS']);}),
+				array( 'db' => 'SubTotal', 'dt' => '4','formatter' => function( $d, $row ) {return Helper::NumberFormat($d,$this->Settings['price-decimals']);}),
+				array( 'db' => 'TaxAmt', 'dt' => '5','formatter' => function( $d, $row ) {return Helper::NumberFormat($d,$this->Settings['price-decimals']);}),
+				array( 'db' => 'TotalAmount', 'dt' => '6','formatter' => function( $d, $row ) {return Helper::NumberFormat($d,$this->Settings['price-decimals']);}),
 				array( 'db' => 'Status','dt' => '7',
 					'formatter' => function( $d, $row ) {
 						return "<span class='badge badge-danger m-1'>".$d."</span>";
@@ -423,7 +314,7 @@ class OrderController extends Controller{
 			);
 			$data=array();
 			$data['POSTDATA']=$request;
-			$data['TABLE']='tbl_order';
+			$data['TABLE']=$this->currfyDB.'tbl_order';
 			$data['PRIMARYKEY']='OrderID';
 			$data['COLUMNS']=$columns;
 			$data['COLUMNS1']=$columns;
@@ -434,16 +325,6 @@ class OrderController extends Controller{
 		}else{
 			return response(array('status'=>false,'message'=>"Access Denied"), 403);
 		}
-	}
-
-	public function GetVendorOrderDetails(request $req){
-		$VendorDB = Helper::getVendorDB($req->VendorID, $this->UserID);
-
-		return DB::Table($VendorDB.'tbl_order_sent_details as QSD')->join('tbl_products as P','P.ProductID','QSD.ProductID')->join('tbl_uom as UOM','UOM.UID','QSD.UOMID')->where('QSD.OrderSentID',$req->OrderSentID)
-		->select('QSD.Price','QSD.Qty','P.ProductName','UOM.UCode','UOM.UName')->get();
-	}
-	public function GetVendorRatings(request $req){
-		return DB::Table('tbl_vendor_ratings')->where('VendorID',$req->VendorID)->select('TotalYears','TotalOrders','CustomerRating','AdminRating','Outstanding','OrderValue','OverAll')->first();
 	}
 
 }

@@ -146,7 +146,7 @@ class BannersController extends Controller{
 			}else{
 				if($bannerImage!=""){
 					if(file_exists($bannerImage)){
-						unlink($bannerImage);
+						// unlink($bannerImage);
 					}
 				}
 				DB::rollback();
@@ -198,7 +198,7 @@ class BannersController extends Controller{
 			}else{
 				if($bannerImage!=""){
 					if(file_exists($bannerImage)){
-						unlink($bannerImage);
+						// unlink($bannerImage);
 					}
 				}
 				DB::rollback();

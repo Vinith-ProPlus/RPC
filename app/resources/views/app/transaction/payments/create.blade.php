@@ -105,19 +105,19 @@
                         <div class="col-sm-6">
                             <div class="row justify-content-end mt-20 fw-600 fs-14 mr-10">
                                 <div class="col-sm-5">Total Balance Amount <span class="cright">:</span></div>
-                                <div class="col-sm-4 text-right" id="divTotalBalanceAmount"> {{NumberFormat(0,$Settings['PRICE-DECIMALS'])}}</div>
+                                <div class="col-sm-4 text-right" id="divTotalBalanceAmount"> {{NumberFormat(0,$Settings['price-decimals'])}}</div>
                             </div>
                             <div class="row justify-content-end mt-20 fw-600 fs-14 mr-10">
                                 <div class="col-sm-5">Total Pay Amount <span class="cright">:</span></div>
-                                <div class="col-sm-4 text-right" id="divTotalPayAmount"> {{NumberFormat(0,$Settings['PRICE-DECIMALS'])}}</div>
+                                <div class="col-sm-4 text-right" id="divTotalPayAmount"> {{NumberFormat(0,$Settings['price-decimals'])}}</div>
                             </div>
                             <div class="row justify-content-end mt-20 fw-600 fs-14 mr-10">
                                 <div class="col-sm-5">Total Less from Advance <span class="cright">:</span></div>
-                                <div class="col-sm-4 text-right" id="divTotalAdvancePaidAmount"> {{NumberFormat(0,$Settings['PRICE-DECIMALS'])}}</div>
+                                <div class="col-sm-4 text-right" id="divTotalAdvancePaidAmount"> {{NumberFormat(0,$Settings['price-decimals'])}}</div>
                             </div>
                             <div class="row justify-content-end mt-20 fw-700 fs-17 mr-10 text-success">
                                 <div class="col-sm-5">Total Paid Amount <span class="cright">:</span></div>
-                                <div class="col-sm-4 text-right" id="divTotalPaidAmount"> {{NumberFormat(0,$Settings['PRICE-DECIMALS'])}}</div>
+                                <div class="col-sm-4 text-right" id="divTotalPaidAmount"> {{NumberFormat(0,$Settings['price-decimals'])}}</div>
                             </div>
                         </div>
                     </div>
@@ -195,14 +195,14 @@
                             html+='<tr data-id="'+Item.InvoiceID+'">'
                             //html+='<td>'+Item.InvoiceNo+'<div class="text-center"><a href="#" data-id="'+Item.InvoiceID+'" class="mr-10 mt-5 fw-700 fs-11 text-primary view-goods-received" title="view Goods Received No in this Invoice">GR</a><a href="#" data-id="'+Item.InvoiceID+'" class="mr-10 mt-5 fw-700 fs-11 text-success view-purchase-order" title="view Purchase Order No in this Invoice"> PO</a></div><span id="spa'+Item.InvoiceID+'" class="display-none">'+JSON.stringify(Item)+'</span></td>'
                             html+='<td>'+Item.InvoiceNo+'<div class="text-center"><a href="#" data-id="'+Item.InvoiceID+'" class="mr-10 mt-5 fw-700 fs-11 text-primary invoice-details" title="View Invoice Details">Details</a></div></td>'
-                            html+='<td>'+Item.InvoiceDate.toString().toCustomFormat("{{$Settings['DATE-FORMAT']}}")+'</td>';
+                            html+='<td>'+Item.InvoiceDate.toString().toCustomFormat("{{$Settings['date-format']}}")+'</td>';
                             html+='<td class="text-right">'+NumberFormat(Item.TotalAmount,"price")+'</td>';
                             html+='<td class="text-right display-none">'+NumberFormat(Item.PaidAmount,"price")+'</td>';
                             html+='<td class="text-right">'+NumberFormat(Item.BalanceAmount,"price")+'</td>';
-                            html+='<td><div class="input-group"><input type="number" steps="{{NumberSteps($Settings["PRICE-DECIMALS"])}}" data-balance-amount="'+NumberFormat(Item.BalanceAmount,"price")+'" data-id="'+Item.InvoiceID+'"  class="form-control txtAdvanceAmount" id="txtAdvanceAmount-'+Item.InvoiceID+'" value="'+NumberFormat(Item.PayLessFromAdvance,'price')+'"><div class="input-group-append"><span class="input-group-text" title="Avaiable of Advance Amount" id="txtAvaiableAdvAmt-'+Item.InvoiceID+'">'+NumberFormat(Item.AdvanceAmt,'price')+'</span></div></div><div class="errors '+Item.InvoiceID+' text-sm" id="txtAdvanceAmount-'+Item.InvoiceID+'-err">&nbsp;</div></td>';
-                            html+='<td><input type="number" steps="{{NumberSteps($Settings["PRICE-DECIMALS"])}}" class="form-control txtPayAmount" data-balance-amount="'+NumberFormat(Item.BalanceAmount,"price")+'" id="txtPA-'+Item.InvoiceID+'" data-id="'+Item.InvoiceID+'"  value="'+NumberFormat(Item.PayPaidAmount,'price')+'"><div class="errors '+Item.InvoiceID+' text-sm" id="txtPA-'+Item.InvoiceID+'-err">&nbsp;</div></td>';
+                            html+='<td><div class="input-group"><input type="number" steps="{{NumberSteps($Settings["price-decimals"])}}" data-balance-amount="'+NumberFormat(Item.BalanceAmount,"price")+'" data-id="'+Item.InvoiceID+'"  class="form-control txtAdvanceAmount" id="txtAdvanceAmount-'+Item.InvoiceID+'" value="'+NumberFormat(Item.PayLessFromAdvance,'price')+'"><div class="input-group-append"><span class="input-group-text" title="Avaiable of Advance Amount" id="txtAvaiableAdvAmt-'+Item.InvoiceID+'">'+NumberFormat(Item.AdvanceAmt,'price')+'</span></div></div><div class="errors '+Item.InvoiceID+' text-sm" id="txtAdvanceAmount-'+Item.InvoiceID+'-err">&nbsp;</div></td>';
+                            html+='<td><input type="number" steps="{{NumberSteps($Settings["price-decimals"])}}" class="form-control txtPayAmount" data-balance-amount="'+NumberFormat(Item.BalanceAmount,"price")+'" id="txtPA-'+Item.InvoiceID+'" data-id="'+Item.InvoiceID+'"  value="'+NumberFormat(Item.PayPaidAmount,'price')+'"><div class="errors '+Item.InvoiceID+' text-sm" id="txtPA-'+Item.InvoiceID+'-err">&nbsp;</div></td>';
                             
-                            html+='<td><input class="form-control txtTotalAmount" steps="{{NumberSteps($Settings["PRICE-DECIMALS"])}}" data-balance-amount="'+NumberFormat(Item.BalanceAmount,"price")+'" type="number" data-id="'+Item.InvoiceID+'" id="txtTP-'+Item.InvoiceID+'"   value="'+NumberFormat(Item.PayTotalPaidAmount,'price')+'" disabled value="'+NumberFormat(0,'price')+'"><div class="errors '+Item.InvoiceID+' text-sm" id="txtTP-'+Item.InvoiceID+'-err">&nbsp;</div></td>';
+                            html+='<td><input class="form-control txtTotalAmount" steps="{{NumberSteps($Settings["price-decimals"])}}" data-balance-amount="'+NumberFormat(Item.BalanceAmount,"price")+'" type="number" data-id="'+Item.InvoiceID+'" id="txtTP-'+Item.InvoiceID+'"   value="'+NumberFormat(Item.PayTotalPaidAmount,'price')+'" disabled value="'+NumberFormat(0,'price')+'"><div class="errors '+Item.InvoiceID+' text-sm" id="txtTP-'+Item.InvoiceID+'-err">&nbsp;</div></td>';
                             html+='</tr>'
                             $('#tblDetails tbody').append(html);
                     }
@@ -445,7 +445,7 @@
                 let html=''
                     html+='<table class="table table-sm"><thead><tr><th class="text-center">Order No</th><th class="text-center">Order Date</th><th class="text-center">Taxable</th><th class="text-center">CGST Amount</th><th class="text-center">SGST Amount</th><th class="text-center">IGST Amount</th><th class="text-center">Amount</th></tr></thead><tbody>';
                     $.each( data.POInfo, function( KeyName, KeyValue ) {
-                        html+='<tr><td>'+KeyValue.PONo+' </td><td> '+KeyValue.PODate.toString().toCustomFormat("{{$Settings['DATE-FORMAT']}}")+'</td><td class="text-right">'+NumberFormat(KeyValue.Taxable,'price')+'</td><td class="text-right">'+NumberFormat(KeyValue.CGSTAmount,'price')+'</td><td class="text-right">'+NumberFormat(KeyValue.SGSTAmount,'price')+'</td><td class="text-right">'+NumberFormat(KeyValue.IGSTAmount,'price')+'</td><td class="text-right">'+NumberFormat(KeyValue.TotalAmount,'price')+'</td></tr>'
+                        html+='<tr><td>'+KeyValue.PONo+' </td><td> '+KeyValue.PODate.toString().toCustomFormat("{{$Settings['date-format']}}")+'</td><td class="text-right">'+NumberFormat(KeyValue.Taxable,'price')+'</td><td class="text-right">'+NumberFormat(KeyValue.CGSTAmount,'price')+'</td><td class="text-right">'+NumberFormat(KeyValue.SGSTAmount,'price')+'</td><td class="text-right">'+NumberFormat(KeyValue.IGSTAmount,'price')+'</td><td class="text-right">'+NumberFormat(KeyValue.TotalAmount,'price')+'</td></tr>'
                         Taxable+=parseFloat(KeyValue.Taxable);
                         IGSTAmount+=parseFloat(KeyValue.IGSTAmount);
                         CGSTAmount+=parseFloat(KeyValue.CGSTAmount);
@@ -470,7 +470,7 @@
                 let html=''
                     html+='<table class="table table-sm"><thead><tr><th class="text-center">GR No</th><th class="text-center">GR Date</th><th class="text-center">Taxable</th><th class="text-center">CGST Amount</th><th class="text-center">SGST Amount</th><th class="text-center">IGST Amount</th><th class="text-center">Amount</th></tr></thead><tbody>';
                     $.each( data.GRInfo, function( KeyName, KeyValue ) {
-                        html+='<tr><td>'+KeyValue.GRNo+' </td><td> '+KeyValue.GRDate.toString().toCustomFormat("{{$Settings['DATE-FORMAT']}}")+'</td><td class="text-right">'+NumberFormat(KeyValue.Taxable,'price')+'</td><td class="text-right">'+NumberFormat(KeyValue.CGSTAmount,'price')+'</td><td class="text-right">'+NumberFormat(KeyValue.SGSTAmount,'price')+'</td><td class="text-right">'+NumberFormat(KeyValue.IGSTAmount,'price')+'</td><td class="text-right">'+NumberFormat(KeyValue.TotalAmount,'price')+'</td></tr>'
+                        html+='<tr><td>'+KeyValue.GRNo+' </td><td> '+KeyValue.GRDate.toString().toCustomFormat("{{$Settings['date-format']}}")+'</td><td class="text-right">'+NumberFormat(KeyValue.Taxable,'price')+'</td><td class="text-right">'+NumberFormat(KeyValue.CGSTAmount,'price')+'</td><td class="text-right">'+NumberFormat(KeyValue.SGSTAmount,'price')+'</td><td class="text-right">'+NumberFormat(KeyValue.IGSTAmount,'price')+'</td><td class="text-right">'+NumberFormat(KeyValue.TotalAmount,'price')+'</td></tr>'
                         Taxable+=parseFloat(KeyValue.Taxable);
                         IGSTAmount+=parseFloat(KeyValue.IGSTAmount);
                         CGSTAmount+=parseFloat(KeyValue.CGSTAmount);

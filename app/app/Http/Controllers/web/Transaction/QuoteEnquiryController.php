@@ -556,10 +556,10 @@ class QuoteEnquiryController extends Controller{
 		if($this->general->isCrudAllow($this->CRUD,"view")==true){
 			$columns = array(
 				array( 'db' => 'EnqNo', 'dt' => '0' ),
-				array( 'db' => 'EnqDate', 'dt' => '1','formatter' => function( $d, $row ) {return date($this->Settings['DATE-FORMAT'],strtotime($d));}),
+				array( 'db' => 'EnqDate', 'dt' => '1','formatter' => function( $d, $row ) {return date($this->Settings['date-format'],strtotime($d));}),
 				array( 'db' => 'ReceiverName', 'dt' => '2' ),
 				array( 'db' => 'ReceiverMobNo', 'dt' => '3' ),
-				array( 'db' => 'ExpectedDeliveryDate', 'dt' => '4','formatter' => function( $d, $row ) {return date($this->Settings['DATE-FORMAT'],strtotime($d));}),
+				array( 'db' => 'ExpectedDeliveryDate', 'dt' => '4','formatter' => function( $d, $row ) {return date($this->Settings['date-format'],strtotime($d));}),
 				array( 'db' => 'CustomerID', 'dt' => '5',
 					'formatter' => function( $d, $row ) {
 						return DB::table('tbl_customer')->where('CustomerID',$d)->value('Email');
@@ -618,7 +618,7 @@ class QuoteEnquiryController extends Controller{
 		if($this->general->isCrudAllow($this->CRUD,"view")==true){
 			$columns = array(
 				array( 'db' => 'QNo', 'dt' => '0' ),
-				array( 'db' => 'QDate', 'dt' => '1','formatter' => function( $d, $row ) {return date($this->Settings['DATE-FORMAT'],strtotime($d));}),
+				array( 'db' => 'QDate', 'dt' => '1','formatter' => function( $d, $row ) {return date($this->Settings['date-format'],strtotime($d));}),
 				array( 'db' => 'CustomerName', 'dt' => '2' ),
 				array( 'db' => 'MobileNo1', 'dt' => '3' ),
 				array( 'db' => 'MobileNo2', 'dt' => '4' ),
@@ -683,10 +683,10 @@ class QuoteEnquiryController extends Controller{
 		if($this->general->isCrudAllow($this->CRUD,"view")==true){
 			$columns = array(
 				array( 'db' => 'EnqNo', 'dt' => '0' ),
-				array( 'db' => 'EnqDate', 'dt' => '1','formatter' => function( $d, $row ) {return date($this->Settings['DATE-FORMAT'],strtotime($d));}),
+				array( 'db' => 'EnqDate', 'dt' => '1','formatter' => function( $d, $row ) {return date($this->Settings['date-format'],strtotime($d));}),
 				array( 'db' => 'ReceiverName', 'dt' => '2' ),
 				array( 'db' => 'ReceiverMobNo', 'dt' => '3' ),
-				array( 'db' => 'ExpectedDeliveryDate', 'dt' => '4','formatter' => function( $d, $row ) {return date($this->Settings['DATE-FORMAT'],strtotime($d));}),
+				array( 'db' => 'ExpectedDeliveryDate', 'dt' => '4','formatter' => function( $d, $row ) {return date($this->Settings['date-format'],strtotime($d));}),
 				array( 'db' => 'CustomerID', 'dt' => '5',
 					'formatter' => function( $d, $row ) {
 						return DB::table('tbl_customer')->where('CustomerID',$d)->value('Email');

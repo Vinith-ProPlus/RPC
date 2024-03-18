@@ -90,12 +90,17 @@ class CustomerAPIController extends Controller{
     public function GoogleRegister(request $req){
         $UserData=DB::Table('users')->where('UserName',$req->Email)->first();
         if($UserData){
-            $request = new Request([
-                'email' => $req->Email,
-                'password' => $req->UID,
-                'fcmToken' => $req->fcmToken
-            ]);
-            return $this->Login($request);
+            $isVendor = DB::Table('users')->where('UserName',$req->Email)->where('LoginType',$req->LoginType)->exists();
+            if($isVendor){
+                $request = new Request([
+                    'email' => $req->Email,
+                    'password' => $req->UID,
+                    'fcmToken' => $req->fcmToken
+                ]);
+                return $this->Login($request);
+            }else{
+                return response()->json(['status' => false,'message' => "This email is registered as Vendor!"]);
+            }
         }else{
             DB::beginTransaction();
             $UserID=DocNum::getDocNum(docTypes::Users->value,'',Helper::getCurrentFY());

@@ -33,7 +33,7 @@
                                                 'Customer Name' => $EnqData->CustomerName,
                                                 'Email' => $EnqData->Email,
                                                 'Contact Number' => $EnqData->MobileNo1 . ($EnqData->MobileNo2 ? ', ' . $EnqData->MobileNo2 : ''),
-                                                'Enquiry Date' => date($Settings['DATE-FORMAT'], strtotime($EnqData->EnqDate)),
+                                                'Enquiry Date' => date($Settings['date-format'], strtotime($EnqData->EnqDate)),
                                             ] as $label => $value)
                                                 <div class="row my-1">
                                                     <div class="col-sm-5 fw-600">{{ $label }}</div>

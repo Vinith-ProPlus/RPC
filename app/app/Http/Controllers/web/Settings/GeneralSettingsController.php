@@ -95,7 +95,7 @@ class GeneralSettingsController extends Controller{
 			if($sType=="company"){
 				return array('status'=>true,'message'=>"Social media links updated successfully");
 			}elseif($sType=="map"){
-				return array('status'=>true,'message'=>"Map  updated successfully");
+				return array('status'=>true,'message'=>"Map updated successfully");
 			}else{
 				return array('status'=>true,'message'=>"General settings updated successfully");
 			}
@@ -104,7 +104,7 @@ class GeneralSettingsController extends Controller{
 			if($sType=="company"){
 				return array('status'=>false,'message'=>"Company Info update failed");
 			}elseif($sType=="map"){
-				return array('status'=>false,'message'=>"Map  update failed");
+				return array('status'=>false,'message'=>"Map update failed");
 			}else{
 				return array('status'=>false,'message'=>"General settings update failed");
 			}

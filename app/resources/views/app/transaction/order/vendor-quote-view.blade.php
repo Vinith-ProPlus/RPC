@@ -38,7 +38,7 @@
                                     <td>{{$QData->QuoteNo}}</td>
                                     <td>{{$item->VendorName}}</td>
                                     <td>{{$QData->QuoteNo}} - {{$key + 1}}</td>
-                                    <td class="text-right">{{$item->QuoteValue ? NumberFormat($item->QuoteValue,$Settings['PRICE-DECIMALS']) : ""}}
+                                    <td class="text-right">{{$item->QuoteValue ? NumberFormat($item->QuoteValue,$Settings['price-decimals']) : ""}}
                                         @if($item->isQuoteReceived && $item->QuoteValue) 
                                             <button type="button" title="View Quotation Details" data-vendor-id="{{$item->VendorID}}" data-id="{{$item->QuoteSentID}}" class="btn btnQuoteView"><i class="fa fa-eye text-dark"></i></button> 
                                         @endif

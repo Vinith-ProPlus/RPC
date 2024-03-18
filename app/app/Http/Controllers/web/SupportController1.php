@@ -179,7 +179,7 @@ class SupportController extends Controller{
 		if($this->general->isCrudAllow($this->CRUD,"view")==true){
 			$columns = array(
 				array( 'db' => 'SupportID', 'dt' => '0' ),
-				array( 'db' => 'TicketDate', 'dt' => '1','formatter' => function( $d, $row ) {return date($this->Settings['DATE-FORMAT'],strtotime($d));}),
+				array( 'db' => 'TicketDate', 'dt' => '1','formatter' => function( $d, $row ) {return date($this->Settings['date-format'],strtotime($d));}),
 				array( 'db' => 'TicketFrom', 'dt' => '2' ),
 				array(
                     'db' => 'UserID',
@@ -283,7 +283,7 @@ class SupportController extends Controller{
 		if($this->general->isCrudAllow($this->CRUD,"view")==true){
 			$columns = array(
 				array( 'db' => 'SupportID', 'dt' => '0' ),
-				array( 'db' => 'TicketDate', 'dt' => '1','formatter' => function( $d, $row ) {return date($this->Settings['DATE-FORMAT'],strtotime($d));}),
+				array( 'db' => 'TicketDate', 'dt' => '1','formatter' => function( $d, $row ) {return date($this->Settings['date-format'],strtotime($d));}),
 				array( 'db' => 'TicketFrom', 'dt' => '2' ),
 				array(
                     'db' => 'UserID',

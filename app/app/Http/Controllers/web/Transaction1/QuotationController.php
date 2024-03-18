@@ -731,7 +731,7 @@ class QuotationController extends Controller{
 		if($this->general->isCrudAllow($this->CRUD,"view")==true){
 			$columns = array(
 				array( 'db' => 'QNo', 'dt' => '0' ),
-				array( 'db' => 'QDate', 'dt' => '1','formatter' => function( $d, $row ) {return date($this->Settings['DATE-FORMAT'],strtotime($d));}),
+				array( 'db' => 'QDate', 'dt' => '1','formatter' => function( $d, $row ) {return date($this->Settings['date-format'],strtotime($d));}),
 				array( 'db' => 'CustomerName', 'dt' => '2' ),
 				array( 'db' => 'MobileNo1', 'dt' => '3' ),
 				array( 'db' => 'MobileNo2', 'dt' => '4' ),
@@ -795,7 +795,7 @@ class QuotationController extends Controller{
 		if($this->general->isCrudAllow($this->CRUD,"view")==true){
 			$columns = array(
 				array( 'db' => 'QNo', 'dt' => '0' ),
-				array( 'db' => 'QDate', 'dt' => '1','formatter' => function( $d, $row ) {return date($this->Settings['DATE-FORMAT'],strtotime($d));}),
+				array( 'db' => 'QDate', 'dt' => '1','formatter' => function( $d, $row ) {return date($this->Settings['date-format'],strtotime($d));}),
 				array( 'db' => 'CustomerName', 'dt' => '2' ),
 				array( 'db' => 'MobileNo1', 'dt' => '3' ),
 				array( 'db' => 'MobileNo2', 'dt' => '4' ),

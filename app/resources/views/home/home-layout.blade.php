@@ -300,7 +300,7 @@
                             <a href="{{ route('homepage') }}">Home</a>
                         </li>
                         <li>
-                            <a href="#">Products</a>
+                            <a href="{{ route('products') }}">Products</a>
                             <div class="megamenu megamenu-fixed-width">
                                 <div class="row">
                                     <div class="col-lg-12">

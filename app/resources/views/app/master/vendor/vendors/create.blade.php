@@ -460,7 +460,7 @@
                                         <div class="col-4 col-lg-2 d-flex align-items-center"><div >Commission <span class="required"> * </span></div></div>
                                         <div class="col-6 col-lg-8">
                                             <div class="input-group">
-                                                <input type="number" min=0 max=100 step="{{NumberSteps($Settings['PERCENTAGE-DECIMALS'])}}" id="txtCommissionPercentage" class="form-control" placeholder="Commission Percentage" value="<?php if($isEdit){ echo $data->CommissionPercentage;} ?>">
+                                                <input type="number" min=0 max=100 step="{{NumberSteps($Settings['percentage-decimals'])}}" id="txtCommissionPercentage" class="form-control" placeholder="Commission Percentage" value="<?php if($isEdit){ echo $data->CommissionPercentage;} ?>">
                                                 <span class="input-group-text"> % </span>
                                             </div>
                                             

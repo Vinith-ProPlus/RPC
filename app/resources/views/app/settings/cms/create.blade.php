@@ -37,7 +37,7 @@
                                         <div class="errors" id="txtPageName-err"></div>
                                     </div>
                                 </div>
-                                <div class="col-sm-12">
+                                <div class="col-sm-12 mt-20">
                                     <div class="form-group">
                                         <label for="txtPageName"> Page Content </label>
                                         <div id="editor" >

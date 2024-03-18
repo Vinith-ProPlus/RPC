@@ -573,27 +573,87 @@ class CustomerAuthController extends Controller{
         
 		return response()->json(['status' => true, 'data' => $CustomerHome ]);
 	}
+    public function getCustomerHomeSearchd(Request $req){
+        $PostalID = $req->PostalID ?? DB::table('tbl_customer')->where('CustomerID',$this->ReferID)->value('PostalCodeID');
+        
+        if($PostalID && $req->SearchText){
+            $AllVendors = DB::table('tbl_vendors as V')->leftJoin('tbl_vendors_service_locations as VSL','V.VendorID','VSL.VendorID')->where('V.ActiveStatus',"Active")->where('V.DFlag',0)->where('VSL.PostalCodeID',$PostalID)->groupBy('VSL.VendorID')->pluck('VSL.VendorID')->toArray();
+            
+            $query1 = DB::table('tbl_product_category as PC')
+                ->rightJoin('tbl_product_subcategory as PSC', 'PSC.PCID', 'PC.PCID')
+                ->rightJoin('tbl_products as P', 'PSC.PSCID', 'P.SCID')
+                ->leftJoin('tbl_vendors_product_mapping as VPM', 'P.ProductID', 'VPM.ProductID')
+                ->where('VPM.Status', 1)
+                ->whereIn('VPM.VendorID', $AllVendors)
+                ->where('PC.PCName', 'like', '%' . $req->SearchText . '%')
+                ->groupBy('P.ProductID', 'P.ProductName', 'PC.PCID', 'PC.PCName', 'PSC.PSCID', 'PSC.PSCName')
+                ->select('P.ProductID', 'P.ProductName', 'PC.PCID', 'PC.PCName', 'PSC.PSCID', 'PSC.PSCName');
+
+            $query2 = DB::table('tbl_product_subcategory as PSC')
+                ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'PSC.PCID')
+                ->rightJoin('tbl_products as P', 'P.SCID', 'PSC.PSCID')
+                ->leftJoin('tbl_vendors_product_mapping as VPM', 'P.ProductID', 'VPM.ProductID')
+                ->where('VPM.Status', 1)
+                ->whereIn('VPM.VendorID', $AllVendors)
+                ->where('PSC.PSCName', 'like', '%' . $req->SearchText . '%')
+                ->groupBy('P.ProductID', 'P.ProductName', 'PC.PCID', 'PC.PCName', 'PSC.PSCID', 'PSC.PSCName')
+                ->select('P.ProductID', 'P.ProductName', 'PC.PCID', 'PC.PCName', 'PSC.PSCID', 'PSC.PSCName');
+
+            $query3 = DB::table('tbl_products as P')
+                ->leftJoin('tbl_product_subcategory as PSC', 'P.SCID', 'PSC.PSCID')
+                ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'PSC.PCID')
+                ->leftJoin('tbl_vendors_product_mapping as VPM', 'P.ProductID', 'VPM.ProductID')
+                ->where('VPM.Status', 1)
+                ->whereIn('VPM.VendorID', $AllVendors)
+                ->where('P.ProductName', 'like', '%' . $req->SearchText . '%')
+                ->groupBy('P.ProductID', 'P.ProductName', 'PC.PCID', 'PC.PCName', 'PSC.PSCID', 'PSC.PSCName')
+                ->select('P.ProductID', 'P.ProductName', 'PC.PCID', 'PC.PCName', 'PSC.PSCID', 'PSC.PSCName');
+
+            $ProductData = $query1->union($query2)->union($query3)->get();
+
+
+            return response()->json(['status' => true, 'data' => $ProductData ]);
+        }else{
+            return response()->json(['status' => false, 'data' => [] ]);
+        }
+	}
     public function getCustomerHomeSearch(Request $req){
         $PostalID = $req->PostalID ?? DB::table('tbl_customer')->where('CustomerID',$this->ReferID)->value('PostalCodeID');
         
         if($PostalID && $req->SearchText){
             $AllVendors = DB::table('tbl_vendors as V')->leftJoin('tbl_vendors_service_locations as VSL','V.VendorID','VSL.VendorID')->where('V.ActiveStatus',"Active")->where('V.DFlag',0)->where('VSL.PostalCodeID',$PostalID)->groupBy('VSL.VendorID')->pluck('VSL.VendorID')->toArray();
             
-            $ProductData = DB::table('tbl_vendors_product_mapping as VPM')
-            ->leftJoin('tbl_products as P', 'P.ProductID', 'VPM.ProductID')
-            ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'P.CID')
-            ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')
-            ->where('VPM.Status', 1)
+            $PCategories = DB::table('tbl_product_category as PC')
+                ->rightJoin('tbl_vendors_product_mapping as VPM', 'PC.PCID', 'VPM.PCID')
+                ->where('VPM.Status', 1)
+                ->whereIn('VPM.VendorID', $AllVendors)
+                ->where('PC.PCName', 'like', '%' . $req->SearchText . '%')
+                ->groupBy('PC.PCID', 'PC.PCName')
+                ->select('PC.PCID', 'PC.PCName')->take(3)->get();
 
-            ->where(function($query) use ($req) {
-                $query->where('PSC.PSCName', 'like', '%' . $req->SearchText . '%')
-                    ->orWhere('PC.PCName', 'like', '%' . $req->SearchText . '%')
-                    ->orWhere('P.ProductName', 'like', '%' . $req->SearchText . '%');
-            })
-            ->whereIn('VPM.VendorID', $AllVendors)
-            ->groupBy('P.ProductID', 'P.ProductName', 'PC.PCID', 'PC.PCName', 'PSC.PSCID', 'PSC.PSCName')
-            ->select('P.ProductID', 'P.ProductName', 'PC.PCID', 'PC.PCName', 'PSC.PSCID', 'PSC.PSCName')
-            ->get();
+            $PSCategories = DB::table('tbl_product_subcategory as PSC')
+                ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'PSC.PCID')
+
+                ->rightJoin('tbl_vendors_product_mapping as VPM', 'PSC.PSCID', 'VPM.PSCID')
+                ->where('VPM.Status', 1)
+                ->whereIn('VPM.VendorID', $AllVendors)
+                ->where('PSC.PSCName', 'like', '%' . $req->SearchText . '%')
+                ->groupBy('PC.PCID', 'PC.PCName', 'PSC.PSCID', 'PSC.PSCName')
+                ->select('PC.PCID', 'PC.PCName', 'PSC.PSCID', 'PSC.PSCName')->take(3)->get();
+
+            $Products = DB::table('tbl_products as P')
+                ->leftJoin('tbl_product_subcategory as PSC', 'P.SCID', 'PSC.PSCID')
+                ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'PSC.PCID')
+                ->rightJoin('tbl_vendors_product_mapping as VPM', 'P.ProductID', 'VPM.ProductID')
+                ->where('VPM.Status', 1)
+                ->whereIn('VPM.VendorID', $AllVendors)
+                ->where('P.ProductName', 'like', '%' . $req->SearchText . '%')
+                ->groupBy('P.ProductID', 'P.ProductName', 'PC.PCID', 'PC.PCName', 'PSC.PSCID', 'PSC.PSCName')
+                ->select('P.ProductID', 'P.ProductName', 'PC.PCID', 'PC.PCName', 'PSC.PSCID', 'PSC.PSCName')->take(3)->get();
+
+            $ProductData = ['PCategories'=>$PCategories,'PSCategories'=>$PSCategories,'Products'=>$Products];
+
+
             return response()->json(['status' => true, 'data' => $ProductData ]);
         }else{
             return response()->json(['status' => false, 'data' => [] ]);

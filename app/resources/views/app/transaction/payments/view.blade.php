@@ -27,11 +27,11 @@
 								</div>
 								<div class="col-md-4 my-2 text-right text-md-right">
 									@if($crud['restore']==1)
-										<a href="{{ url('/') }}/admin/transaction/payments/trash/view" class="btn  btn-outline-light btn-sm m-r-10" type="button" > Trash view </a>
+										{{-- <a href="{{ url('/') }}/admin/transaction/payments/trash/view" class="btn  btn-outline-light btn-sm m-r-10" type="button" > Trash view </a> --}}
 									@endif
 									@if($crud['add']==1)
 										<a href="{{ url('/') }}/admin/transaction/payments/advance-payment/create" class="btn  btn-outline-primary mr-10  btn-sm" type="button" title="Advance Payment" >Advance Payment</a>
-										<a href="{{ url('/') }}/admin/transaction/payments/invoice-payment/create" class="btn  btn-outline-success btn-air-success btn-sm" type="button" title="Payment  For Invoice" >Invoice Payment</a>
+										<a href="{{ url('/') }}/admin/transaction/payments/invoice-payment/create" class="btn  btn-outline-success btn-air-success btn-sm" type="button" title="Payment  For Invoice" >Order Payment</a>
 									@endif
 								</div>
 							</div>
@@ -166,7 +166,7 @@
             	});
             });
 		});
-        LoadTable();
+        // LoadTable();
     });
 </script>
 @endsection

@@ -474,7 +474,7 @@
                                 <div class="row mt-20">
                                     <div class="col-4 col-lg-2 d-flex align-items-center"><div >Regular Price  <span class="required"> * </span></div></div>
                                     <div class="col-6 col-lg-8">
-                                        <input type="number" id="txtRegularPrice" class="form-control" min=0 step="{{Helper::NumberSteps($Settings["PRICE-DECIMALS"])}}" placeholder="Regular Price" value="<?php if($isEdit){ echo Helper::NumberFormat($data->PRate,$Settings['PRICE-DECIMALS']);} ?>">
+                                        <input type="number" id="txtRegularPrice" class="form-control" min=0 step="{{Helper::NumberSteps($Settings["price-decimals"])}}" placeholder="Regular Price" value="<?php if($isEdit){ echo Helper::NumberFormat($data->PRate,$Settings['price-decimals']);} ?>">
                                         <div class="errors err-sm" id="txtRegularPrice-err"></div>
                                     </div>
                                     <div class="col-1 col-lg-2 d-flex align-items-center"></div>
@@ -482,7 +482,7 @@
                                 <div class="row mt-20">
                                     <div class="col-4 col-lg-2 d-flex align-items-center"><div >Sales Price  <span class="required"> * </span></div></div>
                                     <div class="col-6 col-lg-8">
-                                        <input type="number" id="txtSalesPrice" class="form-control" min=0 step="{{Helper::NumberSteps($Settings["PRICE-DECIMALS"])}}" placeholder="Sales Price" value="<?php if($isEdit){ echo Helper::NumberFormat($data->SRate,$Settings['PRICE-DECIMALS']);} ?>">
+                                        <input type="number" id="txtSalesPrice" class="form-control" min=0 step="{{Helper::NumberSteps($Settings["price-decimals"])}}" placeholder="Sales Price" value="<?php if($isEdit){ echo Helper::NumberFormat($data->SRate,$Settings['price-decimals']);} ?>">
                                         <div class="errors err-sm" id="txtSalesPrice-err"></div>
                                     </div>
                                     <div class="col-1 col-lg-2 d-flex align-items-center"></div>
@@ -1314,14 +1314,14 @@
                                             html+='<div class="col-12 mt-15">';
                                                 html+='<div class="form-group">';
                                                     html+='<label for="">Regular Price <span class="required"> * </span></label>';
-                                                    html+='<input type="number" min=0 step="{{Helper::NumberSteps($Settings["PRICE-DECIMALS"])}}" class="form-control txtVRegularPrice" data-uuid="'+uuid+'" id="txtVRegularPrice-'+uuid+'" value="'+PurchasePrice+'">';
+                                                    html+='<input type="number" min=0 step="{{Helper::NumberSteps($Settings["price-decimals"])}}" class="form-control txtVRegularPrice" data-uuid="'+uuid+'" id="txtVRegularPrice-'+uuid+'" value="'+PurchasePrice+'">';
                                                     html+='<div class="errors err-sm" id="txtVRegularPrice-'+uuid+'-err"></div>';
                                                 html+='</div>';
                                             html+='</div>';
                                             html+='<div class="col-12 mt-15">';
                                                 html+='<div class="form-group">';
                                                     html+='<label for="">Sales Price <span class="required"> * </span></label>';
-                                                    html+='<input type="number" min=0 step="{{Helper::NumberSteps($Settings["PRICE-DECIMALS"])}}" class="form-control txtVSalesPrice" data-uuid="'+uuid+'"  id="txtVSalesPrice-'+uuid+'" value="'+SalesPrice+'">';
+                                                    html+='<input type="number" min=0 step="{{Helper::NumberSteps($Settings["price-decimals"])}}" class="form-control txtVSalesPrice" data-uuid="'+uuid+'"  id="txtVSalesPrice-'+uuid+'" value="'+SalesPrice+'">';
                                                     html+='<div class="errors err-sm" id="txtVSalesPrice-'+uuid+'-err"></div>';
                                                 html+='</div>';
                                             html+='</div>';

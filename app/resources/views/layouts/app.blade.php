@@ -30,6 +30,9 @@
 		<link rel="stylesheet" type="text/css" href="{{url('/')}}/assets/plugins/dataTable/css/fixedColumns.dataTables.min.css?r={{date('YmdHis')}}">
 		<link rel="stylesheet" type="text/css" href="{{url('/')}}/assets/plugins/dataTable/css/bootstrap5.dataTables.min.css?r={{date('YmdHis')}}">
 		<link rel="stylesheet" type="text/css" href="{{url('/')}}/assets/css/datatable-extension.css?r={{date('YmdHis')}}">
+		<link rel="stylesheet" type="text/css" href="{{url('/')}}/assets/js/lightbox/css/lightgallery.css?r={{date('dmyHis')}}">
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/css/lightbox.min.css">
+
 
 		
 		<link rel="stylesheet" type="text/css" href="{{url('/')}}/assets/css/sweetalert2.css?r={{date('YmdHis')}}">
@@ -580,6 +583,9 @@
 		<script src="{{url('/')}}/assets/js/custom.js?r={{date('YmdHis')}}"></script>
 		<script src="{{url('/')}}/assets/js/address.js?r={{date('YmdHis')}}"></script>
 		<script src="{{url('/')}}/assets/js/app-init.js?r={{date('YmdHis')}}"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox.min.js"></script>
+		<script src="{{url('/')}}/assets/js/lightbox/js/lightgallery.js?r={{date('dmyHis')}}"></script>
+
 		
 		<script src="{{url('/')}}/assets/plugins/ckeditor/ckeditor.js"></script>
     	<script src="{{url('/')}}/assets/plugins/ckeditor/custom.js"></script>
