@@ -331,7 +331,7 @@
                                     <div class="col-lg-12 p-1">
                                         <div class="row justify-content-end">
                                             <div class="col-lg-4">
-                                                <a href="#" class="btn btn-sm btn-dark mr-0">View More</a>
+                                                <a href="{{ route('products') }}" class="btn btn-sm btn-dark mr-0">View More</a>
                                             </div>
                                         </div>
                                     </div>
@@ -669,6 +669,7 @@
 <script src="{{url('/')}}/assets/plugins/dropify/js/dropify.js?r={{date('YmdHis')}}"></script>
 <script src="{{url('/')}}/assets/plugins/image-cropper/cropper.js?r={{date('YmdHis')}}"></script>
 <script src="{{url('/')}}/assets/js/address-web.js?r={{date('YmdHis')}}"></script>
+{{--<script src="{{url('/')}}/assets/js/nouislider.min.js?r={{date('YmdHis')}}"></script>--}}
 <script src="{{url('/')}}/assets/plugins/bootbox-js/bootbox.min.js?r={{date('YmdHis')}}"></script>
 <script src="{{url('/')}}/assets/js/select2/select2.full.min.js?r={{date('YmdHis')}}"></script>
 <script src="{{url('/')}}/assets/plugins/dataTable/js/jquery.dataTables.min.js?r={{date('YmdHis')}}"></script>

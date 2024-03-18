@@ -126,6 +126,9 @@ Route::controller(HomeAuthController::class)->group(function () {
     Route::post('/place-order','PlaceOrder');
 });
 
+Route::get('products', [HomeAuthController::class, 'products'])->name('products');
+Route::post('products/get/categories/html', [HomeAuthController::class, 'categoriesHtml'])->name('products.categoriesHtml');
+Route::post('products/get/products/html', [HomeAuthController::class, 'productsHtml'])->name('products.productsHtml');
 Route::get('requested-quotations', [HomeTransactionController::class, 'quotations'])->name('requested-quotations');
 Route::post('requested-quotations/data', [HomeTransactionController::class, 'quotationData'])->name('requested-quotations.data');
 Route::get('requested-quotations/view/{EnqID}', [HomeTransactionController::class, 'QuoteView'])->name('requested-quotations.QuoteView');
