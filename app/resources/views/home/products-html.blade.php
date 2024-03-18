@@ -61,7 +61,7 @@
                                 <i class="icon-shopping-cart"></i>
                             </a>
                         </div>
-                        <a href="#" class="btn-quickview" title="Quick View">Quick View</a>
+                        <a href="{{ route('products.quickView', $product->ProductID) }}" class="btn-quickview" title="Quick View">Quick View</a>
                     </figure>
                     <div class="product-details">
                         <div class="category-wrap">
@@ -112,7 +112,7 @@
                             <a href="#" class="btn-icon-wish" title="wishlist">
                                 <i class="icon-heart"></i>
                             </a>
-                            <a href="#" class="btn-quickview" title="Quick View">
+                            <a href="{{ route('products.quickView', $product->ProductID) }}" class="btn-quickview" title="Quick View">
                                 <i class="fas fa-external-link-alt"></i>
                             </a>
                         </div>
@@ -140,7 +140,6 @@
         <li class="page-item {{ ($pageNo == 1) ? 'disabled' : '' }}">
             <a class="page-link page-link-btn prevPage" href="#"><i class="icon-angle-left"></i></a>
         </li>
-
         @php
             $start = max(1, $pageNo - $range);
             $end = min($totalPages, $pageNo + $range);

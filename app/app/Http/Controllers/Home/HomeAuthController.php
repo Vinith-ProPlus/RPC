@@ -143,6 +143,21 @@ class HomeAuthController extends Controller{
 		return view('home.products',$FormData);
     }
 
+    public function quickViewHtml($PID)
+    {
+        $product = DB::table('tbl_products as P')->leftJoin('tbl_product_subcategory as PSC','PSC.PSCID','P.SCID')
+            ->leftJoin('tbl_product_category as PC','PC.PCID','P.CID')
+            ->where('P.ActiveStatus','Active')->where('P.DFlag',0)
+            ->where('P.ProductID', $PID)
+            ->select('P.ProductID','P.ProductName','P.Description','PC.PCName as CategoryName','PSC.PSCName as SubCategoryName', DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(P.ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'))
+            ->first();
+        $product->GalleryImages = DB::table('tbl_products_gallery')
+            ->where('ProductID', $PID)
+            ->pluck(DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(gImage, ""), "assets/images/no-image-b.png")) AS gImage'))
+            ->toArray();
+        return view('home.quick-view-html', compact('product'))->render();
+    }
+
     public function categoriesHtml(Request $request)
     {
         $categories = $this->getCategory($request);
@@ -156,7 +171,6 @@ class HomeAuthController extends Controller{
         $viewType = $request->viewType ?? 'Grid';
         $orderBy = $request->orderBy ?? '';
         $productsData = $this->getProductDetails($request);
-
         $productDetails = $productsData['productDetails'];
         $totalProductsCount = $productsData['totalProductsCount'];
 
@@ -543,13 +557,16 @@ class HomeAuthController extends Controller{
                 ->count();
 
             $productDetails = DB::table('tbl_vendors_product_mapping as VPM')
+                ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'VPM.PCID')
                 ->leftJoin('tbl_products as P', 'P.ProductID', 'VPM.ProductID')
                 ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')
+                ->where('P.ActiveStatus',"Active")
+                ->where('P.DFlag',0)
                 ->where('VPM.Status', 1)
+                ->WhereIn('VPM.VendorID', $AllVendors)
                 ->when(isset($request->SubCategoryID), function ($query) use ($request) {
                     return $query->where('P.SCID', $request->SubCategoryID);
                 })
-                ->whereIn('VPM.VendorID', $AllVendors)
                 ->when($request->has('orderBy') && in_array($request->orderBy, ['new', 'popularity']), function ($query) use ($request) {
                     if ($request->orderBy == "new"){
                         return $query->orderBy('P.CreatedOn', 'desc');
@@ -557,7 +574,8 @@ class HomeAuthController extends Controller{
                         return $query->orderBy('P.CreatedOn', 'asc');
                     }
                 })
-                ->select('P.ProductID', 'P.ProductName', 'P.Description', DB::raw('CONCAT(IF(ProductImage != "", "https://rpc.prodemo.in/", "' . url('/') . '/"), COALESCE(NULLIF(ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'), 'PSC.PSCName as SubCategoryName')
+                ->groupBy('P.ProductID', 'P.ProductName', 'P.Description', 'P.ProductImage', 'PSC.PSCName')
+                ->select('P.ProductID', 'P.ProductName', 'P.Description', DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'), 'PSC.PSCName as SubCategoryName')
                 ->skip(($pageNo - 1) * $productCount)
                 ->take($productCount)
                 ->get();

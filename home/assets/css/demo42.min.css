@@ -19552,3 +19552,25 @@ svg .appear-animate {
 		stroke-dashoffset: 1600
 	}
 }
+
+/* ===== Scrollbar CSS ===== */
+/* Firefox */
+* {
+	scrollbar-width: thin;
+	scrollbar-color: #b8b4b7 #ffffff;
+}
+
+/* Chrome, Edge, and Safari */
+*::-webkit-scrollbar {
+	width: px;
+}
+
+*::-webkit-scrollbar-track {
+	background: #ffffff;
+}
+
+*::-webkit-scrollbar-thumb {
+	background-color: #b8b4b7;
+	border-radius: 0px;
+	border: 3px outset #ffffff;
+}

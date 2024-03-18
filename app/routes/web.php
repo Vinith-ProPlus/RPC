@@ -127,6 +127,7 @@ Route::controller(HomeAuthController::class)->group(function () {
 });
 
 Route::get('products', [HomeAuthController::class, 'products'])->name('products');
+Route::get('products/quickView/html/{PID}', [HomeAuthController::class, 'quickViewHtml'])->name('products.quickView');
 Route::post('products/get/categories/html', [HomeAuthController::class, 'categoriesHtml'])->name('products.categoriesHtml');
 Route::post('products/get/products/html', [HomeAuthController::class, 'productsHtml'])->name('products.productsHtml');
 Route::get('requested-quotations', [HomeTransactionController::class, 'quotations'])->name('requested-quotations');

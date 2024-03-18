@@ -70,7 +70,7 @@
                 {{-- @if(!$isRegister)
                     <div class="header-left d-md-block">
                         <div class="info-box info-box-icon-left text-primary justify-content-start p-0">
-                            <i class="icon-location" style="color: #f26100;"></i>
+                            <i class="icon-location" style="color: #0f43b0;"></i>
                             <h6 class="font-weight-bold text-dark">Delivery Location - </h6>
                             <span><a href="#" class="text-dark">45,Eden Garden, R.S.Puram, 3rd Cross, Coimbatore. 641006</a></span>
                             <i class="fa fa-arrow"></i>
@@ -90,7 +90,7 @@
                     <div class="header-left d-md-block">
                         <div class="align-middle" style="display: inline-block;">
                             <div class="info-box info-box-icon-left justify-content-start">
-                                <i class="icon-location" style="color: #f26100;"></i>
+                                <i class="icon-location" style="color: #0f43b0;"></i>
                                 <div class="align-middle" style="display: inline-block; height: 20px; vertical-align: middle !important;">
                                     <h6 class="font-weight-bold text-dark" style="line-height: 18px;">Delivery Location - </h6>
                                 </div>
