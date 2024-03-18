@@ -4,7 +4,7 @@
     <div class="container">
         <ul class="checkout-progress-bar d-flex justify-content-center flex-wrap">
             <li class="active">
-                <a href="#">Requested Quotations</a>
+                <a href="#">Quotations</a>
             </li>
         </ul>
 
