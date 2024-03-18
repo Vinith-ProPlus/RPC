@@ -1981,19 +1981,19 @@
 			} )
 		},
 
-		// initPurchasedMinipopup: function () {
-		// 	if ( $( '.product-single' ).length || $( '.main-content' ).length ) {
-		// 		setInterval( function () {
-		// 			Porto.miniPopup.open( {
-		// 				name: 'Mobile Speaker',
-		// 				nameLink: 'product.html',
-		// 				imageSrc: 'assets/images/products/small/product-1.jpg',
-		// 				content: 'Someone Purchased',
-		// 				action: '<span class="text-primary" style="font-size: 11px;">12 MINUTES AGO</span>',
-		// 			} );
-		// 		}, 60000 );
-		// 	}
-		// },
+		initPurchasedMinipopup: function () {
+			if ( $( '.product-single' ).length || $( '.main-content' ).length ) {
+				setInterval( function () {
+					Porto.miniPopup.open( {
+						name: 'Mobile Speaker',
+						nameLink: 'product.html',
+						imageSrc: 'assets/images/products/small/product-1.jpg',
+						content: 'Someone Purchased',
+						action: '<span class="text-primary" style="font-size: 11px;">12 MINUTES AGO</span>',
+					} );
+				}, 60000 );
+			}
+		},
 		initJqueryParallax: function () {
 			$( '.home-slider ul.scene' ).parallax();
 			$( '.bg-parallax ul.scene' ).parallax();
@@ -2421,30 +2421,30 @@
 			}
 
 		return {
-			// init: function () {
-			// 	// init area for cart popup
-			// 	var area = document.createElement( 'div' );
-			// 	area.className = "minipopup-area";
-			// 	$( '.page-wrapper' )[ 0 ].appendChild( area );
-			//
-			// 	$area = $( area );
-			// 	$area.on( 'click', '.mfp-close', function ( e ) {
-			// 		self.close( $( this ).closest( '.minipopup-box' ).index() );
-			// 	} );
-			//
-			// 	// init area for wishlsit popup
-			// 	var areaWishlistPopup = document.createElement( 'div' );
-			// 	var areaWishlistPopupMsg = document.createElement( 'div' );
-			// 	areaWishlistPopup.className = "wishlist-popup";
-			// 	areaWishlistPopupMsg.className = "wishlist-popup-msg";
-			// 	areaWishlistPopupMsg.innerText = "Product added!";
-			// 	$( '.page-wrapper' )[ 0 ].appendChild( areaWishlistPopup );
-			// 	$( '.wishlist-popup' ).append( areaWishlistPopupMsg );
-			//
-			// 	// bind methods
-			// 	this.close = this.close.bind( this );
-			// 	timerClock = timerClock.bind( this );
-			// },
+			init: function () {
+				// init area for cart popup
+				var area = document.createElement( 'div' );
+				area.className = "minipopup-area";
+				$( '.page-wrapper' )[ 0 ].appendChild( area );
+
+				$area = $( area );
+				$area.on( 'click', '.mfp-close', function ( e ) {
+					self.close( $( this ).closest( '.minipopup-box' ).index() );
+				} );
+
+				// init area for wishlsit popup
+				var areaWishlistPopup = document.createElement( 'div' );
+				var areaWishlistPopupMsg = document.createElement( 'div' );
+				areaWishlistPopup.className = "wishlist-popup";
+				areaWishlistPopupMsg.className = "wishlist-popup-msg";
+				areaWishlistPopupMsg.innerText = "Product added!";
+				$( '.page-wrapper' )[ 0 ].appendChild( areaWishlistPopup );
+				$( '.wishlist-popup' ).append( areaWishlistPopupMsg );
+
+				// bind methods
+				this.close = this.close.bind( this );
+				timerClock = timerClock.bind( this );
+			},
 
 			open: function ( options, callback ) {
 				var self = this,

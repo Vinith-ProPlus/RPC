@@ -41,7 +41,7 @@
                                             <a href="#">{{$item->ProductName}}</a>
                                         </h5>
                                     </td>
-                                    
+
                                     <td class="align-middle text-center">
                                         <div class="product-single-qty">
                                             <input class="form-control txtUpdateQty" type="number" value="{{$item->Qty}}" id="{{$item->ProductID}}" style="width: 100%;">
@@ -142,14 +142,14 @@
             <button id="btnMCancel" class="btn btn-secondary">Cancel</button>
         </div>
     </div>
-    
+
 </div>
 
 @endsection
 @section('scripts')
 <script>
     $(document).ready(function(){
-        
+
         /* $(document).on('click', '#btnQuoteRequest', async function () {
             let formData = {};
             let status = true
@@ -199,7 +199,9 @@
                 cache: false,
                 processData: false,
                 contentType: false,
-                error: function (e, x, settings, exception) { ajax_errors(e, x, settings, exception); },
+                error: function (e, x, settings, exception) {
+                    // ajax_errors(e, x, settings, exception);
+                    },
                 complete: function (e, x, settings, exception) { $("html, body").animate({ scrollTop: 0 }, "slow"); },
                 success: function (response) {
                     if (response.status == true) {

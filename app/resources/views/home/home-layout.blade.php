@@ -91,7 +91,9 @@
                         <div class="align-middle" style="display: inline-block;">
                             <div class="info-box info-box-icon-left justify-content-start">
                                 <i class="icon-location" style="color: #f26100;"></i>
-                                <h6 class="font-weight-bold text-dark">Delivery Location - </h6>
+                                <div class="align-middle" style="display: inline-block; height: 20px; vertical-align: middle !important;">
+                                    <h6 class="font-weight-bold text-dark" style="line-height: 18px;">Delivery Location - </h6>
+                                </div>
                             </div>
                         </div>
 
@@ -308,24 +310,24 @@
                                     </div>
                                     <div class="col-lg-4">
                                         <ul class="submenu">
-                                            <li><a href="#">{{$PCategories[0]->PCName}}</a></li>
-                                            <li><a href="#">{{$PCategories[1]->PCName}}</a></li>
-                                            <li><a href="#">{{$PCategories[2]->PCName}}</a></li>
+                                            <li><a href="#">{{ $PCategories[0]->PCName ?? '' }}</a></li>
+                                            <li><a href="#">{{ $PCategories[1]->PCName ?? '' }}</a></li>
+                                            <li><a href="#">{{ $PCategories[2]->PCName ?? '' }}</a></li>
                                         </ul>
                                     </div>
 
                                     <div class="col-lg-4">
                                         <ul class="submenu">
-                                            <li><a href="#">{{$PCategories[3]->PCName}}</a></li>
-                                            <li><a href="#">{{$PCategories[4]->PCName}}</a></li>
-                                            <li><a href="#">{{$PCategories[5]->PCName}}</a></li>
+                                            <li><a href="#">{{ $PCategories[3]->PCName ?? '' }}</a></li>
+                                            <li><a href="#">{{ $PCategories[4]->PCName ?? '' }}</a></li>
+                                            <li><a href="#">{{ $PCategories[5]->PCName ?? '' }}</a></li>
                                         </ul>
                                     </div>
                                     <div class="col-lg-4">
                                         <ul class="submenu">
-                                            <li><a href="#">{{$PCategories[6]->PCName}}</a></li>
-                                            <li><a href="#">{{$PCategories[7]->PCName}}</a></li>
-                                            <li><a href="#">{{$PCategories[8]->PCName}}</a></li>
+                                            <li><a href="#">{{ $PCategories[6]->PCName ?? '' }}</a></li>
+                                            <li><a href="#">{{ $PCategories[7]->PCName ?? '' }}</a></li>
+                                            <li><a href="#">{{ $PCategories[8]->PCName ?? '' }}</a></li>
                                         </ul>
                                     </div>
                                     <div class="col-lg-12 p-1">
