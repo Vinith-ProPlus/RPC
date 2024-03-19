@@ -12,6 +12,8 @@ class HomeController extends Controller{
     public function GuestView(Request $req)
     {
         $FormData['Company'] = DB::table('tbl_company_settings')->select('KeyName', 'KeyValue')->get()->pluck('KeyValue', 'KeyName')->toArray();
+        $FormData['Banners'] = DB::Table('tbl_banner_images')->where('BannerType','Web')
+            ->select('BannerTitle','BannerType', DB::raw('CONCAT("' . url('/') . '/", BannerImage) AS BannerImage'))->get();
         $PCatagories = DB::Table('tbl_product_category')->where('ActiveStatus', 'Active')->where('DFlag', 0)->select('PCName', 'PCID', 'PCImage')
             ->inRandomOrder()->take(10)->get();
         foreach ($PCatagories as $row) {

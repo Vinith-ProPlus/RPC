@@ -11,58 +11,17 @@
             }
         }
     }">
-        <div class="home-slide banner" style="background-image: url('{{url('/')}}/home/assets/images/slider/post-4.jpg');">
-            <div class="banner-layer banner-layer-middle">
-                <div class="container banner-content">
-                    <h2 class="font1 font-weight-normal text-uppercase mb-0 appear-animate" data-animation-name="fadeInUpShorter" data-animation-delay="200">
-                    </h2>
-                    <h1 class="font1 font-weight-bold text-uppercase appear-animate" data-animation-name="fadeInUpShorter" data-animation-delay="500">
-
-                    </h1>
-                    <h2 class="font1 font-weight-normal text-uppercase mb-3 appear-animate" data-animation-name="fadeInUpShorter" data-animation-delay="800">
-                        </h2>
-                    {{-- <a class="btn btn-dark btn-buy appear-animate" data-animation-name="fadeInUpShorter" data-animation-delay="1100" href="#"></a> --}}
-                </div>
-            </div>
-        </div>
-
-        <div class="home-slide banner" style="background-image: url('{{url('/')}}/home/assets/images/slider/post-5.jpg');">
-            {{-- <div class="home-slide banner" style="background-image: url('{{ file_exists(public_path('/assets/home/images/demoes/demo21/slider/slide3.jpg')) ? asset('/assets/home/images/demoes/demo21/slider/slide3.jpg') : asset('/assets/images/no-image-b.png') }}');"> --}}
-            <div class="banner-layer banner-layer-middle">
-                <div class="container banner-content">
-                    <h2 class="font1 font-weight-normal text-uppercase mb-0 appear-animate" data-animation-name="fadeInUpShorter" data-animation-delay="200">we are hiring</h2>
-                    <h1 class="font1 font-weight-bold text-uppercase appear-animate" data-animation-name="fadeInUpShorter" data-animation-delay="500">
-                        talents
-                    </h1>
-                    <h2 class="font1 font-weight-normal text-uppercase mb-3 appear-animate" data-animation-name="fadeInUpShorter" data-animation-delay="800">for
-                        <strong>Service Engineer</strong></h2>
-                    <a class="btn btn-dark btn-buy appear-animate" data-animation-name="fadeInUpShorter" data-animation-delay="1100" href="#">APPLY NOW</a>
-                </div>
-            </div>
-        </div>
-
-        <div class="home-slide banner" style="background-image: url('{{url('/')}}/home/assets/images/slider/post-6.jpg');">
-            <div class="banner-layer banner-layer-middle">
-                <div class="container banner-content">
-                    <h2 class="font1 font-weight-normal text-uppercase mb-0 appear-animate" data-animation-name="fadeInUpShorter" data-animation-delay="200">to promote your business
-                    </h2>
-                    <h1 class="font1 font-weight-bold text-uppercase appear-animate" data-animation-name="fadeInUpShorter" data-animation-delay="500">
-                        Advertise here
-                    </h1>
-                    {{-- <h2 class="font1 font-weight-normal text-uppercase mb-3 appear-animate" data-animation-name="fadeInUpShorter" data-animation-delay="800">from
-                        <strong>$19</strong></h2> --}}
-                    <a class="btn btn-dark btn-buy appear-animate" data-animation-name="fadeInUpShorter" data-animation-delay="1100" href="#">Contact Us</a>
-                </div>
-            </div>
-        </div>
+        @foreach($Banners as $Banner)
+            <div class="home-slide banner" style="background-image: url('{{ $Banner->BannerImage }}');"></div>
+        @endforeach
     </div>
 
     <div class="home-slider-sidebar d-none d-sm-block">
         <div class="container">
             <ul>
-                <li class="active">Why Us</li>
-                <li>New Updates</li>
-                <li>Advertise Here</li>
+                @foreach($Banners as $index => $Banner)
+                    <li {{ ($index == 0) ? "class=active" : '' }}>{{ $Banner->BannerTitle }}</li>
+                @endforeach
             </ul>
         </div>
     </div>

@@ -36,7 +36,7 @@ class BannersController extends Controller{
         $this->middleware('auth');
         $this->DocNum=new DocNum();
         $this->support=new support();
-    
+
 		$this->middleware(function ($request, $next) {
 			$this->UserID=auth()->user()->UserID;
 			$this->general=new general($this->UserID,$this->ActiveMenuName);
@@ -77,7 +77,7 @@ class BannersController extends Controller{
 			return view('errors.403');
 		}
 	}
-	
+
 	public function Edit(Request $req,$TranNo=null){
 		if($this->general->isCrudAllow($this->CRUD,"edit")==true){
 			$FormData=$this->general->UserInfo;
@@ -88,6 +88,7 @@ class BannersController extends Controller{
 			$FormData['crud']=$this->CRUD;
 			$FormData['TranNo']=$TranNo;
 			$FormData['EditData']=DB::Table('tbl_banner_images')->where('TranNo',$TranNo)->where('DFlag',0)->get();
+            logger($FormData['EditData']);
 			if(count($FormData['EditData'])>0){
 				return view('app.settings.banners.upload',$FormData);
 			}else{
@@ -118,7 +119,7 @@ class BannersController extends Controller{
 					$file = $req->file('bannerImage');
 					$fileName=md5($file->getClientOriginalName() . time());
 					$fileName1 =  $fileName. "." . $file->getClientOriginalExtension();
-					$file->move($dir, $fileName1);  
+					$file->move($dir, $fileName1);
 					$bannerImage=$dir.$fileName1;
 				}else if($req->bannerImage!=""){
 					$rnd=$this->support->RandomString(10)."_".date("YmdHis");
@@ -129,6 +130,7 @@ class BannersController extends Controller{
 				}
 				$data=array(
 					"TranNo"=>$TranNo,
+					"BannerTitle"=>$req->BannerTitle,
 					"BannerType"=>$req->BannerType,
 					"BannerImage"=>$bannerImage,
 					"createdOn"=>date("Y-m-d H:i:s"),
@@ -158,8 +160,9 @@ class BannersController extends Controller{
 			return response(array('status'=>false,'message'=>"Access Denied"), 403);
 		}
 	}
-	
+
 	public function Update(Request $req,$TranNo){
+        logger($req);
 		if($this->general->isCrudAllow($this->CRUD,"edit")==true){
             $OldData=DB::Table('tbl_banner_images')->where('TranNo',$TranNo)->get();
 			$NewData=array();
@@ -173,7 +176,7 @@ class BannersController extends Controller{
 					$file = $req->file('bannerImage');
 					$fileName=md5($file->getClientOriginalName() . time());
 					$fileName1 =  $fileName. "." . $file->getClientOriginalExtension();
-					$file->move($dir, $fileName1);  
+					$file->move($dir, $fileName1);
 					$bannerImage=$dir.$fileName1;
 				}else if($req->bannerImage!=""){
 					$rnd=$this->support->RandomString(10)."_".date("YmdHis");
@@ -184,6 +187,7 @@ class BannersController extends Controller{
 				}
 				$data=array(
 					"BannerImage"=>$bannerImage,
+                    "BannerTitle"=>$req->BannerTitle,
 					"BannerType"=>$req->BannerType,
 					"updatedOn"=>date("Y-m-d H:i:s"),
 					"updatedBy"=>$this->UserID
@@ -211,7 +215,7 @@ class BannersController extends Controller{
 			return response(array('status'=>false,'message'=>"Access Denied"), 403);
 		}
 	}
-	
+
 	public function Delete(Request $req,$TranNo){
 		$OldData=$NewData=array();
 		if($this->general->isCrudAllow($this->CRUD,"delete")==true){
@@ -221,7 +225,7 @@ class BannersController extends Controller{
 				$OldData=DB::table('tbl_banner_images')->where('TranNo',$TranNo)->get();
 				$status=DB::table('tbl_banner_images')->where('TranNo',$TranNo)->update(array("DFlag"=>1,"DeletedBy"=>$this->UserID,"DeletedOn"=>date("Y-m-d H:i:s")));
 			}catch(Exception $e) {
-				
+
 			}
 			if($status==true){
 				DB::commit();
@@ -245,7 +249,7 @@ class BannersController extends Controller{
 				$OldData=DB::table('tbl_banner_images')->where('TranNo',$TranNo)->get();
 				$status=DB::table('tbl_banner_images')->where('TranNo',$TranNo)->update(array("DFlag"=>0,"UpdatedBy"=>$this->UserID,"UpdatedOn"=>date("Y-m-d H:i:s")));
 			}catch(Exception $e) {
-				
+
 			}
 			if($status==true){
 				DB::commit();
