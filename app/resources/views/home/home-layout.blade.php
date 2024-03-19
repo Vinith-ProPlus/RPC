@@ -61,7 +61,7 @@
             <h4 class="text-uppercase font-weight-bold mr-2">Deal of the week</h4>
             <h6>- 15% OFF in All Construction Materials -</h6>
 
-            <a href="#" class="ml-2">Shop Now</a>
+            <a href="{{ route('products') }}" class="ml-2">Shop Now</a>
         </div>
     </div>
 
