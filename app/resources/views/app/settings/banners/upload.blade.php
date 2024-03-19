@@ -30,8 +30,19 @@
 
                     <div class="row" id="divAdd">
                         <div class="col-sm-12 text-center">
-                            <label>Banner Image <span class="fs-13" style="color:rgba(0,0,0,0.75)"> (Upload Size=1920px X 800px, Radio=12:5)</span></label>
-                            <input type="file" class="dropify imageScrop" id="txtBanner"  data-min-width=1920 data-min-height=607 data-max-width=1920 data-max-height=607  data-default-file="<?php if($isEdit==true){if($EditData[0]->BannerImage !=""){ echo url('/')."/".$EditData[0]->BannerImage;}}?>"  data-allowed-file-extensions="jpeg jpg png gif">
+                            <label>Banner Type</label>
+                            <select id="lstBannerType" class="form-control">
+                                <option @if($isEdit && $EditData[0]->BannerType == "Web") selected @endif value="Web">Web</option>
+                                <option @if($isEdit && $EditData[0]->BannerType == "Mobile") selected @endif value="Mobile">Mobile</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-12 text-center mt-20 @if($isEdit && $EditData[0]->BannerType == "Mobile") d-none @endif" id="divWeb">
+                            <label>Web Banner Image <span class="fs-13" style="color:rgba(0,0,0,0.75)" id="lblBanner"> (Upload Size=1920px X 607px, Radio=12:5)</span></label>
+                            <input type="file" class="dropify imageScrop" id="txtBanner" data-min-width=1920 data-min-height=607 data-max-width=1920 data-max-height=607 data-default-file="@if($isEdit && $EditData[0]->BannerType == "Web") {{url('/')."/".$EditData[0]->BannerImage}} @endif"  data-allowed-file-extensions="jpeg jpg png gif">
+                        </div>
+                        <div class="col-sm-12 text-center mt-20 @if($isEdit && $EditData[0]->BannerType == "Web") d-none @elseif(!$isEdit) d-none @endif" id="divMobile">
+                            <label>Mobile Banner Image <span class="fs-13" style="color:rgba(0,0,0,0.75)" id="lblBanner"> (Upload Size=1902px X 627px, Radio=12:5)</span></label>
+                            <input type="file" class="dropify imageScrop" id="txtMBanner" data-min-width=1092 data-min-height=627 data-max-width=1092 data-max-height=627 data-default-file="@if($isEdit && $EditData[0]->BannerType == "Mobile") {{url('/')."/".$EditData[0]->BannerImage}} @endif"  data-allowed-file-extensions="jpeg jpg png gif">
                         </div>
                     </div>
                 </div>
@@ -93,13 +104,26 @@
 <script>
     $(document).ready(function(){
         const getData=()=>{
+            let BannerType = $("#lstBannerType").val();
             let formData=new FormData();
-            formData.append('bannerImage',$('#txtBanner')[0].files[0]);
+            formData.append('BannerType',BannerType);
+            formData.append('bannerImage', BannerType == "Web" ? $('#txtBanner')[0].files[0] : $('#txtMBanner')[0].files[0]);
             return formData;
         }
+        $(document).on('change','#lstBannerType',function(){
+            let BannerType = $(this).val();
+            if(BannerType == 'Mobile'){
+                $('#divWeb').addClass('d-none');
+                $('#divMobile').removeClass('d-none');
+            }else{
+                $('#divMobile').addClass('d-none');
+                $('#divWeb').removeClass('d-none');
+            }
+        });
         $(document).on('click','#btnUpload',function(){
-            if($('#txtBanner').val()!=""){
-
+            let BannerType = $(this).val();
+            let isBanner = BannerType == "Web" ? $('#txtBanner').val() : $('#txtMBanner').val();
+            if(isBanner){
                 swal({
                     title: "Are you sure?",
                     text: "You want @if($isEdit==true)Update @else Save @endif this banner!",

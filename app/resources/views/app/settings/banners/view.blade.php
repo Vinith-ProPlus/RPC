@@ -24,24 +24,49 @@
 		<div class="col-sm-12">
 			<div class="card">
 				<div class="card-header">
-					<h5>Banner Images</h5>
+					<h5>Web Banner Images</h5>
 				</div>
 				<div class="my-gallery card-body row gallery-with-description">
-					@for($i=0;$i<count($bannerImages);$i++)
-						<figure class="col-xl-4 col-sm-6" data-tran-no="{{$bannerImages[$i]->TranNo}}">
-							<a href="{{url('/')}}/{{$bannerImages[$i]->BannerImage}}" data-lightbox="banner-images">
-								<img src="{{url('/')}}/{{$bannerImages[$i]->BannerImage}}"  alt="Image {{$i}}"  style="width:1920px;height:607px;">
+					@foreach($bannerImages as $image)
+						<figure class="col-xl-4 col-sm-6" data-tran-no="{{$image->TranNo}}">
+							<a href="{{url('/')}}/{{$image->BannerImage}}" data-lightbox="banner-images">
+								<img src="{{url('/')}}/{{$image->BannerImage}}" alt="Image {{$loop->index}}">
 							</a>
-								<div class="caption text-center ">
-									@if($crud['edit']==1)
-										<button type="button" data-id="{{$bannerImages[$i]->TranNo}}" class="btn btn-sm btn-outline-warning btnEdit mr-10"><i class="fa fa-pencil"></i></button>
-									@endif
-									@if($crud['delete']==1)
-										<button type="button" data-id="{{$bannerImages[$i]->TranNo}}" class="btn btn-sm btn-outline-danger btnDelete"><i class="fa fa-trash"></i></button>
-									@endif
-								</div>
+							<div class="caption text-center">
+								@if($crud['edit']==1)
+									<button type="button" data-id="{{$image->TranNo}}" class="btn btn-sm btn-outline-warning btnEdit mr-10"><i class="fa fa-pencil"></i></button>
+								@endif
+								@if($crud['delete']==1)
+									<button type="button" data-id="{{$image->TranNo}}" class="btn btn-sm btn-outline-danger btnDelete"><i class="fa fa-trash"></i></button>
+								@endif
+							</div>
 						</figure>
-					@endfor
+					@endforeach
+				</div>
+			</div>
+		</div>
+		<div class="col-sm-12 mt-20">
+			<div class="card">
+				<div class="card-header">
+					<h5>Mobile Banner Images</h5>
+				</div>
+				<div class="my-gallery card-body row gallery-with-description">
+					@foreach($MbannerImages as $image)
+						<figure class="col-xl-4 col-sm-6" data-tran-no="{{$image->TranNo}}">
+							<a href="{{url('/')}}/{{$image->BannerImage}}" data-lightbox="banner-images">
+								<img src="{{url('/')}}/{{$image->BannerImage}}" alt="Image {{$loop->index}}">
+							</a>
+							<div class="caption text-center">
+								@if($crud['edit']==1)
+									<button type="button" data-id="{{$image->TranNo}}" class="btn btn-sm btn-outline-warning btnEdit mr-10"><i class="fa fa-pencil"></i></button>
+								@endif
+								@if($crud['delete']==1)
+									<button type="button" data-id="{{$image->TranNo}}" class="btn btn-sm btn-outline-danger btnDelete"><i class="fa fa-trash"></i></button>
+								@endif
+							</div>
+						</figure>
+					@endforeach
+
 				</div>
 			</div>
 		</div>

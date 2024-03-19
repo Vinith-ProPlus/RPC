@@ -53,7 +53,8 @@ class BannersController extends Controller{
 			$FormData['PageTitle']=$this->PageTitle;
 			$FormData['menus']=$this->Menus;
 			$FormData['crud']=$this->CRUD;
-			$FormData['bannerImages']=DB::Table('tbl_banner_images')->where('DFlag',0)->get();
+			$FormData['bannerImages']=DB::Table('tbl_banner_images')->where('BannerType','Web')->where('DFlag',0)->get();
+			$FormData['MbannerImages']=DB::Table('tbl_banner_images')->where('BannerType','Mobile')->where('DFlag',0)->get();
 			return view('app.settings.banners.view',$FormData);
 		}elseif($this->general->isCrudAllow($this->CRUD,"Add")==true){
 			return Redirect::to('/admin/settings/banner/create');
@@ -128,6 +129,7 @@ class BannersController extends Controller{
 				}
 				$data=array(
 					"TranNo"=>$TranNo,
+					"BannerType"=>$req->BannerType,
 					"BannerImage"=>$bannerImage,
 					"createdOn"=>date("Y-m-d H:i:s"),
 					"createdBy"=>$this->UserID
@@ -182,6 +184,7 @@ class BannersController extends Controller{
 				}
 				$data=array(
 					"BannerImage"=>$bannerImage,
+					"BannerType"=>$req->BannerType,
 					"updatedOn"=>date("Y-m-d H:i:s"),
 					"updatedBy"=>$this->UserID
 				);

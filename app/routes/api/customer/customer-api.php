@@ -25,6 +25,11 @@ Route::controller(CustomerAuthController::class)->group(function () {
     Route::post('/update-cart','UpdateCart');
     Route::post('/delete-cart','DeleteCart');
 
+    Route::post('/get/saddress','getSAddress');
+    Route::post('/set-default','SetDefault');
+    Route::post('/update-saddress','UpdateSAddress');
+    Route::post('/delete-saddress','DeleteSAddress');
+
     Route::post('/get/customer-home','getCustomerHome');
     Route::post('/get/customer-home-search','getCustomerHomeSearch');
 

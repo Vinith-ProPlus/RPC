@@ -298,10 +298,10 @@ class GeneralAPIController extends Controller{
 	}
 	
 	public function getBannerImages(request $req){
-		$BannerImage = DB::Table('tbl_mobile_ad_banners')->select('Title', DB::raw('CONCAT("' . url('/') . '/", BannerImage) AS BannerImage'))->get();
+		$BannerImages = DB::Table('tbl_banner_images')->where('BannerType','Mobile')->select('BannerType', DB::raw('CONCAT("' . url('/') . '/", BannerImage) AS BannerImage'))->get();
 		$return = [
 			'status' => true,
-			'data' => $BannerImage,
+			'data' => $BannerImages,
 		];
         return $return;
 	}
