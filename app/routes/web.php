@@ -127,6 +127,8 @@ Route::controller(HomeAuthController::class)->group(function () {
     Route::post('/place-order','PlaceOrder');
 });
 
+Route::get('policies/{Slug}', [HomeController::class, 'policies'])->name('policies');
+Route::get('get/iframe-contents/{Slug}', [HomeController::class, 'policiesContent'])->name('policiesContent');
 Route::get('products', [HomeAuthController::class, 'products'])->name('products');
 Route::get('products/quickView/html/{PID}', [HomeAuthController::class, 'quickViewHtml'])->name('products.quickView');
 Route::post('products/get/categories/html', [HomeAuthController::class, 'categoriesHtml'])->name('products.categoriesHtml');

@@ -598,10 +598,9 @@
                                 <h4 class="widget-title pb-1">Customer Services</h4>
 
                                 <ul class="links">
-                                    <li><a href="#">Help &amp; FAQs</a></li>
-                                    <li><a href="#">Shipping &amp; Delivery</a></li>
-                                    <li><a href="#">Orders History</a></li>
-                                    <li><a href="#">Login</a></li>
+                                    @foreach(DB::table('tbl_page_content')->select('Slug', 'PageName')->get() as $Policy)
+                                        <li><a href="{{ route('policies', $Policy->Slug) }}">{{ $Policy->PageName ?? '' }}</a></li>
+                                    @endforeach
                                 </ul>
                             </div><!-- End .widget -->
                         </div><!-- End .col-lg-3 -->

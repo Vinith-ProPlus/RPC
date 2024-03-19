@@ -193,11 +193,27 @@
                         </div>
                     </a> --}}
 
-                    <a href="@if($isRegister && !$isEdit) # @else {{url('/')}}/customer-profile @endif" class="d-lg-block d-none">
-                        <div class="header-user">
-                            <i class="icon-user-2"></i>
-                        </div>
-                    </a>
+{{--                    <a href="@if($isRegister && !$isEdit) # @else {{url('/')}}/customer-profile @endif" class="d-lg-block d-none">--}}
+{{--                        <div class="header-user">--}}
+{{--                            <i class="icon-user-2"></i>--}}
+{{--                        </div>--}}
+{{--                    </a>--}}
+                    @if($isRegister)
+                        <a href="{{url('/')}}/social/auth/google" class="d-lg-block d-none" id="loginBtn">
+                            <div class="header-user">
+                                <div class="header-userinfo">
+                                    <span>Welcome</span>
+                                    <h4>Sign In / Register</h4>
+                                </div>
+                            </div>
+                        </a>
+                    @else
+                        <a href="{{url('/')}}/customer-profile" class="d-lg-block d-none">
+                            <div class="header-user">
+                                <i class="icon-user-2"></i>
+                            </div>
+                        </a>
+                    @endif
 
                     <span class="separator d-block"></span>
 
@@ -356,7 +372,11 @@
     </header><!-- End .header -->
 
     <main class="main">
-        @yield('content')
+        <section class="product-section1" style="background-color: #f4f4f4;">
+            <div class="container">
+                <iframe id="contentFrame" src="{{ route('policiesContent', $Slug) }}" style="width: 100%; min-height: 200px; overflow: hidden;" frameborder="0"></iframe>
+            </div>
+        </section>
     </main>
     <!-- End .main -->
 
@@ -820,6 +840,24 @@
             selectedAddress.attr('data-selected-latitude', $(this).data('latitude'));
             selectedAddress.attr('data-selected-longitude', $(this).data('longitude'));
             selectedAddress.html($(this).html());
+        });
+    });
+
+    $(document).ready(function() {
+        function adjustIframeHeight() {
+            var iframe = document.getElementById('contentFrame');
+            var iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
+            var body = iframeDocument.querySelector('body');
+            iframe.style.height = (body.scrollHeight+10) + 'px';
+        }
+
+        // Adjust iframe height after content is loaded
+        window.addEventListener('load', adjustIframeHeight);
+        // Also adjust iframe height when the window is resized
+        window.addEventListener('resize', adjustIframeHeight);
+
+        $('.redirectLogin').on('click', function(){
+            window.location.replace($('#loginBtn').attr('href'));
         });
     });
 </script>
