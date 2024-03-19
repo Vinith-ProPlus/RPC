@@ -79,6 +79,17 @@
 </div><!-- End .product-single-container -->
 <script>
     $(document).ready(function(){
+        $('.prod-thumbnail .owl-stage-outer .owl-stage').each(function() {
+            var existingStyle = $(this).attr('style');
+            var updatedStyle = existingStyle.replace(/width:[^;]*/i, 'width: 1500px !important');
+            $(this).attr('style', updatedStyle);
+        });
+
+        $('.add-cart').click(function() {
+            $(this).attr('title', "Added to Cart");
+            $(this).text("Added to Cart");
+        });
+
         $('.view-cart').click(function() {
             $('.mfp-close').click();
             $('.icon-cart-thick').click();

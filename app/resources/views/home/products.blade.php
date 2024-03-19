@@ -10996,7 +10996,6 @@
             const LoadCategories=async()=>{
                 var formData = new FormData();
                 formData.append('PostalID', $('#customerSelectedAddress').attr('data-selected-postal-id'));
-                console.log(formData)
                 $.ajax({
                     type:"post",
                     url:"{{url('/')}}/products/get/categories/html",
@@ -11035,7 +11034,6 @@
                     processData: false,
                     contentType: false,
                     success: function(response) {
-                        console.log(response);
                         $('#productDetailsDiv').html(response);
                         $('#productCountSelect').change(function() {
                             var selectedValue = $(this).val();
@@ -11072,7 +11070,12 @@
                         });
                     },
                     error: function(xhr, status, error) {
-                        console.error(xhr.responseText);
+                        if (xhr.status === 419) {
+                            console.error('CSRF token mismatch. Reloading page...');
+                            window.location.replace("{{ route('homepage') }}");
+                        } else {
+                            alert('An error occurred: ' + xhr.responseText);
+                        }
                     }
                 });
             }
