@@ -206,7 +206,7 @@ class VendorsController extends Controller{
 			$SupplyDetails=DB::SELECT($sql);
 
 			//Stock points
-			$sql="SELECT H.DetailID, H.VendorID, IFNULL(H.UUID,'') as UUID, H.PointName, H.Address, H.PostalID, P.PostalCode, H.CityID, CI.CityName, H.TalukID, T.TalukName, H.DistrictID, D.DistrictName, H.StateID, ";
+			$sql="SELECT H.StockPointID, H.VendorID, IFNULL(H.UUID,'') as UUID, H.PointName, H.Address, H.PostalID, P.PostalCode, H.CityID, CI.CityName, H.TalukID, T.TalukName, H.DistrictID, D.DistrictName, H.StateID, ";
 			$sql.=" S.StateName, H.CountryID, C.CountryName FROM tbl_vendors_stock_point as H LEFT JOIN ".$generalDB."tbl_postalcodes as P ON P.PID=H.PostalID ";
 			$sql.=" LEFT JOIN ".$generalDB."tbl_cities as CI ON CI.CityID=H.CityID LEFT JOIN ".$generalDB."tbl_taluks as T ON T.TalukID=H.TalukID LEFT JOIN ".$generalDB."tbl_districts as D ON D.DistrictID=H.DistrictID ";
 			$sql.=" LEFT JOIN ".$generalDB."tbl_states as S ON S.StateID=H.StateID LEFT JOIN ".$generalDB."tbl_countries as C ON C.CountryID=H.CountryID Where H.VendorID='".$result[$i]->VendorID."' ";
@@ -464,9 +464,9 @@ class VendorsController extends Controller{
 				$StockPoints=json_decode($req->StockPoints);
 				foreach($StockPoints as $RowIndex=>$data){
 					if($status){
-						$DetailID = DocNum::getDocNum(docTypes::VendorStockPoint->value,"",Helper::getCurrentFY());
+						$StockPointID = DocNum::getDocNum(docTypes::VendorStockPoint->value,"",Helper::getCurrentFY());
 						$tdata=array(
-							"DetailID"=>$DetailID,
+							"StockPointID"=>$StockPointID,
 							"VendorID"=>$VendorID,
 							"UUID"=>$data->UUID,
 							"PointName"=>$data->Name,
@@ -1027,9 +1027,9 @@ class VendorsController extends Controller{
 							);
 							$status=DB::Table('tbl_vendors_stock_point')->where('VendorID',$VendorID)->Where('UUID',$data->UUID)->update($tdata);
 						}else{
-							$DetailID = DocNum::getDocNum(docTypes::VendorStockPoint->value,"",Helper::getCurrentFY());
+							$StockPointID = DocNum::getDocNum(docTypes::VendorStockPoint->value,"",Helper::getCurrentFY());
 							$tdata=array(
-								"DetailID"=>$DetailID,
+								"StockPointID"=>$StockPointID,
 								"VendorID"=>$VendorID,
 								"UUID"=>$data->UUID,
 								"PointName"=>$data->Name,

@@ -111,7 +111,7 @@
             return formData;
         }
         $(document).on('change','#lstBannerType',function(){
-            let BannerType = $(this).val();
+            let BannerType = $("#lstBannerType").val();
             if(BannerType == 'Mobile'){
                 $('#divWeb').addClass('d-none');
                 $('#divMobile').removeClass('d-none');
@@ -121,7 +121,7 @@
             }
         });
         $(document).on('click','#btnUpload',function(){
-            let BannerType = $(this).val();
+            let BannerType = $("#lstBannerType").val();
             let isBanner = BannerType == "Web" ? $('#txtBanner').val() : $('#txtMBanner').val();
             if(isBanner){
                 swal({

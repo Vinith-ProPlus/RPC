@@ -592,10 +592,10 @@ class VendorAuthController extends Controller{
                 DB::table($this->tmpDB . 'tbl_vendors_stock_point')->where('VendorID', $VendorID)->delete();
                 foreach ($StockPointsData as $item) {
                     $UUID = isset($item->UUID) && !empty($item->UUID) ? $item->UUID : substr(str_shuffle(substr(uniqid(uniqid(), true), 0, 16)), 0, 12);
-                    $DetailID = isset($item->DetailID) ? $item->DetailID : "";
+                    $StockPointID = isset($item->StockPointID) ? $item->StockPointID : "";
                     $data = array(
                         "VendorID" => $VendorID,
-                        "DetailID" => $DetailID,
+                        "StockPointID" => $StockPointID,
                         "UUID" => $UUID,
                         "PointName" => $item->PointName,
                         "Address" => $item->Address,
@@ -851,9 +851,9 @@ class VendorAuthController extends Controller{
                             $PSCIDs[]=$data->PSCID;
                             $t=DB::Table('tbl_vendors_supply')->where('VendorID',$VendorID)->Where('PCID',$data->PCID)->Where('PSCID',$data->PSCID)->first();
                             if(!$t){
-                                $DetailID = DocNum::getDocNum(docTypes::VendorSupply->value,"",Helper::getCurrentFY());
+                                $StockPointID = DocNum::getDocNum(docTypes::VendorSupply->value,"",Helper::getCurrentFY());
                                 $tdata=array(
-                                    "DetailID"=>$DetailID,
+                                    "StockPointID"=>$StockPointID,
                                     "VendorID"=>$VendorID,
                                     "PCID"=>$data->PCID,
                                     "PSCID"=>$data->PSCID,
@@ -982,9 +982,9 @@ class VendorAuthController extends Controller{
                                 );
                                 $status=DB::Table('tbl_vendors_stock_point')->where('VendorID',$VendorID)->Where('UUID',$data->UUID)->update($tdata);
                             }else{
-                                $DetailID = DocNum::getDocNum(docTypes::VendorStockPoint->value,"",Helper::getCurrentFY());
+                                $StockPointID = DocNum::getDocNum(docTypes::VendorStockPoint->value,"",Helper::getCurrentFY());
                                 $tdata=array(
-                                    "DetailID"=>$DetailID,
+                                    "StockPointID"=>$StockPointID,
                                     "VendorID"=>$VendorID,
                                     "UUID"=>$data->UUID,
                                     "PointName"=>$data->PointName,
@@ -1387,7 +1387,7 @@ class VendorAuthController extends Controller{
         )");
         $status = DB::statement("CREATE TABLE IF NOT EXISTS {$this->tmpDB}`tbl_vendors_stock_point` (
             `SNo` INT(11) PRIMARY KEY AUTO_INCREMENT NOT NULL,
-            `DetailID` varchar(50) DEFAULT NULL,
+            `StockPointID` varchar(50) DEFAULT NULL,
             `UUID` varchar(50) DEFAULT NULL,
             `VendorID` varchar(50) DEFAULT NULL,
             `PointName` varchar(150) DEFAULT NULL,
@@ -1706,7 +1706,7 @@ class VendorAuthController extends Controller{
     public function getVendorStockData(Request $req){
         $VendorID = $this->ReferID;
         $StockTableName = Helper::getStockTable($VendorID);
-        $VendorStockPoints= DB::table('tbl_vendors_stock_point')->where('DFlag',0)->where('VendorID',$VendorID)->select('DetailID as StockPointID','PointName')->get();
+        $VendorStockPoints= DB::table('tbl_vendors_stock_point')->where('DFlag',0)->where('VendorID',$VendorID)->select('StockPointID','PointName')->get();
         foreach ($VendorStockPoints as $point) {
             $point->LastUpdatedDate = DB::table($StockTableName)
                 ->where('StockPointID', $point->StockPointID)
@@ -1783,7 +1783,7 @@ class VendorAuthController extends Controller{
 
         $StockTableName = Helper::getStockTable($VendorID);
 
-        $VendorStockPoints= DB::table('tbl_vendors_stock_point')->where('DFlag',0)->where('VendorID',$VendorID)->select('DetailID as StockPointID','PointName')->get();
+        $VendorStockPoints= DB::table('tbl_vendors_stock_point')->where('DFlag',0)->where('VendorID',$VendorID)->select('StockPointID','PointName')->get();
         foreach ($VendorStockPoints as $point) {
             $point->LastUpdatedDate = DB::table($StockTableName)
                 ->where('StockPointID', $point->StockPointID)
@@ -1816,7 +1816,7 @@ class VendorAuthController extends Controller{
         ->leftJoin($this->generalDB.'tbl_cities as CI', 'CI.CityID', 'VSP.CityID')
         ->leftJoin($this->generalDB.'tbl_postalcodes as PC', 'PC.PID', 'VSP.PostalID')
         ->where('VSP.DFlag',0)->where('VSP.VendorID',$VendorID)
-        ->select('VSP.DetailID as StockPointID','PointName','C.CountryName','S.StateName','D.DistrictName','T.TalukName','CI.CityName','PC.PostalCode')
+        ->select('VSP.StockPointID','PointName','C.CountryName','S.StateName','D.DistrictName','T.TalukName','CI.CityName','PC.PostalCode')
         ->get();
         
 		return response()->json(['status' => true, 'data' => $VendorHome ]);
