@@ -1957,43 +1957,144 @@
 		productsWishlistAction: function () {
 			// Add to wishlist in products
 			$( 'body' ).on( 'click', '.btn-icon-wish:not(.added-wishlist)', function ( e ) {
-				e.preventDefault();
-				var $this = $( this );
+				if ($('#loginBtn').length > 0) {
+					window.location.replace($('#loginBtn').attr('href'));
+				} else {
+					e.preventDefault();
+					var $this = $(this);
 
-				$this.addClass( 'load-more-overlay loading' );
+					$this.addClass('load-more-overlay loading');
+					let RootUrl = $('#txtRootUrl').val();
+					let product_id = $(this).closest('.product-div').find('.btnAddCart').attr('id');
+					var formData = new FormData();
+					formData.append('product_id', product_id);
 
-				setTimeout( function () {
-					$this.removeClass( 'load-more-overlay loading' );
-					$this.addClass( 'added-wishlist ' );
+					$.ajax({
+						url: RootUrl + 'products/wishlist/add',
+						headers: {'X-CSRF-Token': $('meta[name=_token]').attr('content')},
+						type: 'POST',
+						data: formData,
+						processData: false,
+						contentType: false,
+						success: function (response) {
+							if (response.status === true) {
+								$this.addClass('added-wishlist');
 
-					if ( $this.find( 'span' ).text() !== '' ) {
-						$this.find( 'span' ).text( 'BROWSE WISHLIST' );
-					}
+								if ($this.find('span').text() !== '') {
+									$this.find('span').text('REMOVE FROM WISHLIST');
+								}
 
-					$this.attr( 'title', 'Go to Wishlist' );
+								$this.attr('title', 'Remove from Wishlist');
 
-					$( '.wishlist-popup' ).addClass( 'active' );
-				}, 1000 );
+								$('.wishlist-popup-msg').text('Product added to wishlist!');
+								$('.wishlist-popup').addClass('active');
 
-				setTimeout( function () {
-					$( '.wishlist-popup' ).removeClass( 'active' );
-				}, 3000 );
-			} )
+								$('.product-div').each(function () {
+									var $element = $(this);
+									if ($element.find('.btnAddCart').attr('id') === product_id) {
+										$element.find('.btn-icon-wish').addClass('added-wishlist');
+										$element.find('.btn-icon-wish span').text('REMOVE FROM WISHLIST');
+										$element.find('.btn-icon-wish').attr('title', 'Remove from Wishlist');
+									}
+								});
+								setTimeout(function () {
+									$('.wishlist-popup').removeClass('active');
+								}, 3000);
+							}
+						},
+						error: function (xhr, status, error) {
+							if (xhr.status === 419) {
+								console.error('CSRF token mismatch. Reloading page...');
+								window.location.replace(RootUrl);
+							} else {
+								alert('An error occurred: ' + xhr.responseText);
+							}
+						},
+						complete: function () {
+							$this.removeClass('load-more-overlay loading');
+						}
+					});
+				}
+			});
+			// complete function is not working
+
+			$( 'body' ).on( 'click', '.btn-icon-wish.added-wishlist', function ( e ) {
+				if ($('#loginBtn').length > 0) {
+					window.location.replace($('#loginBtn').attr('href'));
+				} else {
+					e.preventDefault();
+					var $this = $(this);
+
+					$this.addClass('load-more-overlay loading');
+					let RootUrl = $('#txtRootUrl').val();
+					let product_id = $(this).closest('.product-div').find('.btnAddCart').attr('id');
+
+					var formData = new FormData();
+					formData.append('product_id', product_id);
+
+					$.ajax({
+						url: RootUrl + 'products/wishlist/remove',
+						headers: {'X-CSRF-Token': $('meta[name=_token]').attr('content')},
+						type: 'POST',
+						data: formData,
+						processData: false,
+						contentType: false,
+						success: function (response) {
+							if (response.status === true) {
+								$this.removeClass('added-wishlist');
+
+								if ($this.find('span').text() !== '') {
+									$this.find('span').text('ADD TO WISHLIST');
+								}
+
+								$this.attr('title', 'Add to Wishlist');
+
+								$('.wishlist-popup-msg').text('Product removed from wishlist!');
+								$('.wishlist-popup').addClass('active');
+
+								$('.product-div').each(function () {
+									var $element = $(this);
+									if ($element.find('.btnAddCart').attr('id') === product_id) {
+										$element.find('.btn-icon-wish').removeClass('added-wishlist');
+										$element.find('.btn-icon-wish span').text('ADD TO WISHLIST');
+										$element.find('.btn-icon-wish').attr('title', 'Add to Wishlist');
+									}
+								});
+
+								setTimeout(function () {
+									$('.wishlist-popup').removeClass('active');
+								}, 3000);
+							}
+						},
+						error: function (xhr, status, error) {
+							if (xhr.status === 419) {
+								console.error('CSRF token mismatch. Reloading page...');
+								window.location.replace(RootUrl);
+							} else {
+								alert('An error occurred: ' + xhr.responseText);
+							}
+						},
+						complete: function () {
+							$this.removeClass('load-more-overlay loading');
+						}
+					});
+				}
+			});
 		},
 
-		// initPurchasedMinipopup: function () {
-		// 	if ( $( '.product-single' ).length || $( '.main-content' ).length ) {
-		// 		setInterval( function () {
-		// 			Porto.miniPopup.open( {
-		// 				name: 'Mobile Speaker',
-		// 				nameLink: 'product.html',
-		// 				imageSrc: 'assets/images/products/small/product-1.jpg',
-		// 				content: 'Someone Purchased',
-		// 				action: '<span class="text-primary" style="font-size: 11px;">12 MINUTES AGO</span>',
-		// 			} );
-		// 		}, 60000 );
-		// 	}
-		// },
+		initPurchasedMinipopup: function () {
+			if ( $( '.product-single' ).length || $( '.main-content' ).length ) {
+				setInterval( function () {
+					Porto.miniPopup.open( {
+						name: 'Mobile Speaker',
+						nameLink: 'product.html',
+						imageSrc: 'assets/images/products/small/product-1.jpg',
+						content: 'Someone Purchased',
+						action: '<span class="text-primary" style="font-size: 11px;">12 MINUTES AGO</span>',
+					} );
+				}, 60000 );
+			}
+		},
 		initJqueryParallax: function () {
 			$( '.home-slider ul.scene' ).parallax();
 			$( '.bg-parallax ul.scene' ).parallax();
@@ -2421,30 +2522,30 @@
 			}
 
 		return {
-			// init: function () {
-			// 	// init area for cart popup
-			// 	var area = document.createElement( 'div' );
-			// 	area.className = "minipopup-area";
-			// 	$( '.page-wrapper' )[ 0 ].appendChild( area );
-			//
-			// 	$area = $( area );
-			// 	$area.on( 'click', '.mfp-close', function ( e ) {
-			// 		self.close( $( this ).closest( '.minipopup-box' ).index() );
-			// 	} );
-			//
-			// 	// init area for wishlsit popup
-			// 	var areaWishlistPopup = document.createElement( 'div' );
-			// 	var areaWishlistPopupMsg = document.createElement( 'div' );
-			// 	areaWishlistPopup.className = "wishlist-popup";
-			// 	areaWishlistPopupMsg.className = "wishlist-popup-msg";
-			// 	areaWishlistPopupMsg.innerText = "Product added!";
-			// 	$( '.page-wrapper' )[ 0 ].appendChild( areaWishlistPopup );
-			// 	$( '.wishlist-popup' ).append( areaWishlistPopupMsg );
-			//
-			// 	// bind methods
-			// 	this.close = this.close.bind( this );
-			// 	timerClock = timerClock.bind( this );
-			// },
+			init: function () {
+				// init area for cart popup
+				var area = document.createElement( 'div' );
+				area.className = "minipopup-area";
+				$( '.page-wrapper' )[ 0 ].appendChild( area );
+
+				$area = $( area );
+				$area.on( 'click', '.mfp-close', function ( e ) {
+					self.close( $( this ).closest( '.minipopup-box' ).index() );
+				} );
+
+				// init area for wishlsit popup
+				var areaWishlistPopup = document.createElement( 'div' );
+				var areaWishlistPopupMsg = document.createElement( 'div' );
+				areaWishlistPopup.className = "wishlist-popup";
+				areaWishlistPopupMsg.className = "wishlist-popup-msg";
+				areaWishlistPopupMsg.innerText = "Product added!";
+				$( '.page-wrapper' )[ 0 ].appendChild( areaWishlistPopup );
+				$( '.wishlist-popup' ).append( areaWishlistPopupMsg );
+
+				// bind methods
+				this.close = this.close.bind( this );
+				timerClock = timerClock.bind( this );
+			},
 
 			open: function ( options, callback ) {
 				var self = this,

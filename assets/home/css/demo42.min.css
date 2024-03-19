@@ -5727,7 +5727,7 @@ label {
 
 .info-box i:before {
     width: auto;
-    margin: 0 0.1em
+    margin: -6px 0.1em 0 0;
 }
 
 .info-box h4 {

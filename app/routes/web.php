@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Home\HomeAuthController;
 use App\Http\Controllers\Home\HomeTransactionController;
+use App\Http\Controllers\Home\WishlistController;
 use App\Http\Controllers\web\loginController;
 use App\Http\Controllers\web\dashboardController;
 use App\Http\Controllers\web\generalController;
@@ -127,8 +128,11 @@ Route::controller(HomeAuthController::class)->group(function () {
 });
 
 Route::get('products', [HomeAuthController::class, 'products'])->name('products');
+Route::get('products/quickView/html/{PID}', [HomeAuthController::class, 'quickViewHtml'])->name('products.quickView');
 Route::post('products/get/categories/html', [HomeAuthController::class, 'categoriesHtml'])->name('products.categoriesHtml');
 Route::post('products/get/products/html', [HomeAuthController::class, 'productsHtml'])->name('products.productsHtml');
+Route::post('products/wishlist/add', [WishlistController::class, 'addWishlist'])->name('products.addWishlist');
+Route::post('products/wishlist/remove', [WishlistController::class, 'removeWishlist'])->name('products.removeWishlist');
 Route::get('requested-quotations', [HomeTransactionController::class, 'quotations'])->name('requested-quotations');
 Route::post('requested-quotations/data', [HomeTransactionController::class, 'quotationData'])->name('requested-quotations.data');
 Route::get('requested-quotations/view/{EnqID}', [HomeTransactionController::class, 'QuoteView'])->name('requested-quotations.QuoteView');

@@ -23,6 +23,7 @@
     <link rel="stylesheet" href="{{url('/')}}/home/assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="{{url('/')}}/home/assets/css/slider.css">
     <link rel="stylesheet" href="{{url('/')}}/home/assets/css/demo42.min.css">
+    <link rel="stylesheet" href="{{url('/')}}/home/assets/css/toastr.css">
     {{-- <link rel="stylesheet" href="{{url('/')}}/home/assets/css/style.min.css"> --}}
     <link rel="stylesheet" type="text/css" href="{{url('/')}}/home/assets/vendor/fontawesome-free/css/all.min.css">
     <link rel="stylesheet" type="text/css" href="{{url('/')}}/assets/plugins/image-cropper/cropper.css?r={{date('YmdHis')}}">
@@ -70,7 +71,7 @@
                 {{-- @if(!$isRegister)
                     <div class="header-left d-md-block">
                         <div class="info-box info-box-icon-left text-primary justify-content-start p-0">
-                            <i class="icon-location" style="color: #f26100;"></i>
+                            <i class="icon-location" style="color: #0f43b0;"></i>
                             <h6 class="font-weight-bold text-dark">Delivery Location - </h6>
                             <span><a href="#" class="text-dark">45,Eden Garden, R.S.Puram, 3rd Cross, Coimbatore. 641006</a></span>
                             <i class="fa fa-arrow"></i>
@@ -90,8 +91,10 @@
                     <div class="header-left d-md-block">
                         <div class="align-middle" style="display: inline-block;">
                             <div class="info-box info-box-icon-left justify-content-start">
-                                <i class="icon-location" style="color: #f26100;"></i>
-                                <h6 class="font-weight-bold text-dark">Delivery Location - </h6>
+                                <i class="icon-location" style="color: #0f43b0;"></i>
+                                <div class="align-middle" style="display: inline-block; height: 20px; vertical-align: middle !important;">
+                                    <h6 class="font-weight-bold text-dark" style="line-height: 18px;">Delivery Location - </h6>
+                                </div>
                             </div>
                         </div>
 
@@ -308,24 +311,24 @@
                                     </div>
                                     <div class="col-lg-4">
                                         <ul class="submenu">
-                                            <li><a href="#">{{$PCategories[0]->PCName}}</a></li>
-                                            <li><a href="#">{{$PCategories[1]->PCName}}</a></li>
-                                            <li><a href="#">{{$PCategories[2]->PCName}}</a></li>
+                                            <li><a href="#">{{ $PCategories[0]->PCName ?? '' }}</a></li>
+                                            <li><a href="#">{{ $PCategories[1]->PCName ?? '' }}</a></li>
+                                            <li><a href="#">{{ $PCategories[2]->PCName ?? '' }}</a></li>
                                         </ul>
                                     </div>
 
                                     <div class="col-lg-4">
                                         <ul class="submenu">
-                                            <li><a href="#">{{$PCategories[3]->PCName}}</a></li>
-                                            <li><a href="#">{{$PCategories[4]->PCName}}</a></li>
-                                            <li><a href="#">{{$PCategories[5]->PCName}}</a></li>
+                                            <li><a href="#">{{ $PCategories[3]->PCName ?? '' }}</a></li>
+                                            <li><a href="#">{{ $PCategories[4]->PCName ?? '' }}</a></li>
+                                            <li><a href="#">{{ $PCategories[5]->PCName ?? '' }}</a></li>
                                         </ul>
                                     </div>
                                     <div class="col-lg-4">
                                         <ul class="submenu">
-                                            <li><a href="#">{{$PCategories[6]->PCName}}</a></li>
-                                            <li><a href="#">{{$PCategories[7]->PCName}}</a></li>
-                                            <li><a href="#">{{$PCategories[8]->PCName}}</a></li>
+                                            <li><a href="#">{{ $PCategories[6]->PCName ?? '' }}</a></li>
+                                            <li><a href="#">{{ $PCategories[7]->PCName ?? '' }}</a></li>
+                                            <li><a href="#">{{ $PCategories[8]->PCName ?? '' }}</a></li>
                                         </ul>
                                     </div>
                                     <div class="col-lg-12 p-1">
@@ -666,6 +669,7 @@
 <script src="{{url('/')}}/home/assets/js/jquery.appear.min.js"></script>
 <script src="{{url('/')}}/home/assets/js/jquery.plugin.min.js"></script>
 <script src="{{url('/')}}/home/assets/js/main.js"></script>
+<script src="{{url('/')}}/home/assets/js/toastr.js"></script>
 <script src="{{url('/')}}/assets/plugins/dropify/js/dropify.js?r={{date('YmdHis')}}"></script>
 <script src="{{url('/')}}/assets/plugins/image-cropper/cropper.js?r={{date('YmdHis')}}"></script>
 <script src="{{url('/')}}/assets/js/address-web.js?r={{date('YmdHis')}}"></script>
@@ -690,10 +694,7 @@
 
 
 <script>
-    $(document).ready(function() {
-
-
-
+    $(document).ready(function () {
         const UpdateItemQtyCount = (count) => {
             const itemCountSpan = $('#divCartItemCount');
             if (count > 0) {
