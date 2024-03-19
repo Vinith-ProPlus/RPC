@@ -244,6 +244,7 @@ class VendorAuthController extends Controller{
                 $lastName = $nameParts[1] ?? '';
 
                 $Udata=array(
+                    "ReferID"=>$VendorID,
                     "Name" => $vendorName,
                     "FirstName" => $firstName,
                     "LastName" => $lastName,
@@ -457,7 +458,7 @@ class VendorAuthController extends Controller{
                     $PSCIDs[]=$data->PSCID;
                     $t=DB::Table('tbl_vendors_supply')->where('VendorID',$VendorID)->Where('PCID',$data->PCID)->Where('PSCID',$data->PSCID)->first();
                     if(!$t){
-                        $DetailID = DocNum::getDocNum(docTypes::VendorSupply->value);
+                        $DetailID = DocNum::getDocNum(docTypes::VendorSupply->value,"",Helper::getCurrentFY());
                         $tdata=array(
                             "DetailID"=>$DetailID,
                             "VendorID"=>$VendorID,
@@ -760,7 +761,7 @@ class VendorAuthController extends Controller{
                                 );
                                 $status=DB::Table('tbl_vendors_vehicle')->where('VendorID',$VendorID)->where('UUID',$data->UUID)->update($tdata);
                             }else{
-                                $VehicleID = DocNum::getDocNum(docTypes::VendorVehicle->value);
+                                $VehicleID = DocNum::getDocNum(docTypes::VendorVehicle->value,"",Helper::getCurrentFY());
                                 $tdata=array(
                                     "VehicleID"=>$VehicleID,
                                     "VendorID"=>$VendorID,
@@ -803,7 +804,7 @@ class VendorAuthController extends Controller{
                                                 $status=DB::Table('tbl_vendors_vehicle_images')->where('VendorID',$VendorID)->where('UUID',$data->UUID)->where('ImgID',$vImgData->ImgID)->update($tmpData);
                                             }else{
                                                 $tmpData=array(
-                                                    "SLNO"=>DocNum::getDocNum(docTypes::VendorVehicleImages->value),
+                                                    "SLNO"=>DocNum::getDocNum(docTypes::VendorVehicleImages->value,"",Helper::getCurrentFY()),
                                                     "VendorID"=>$VendorID,
                                                     "VehicleID"=>$VehicleID,
                                                     "UUID"=>$data->UUID,
@@ -850,7 +851,7 @@ class VendorAuthController extends Controller{
                             $PSCIDs[]=$data->PSCID;
                             $t=DB::Table('tbl_vendors_supply')->where('VendorID',$VendorID)->Where('PCID',$data->PCID)->Where('PSCID',$data->PSCID)->first();
                             if(!$t){
-                                $DetailID = DocNum::getDocNum(docTypes::VendorSupply->value);
+                                $DetailID = DocNum::getDocNum(docTypes::VendorSupply->value,"",Helper::getCurrentFY());
                                 $tdata=array(
                                     "DetailID"=>$DetailID,
                                     "VendorID"=>$VendorID,
@@ -885,7 +886,7 @@ class VendorAuthController extends Controller{
                                         $PostalCodeIDs = DB::table($this->generalDB.'tbl_postalcodes')->where('DistrictID',$item->DistrictID)->where('ActiveStatus','Active')->where('DFlag',0)->pluck('PID')->toArray();
                                         if (!empty($PostalCodeIDs)) {
                                             foreach($PostalCodeIDs as $row){
-                                                $DetailID = DocNum::getDocNum(docTypes::VendorServiceLocation->value);
+                                                $DetailID = DocNum::getDocNum(docTypes::VendorServiceLocation->value,"",Helper::getCurrentFY());
                                                 $tdata=array(
                                                     "DetailID"=>$DetailID,
                                                     "VendorID"=>$VendorID,
@@ -901,7 +902,7 @@ class VendorAuthController extends Controller{
                                                 }
                                             }
                                         }else{
-                                            $DetailID = DocNum::getDocNum(docTypes::VendorServiceLocation->value);
+                                            $DetailID = DocNum::getDocNum(docTypes::VendorServiceLocation->value,"",Helper::getCurrentFY());
                                             $tdata=array(
                                                 "DetailID"=>$DetailID,
                                                 "VendorID"=>$VendorID,
@@ -931,7 +932,7 @@ class VendorAuthController extends Controller{
                                         $PostalCodeIDs[] = $row;
                                         $t=DB::Table('tbl_vendors_service_locations')->where('VendorID',$VendorID)->where('ServiceBy',$ServiceBy)->Where('PostalCodeID',$row)->first();
                                         if(!$t){
-                                            $DetailID = DocNum::getDocNum(docTypes::VendorServiceLocation->value);
+                                            $DetailID = DocNum::getDocNum(docTypes::VendorServiceLocation->value,"",Helper::getCurrentFY());
                                             $tdata=array(
                                                 "DetailID"=>$DetailID,
                                                 "VendorID"=>$VendorID,
@@ -981,7 +982,7 @@ class VendorAuthController extends Controller{
                                 );
                                 $status=DB::Table('tbl_vendors_stock_point')->where('VendorID',$VendorID)->Where('UUID',$data->UUID)->update($tdata);
                             }else{
-                                $DetailID = DocNum::getDocNum(docTypes::VendorStockPoint->value);
+                                $DetailID = DocNum::getDocNum(docTypes::VendorStockPoint->value,"",Helper::getCurrentFY());
                                 $tdata=array(
                                     "DetailID"=>$DetailID,
                                     "VendorID"=>$VendorID,
@@ -1034,7 +1035,7 @@ class VendorAuthController extends Controller{
                                         $status=DB::Table('tbl_vendors_document')->where('VendorID',$VendorID)->where('ImgID',$ImgID)->update($tdata);
                                     }else{
                                         $tdata=array(
-                                            "SLNO"=>DocNum::getDocNum(docTypes::VendorDocuments->value),
+                                            "SLNO"=>DocNum::getDocNum(docTypes::VendorDocuments->value,"",Helper::getCurrentFY()),
                                             "VendorID"=>$VendorID,
                                             "ImgID"=>$ImgID,
                                             "documents"=>$DocUrl,
@@ -1191,7 +1192,7 @@ class VendorAuthController extends Controller{
                         $ImgID = substr(str_shuffle(substr(uniqid(uniqid(), true), 0, 16)), 0, 12);
                         $VImages=$vdir.$fileName1;
                         $Data=array(
-                            "SLNO"=>DocNum::getDocNum(docTypes::VendorVehicleImages->value),
+                            "SLNO"=>DocNum::getDocNum(docTypes::VendorVehicleImages->value,"",Helper::getCurrentFY()),
                             "VendorID"=>$VendorID,
                             "VehicleID"=>$VehicleID,
                             "UUID"=>$UUID,
@@ -1260,7 +1261,7 @@ class VendorAuthController extends Controller{
                             copy($vImg->uploadPath, $vdir . $fileName1);
                             $VImages = $vdir . $fileName1;
                             $Data = [
-                                "SLNO" => DocNum::getDocNum(docTypes::VendorVehicleImages->value),
+                                "SLNO" => DocNum::getDocNum(docTypes::VendorVehicleImages->value,"",Helper::getCurrentFY()),
                                 "VendorID" => $VendorID,
                                 "VehicleID" => $VehicleID,
                                 "UUID" => $OldData[0]->UUID,
@@ -1318,6 +1319,7 @@ class VendorAuthController extends Controller{
             return response()->json(['status' => false,'message' => "Vehicle Delete Failed!"]);
         }
     }
+
     
     public function getTmpVendorData($VendorID){
 		$VendorData = DB::table($this->tmpDB.'tbl_vendors')->where('VendorID',$VendorID)->first();

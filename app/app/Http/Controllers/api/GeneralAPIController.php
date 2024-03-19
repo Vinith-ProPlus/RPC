@@ -69,7 +69,6 @@ class GeneralAPIController extends Controller{
 	}
 	public function getCity(Request $req){
 		$data = Helper::getCity(["CountryID" => $req->CountryID,"StateID" => $req->StateID,"DistrictID" => $req->DistrictID,"TalukID" => $req->TalukID,"PostalID" => $req->PostalID,"PostalCode" => $req->PostalCode,]);
-	
 		if (isset($data['error'])) {
 			$return = [
 				'status' => false,
@@ -77,10 +76,7 @@ class GeneralAPIController extends Controller{
 				'data' => [],
 			];
 		} else {
-			$return = [
-				'status' => true,
-				'data' => $data,
-			];
+			$return = ['status' => true,'data' => $data];
 		}
 		return $return;
 	}
