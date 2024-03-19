@@ -30,18 +30,20 @@
 
                     <div class="row" id="divAdd">
                         <div class="col-sm-12 text-center">
-                            <label>Banner Type</label>
+                            <label for="lstBannerType">Banner Type</label>
                             <select id="lstBannerType" class="form-control">
                                 <option @if($isEdit && $EditData[0]->BannerType == "Web") selected @endif value="Web">Web</option>
                                 <option @if($isEdit && $EditData[0]->BannerType == "Mobile") selected @endif value="Mobile">Mobile</option>
                             </select>
                         </div>
                         <div class="col-sm-12 text-center mt-20 @if($isEdit && $EditData[0]->BannerType == "Mobile") d-none @endif" id="divWeb">
-                            <label>Web Banner Image <span class="fs-13" style="color:rgba(0,0,0,0.75)" id="lblBanner"> (Upload Size=1920px X 607px, Radio=12:5)</span></label>
+                            <label for="txtTitle">Banner Title</label>
+                            <input type="text" class="form-control" id="txtTitle" value="{{ isset($EditData[0]->BannerTitle) ? $EditData[0]->BannerTitle : '' }}" required>
+                           <label class="mt-20">Web Banner Image <span class="fs-13" style="color:rgba(0,0,0,0.75)" id="lblBanner"> (Upload Size=1920px X 607px, Radio=12:5)</span></label>
                             <input type="file" class="dropify imageScrop" id="txtBanner" data-min-width=1920 data-min-height=607 data-max-width=1920 data-max-height=607 data-default-file="@if($isEdit && $EditData[0]->BannerType == "Web") {{url('/')."/".$EditData[0]->BannerImage}} @endif"  data-allowed-file-extensions="jpeg jpg png gif">
                         </div>
                         <div class="col-sm-12 text-center mt-20 @if($isEdit && $EditData[0]->BannerType == "Web") d-none @elseif(!$isEdit) d-none @endif" id="divMobile">
-                            <label>Mobile Banner Image <span class="fs-13" style="color:rgba(0,0,0,0.75)" id="lblBanner"> (Upload Size=1902px X 627px, Radio=12:5)</span></label>
+                            <label for="txtMBanner">Mobile Banner Image <span class="fs-13" style="color:rgba(0,0,0,0.75)" id="lblBanner"> (Upload Size=1902px X 627px, Radio=12:5)</span></label>
                             <input type="file" class="dropify imageScrop" id="txtMBanner" data-min-width=1092 data-min-height=627 data-max-width=1092 data-max-height=627 data-default-file="@if($isEdit && $EditData[0]->BannerType == "Mobile") {{url('/')."/".$EditData[0]->BannerImage}} @endif"  data-allowed-file-extensions="jpeg jpg png gif">
                         </div>
                     </div>
@@ -106,12 +108,13 @@
         const getData=()=>{
             let BannerType = $("#lstBannerType").val();
             let formData=new FormData();
-            formData.append('BannerType',BannerType);
+            formData.append('BannerTitle', $('#txtTitle').val());
+            formData.append('BannerType', BannerType);
             formData.append('bannerImage', BannerType == "Web" ? $('#txtBanner')[0].files[0] : $('#txtMBanner')[0].files[0]);
             return formData;
         }
         $(document).on('change','#lstBannerType',function(){
-            let BannerType = $(this).val();
+            let BannerType = $("#lstBannerType").val();
             if(BannerType == 'Mobile'){
                 $('#divWeb').addClass('d-none');
                 $('#divMobile').removeClass('d-none');
@@ -121,8 +124,18 @@
             }
         });
         $(document).on('click','#btnUpload',function(){
-            let BannerType = $(this).val();
-            let isBanner = BannerType == "Web" ? $('#txtBanner').val() : $('#txtMBanner').val();
+            let BannerType = $("#lstBannerType").val();
+            let isBanner = "";
+            if(BannerType === "Web"){
+                isBanner = $('#txtBanner').val();
+                let title = $('#txtTitle').val();
+                if(!title){
+                    toastr.error('Banner title is required', "Failed", {positionClass: "toast-top-right",containerId: "toast-top-right",showMethod: "slideDown",hideMethod: "slideUp",progressBar: !0})
+                    return;
+                }
+            } else {
+                isBanner = $('#txtMBanner').val();
+            }
             if(isBanner){
                 swal({
                     title: "Are you sure?",
@@ -136,7 +149,7 @@
                     swal.close();
                     btnLoading($('#btnUpload'));
                     let formData=getData();
-                    @if($isEdit) let posturl="{{ url('/') }}/admin/settings/banners/edit/{{$TranNo}}"; @else let posturl="{{ url('/') }}/admin/settings/banners/upload"; @endif
+                    let posturl = "{{ url('/') }}/admin/settings/banners/{{ $isEdit ? 'edit/'.$TranNo : 'upload' }}";
                     $.ajax({
                         type:"post",
                         url:posturl,
@@ -153,7 +166,6 @@
                                     var percentComplete = (evt.loaded / evt.total) * 100;
                                     percentComplete=parseFloat(percentComplete).toFixed(2);
                                     $('#divProcessText').html(percentComplete+'% Completed.<br> Please wait for until upload process complete.');
-                                    //Do something with upload progress here
                                 }
                             }, false);
                             return xhr;
@@ -168,7 +180,7 @@
                         error:function(e, x, settings, exception){ajaxErrors(e, x, settings, exception);},
                         complete: function(e, x, settings, exception){btnReset($('#nextBtn'));ajaxIndicatorStop();},
                         success:function(response){
-                            document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
+                            document.documentElement.scrollTop = 0;
                             if(response.status==true){
                                 swal({
                                     title: "SUCCESS",
@@ -221,7 +233,7 @@
         $(document).on('change', '.imageScrop', function() {
             let id = $(this).attr('id');
             setTimeout(() => {
-                
+
                 if($('#'+id).value!=""){
 
                     $image.attr('data-id', id);
@@ -335,7 +347,7 @@
                 var id = $image.attr('data-id');
                 $('#' + id).attr('src', base64);
                 $('#' + id).parent().find('img').attr('src', base64)
-                
+
                 $('#ImgCrop').modal('hide');
                 setTimeout(() => {
                     btnReset($('#btnCropApply'));
