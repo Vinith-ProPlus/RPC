@@ -28,7 +28,7 @@
         </div>
 
         <div class="col-md-6">
-            <div class="product-single-details mb-0 ml-md-4">
+            <div class="product-single-details mb-0 ml-md-4 product-div">
                 <h1 class="product-title"> {{ $product->ProductName }}</h1>
 
                 <div class="ratings-container">
@@ -65,9 +65,8 @@
                 <hr class="divider mb-0 mt-0">
 
                 <div class="product-single-share mb-0">
-                    <a href="https://www.portotheme.com/html/porto_ecommerce/ajax/wishlist.html" class="btn-icon-wish add-wishlist" title="Add to Wishlist"><i
-                            class="icon-wishlist-2"></i><span>Add to
-							Wishlist</span></a>
+                    <a href="#" class="btn-icon-wish add-wishlist {{ $product->IsInWishlist ? 'added-wishlist' : '' }}" title="{{ $product->IsInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist' }}"><i
+                            class="icon-wishlist-2"></i><span>{{ $product->IsInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist' }}</span></a>
                 </div>
             </div>
         </div>

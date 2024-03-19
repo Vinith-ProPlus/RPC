@@ -10791,7 +10791,7 @@
 
                 <div class="row no-gutters">
                     <div class="col-6 col-sm-4 col-lg-3">
-                        <div class="product-default inner-quickview inner-icon">
+                        <div class="product-default inner-quickview inner-icon product-div">
                             <figure>
                                 <a href="#">
                                     <img src="http://localhost/RPC/assets/images/no-image-b.png" width="300" height="300" alt="product">

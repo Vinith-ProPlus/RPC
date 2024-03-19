@@ -50,7 +50,7 @@
             @php $rating = rand(50, 100); @endphp
             @if ($viewType == 'Grid')
             <div class="col-6 col-sm-4 col-lg-3">
-                <div class="product-default inner-quickview inner-icon">
+                <div class="product-default inner-quickview inner-icon product-div">
                     <figure>
                         <a href="#">
                             <img src="{{ $product->ProductImage }}" width="300" height="300" alt="{{ $product->ProductName }}">
@@ -68,7 +68,7 @@
                             <div class="category-list">
                                 <a href="#">{{ $product->SubCategoryName }}</a>
                             </div>
-                            <a href="#" class="btn-icon-wish" title="wishlist">
+                            <a href="#" class="btn-icon-wish {{ $product->IsInWishlist ? 'added-wishlist' : '' }}" title="wishlist">
                                 <i class="icon-heart"></i>
                             </a>
                         </div>
@@ -85,7 +85,7 @@
                 </div>
             </div>
             @else
-                <div class="col-sm-12 col-6 product-default left-details product-list mb-2">
+                <div class="col-sm-12 col-6 product-default left-details product-list mb-2 product-div">
                     <figure>
                         <a href="#">
                             <img src="{{ $product->ProductImage }}" width="250" height="250" alt="product">
@@ -109,14 +109,14 @@
                                 <i class="icon-shopping-cart"></i>
                                 <span>ADD TO CART</span>
                             </a>
-                            <a href="#" class="btn-icon-wish" title="wishlist">
+                            <a href="#" class="btn-icon-wish {{ $product->IsInWishlist ? 'added-wishlist' : '' }}" title="wishlist">
                                 <i class="icon-heart"></i>
                             </a>
                             <a href="{{ route('products.quickView', $product->ProductID) }}" class="btn-quickview" title="Quick View">
                                 <i class="fas fa-external-link-alt"></i>
                             </a>
                         </div>
-                    </div>
+                       </div>
                 </div>
             @endif
         @endforeach

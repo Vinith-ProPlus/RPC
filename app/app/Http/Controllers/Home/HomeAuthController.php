@@ -70,7 +70,9 @@ class HomeAuthController extends Controller{
 				}
 			}
 		}
-		$RecentProducts = DB::table('tbl_products as P')->leftJoin('tbl_product_subcategory as PSC','PSC.PSCID','P.SCID')->where('P.ActiveStatus','Active')->where('P.DFlag',0)->select('P.ProductID','P.ProductName','P.ProductImage','PSC.PSCName')
+		$RecentProducts = DB::table('tbl_products as P')->leftJoin('tbl_product_subcategory as PSC','PSC.PSCID','P.SCID')
+            ->where('P.ActiveStatus','Active')->where('P.DFlag',0)
+            ->select('P.ProductID','P.ProductName','P.ProductImage','PSC.PSCName')
         ->inRandomOrder()->take(18)->get()->toArray();
 
 		foreach($RecentProducts as $data){
@@ -102,34 +104,9 @@ class HomeAuthController extends Controller{
 		$FormData['Company']=$this->Company;
 		$PCatagories = DB::Table('tbl_product_category')->where('ActiveStatus','Active')->where('DFlag',0)->select('PCName','PCID','PCImage')
         ->inRandomOrder()->take(10)->get();
-
-		foreach($PCatagories as $row){
-			$row->PCImage = $row->PCImage ? url('/').'/'.$row->PCImage :url('/') . '/'.'assets/images/no-image-b.png';
-			$row->PSCData = DB::table('tbl_product_subcategory')->where('ActiveStatus','Active')->where('DFlag',0)->where('PCID',$row->PCID)->select('PSCID','PSCName','PSCImage')->get();
-			foreach($row->PSCData as $item){
-				$item->PSCImage = $item->PSCImage ? url('/').'/'.$item->PSCImage :url('/') . '/'.'assets/images/no-image-b.png';
-				$item->ProductData = DB::table('tbl_products')->where('ActiveStatus','Active')->where('DFlag',0)->where('CID',$row->PCID)->where('SCID',$item->PSCID)->select('ProductID','ProductName','ProductImage')->get();
-				foreach($item->ProductData as $data){
-					$data->ProductImage = $data->ProductImage ? url('/').'/'.$data->ProductImage :url('/') . '/'.'assets/images/no-image-b.png';
-					$data->ProductImage = $data->ProductImage ? 'https://rpc.prodemo.in/'.$data->ProductImage :url('/') . '/'.'assets/images/no-image-b.png';
-					$data->gImages=DB::table('tbl_products_gallery')->where('ProductID',$data->ProductID)->select(DB::raw('CONCAT("' . url('/') . '/", gImage) AS gImage'))->get();
-				}
-			}
-		}
-		$RecentProducts = DB::table('tbl_products as P')->leftJoin('tbl_product_subcategory as PSC','PSC.PSCID','P.SCID')->where('P.ActiveStatus','Active')->where('P.DFlag',0)->select('P.ProductID','P.ProductName','P.ProductImage','PSC.PSCName')
-        ->inRandomOrder()->take(18)->get()->toArray();
-
-		foreach($RecentProducts as $data){
-			// $data->ProductImage = $data->ProductImage ? url('/').'/'.$data->ProductImage :url('/') . '/'.'assets/images/no-image-b.png';
-			$data->ProductImage = $data->ProductImage ? 'https://rpc.prodemo.in/'.$data->ProductImage :url('/') . '/'.'assets/images/no-image-b.png';
-		}
 		$FormData['PCategories']=$PCatagories;
-		$FormData['RecentProducts']=$RecentProducts;
-		shuffle($RecentProducts);
-		$FormData['HotProducts']=$RecentProducts;
 		$FormData['isRegister']=false;
 		$FormData['Cart']=$this->getCart();
-
 		$FormData['ShippingAddress']=DB::table('tbl_customer_address as CA')->where('CustomerID',$CustomerID)
 		->join($this->generalDB.'tbl_countries as C','C.CountryID','CA.CountryID')
 		->join($this->generalDB.'tbl_states as S', 'S.StateID', 'CA.StateID')
@@ -139,17 +116,23 @@ class HomeAuthController extends Controller{
 		->join($this->generalDB.'tbl_postalcodes as PC', 'PC.PID', 'CA.PostalCodeID')
 		->select('CA.AID', 'CA.Address', 'CA.isDefault', 'CA.CountryID', 'C.CountryName', 'CA.StateID', 'S.StateName', 'CA.DistrictID', 'D.DistrictName', 'CA.TalukID', 'T.TalukName', 'CA.CityID', 'CI.CityName', 'CA.PostalCodeID', 'PC.PostalCode')
 		->get();
-		// return $FormData['ShippingAddress'];
 		return view('home.products',$FormData);
     }
 
     public function quickViewHtml($PID)
     {
+        $customerID = $this->ReferID;
         $product = DB::table('tbl_products as P')->leftJoin('tbl_product_subcategory as PSC','PSC.PSCID','P.SCID')
             ->leftJoin('tbl_product_category as PC','PC.PCID','P.CID')
+            ->leftJoin('tbl_wishlists as W', function($join) use ($customerID) {
+                $join->on('W.product_id', '=', 'P.ProductID')
+                    ->where('W.customer_id', '=', $customerID);
+            })
             ->where('P.ActiveStatus','Active')->where('P.DFlag',0)
             ->where('P.ProductID', $PID)
-            ->select('P.ProductID','P.ProductName','P.Description','PC.PCName as CategoryName','PSC.PSCName as SubCategoryName', DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(P.ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'))
+            ->select('P.ProductID','P.ProductName','P.Description','PC.PCName as CategoryName','PSC.PSCName as SubCategoryName',
+                DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(P.ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'),
+                DB::raw('IF(W.product_id IS NOT NULL, true, false) AS IsInWishlist'))
             ->first();
         $product->GalleryImages = DB::table('tbl_products_gallery')
             ->where('ProductID', $PID)
@@ -181,7 +164,6 @@ class HomeAuthController extends Controller{
             $pageNo = $request->pageNo = $totalPages;
             $productsData = $this->getProductDetails($request);
             $productDetails = $productsData['productDetails'];
-            $totalProductsCount = $productsData['totalProductsCount'];
         }
         return view('home.products-html', compact('productDetails', 'productCount', 'pageNo', 'totalPages', 'range', 'viewType', 'orderBy'))->render();
     }
@@ -537,6 +519,7 @@ class HomeAuthController extends Controller{
 
     public function getProductDetails(Request $request){
         if($request->PostalID){
+            $customerID = $this->ReferID;
             $productCount = $request->productCount ?? 12;
             $pageNo = $request->pageNo ?? 1;
             $AllVendors = DB::table('tbl_vendors as V')
@@ -560,13 +543,17 @@ class HomeAuthController extends Controller{
                     return $query->where('P.SCID', $request->SubCategoryID);
                 })
                 ->groupBy('P.ProductID', 'P.ProductName', 'P.Description', 'P.ProductImage', 'PSC.PSCName')
-                ->select('P.ProductID', 'P.ProductName', 'P.Description', DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'), 'PSC.PSCName as SubCategoryName')
+                ->select('P.ProductID')
                 ->get();
 
             $productDetails = DB::table('tbl_vendors_product_mapping as VPM')
                 ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'VPM.PCID')
                 ->leftJoin('tbl_products as P', 'P.ProductID', 'VPM.ProductID')
                 ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')
+                ->leftJoin('tbl_wishlists as W', function($join) use ($customerID) {
+                    $join->on('W.product_id', '=', 'P.ProductID')
+                        ->where('W.customer_id', '=', $customerID);
+                })
                 ->where('P.ActiveStatus',"Active")
                 ->where('P.DFlag',0)
                 ->where('VPM.Status', 1)
@@ -581,11 +568,16 @@ class HomeAuthController extends Controller{
                         return $query->orderBy('P.CreatedOn', 'asc');
                     }
                 })
-                ->groupBy('P.ProductID', 'P.ProductName', 'P.Description', 'P.ProductImage', 'PSC.PSCName')
-                ->select('P.ProductID', 'P.ProductName', 'P.Description', DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'), 'PSC.PSCName as SubCategoryName')
+                ->groupBy('P.ProductID', 'P.ProductName', 'P.Description', 'P.ProductImage', 'PSC.PSCName', 'W.product_id')
+                ->select('P.ProductID', 'P.ProductName', 'P.Description',
+                    DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'),
+                    DB::raw('IF(W.product_id IS NOT NULL, true, false) AS IsInWishlist'),
+                    'PSC.PSCName as SubCategoryName')
                 ->skip(($pageNo - 1) * $productCount)
                 ->take($productCount)
                 ->get();
+            logger($productDetails);
+//            If product_id present in wishlist table, with the customer_id of $this->ReferID , the consider that product wishlist as true else false. update this condition in the above query
 
             return [
                 'productDetails' => $productDetails,

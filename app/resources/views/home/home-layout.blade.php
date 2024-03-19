@@ -23,6 +23,7 @@
     <link rel="stylesheet" href="{{url('/')}}/home/assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="{{url('/')}}/home/assets/css/slider.css">
     <link rel="stylesheet" href="{{url('/')}}/home/assets/css/demo42.min.css">
+    <link rel="stylesheet" href="{{url('/')}}/home/assets/css/toastr.css">
     {{-- <link rel="stylesheet" href="{{url('/')}}/home/assets/css/style.min.css"> --}}
     <link rel="stylesheet" type="text/css" href="{{url('/')}}/home/assets/vendor/fontawesome-free/css/all.min.css">
     <link rel="stylesheet" type="text/css" href="{{url('/')}}/assets/plugins/image-cropper/cropper.css?r={{date('YmdHis')}}">
@@ -668,6 +669,7 @@
 <script src="{{url('/')}}/home/assets/js/jquery.appear.min.js"></script>
 <script src="{{url('/')}}/home/assets/js/jquery.plugin.min.js"></script>
 <script src="{{url('/')}}/home/assets/js/main.js"></script>
+<script src="{{url('/')}}/home/assets/js/toastr.js"></script>
 <script src="{{url('/')}}/assets/plugins/dropify/js/dropify.js?r={{date('YmdHis')}}"></script>
 <script src="{{url('/')}}/assets/plugins/image-cropper/cropper.js?r={{date('YmdHis')}}"></script>
 <script src="{{url('/')}}/assets/js/address-web.js?r={{date('YmdHis')}}"></script>
@@ -692,10 +694,7 @@
 
 
 <script>
-    $(document).ready(function() {
-
-
-
+    $(document).ready(function () {
         const UpdateItemQtyCount = (count) => {
             const itemCountSpan = $('#divCartItemCount');
             if (count > 0) {

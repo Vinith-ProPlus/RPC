@@ -40,6 +40,7 @@
 </head>
 
 <body>
+<input type="hidden" style="display:none!important" id="txtRootUrl" value="{{url('/')}}/">
     <div class="page-wrapper">
         <div class="top-notice bg-dark text-white pt-3">
             <div class="container text-center d-flex align-items-center justify-content-center flex-wrap">
@@ -427,7 +428,7 @@
                                     <a href="#" class="btn-icon redirectLogin product-type-simple"><i
                                             class="icon-shopping-cart"></i></a>
                                 </div>
-                                <a href="#" class="btn-quickview" title="Quick View">Quick View</a>
+                                <a href="{{ route('products.quickView', $hotProduct->ProductID) }}" class="btn-quickview" title="Quick View">Quick View</a>
                             </figure>
                             <div class="product-details">
                                 <div class="category-wrap">
@@ -524,7 +525,7 @@
                                 <a href="#" class="btn-icon redirectLogin product-type-simple"><i
                                         class="icon-shopping-cart"></i></a>
                             </div>
-                            <a href="#" class="btn-quickview" title="Quick View">Quick View</a>
+                            <a href="{{ route('products.quickView', $recentProduct->ProductID) }}" class="btn-quickview" title="Quick View">Quick View</a>
                         </figure>
                         <div class="product-details">
                             <div class="category-wrap">
