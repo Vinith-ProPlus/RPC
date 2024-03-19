@@ -5726,8 +5726,8 @@ label {
 }
 
 .info-box i:before {
-	width: auto;
-	margin: 0 0.1em
+  width: auto;
+  margin: -6px 0.1em 0 0;
 }
 
 .info-box h4 {
@@ -19551,4 +19551,26 @@ svg .appear-animate {
 		stroke-dasharray: 2500;
 		stroke-dashoffset: 1600
 	}
+}
+
+/* ===== Scrollbar CSS ===== */
+/* Firefox */
+* {
+	scrollbar-width: thin;
+	scrollbar-color: #b8b4b7 #ffffff;
+}
+
+/* Chrome, Edge, and Safari */
+*::-webkit-scrollbar {
+	width: px;
+}
+
+*::-webkit-scrollbar-track {
+	background: #ffffff;
+}
+
+*::-webkit-scrollbar-thumb {
+	background-color: #b8b4b7;
+	border-radius: 0px;
+	border: 3px outset #ffffff;
 }
