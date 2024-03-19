@@ -144,7 +144,6 @@
             $start = max(1, $pageNo - $range);
             $end = min($totalPages, $pageNo + $range);
         @endphp
-
         @if ($start > 1)
             <li class="page-item"><a class="page-link changePage" href="#" data-page-no="1">1</a></li>
             @if ($start > 2)

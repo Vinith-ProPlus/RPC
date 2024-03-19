@@ -181,6 +181,7 @@ class HomeAuthController extends Controller{
             $pageNo = $request->pageNo = $totalPages;
             $productsData = $this->getProductDetails($request);
             $productDetails = $productsData['productDetails'];
+            $totalProductsCount = $productsData['totalProductsCount'];
         }
         return view('home.products-html', compact('productDetails', 'productCount', 'pageNo', 'totalPages', 'range', 'viewType', 'orderBy'))->render();
     }
@@ -547,14 +548,20 @@ class HomeAuthController extends Controller{
                 ->pluck('VSL.VendorID')
                 ->toArray();
 
-            $totalProductsCount = DB::table('tbl_vendors_product_mapping as VPM')
+            $totalProducts = DB::table('tbl_vendors_product_mapping as VPM')
+                ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'VPM.PCID')
                 ->leftJoin('tbl_products as P', 'P.ProductID', 'VPM.ProductID')
+                ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')
+                ->where('P.ActiveStatus',"Active")
+                ->where('P.DFlag',0)
                 ->where('VPM.Status', 1)
+                ->WhereIn('VPM.VendorID', $AllVendors)
                 ->when(isset($request->SubCategoryID), function ($query) use ($request) {
                     return $query->where('P.SCID', $request->SubCategoryID);
                 })
-                ->whereIn('VPM.VendorID', $AllVendors)
-                ->count();
+                ->groupBy('P.ProductID', 'P.ProductName', 'P.Description', 'P.ProductImage', 'PSC.PSCName')
+                ->select('P.ProductID', 'P.ProductName', 'P.Description', DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'), 'PSC.PSCName as SubCategoryName')
+                ->get();
 
             $productDetails = DB::table('tbl_vendors_product_mapping as VPM')
                 ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'VPM.PCID')
@@ -582,10 +589,13 @@ class HomeAuthController extends Controller{
 
             return [
                 'productDetails' => $productDetails,
-                'totalProductsCount' => $totalProductsCount
+                'totalProductsCount' => count($totalProducts)
             ];
         } else {
-            return [];
+            return [
+                'productDetails' => [],
+                'totalProductsCount' => 0
+            ];
         }
     }
 
