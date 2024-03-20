@@ -133,7 +133,19 @@ Route::get('guest/products', [HomeController::class, 'products'])->name('guest.p
 Route::get('guest/products/quickView/html/{PID}', [HomeController::class, 'quickViewHtml'])->name('guest.products.quickView');
 Route::post('guest/products/get/categories/html', [HomeController::class, 'categoriesHtml'])->name('guest.products.categoriesHtml');
 Route::post('guest/products/get/products/html', [HomeController::class, 'productsHtml'])->name('guest.products.productsHtml');
+Route::get('products/category-list', [HomeController::class, 'categoryList'])->name('products.categoriesList');
+Route::get('products/sub-category-list', [HomeController::class, 'subCategoryList'])->name('products.subCategoryList');
+Route::get('products/products-list', [HomeController::class, 'productsList'])->name('products.productsList');
+Route::post('products/category-list-html', [HomeController::class, 'categoryListHtml'])->name('products.categoriesListHtml');
+Route::post('products/sub-category-list-html', [HomeController::class, 'subCategoryListHtml'])->name('products.subCategoriesListHtml');
+Route::post('products/products-list-html', [HomeController::class, 'productsListHtml'])->name('products.productsListHtml');
 
+Route::get('guest/products/category-list', [HomeController::class, 'guestCategoryList'])->name('products.guest.categoriesList');
+Route::get('guest/products/sub-category-list', [HomeController::class, 'guestSubCategoryList'])->name('products.guest.subCategoryList');
+Route::get('guest/products/products-list', [HomeController::class, 'guestProductsList'])->name('products.guest.productsList');
+Route::post('guest/products/category-list-html', [HomeController::class, 'guestCategoryListHtml'])->name('products.guest.categoriesListHtml');
+Route::post('guest/products/sub-category-list-html', [HomeController::class, 'guestSubCategoryListHtml'])->name('products.guest.subCategoriesListHtml');
+Route::post('guest/products/products-list-html', [HomeController::class, 'guestProductsListHtml'])->name('products.guest.productsListHtml');
 
 
 Route::get('products', [HomeAuthController::class, 'products'])->name('products');

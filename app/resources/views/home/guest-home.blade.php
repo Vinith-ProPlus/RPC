@@ -306,7 +306,7 @@
             <section class="category-section container">
                 <div class="d-lg-flex align-items-center appear-animate" data-animation-name="fadeInLeftShorter">
                     <h2 class="title title-underline divider">Shop Categories</h2>
-                    <a href="demo42-shop.html" class="sicon-title">VIEW CATEGORIES<i class="fas fa-arrow-right"></i></a>
+                    <a href="{{ route('products.guest.categoriesList') }}" class="sicon-title">VIEW CATEGORIES<i class="fas fa-arrow-right"></i></a>
                 </div>
                 <div class="owl-carousel owl-theme appear-animate" data-owl-options="{
                     'loop': false,
