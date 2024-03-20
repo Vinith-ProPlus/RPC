@@ -10932,7 +10932,7 @@
                             console.error('CSRF token mismatch. Reloading page...');
                             window.location.replace("{{ route('homepage') }}");
                         } else {
-                            alert('An error occurred: ' + xhr.responseText);
+                            console.log('An error occurred: ' + xhr.responseText);
                         }
                     }
                 });

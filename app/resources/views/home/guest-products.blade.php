@@ -13476,7 +13476,7 @@
                     if (xhr.status === 419) {
                         window.location.replace("{{ route('homepage') }}");
                     } else {
-                        alert('An error occurred: ' + xhr.responseText);
+                        console.log('An error occurred: ' + xhr.responseText);
                     }
                 }
             });
