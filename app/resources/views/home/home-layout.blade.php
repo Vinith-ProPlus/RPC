@@ -290,7 +290,7 @@
                 <nav class="main-nav w-100">
                     <ul class="menu w-100" id="customerNavigationBar">
                         <li class="menu-item d-flex align-items-center">
-                            <a href="#" class="d-inline-flex align-items-center sf-with-ul">
+                            <a href="{{ route('products.customer.categoriesList') }}" class="d-inline-flex align-items-center sf-with-ul">
                                 <i class="custom-icon-toggle-menu d-inline-table"></i><span>All
                                         Categories</span></a>
                             <div class="menu-depart">

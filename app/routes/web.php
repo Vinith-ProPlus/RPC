@@ -148,6 +148,15 @@ Route::post('guest/products/sub-category-list-html', [HomeController::class, 'gu
 Route::post('guest/products/products-list-html', [HomeController::class, 'guestProductsListHtml'])->name('products.guest.productsListHtml');
 
 
+Route::get('customer/products/category-list', [HomeAuthController::class, 'customerCategoryList'])->name('products.customer.categoriesList');
+Route::get('customer/products/sub-category-list', [HomeAuthController::class, 'customerSubCategoryList'])->name('products.customer.subCategoryList');
+Route::get('customer/products/products-list', [HomeAuthController::class, 'customerProductsList'])->name('products.customer.productsList');
+Route::post('customer/products/category-list-html', [HomeAuthController::class, 'customerCategoryListHtml'])->name('products.customer.categoriesListHtml');
+Route::post('customer/products/sub-category-list-html', [HomeAuthController::class, 'customerSubCategoryListHtml'])->name('products.customer.subCategoriesListHtml');
+Route::post('customer/products/products-list-html', [HomeAuthController::class, 'customerProductsListHtml'])->name('products.customer.productsListHtml');
+
+
+
 Route::get('products', [HomeAuthController::class, 'products'])->name('products');
 Route::get('products/quickView/html/{PID}', [HomeAuthController::class, 'quickViewHtml'])->name('products.quickView');
 Route::post('products/get/categories/html', [HomeAuthController::class, 'categoriesHtml'])->name('products.categoriesHtml');

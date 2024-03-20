@@ -577,7 +577,6 @@ class HomeAuthController extends Controller{
                 ->take($productCount)
                 ->get();
             logger($productDetails);
-//            If product_id present in wishlist table, with the customer_id of $this->ReferID , the consider that product wishlist as true else false. update this condition in the above query
 
             return [
                 'productDetails' => $productDetails,
@@ -795,6 +794,257 @@ class HomeAuthController extends Controller{
             DB::rollback();
             return response()->json(['status' => false,'message' => "Product Deleted Failed!"]);
         }
+    }
+
+    public function customerCategoryList(Request $request)
+    {
+        $CustomerID = $this->ReferID;
+        $FormData['Company'] = $this->Company;
+        $AllVendors = DB::table('tbl_vendors as V')
+            ->leftJoin('tbl_vendors_service_locations as VSL', 'V.VendorID', 'VSL.VendorID')
+            ->where('V.ActiveStatus', "Active")->where('V.DFlag', 0)
+            ->when($request->has('PostalID') && ($request->PostalID != 'undefined'), function ($query) use ($request) {
+                return $query->where('VSL.PostalCodeID', $request->PostalID);
+            })
+            ->groupBy('VSL.VendorID')->pluck('VSL.VendorID')->toArray();
+        $PCatagories = DB::table('tbl_vendors_product_mapping as VPM')
+            ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'VPM.PCID')
+            ->where('VPM.Status', 1)->WhereIn('VPM.VendorID', $AllVendors)
+            ->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)
+            ->groupBy('PC.PCID', 'PC.PCName', 'PC.PCImage')
+            ->select('PC.PCID', 'PC.PCName',
+                DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PCImage, ""), "assets/images/no-image-b.png")) AS PCImage'))
+            ->inRandomOrder()->get();
+
+        $FormData['PCategories'] = $PCatagories;
+        $FormData['isRegister'] = false;
+        $FormData['Cart'] = $this->getCart();
+        $FormData['ShippingAddress'] = DB::table('tbl_customer_address as CA')->where('CustomerID', $CustomerID)
+            ->join($this->generalDB . 'tbl_countries as C', 'C.CountryID', 'CA.CountryID')
+            ->join($this->generalDB . 'tbl_states as S', 'S.StateID', 'CA.StateID')
+            ->join($this->generalDB . 'tbl_districts as D', 'D.DistrictID', 'CA.DistrictID')
+            ->join($this->generalDB . 'tbl_taluks as T', 'T.TalukID', 'CA.TalukID')
+            ->join($this->generalDB . 'tbl_cities as CI', 'CI.CityID', 'CA.CityID')
+            ->join($this->generalDB . 'tbl_postalcodes as PC', 'PC.PID', 'CA.PostalCodeID')
+            ->select('CA.AID', 'CA.Address', 'CA.isDefault', 'CA.CountryID', 'C.CountryName', 'CA.StateID', 'S.StateName', 'CA.DistrictID', 'D.DistrictName', 'CA.TalukID', 'T.TalukName', 'CA.CityID', 'CI.CityName', 'CA.PostalCodeID', 'PC.PostalCode')
+            ->get();
+        return view('home.customer.category-list', $FormData);
+    }
+
+    public function customerCategoryListHtml(Request $request)
+    {
+        $productCount = ($request->productCount != 'undefined') ? $request->productCount : 12;
+        $pageNo = ($request->pageNo != 'undefined') ? $request->pageNo : 1;
+        $viewType = $request->viewType ?? 'Grid';
+        $orderBy = $request->orderBy ?? '';
+
+        $PCatagoriesData = $this->getCategoryDetails($request);
+        $PCatagories = $PCatagoriesData['PCatagories'];
+        $totalCategoriesCount = $PCatagoriesData['totalCategoriesCount'];
+
+        $totalPages = ceil($totalCategoriesCount / $productCount);
+        $range = 3;
+        if($pageNo > $totalPages){
+            $pageNo = $request->pageNo = $totalPages;
+            $PCatagoriesData = $this->getCategoryDetails($request);
+            $PCatagories = $PCatagoriesData['PCatagories'];
+        }
+
+        return view('home.customer.category-list-html', compact('PCatagories', 'productCount', 'pageNo', 'viewType', 'orderBy', 'range', 'totalPages'))->render();
+    }
+
+    public function getCategoryDetails($request)
+    {
+        $productCount = ($request->productCount != 'undefined') ? $request->productCount : 12;
+        $pageNo = ($request->pageNo != 'undefined') ? $request->pageNo : 1;
+
+        $AllVendors = DB::table('tbl_vendors as V')
+            ->leftJoin('tbl_vendors_service_locations as VSL', 'V.VendorID', 'VSL.VendorID')
+            ->where('V.ActiveStatus', "Active")->where('V.DFlag', 0)
+            ->when($request->has('PostalID') && ($request->PostalID != 'undefined'), function ($query) use ($request) {
+                return $query->where('VSL.PostalCodeID', $request->PostalID);
+            })
+            ->groupBy('VSL.VendorID')->pluck('VSL.VendorID')->toArray();
+        $PCatagories = DB::table('tbl_vendors_product_mapping as VPM')
+            ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'VPM.PCID')
+            ->where('VPM.Status', 1)->WhereIn('VPM.VendorID', $AllVendors)
+            ->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)
+            ->when($request->has('orderBy') && in_array($request->orderBy, ['new', 'popularity']), function ($query) use ($request) {
+                if ($request->orderBy == "new") {
+                    return $query->orderBy('PC.CreatedOn', 'desc');
+                } elseif ($request->orderBy == "popularity") {
+                    return $query->orderBy('PC.CreatedOn', 'asc');
+                }
+            })
+            ->groupBy('PC.PCID', 'PC.PCName', 'PC.PCImage')
+            ->select('PC.PCID', 'PC.PCName',
+                DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PCImage, ""), "assets/images/no-image-b.png")) AS PCImage'))
+            ->skip(($pageNo - 1) * $productCount)
+            ->take($productCount)
+            ->get();
+        $totalCategoriesCount = count($PCatagories);
+        return [
+            'PCatagories' => $PCatagories,
+            'totalCategoriesCount' => $totalCategoriesCount
+        ];
+    }
+
+    public function customerSubCategoryList(Request $request)
+    {
+        $CustomerID = $this->ReferID;
+        $FormData['Company'] = $this->Company;
+        $AllVendors = DB::table('tbl_vendors as V')
+            ->leftJoin('tbl_vendors_service_locations as VSL', 'V.VendorID', 'VSL.VendorID')
+            ->where('V.ActiveStatus', "Active")->where('V.DFlag', 0)
+            ->when($request->has('PostalID') && ($request->PostalID != 'undefined'), function ($query) use ($request) {
+                return $query->where('VSL.PostalCodeID', $request->PostalID);
+            })
+            ->groupBy('VSL.VendorID')->pluck('VSL.VendorID')->toArray();
+        $PCatagories = DB::table('tbl_vendors_product_mapping as VPM')
+            ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'VPM.PCID')
+            ->where('VPM.Status', 1)->WhereIn('VPM.VendorID', $AllVendors)
+            ->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)
+            ->groupBy('PC.PCID', 'PC.PCName', 'PC.PCImage')
+            ->select('PC.PCID', 'PC.PCName',
+                DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PCImage, ""), "assets/images/no-image-b.png")) AS PCImage'))
+            ->inRandomOrder()->get();
+
+        $FormData['CID'] = $request->CID ?? '';
+        $FormData['PCategories'] = $PCatagories;
+        $FormData['isRegister'] = false;
+        $FormData['Cart'] = $this->getCart();
+        $FormData['ShippingAddress'] = DB::table('tbl_customer_address as CA')->where('CustomerID', $CustomerID)
+            ->join($this->generalDB . 'tbl_countries as C', 'C.CountryID', 'CA.CountryID')
+            ->join($this->generalDB . 'tbl_states as S', 'S.StateID', 'CA.StateID')
+            ->join($this->generalDB . 'tbl_districts as D', 'D.DistrictID', 'CA.DistrictID')
+            ->join($this->generalDB . 'tbl_taluks as T', 'T.TalukID', 'CA.TalukID')
+            ->join($this->generalDB . 'tbl_cities as CI', 'CI.CityID', 'CA.CityID')
+            ->join($this->generalDB . 'tbl_postalcodes as PC', 'PC.PID', 'CA.PostalCodeID')
+            ->select('CA.AID', 'CA.Address', 'CA.isDefault', 'CA.CountryID', 'C.CountryName', 'CA.StateID', 'S.StateName', 'CA.DistrictID', 'D.DistrictName', 'CA.TalukID', 'T.TalukName', 'CA.CityID', 'CI.CityName', 'CA.PostalCodeID', 'PC.PostalCode')
+            ->get();
+        return view('home.customer.sub-category-list', $FormData);
+    }
+
+    public function customerSubCategoryListHtml(Request $request)
+    {
+        $productCount = ($request->productCount != 'undefined') ? $request->productCount : 12;
+        $pageNo = ($request->pageNo != 'undefined') ? $request->pageNo : 1;
+        $viewType = $request->viewType ?? 'Grid';
+        $orderBy = $request->orderBy ?? '';
+
+        $PSubCatagoriesData = $this->getSubCategoryDetails($request);
+        $PSubCatagories = $PSubCatagoriesData['PSubCatagories'];
+        $totalSubCategoriesCount = $PSubCatagoriesData['totalSubCategoriesCount'];
+
+        $totalPages = ceil($totalSubCategoriesCount / $productCount);
+        $range = 3;
+        if($pageNo > $totalPages){
+            $pageNo = $request->pageNo = $totalPages;
+            $PSubCatagoriesData = $this->getSubCategoryDetails($request);
+            $PSubCatagories = $PSubCatagoriesData['PSubCatagories'];
+        }
+        return view('home.customer.sub-category-list-html', compact('PSubCatagories', 'productCount', 'pageNo', 'viewType', 'orderBy', 'range', 'totalPages'))->render();
+    }
+
+    public function getSubCategoryDetails($request)
+    {
+        $productCount = ($request->productCount != 'undefined') ? $request->productCount : 12;
+        $pageNo = ($request->pageNo != 'undefined') ? $request->pageNo : 1;
+        $AllVendors = DB::table('tbl_vendors as V')
+            ->leftJoin('tbl_vendors_service_locations as VSL', 'V.VendorID', 'VSL.VendorID')
+            ->where('V.ActiveStatus', "Active")->where('V.DFlag', 0)
+            ->when($request->has('PostalID') && ($request->PostalID != 'undefined'), function ($query) use ($request) {
+                return $query->where('VSL.PostalCodeID', $request->PostalID);
+            })
+            ->groupBy('VSL.VendorID')->pluck('VSL.VendorID')->toArray();
+        $PSubCatagories = DB::table('tbl_vendors_product_mapping as VPM')
+            ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'VPM.PSCID')
+            ->where('VPM.Status', 1)->WhereIn('VPM.VendorID', $AllVendors)
+            ->where('PSC.ActiveStatus', 'Active')->where('PSC.DFlag', 0)
+            ->when($request->has('CID') && isset($request->CID), function ($query) use ($request) {
+                $query->where('PSC.PCID', $request->CID);
+            })
+            ->when($request->has('orderBy') && in_array($request->orderBy, ['new', 'popularity']), function ($query) use ($request) {
+                if ($request->orderBy == "new") {
+                    return $query->orderBy('PSC.CreatedOn', 'desc');
+                } elseif ($request->orderBy == "popularity") {
+                    return $query->orderBy('PSC.CreatedOn', 'asc');
+                }
+            })
+            ->groupBy('PSC.PSCID', 'PSC.PSCName', 'PSC.PSCImage')
+            ->select('PSC.PSCID', 'PSC.PSCName',
+                DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PSCImage, ""), "assets/images/no-image-b.png")) AS PSCImage'))
+            ->skip(($pageNo - 1) * $productCount)
+            ->take($productCount)
+            ->get();
+
+        $totalSubCategoriesCount = count($PSubCatagories);
+
+        return [
+            'PSubCatagories' => $PSubCatagories,
+            'totalSubCategoriesCount' => $totalSubCategoriesCount
+        ];
+    }
+
+    public function customerProductsList(Request $request)
+    {
+
+        $CustomerID = $this->ReferID;
+        $FormData['Company'] = $this->Company;
+        $AllVendors = DB::table('tbl_vendors as V')
+            ->leftJoin('tbl_vendors_service_locations as VSL', 'V.VendorID', 'VSL.VendorID')
+            ->where('V.ActiveStatus', "Active")->where('V.DFlag', 0)
+            ->when($request->has('PostalID') && ($request->PostalID != 'undefined'), function ($query) use ($request) {
+                return $query->where('VSL.PostalCodeID', $request->PostalID);
+            })
+            ->groupBy('VSL.VendorID')->pluck('VSL.VendorID')->toArray();
+        $PCatagories = DB::table('tbl_vendors_product_mapping as VPM')
+            ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'VPM.PCID')
+            ->where('VPM.Status', 1)->WhereIn('VPM.VendorID', $AllVendors)
+            ->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)
+            ->groupBy('PC.PCID', 'PC.PCName', 'PC.PCImage')
+            ->select('PC.PCID', 'PC.PCName',
+                DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PCImage, ""), "assets/images/no-image-b.png")) AS PCImage'))
+            ->inRandomOrder()->get();
+
+        $FormData['CID'] = $request->CID ?? '';
+        $FormData['PCategories'] = $PCatagories;
+        $FormData['isRegister'] = false;
+        $FormData['Cart'] = $this->getCart();
+        $FormData['ShippingAddress'] = DB::table('tbl_customer_address as CA')->where('CustomerID', $CustomerID)
+            ->join($this->generalDB . 'tbl_countries as C', 'C.CountryID', 'CA.CountryID')
+            ->join($this->generalDB . 'tbl_states as S', 'S.StateID', 'CA.StateID')
+            ->join($this->generalDB . 'tbl_districts as D', 'D.DistrictID', 'CA.DistrictID')
+            ->join($this->generalDB . 'tbl_taluks as T', 'T.TalukID', 'CA.TalukID')
+            ->join($this->generalDB . 'tbl_cities as CI', 'CI.CityID', 'CA.CityID')
+            ->join($this->generalDB . 'tbl_postalcodes as PC', 'PC.PID', 'CA.PostalCodeID')
+            ->select('CA.AID', 'CA.Address', 'CA.isDefault', 'CA.CountryID', 'C.CountryName', 'CA.StateID', 'S.StateName', 'CA.DistrictID', 'D.DistrictName', 'CA.TalukID', 'T.TalukName', 'CA.CityID', 'CI.CityName', 'CA.PostalCodeID', 'PC.PostalCode')
+            ->get();
+        $FormData['SCID'] = $request->SCID ?? '';
+        return view('home.customer.products-list', $FormData);
+    }
+
+    public function customerProductsListHtml(Request $request)
+    {
+        logger($request);
+        $productCount = $request->productCount ?? 12;
+        $pageNo = $request->pageNo ?? 1;
+        $viewType = $request->viewType ?? 'Grid';
+        $orderBy = $request->orderBy ?? '';
+        $productsData = $this->getProductDetails($request);
+        $productDetails = $productsData['productDetails'];
+        $totalProductsCount = $productsData['totalProductsCount'];
+
+        $totalPages = ceil($totalProductsCount / $productCount);
+        $range = 3;
+
+        logger($productsData);
+        if ($pageNo > $totalPages) {
+            $pageNo = $request->pageNo = $totalPages;
+            $productsData = $this->getProductDetails($request);
+            $productDetails = $productsData['productDetails'];
+        }
+        return view('home.customer.products-list-html', compact('productDetails', 'productCount', 'pageNo', 'viewType', 'orderBy', 'range', 'totalPages'))->render();
     }
 
 }
