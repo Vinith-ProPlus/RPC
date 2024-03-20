@@ -576,7 +576,6 @@ class HomeAuthController extends Controller{
                 ->skip(($pageNo - 1) * $productCount)
                 ->take($productCount)
                 ->get();
-            logger($productDetails);
 
             return [
                 'productDetails' => $productDetails,
@@ -855,38 +854,43 @@ class HomeAuthController extends Controller{
 
     public function getCategoryDetails($request)
     {
-        $productCount = ($request->productCount != 'undefined') ? $request->productCount : 12;
-        $pageNo = ($request->pageNo != 'undefined') ? $request->pageNo : 1;
+        if ($request->PostalID) {
+            $productCount = ($request->productCount != 'undefined') ? $request->productCount : 12;
+            $pageNo = ($request->pageNo != 'undefined') ? $request->pageNo : 1;
 
-        $AllVendors = DB::table('tbl_vendors as V')
-            ->leftJoin('tbl_vendors_service_locations as VSL', 'V.VendorID', 'VSL.VendorID')
-            ->where('V.ActiveStatus', "Active")->where('V.DFlag', 0)
-            ->when($request->has('PostalID') && ($request->PostalID != 'undefined'), function ($query) use ($request) {
-                return $query->where('VSL.PostalCodeID', $request->PostalID);
-            })
-            ->groupBy('VSL.VendorID')->pluck('VSL.VendorID')->toArray();
-        $PCatagories = DB::table('tbl_vendors_product_mapping as VPM')
-            ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'VPM.PCID')
-            ->where('VPM.Status', 1)->WhereIn('VPM.VendorID', $AllVendors)
-            ->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)
-            ->when($request->has('orderBy') && in_array($request->orderBy, ['new', 'popularity']), function ($query) use ($request) {
-                if ($request->orderBy == "new") {
-                    return $query->orderBy('PC.CreatedOn', 'desc');
-                } elseif ($request->orderBy == "popularity") {
-                    return $query->orderBy('PC.CreatedOn', 'asc');
-                }
-            })
-            ->groupBy('PC.PCID', 'PC.PCName', 'PC.PCImage')
-            ->select('PC.PCID', 'PC.PCName',
-                DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PCImage, ""), "assets/images/no-image-b.png")) AS PCImage'))
-            ->skip(($pageNo - 1) * $productCount)
-            ->take($productCount)
-            ->get();
-        $totalCategoriesCount = count($PCatagories);
-        return [
-            'PCatagories' => $PCatagories,
-            'totalCategoriesCount' => $totalCategoriesCount
-        ];
+            $AllVendors = DB::table('tbl_vendors as V')
+                ->leftJoin('tbl_vendors_service_locations as VSL', 'V.VendorID', 'VSL.VendorID')
+                ->where('V.ActiveStatus', "Active")->where('V.DFlag', 0)
+                ->where('VSL.PostalCodeID',$request->PostalID)
+                ->groupBy('VSL.VendorID')->pluck('VSL.VendorID')->toArray();
+            $PCatagories = DB::table('tbl_vendors_product_mapping as VPM')
+                ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'VPM.PCID')
+                ->where('VPM.Status', 1)->WhereIn('VPM.VendorID', $AllVendors)
+                ->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)
+                ->when($request->has('orderBy') && in_array($request->orderBy, ['new', 'popularity']), function ($query) use ($request) {
+                    if ($request->orderBy == "new") {
+                        return $query->orderBy('PC.CreatedOn', 'desc');
+                    } elseif ($request->orderBy == "popularity") {
+                        return $query->orderBy('PC.CreatedOn', 'asc');
+                    }
+                })
+                ->groupBy('PC.PCID', 'PC.PCName', 'PC.PCImage')
+                ->select('PC.PCID', 'PC.PCName',
+                    DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PCImage, ""), "assets/images/no-image-b.png")) AS PCImage'))
+                ->skip(($pageNo - 1) * $productCount)
+                ->take($productCount)
+                ->get();
+            $totalCategoriesCount = count($PCatagories);
+            return [
+                'PCatagories' => $PCatagories,
+                'totalCategoriesCount' => $totalCategoriesCount
+            ];
+        } else {
+            return [
+                'PCatagories' => [],
+                'totalCategoriesCount' => 0
+            ];
+        }
     }
 
     public function customerSubCategoryList(Request $request)
@@ -948,47 +952,53 @@ class HomeAuthController extends Controller{
 
     public function getSubCategoryDetails($request)
     {
-        $productCount = ($request->productCount != 'undefined') ? $request->productCount : 12;
-        $pageNo = ($request->pageNo != 'undefined') ? $request->pageNo : 1;
-        $AllVendors = DB::table('tbl_vendors as V')
-            ->leftJoin('tbl_vendors_service_locations as VSL', 'V.VendorID', 'VSL.VendorID')
-            ->where('V.ActiveStatus', "Active")->where('V.DFlag', 0)
-            ->when($request->has('PostalID') && ($request->PostalID != 'undefined'), function ($query) use ($request) {
-                return $query->where('VSL.PostalCodeID', $request->PostalID);
-            })
-            ->groupBy('VSL.VendorID')->pluck('VSL.VendorID')->toArray();
-        $PSubCatagories = DB::table('tbl_vendors_product_mapping as VPM')
-            ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'VPM.PSCID')
-            ->where('VPM.Status', 1)->WhereIn('VPM.VendorID', $AllVendors)
-            ->where('PSC.ActiveStatus', 'Active')->where('PSC.DFlag', 0)
-            ->when($request->has('CID') && isset($request->CID), function ($query) use ($request) {
-                $query->where('PSC.PCID', $request->CID);
-            })
-            ->when($request->has('orderBy') && in_array($request->orderBy, ['new', 'popularity']), function ($query) use ($request) {
-                if ($request->orderBy == "new") {
-                    return $query->orderBy('PSC.CreatedOn', 'desc');
-                } elseif ($request->orderBy == "popularity") {
-                    return $query->orderBy('PSC.CreatedOn', 'asc');
-                }
-            })
-            ->groupBy('PSC.PSCID', 'PSC.PSCName', 'PSC.PSCImage')
-            ->select('PSC.PSCID', 'PSC.PSCName',
-                DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PSCImage, ""), "assets/images/no-image-b.png")) AS PSCImage'))
-            ->skip(($pageNo - 1) * $productCount)
-            ->take($productCount)
-            ->get();
+        if ($request->PostalID) {
+            $productCount = ($request->productCount != 'undefined') ? $request->productCount : 12;
+            $pageNo = ($request->pageNo != 'undefined') ? $request->pageNo : 1;
+            $AllVendors = DB::table('tbl_vendors as V')
+                ->leftJoin('tbl_vendors_service_locations as VSL', 'V.VendorID', 'VSL.VendorID')
+                ->where('V.ActiveStatus', "Active")->where('V.DFlag', 0)
+                ->when($request->has('PostalID') && ($request->PostalID != 'undefined'), function ($query) use ($request) {
+                    return $query->where('VSL.PostalCodeID', $request->PostalID);
+                })
+                ->groupBy('VSL.VendorID')->pluck('VSL.VendorID')->toArray();
+            $PSubCatagories = DB::table('tbl_vendors_product_mapping as VPM')
+                ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'VPM.PSCID')
+                ->where('VPM.Status', 1)->WhereIn('VPM.VendorID', $AllVendors)
+                ->where('PSC.ActiveStatus', 'Active')->where('PSC.DFlag', 0)
+                ->when($request->has('CID') && isset($request->CID), function ($query) use ($request) {
+                    $query->where('PSC.PCID', $request->CID);
+                })
+                ->when($request->has('orderBy') && in_array($request->orderBy, ['new', 'popularity']), function ($query) use ($request) {
+                    if ($request->orderBy == "new") {
+                        return $query->orderBy('PSC.CreatedOn', 'desc');
+                    } elseif ($request->orderBy == "popularity") {
+                        return $query->orderBy('PSC.CreatedOn', 'asc');
+                    }
+                })
+                ->groupBy('PSC.PSCID', 'PSC.PSCName', 'PSC.PSCImage')
+                ->select('PSC.PSCID', 'PSC.PSCName',
+                    DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PSCImage, ""), "assets/images/no-image-b.png")) AS PSCImage'))
+                ->skip(($pageNo - 1) * $productCount)
+                ->take($productCount)
+                ->get();
 
-        $totalSubCategoriesCount = count($PSubCatagories);
+            $totalSubCategoriesCount = count($PSubCatagories);
 
-        return [
-            'PSubCatagories' => $PSubCatagories,
-            'totalSubCategoriesCount' => $totalSubCategoriesCount
-        ];
+            return [
+                'PSubCatagories' => $PSubCatagories,
+                'totalSubCategoriesCount' => $totalSubCategoriesCount
+            ];
+        } else {
+            return [
+                'PSubCatagories' => [],
+                'totalSubCategoriesCount' => 0
+            ];
+        }
     }
 
     public function customerProductsList(Request $request)
     {
-
         $CustomerID = $this->ReferID;
         $FormData['Company'] = $this->Company;
         $AllVendors = DB::table('tbl_vendors as V')
@@ -1026,7 +1036,6 @@ class HomeAuthController extends Controller{
 
     public function customerProductsListHtml(Request $request)
     {
-        logger($request);
         $productCount = $request->productCount ?? 12;
         $pageNo = $request->pageNo ?? 1;
         $viewType = $request->viewType ?? 'Grid';
@@ -1038,7 +1047,6 @@ class HomeAuthController extends Controller{
         $totalPages = ceil($totalProductsCount / $productCount);
         $range = 3;
 
-        logger($productsData);
         if ($pageNo > $totalPages) {
             $pageNo = $request->pageNo = $totalPages;
             $productsData = $this->getProductDetails($request);
