@@ -10779,10 +10779,10 @@
                             </div><!-- End .toolbox-item -->
 
                             <div class="toolbox-item layout-modes">
-                                <a href="category.html" class="layout-btn btn-grid active" title="Grid">
+                                <a href="#" class="layout-btn btn-grid active" title="Grid">
                                     <i class="icon-mode-grid"></i>
                                 </a>
-                                <a href="category-list.html" class="layout-btn btn-list" title="List">
+                                <a href="#" class="layout-btn btn-list" title="List">
                                     <i class="icon-mode-list"></i>
                                 </a>
                             </div><!-- End .layout-modes -->
@@ -10790,39 +10790,7 @@
                     </nav></div>
 
                 <div class="row no-gutters">
-                    <div class="col-6 col-sm-4 col-lg-3">
-                        <div class="product-default inner-quickview inner-icon product-div">
-                            <figure>
-                                <a href="#">
-                                    <img src="http://localhost/RPC/assets/images/no-image-b.png" width="300" height="300" alt="product">
-                                </a>
-                                <div class="label-group">
 
-                                </div>
-                                <div class="btn-icon-group">
-                                    <a href="#" class="btn-icon btn-add-cart product-type-simple btnAddCart" id="P2024-0000169"><i class="icon-shopping-cart"></i></a>
-                                </div>
-                                <a href="#" class="btn-quickview" title="Quick View">Quick View</a>
-                            </figure>
-                            <div class="product-details">
-                                <div class="category-wrap">
-                                    <div class="category-list">
-                                        <a href="#">Agni 550</a>
-                                    </div>
-                                    <a href="#" class="btn-icon-wish" title="wishlist"><i class="icon-heart"></i></a>
-                                </div>
-                                <h3 class="product-title">
-                                    <a href="#">Agni 550 12mm Steel</a>
-                                </h3>
-                                <div class="ratings-container">
-                                    <div class="product-ratings">
-                                        <span class="ratings" style="width:1%"></span>
-                                        <span class="tooltiptext tooltip-top"></span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 </div><!-- End .row -->
 
                 <nav class="toolbox toolbox-pagination">
@@ -10866,120 +10834,10 @@
                             <div class="collapse show" id="widget-body-1">
                                 <div class="widget-body" id="categories-widget">
                                     <ul class="cat-list">
-{{--                                        <li>--}}
-{{--                                            <a href="#widget-category-1" data-toggle="collapse" role="button" aria-expanded="true" aria-controls="widget-category-1">--}}
-{{--                                                Electronics<span class="products-count">(8)</span>--}}
-{{--                                                <span class="toggle"></span>--}}
-{{--                                            </a>--}}
-{{--                                            <div class="collapse show" id="widget-category-1">--}}
-{{--                                                <ul class="cat-sublist">--}}
-{{--                                                    <li><a href="#" class="sub-category">Headphone<span class="products-count">(3)</span></a></li>--}}
-{{--                                                </ul>--}}
-{{--                                            </div>--}}
-{{--                                        </li>--}}
-{{--                                        <li>--}}
-{{--                                            <a href="#widget-category-2" class="collapsed" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="widget-category-2">--}}
-{{--                                                Fashion<span class="products-count">(3)</span>--}}
-{{--                                                <span class="toggle"></span>--}}
-{{--                                            </a>--}}
-{{--                                            <div class="collapse" id="widget-category-2">--}}
-{{--                                                <ul class="cat-sublist">--}}
-{{--                                                    <li>Motors<span class="products-count">(3)</span></li>--}}
-{{--                                                </ul>--}}
-{{--                                            </div>--}}
-{{--                                        </li>--}}
-{{--                                        <li>--}}
-{{--                                            <a href="#">Gifts<span class="products-count">(5)</span></a>--}}
-{{--                                        </li>--}}
-{{--                                        <li>--}}
-{{--                                            <a href="#widget-category-4" class="collapsed" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="widget-category-4">--}}
-{{--                                                Music<span class="products-count">(5)</span>--}}
-{{--                                                <span class="toggle"></span>--}}
-{{--                                            </a>--}}
-{{--                                            <div class="collapse" id="widget-category-4">--}}
-{{--                                                <ul class="cat-sublist">--}}
-{{--                                                    <li>Garden<span class="products-count">(4)</span></li>--}}
-{{--                                                </ul>--}}
-{{--                                            </div>--}}
-{{--                                        </li>--}}
-{{--                                        <li><a href="#">Trousers</a><span class="products-count">(5)</span></li>--}}
                                     </ul>
                                 </div><!-- End .widget-body -->
                             </div><!-- End .collapse -->
                         </div><!-- End .widget -->
-
-{{--                        <div class="widget">--}}
-{{--                            <h3 class="widget-title">--}}
-{{--                                <a data-toggle="collapse" href="#widget-body-2" role="button" aria-expanded="true" aria-controls="widget-body-2">Price</a>--}}
-{{--                            </h3>--}}
-
-{{--                            <div class="collapse show" id="widget-body-2">--}}
-{{--                                <div class="widget-body pb-0">--}}
-{{--                                    <form action="#">--}}
-{{--                                        <div class="price-slider-wrapper">--}}
-{{--                                            <div id="price-slider" class="noUi-target noUi-ltr noUi-horizontal"><div class="noUi-base"><div class="noUi-connects"><div class="noUi-connect" style="transform: translate(0%) scale(1);"></div></div><div class="noUi-origin" style="transform: translate(-100%); z-index: 5;"><div class="noUi-handle noUi-handle-lower" data-handle="0" tabindex="0" role="slider" aria-orientation="horizontal" aria-valuemin="0.0" aria-valuemax="90.0" aria-valuenow="0.0" aria-valuetext="0.00"></div></div><div class="noUi-origin" style="transform: translate(0%); z-index: 4;"><div class="noUi-handle noUi-handle-upper" data-handle="1" tabindex="0" role="slider" aria-orientation="horizontal" aria-valuemin="10.0" aria-valuemax="100.0" aria-valuenow="100.0" aria-valuetext="1000.00"></div></div></div></div><!-- End #price-slider -->--}}
-{{--                                        </div><!-- End .price-slider-wrapper -->--}}
-
-{{--                                        <div class="filter-price-action d-flex align-items-center justify-content-between flex-wrap">--}}
-{{--                                            <div class="filter-price-text">--}}
-{{--                                                Price:--}}
-{{--                                                <span id="filter-price-range">$0 - $1000</span>--}}
-{{--                                            </div><!-- End .filter-price-text -->--}}
-
-{{--                                            <button type="submit" class="btn btn-primary">Filter</button>--}}
-{{--                                        </div><!-- End .filter-price-action -->--}}
-{{--                                    </form>--}}
-{{--                                </div><!-- End .widget-body -->--}}
-{{--                            </div><!-- End .collapse -->--}}
-{{--                        </div><!-- End .widget -->--}}
-
-{{--                        <div class="widget widget-color">--}}
-{{--                            <h3 class="widget-title">--}}
-{{--                                <a data-toggle="collapse" href="#widget-body-3" role="button" aria-expanded="true" aria-controls="widget-body-3">Color</a>--}}
-{{--                            </h3>--}}
-
-{{--                            <div class="collapse show" id="widget-body-3">--}}
-{{--                                <div class="widget-body pb-0">--}}
-{{--                                    <ul class="config-swatch-list">--}}
-{{--                                        <li class="active">--}}
-{{--                                            <a href="#" style="background-color: #000;">Black</a>--}}
-{{--                                        </li>--}}
-{{--                                        <li>--}}
-{{--                                            <a href="#" style="background-color: #0188cc;">Blue</a>--}}
-{{--                                        </li>--}}
-{{--                                        <li>--}}
-{{--                                            <a href="#" style="background-color: #81d742;">Green</a>--}}
-{{--                                        </li>--}}
-{{--                                        <li>--}}
-{{--                                            <a href="#" style="background-color: #eded65;">Yellow</a>--}}
-{{--                                        </li>--}}
-{{--                                        <li>--}}
-{{--                                            <a href="#" style="background-color: #6085a5;">Indigo</a>--}}
-{{--                                        </li>--}}
-{{--                                        <li>--}}
-{{--                                            <a href="#" style="background-color: #ab6e6e;">Red</a>--}}
-{{--                                        </li>--}}
-{{--                                    </ul>--}}
-{{--                                </div><!-- End .widget-body -->--}}
-{{--                            </div><!-- End .collapse -->--}}
-{{--                        </div><!-- End .widget -->--}}
-
-{{--                        <div class="widget">--}}
-{{--                            <h3 class="widget-title">--}}
-{{--                                <a data-toggle="collapse" href="#widget-body-4" role="button" aria-expanded="true" aria-controls="widget-body-4">Size</a>--}}
-{{--                            </h3>--}}
-
-{{--                            <div class="collapse show" id="widget-body-4">--}}
-{{--                                <div class="widget-body">--}}
-{{--                                    <ul class="cat-list">--}}
-{{--                                        <li><a href="#">Extra Large</a></li>--}}
-{{--                                        <li><a href="#">Large</a></li>--}}
-{{--                                        <li><a href="#">Medium</a></li>--}}
-{{--                                        <li><a href="#">Small</a></li>--}}
-{{--                                    </ul>--}}
-{{--                                </div><!-- End .widget-body -->--}}
-{{--                            </div><!-- End .collapse -->--}}
-{{--                        </div><!-- End .widget -->--}}
                     </div></div><!-- End .sidebar-wrapper -->
             </aside><!-- End .col-lg-3 -->
         </div><!-- End .row -->

@@ -229,13 +229,13 @@
                                                 <li><a href="#">{{ $PCategories[8]->PCName ?? '' }}</a></li>
                                             </ul>
                                         </div>
-{{--										<div class="col-lg-12 p-1">--}}
-{{--											<div class="row justify-content-end">--}}
-{{--												<div class="col-lg-4">--}}
-{{--													<a href="#" class="btn btn-sm btn-dark mr-0">View More</a>--}}
-{{--												</div>--}}
-{{--											</div>--}}
-{{--										</div>--}}
+                                        <div class="col-lg-12 p-1">
+                                            <div class="row justify-content-end">
+                                                <div class="col-lg-4">
+                                                    <a href="{{ route('guest.products') }}" class="btn btn-sm btn-dark mr-0">View More</a>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div><!-- End .row -->
                                 </div><!-- End .megamenu -->
                             </li>

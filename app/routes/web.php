@@ -129,6 +129,13 @@ Route::controller(HomeAuthController::class)->group(function () {
 
 Route::get('policies/{Slug}', [HomeController::class, 'policies'])->name('policies');
 Route::get('get/iframe-contents/{Slug}', [HomeController::class, 'policiesContent'])->name('policiesContent');
+Route::get('guest/products', [HomeController::class, 'products'])->name('guest.products');
+Route::get('guest/products/quickView/html/{PID}', [HomeController::class, 'quickViewHtml'])->name('guest.products.quickView');
+Route::post('guest/products/get/categories/html', [HomeController::class, 'categoriesHtml'])->name('guest.products.categoriesHtml');
+Route::post('guest/products/get/products/html', [HomeController::class, 'productsHtml'])->name('guest.products.productsHtml');
+
+
+
 Route::get('products', [HomeAuthController::class, 'products'])->name('products');
 Route::get('products/quickView/html/{PID}', [HomeAuthController::class, 'quickViewHtml'])->name('products.quickView');
 Route::post('products/get/categories/html', [HomeAuthController::class, 'categoriesHtml'])->name('products.categoriesHtml');
@@ -139,6 +146,7 @@ Route::get('requested-quotations', [HomeTransactionController::class, 'quotation
 Route::post('requested-quotations/data', [HomeTransactionController::class, 'quotationData'])->name('requested-quotations.data');
 Route::get('requested-quotations/view/{EnqID}', [HomeTransactionController::class, 'QuoteView'])->name('requested-quotations.QuoteView');
 Route::get('customer-orders', [HomeTransactionController::class, 'orders'])->name('customer-orders');
+
 
 Route::controller(SocialController::class)->group(function () {
     Route::get('/social/auth/{provider}', 'redirect');
