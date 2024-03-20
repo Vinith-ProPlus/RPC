@@ -325,28 +325,21 @@
                                     <div class="col-lg-12">
                                         <a href="#" class="nolink">PRODUCT CATEGORIES</a>
                                     </div>
-                                    <div class="col-lg-4">
-                                        <ul class="submenu">
-                                            <li><a href="#">{{ $PCategories[0]->PCName ?? '' }}</a></li>
-                                            <li><a href="#">{{ $PCategories[1]->PCName ?? '' }}</a></li>
-                                            <li><a href="#">{{ $PCategories[2]->PCName ?? '' }}</a></li>
-                                        </ul>
-                                    </div>
+                                    @php
+                                        $PCategories = $PCategories->take(9);
+                                        $chunks = $PCategories->chunk(3);
+                                    @endphp
 
-                                    <div class="col-lg-4">
-                                        <ul class="submenu">
-                                            <li><a href="#">{{ $PCategories[3]->PCName ?? '' }}</a></li>
-                                            <li><a href="#">{{ $PCategories[4]->PCName ?? '' }}</a></li>
-                                            <li><a href="#">{{ $PCategories[5]->PCName ?? '' }}</a></li>
-                                        </ul>
-                                    </div>
-                                    <div class="col-lg-4">
-                                        <ul class="submenu">
-                                            <li><a href="#">{{ $PCategories[6]->PCName ?? '' }}</a></li>
-                                            <li><a href="#">{{ $PCategories[7]->PCName ?? '' }}</a></li>
-                                            <li><a href="#">{{ $PCategories[8]->PCName ?? '' }}</a></li>
-                                        </ul>
-                                    </div>
+                                    @foreach ($chunks as $chunk)
+                                        <div class="col-lg-4">
+                                            <ul class="submenu">
+                                                @foreach ($chunk as $category)
+                                                    <li><a href="{{ auth()->check() ? route('products.customer.subCategoryList', ['CID' => $category->PCID]) : route('products.guest.subCategoryList', ['CID' => $category->PCID]) }}">{{ $category->PCName }}</a></li>
+                                                @endforeach
+                                            </ul>
+                                        </div>
+                                    @endforeach
+                                    
                                     <div class="col-lg-12 p-1">
                                         <div class="row justify-content-end">
                                             <div class="col-lg-4">

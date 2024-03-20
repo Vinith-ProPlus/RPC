@@ -194,27 +194,27 @@
                                         <a href="#" class="nolink">PRODUCT CATEGORIES</a>
                                     </div>
                                     <div class="col-lg-4">
-                                        <ul class="submenu">
-                                            <li><a href="#">{{ $PCategories[0]->PCName ?? '' }}</a></li>
-                                            <li><a href="#">{{ $PCategories[1]->PCName ?? '' }}</a></li>
-                                            <li><a href="#">{{ $PCategories[2]->PCName ?? '' }}</a></li>
-                                        </ul>
-                                    </div>
+                                            <ul class="submenu">
+                                                <li><a href="{{ route('products.guest.subCategoryList', ['CID' => $PCategories[0]->PCID]) }}">{{ $PCategories[0]->PCName ?? '' }}</a></li>
+                                                <li><a href="{{ route('products.guest.subCategoryList', ['CID' => $PCategories[1]->PCID]) }}">{{ $PCategories[1]->PCName ?? '' }}</a></li>
+                                                <li><a href="{{ route('products.guest.subCategoryList', ['CID' => $PCategories[2]->PCID]) }}">{{ $PCategories[2]->PCName ?? '' }}</a></li>
+                                            </ul>
+                                        </div>
 
-                                    <div class="col-lg-4">
-                                        <ul class="submenu">
-                                            <li><a href="#">{{ $PCategories[3]->PCName ?? '' }}</a></li>
-                                            <li><a href="#">{{ $PCategories[4]->PCName ?? '' }}</a></li>
-                                            <li><a href="#">{{ $PCategories[5]->PCName ?? '' }}</a></li>
-                                        </ul>
-                                    </div>
-                                    <div class="col-lg-4">
-                                        <ul class="submenu">
-                                            <li><a href="#">{{ $PCategories[6]->PCName ?? '' }}</a></li>
-                                            <li><a href="#">{{ $PCategories[7]->PCName ?? '' }}</a></li>
-                                            <li><a href="#">{{ $PCategories[8]->PCName ?? '' }}</a></li>
-                                        </ul>
-                                    </div>
+                                        <div class="col-lg-4">
+                                            <ul class="submenu">
+                                                <li><a href="{{ route('products.guest.subCategoryList', ['CID' => $PCategories[3]->PCID]) }}">{{ $PCategories[3]->PCName ?? '' }}</a></li>
+                                                <li><a href="{{ route('products.guest.subCategoryList', ['CID' => $PCategories[4]->PCID]) }}">{{ $PCategories[4]->PCName ?? '' }}</a></li>
+                                                <li><a href="{{ route('products.guest.subCategoryList', ['CID' => $PCategories[5]->PCID]) }}">{{ $PCategories[5]->PCName ?? '' }}</a></li>
+                                            </ul>
+                                        </div>
+                                        <div class="col-lg-4">
+                                            <ul class="submenu">
+                                                <li><a href="{{ route('products.guest.subCategoryList', ['CID' => $PCategories[6]->PCID]) }}">{{ $PCategories[6]->PCName ?? '' }}</a></li>
+                                                <li><a href="{{ route('products.guest.subCategoryList', ['CID' => $PCategories[7]->PCID]) }}">{{ $PCategories[7]->PCName ?? '' }}</a></li>
+                                                <li><a href="{{ route('products.guest.subCategoryList', ['CID' => $PCategories[8]->PCID]) }}">{{ $PCategories[8]->PCName ?? '' }}</a></li>
+                                            </ul>
+                                        </div>
                                     <div class="col-lg-12 p-1">
                                         <div class="row justify-content-end">
                                             <div class="col-lg-4">
