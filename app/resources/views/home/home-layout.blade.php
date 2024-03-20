@@ -299,7 +299,7 @@
                                 @endforeach
                             </div>
                         </li>
-                        <li class="">
+                        <li class="{{ (Route::currentRouteName() == "homepage") ? 'active' : '' }}">
                             <a href="{{ route('homepage') }}">Home</a>
                         </li>
                         <li>
@@ -373,10 +373,13 @@
                                     <span class="contact-info-label">Address:</span>45, RPC Building, Erode,<br>TamilNadu.638001.
                                 </li>
                                 <li>
-                                    <span class="contact-info-label">Phone:</span><a href="tel:">0422-4567890</a>
+                                    <span class="contact-info-label">Phone:</span><a href="tel:0422-4567890">0422-4567890</a>
                                 </li>
-                                <li>
-                                    <span class="contact-info-label">Email:</span> <a href="#"><span class="__cf_email__" data-cfemail="f895999194b89d80999588949dd69b9795">{{$Company['E-Mail']}}</span></a>
+                                  <li>
+                                    <span class="contact-info-label">Email:</span>
+                                    <a href="mailto:{{$Company['E-Mail']}}"><span
+                                            class="__cf_email__"
+                                            data-cfemail="f895999194b89d80999588949dd69b9795">{{$Company['E-Mail']}}</span></a>
                                 </li>
                                 <li>
                                     <span class="contact-info-label">Working Days/Hours:</span>
@@ -455,101 +458,14 @@
 
 <div class="mobile-menu-overlay"></div><!-- End .mobil-menu-overlay -->
 
-{{-- <div class="mobile-menu-container">
-    <div class="mobile-menu-wrapper">
-        <span class="mobile-menu-close"><i class="fa fa-times"></i></span>
-        <nav class="mobile-nav">
-            <ul class="mobile-menu">
-                <li><a href="demo42.html">Home</a></li>
-                <li>
-                    <a href="demo42-shop.html" title="shop">Categories</a>
-                    <ul>
-                        <li><a href="category.html">Full Width Banner</a></li>
-                        <li><a href="category-banner-boxed-slider.html">Boxed Slider Banner</a></li>
-                        <li><a href="category-banner-boxed-image.html">Boxed Image Banner</a></li>
-                        <li><a href="https://www.portotheme.com/html/porto_ecommerce/category-sidebar-left.html">Left Sidebar</a></li>
-                        <li><a href="category-sidebar-right.html">Right Sidebar</a></li>
-                        <li><a href="category-off-canvas.html">Off Canvas Filter</a></li>
-                        <li><a href="category-horizontal-filter1.html">Horizontal Filter 1</a></li>
-                        <li><a href="category-horizontal-filter2.html">Horizontal Filter 2</a></li>
-                        <li><a href="#">List Types</a></li>
-                        <li><a href="category-infinite-scroll.html">Ajax Infinite Scroll<span
-                                    class="tip tip-new">New</span></a></li>
-                        <li><a href="demo42-shop.html" title="shop">3 Columns Products</a></li>
-                        <li><a href="category-4col.html">4 Columns Products</a></li>
-                        <li><a href="category-5col.html">5 Columns Products</a></li>
-                        <li><a href="category-6col.html">6 Columns Products</a></li>
-                        <li><a href="category-7col.html">7 Columns Products</a></li>
-                        <li><a href="category-8col.html">8 Columns Products</a></li>
-                    </ul>
-                </li>
-                <li>
-                    <a href="demo42-product.html">Products</a>
-                    <ul>
-                        <li>
-                            <a href="#" class="nolink">PRODUCT PAGES</a>
-                            <ul>
-                                <li><a href="product.html">SIMPLE PRODUCT</a></li>
-                                <li><a href="product-variable.html">VARIABLE PRODUCT</a></li>
-                                <li><a href="product.html">SALE PRODUCT</a></li>
-                                <li><a href="product.html">FEATURED & ON SALE</a></li>
-                                <li><a href="product-sticky-info.html">WIDTH CUSTOM TAB</a></li>
-                                <li><a href="product-sidebar-left.html">WITH LEFT SIDEBAR</a></li>
-                                <li><a href="product-sidebar-right.html">WITH RIGHT SIDEBAR</a></li>
-                                <li><a href="product-addcart-sticky.html">ADD CART STICKY</a></li>
-                            </ul>
-                        </li>
-                        <li>
-                            <a href="#" class="nolink">PRODUCT LAYOUTS</a>
-                            <ul>
-                                <li><a href="product-extended-layout.html">EXTENDED LAYOUT</a></li>
-                                <li><a href="product-grid-layout.html">GRID IMAGE</a></li>
-                                <li><a href="product-full-width.html">FULL WIDTH LAYOUT</a></li>
-                                <li><a href="product-sticky-info.html">STICKY INFO</a></li>
-                                <li><a href="product-sticky-both.html">LEFT & RIGHT STICKY</a></li>
-                                <li><a href="product-transparent-image.html">TRANSPARENT IMAGE</a></li>
-                                <li><a href="product-center-vertical.html">CENTER VERTICAL</a></li>
-                                <li><a href="#">BUILD YOUR OWN</a></li>
-                            </ul>
-                        </li>
-                    </ul>
-                </li>
-            </ul>
-
-            <ul class="mobile-menu">
-                <li><a href="login.html">My Account</a></li>
-                <li><a href="contact.html">Contact Us</a></li>
-                <li><a href="blog.html">Blog</a></li>
-                <li><a href="wishlist.html">My Wishlist</a></li>
-                <li><a href="cart.html">Cart</a></li>
-                <li><a href="login.html" class="login-link">Log In</a></li>
-            </ul>
-        </nav><!-- End .mobile-nav -->
-
-        <form class="search-wrapper mb-2" action="#">
-            <input type="text" class="form-control mb-0" placeholder="Search..." required />
-            <button class="btn icon-search text-white bg-transparent p-0" title="submit" type="submit"></button>
-        </form>
-
-        <div class="social-icons">
-            <a href="#" class="social-icon social-facebook icon-facebook" target="_blank" title="facebook">
-            </a>
-            <a href="#" class="social-icon social-twitter icon-twitter" target="_blank" title="twitter">
-            </a>
-            <a href="#" class="social-icon social-instagram icon-instagram" target="_blank" title="instagram">
-            </a>
-        </div>
-    </div><!-- End .mobile-menu-wrapper -->
-</div> --}}<!-- End .mobile-menu-container -->
-
 <div class="sticky-navbar">
     <div class="sticky-info">
-        <a href="demo42.html">
+        <a href="{{ route('homepage') }}">
             <i class="icon-home"></i>Home
         </a>
     </div>
     <div class="sticky-info">
-        <a href="demo42-shop.html" class="">
+        <a href="{{ route('products.guest.categoriesList') }}" class="">
             <i class="icon-bars"></i>Categories
         </a>
     </div>
@@ -618,37 +534,6 @@
         </div>
     </div>
 </div>
-
-{{-- <div class="newsletter-popup mfp-hide bg-img p-0 h-auto" id="newsletter-popup-form" style="background: #f1f1f1 no-repeat center/cover">
-    <div class="row">
-        <div class="col-sm-7">
-            <div class="row justify-content-center mt-3">
-                <div class="col-6">
-                    <img src="{{url('/')}}/{{$Company['Logo']}}" alt="Logo" class="logo-newsletter" width="50" height="50">
-                    <span class="ml-3 font-weight-bold text-dark">RPC Construction</span>
-                </div>
-            </div>
-            <div class="row justify-content-center">
-                <div class="col-9">
-                    <h2>KINDLY TURN ON YOUR LOCATION</h2>
-                    <p>for location Offers!</p>
-                </div>
-            </div>
-            <div class="row my-1 justify-content-center">
-                <div class="col-12 newsletter-popup-content">
-                    <div class="input-group">
-                        <input type="email" class="form-control" id="newsletter-email" name="newsletter-email" placeholder="Enter your delivery location" required />
-                        <input type="submit" class="btn btn-warning" value="locate me" />
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-5">
-            <img src="{{url('/')}}/home/assets/images/location-pop-up/MapAnime.gif" alt="">
-        </div>
-    </div>
-    <button title="Close (Esc)" type="button" class="mfp-close">×</button>
-</div> --}}
 
 <a id="scroll-top" href="#top" title="Top" role="button"><i class="icon-angle-up"></i></a>
 

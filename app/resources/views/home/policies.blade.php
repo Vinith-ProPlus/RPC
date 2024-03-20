@@ -184,20 +184,7 @@
                     </div>
 
                     <span class="separator d-none d-lg-block mr-4"></span>
-                    {{-- <a href="{{url('/')}}/social/auth/google" class="d-lg-block d-none">
-                        <div class="header-user">
-                            <div class="header-userinfo">
-                                <span>Welcome</span>
-                                <h4>Sign In / Register</h4>
-                            </div>
-                        </div>
-                    </a> --}}
 
-{{--                    <a href="@if($isRegister && !$isEdit) # @else {{url('/')}}/customer-profile @endif" class="d-lg-block d-none">--}}
-{{--                        <div class="header-user">--}}
-{{--                            <i class="icon-user-2"></i>--}}
-{{--                        </div>--}}
-{{--                    </a>--}}
                     @if($isRegister)
                         <a href="{{url('/')}}/social/auth/google" class="d-lg-block d-none" id="loginBtn">
                             <div class="header-user">
@@ -263,28 +250,6 @@
                                     @else
                                         <span>Your Cart is Empty!</span>
                                     @endif
-
-                                    {{-- <div class="product">
-                                        <div class="product-details">
-                                            <h4 class="product-title">
-                                                <a href="demo42-product.html">Brown Women Casual HandBag</a>
-                                            </h4>
-
-                                            <span class="cart-product-info">
-                                                <span class="cart-product-qty">1</span>
-                                                × $35.00
-                                            </span>
-                                        </div><!-- End .product-details -->
-
-                                        <figure class="product-image-container">
-                                            <a href="demo42-product.html" class="product-image">
-                                                <img src="assets/images/products/product-2.jpg" alt="product" width="80" height="80">
-                                            </a>
-
-                                            <a href="#" class="btn-remove btnRemoveCart" title="Remove Product"><span>×</span></a>
-                                        </figure>
-                                    </div> --}}
-
                                 </div>
 
                                 <div class="dropdown-cart-action" id="divCartAction">
@@ -339,7 +304,7 @@
                                             </ul>
                                         </div>
                                     @endforeach
-                                    
+
                                     <div class="col-lg-12 p-1">
                                         <div class="row justify-content-end">
                                             <div class="col-lg-4">
@@ -392,10 +357,13 @@
                                     <span class="contact-info-label">Address:</span>45, RPC Building, Erode,<br>TamilNadu.638001.
                                 </li>
                                 <li>
-                                    <span class="contact-info-label">Phone:</span><a href="tel:">0422-4567890</a>
+                                    <span class="contact-info-label">Phone:</span><a href="tel:0422-4567890">0422-4567890</a>
                                 </li>
-                                <li>
-                                    <span class="contact-info-label">Email:</span> <a href="#"><span class="__cf_email__" data-cfemail="f895999194b89d80999588949dd69b9795">{{$Company['E-Mail']}}</span></a>
+                                  <li>
+                                    <span class="contact-info-label">Email:</span>
+                                    <a href="mailto:{{$Company['E-Mail']}}"><span
+                                            class="__cf_email__"
+                                            data-cfemail="f895999194b89d80999588949dd69b9795">{{$Company['E-Mail']}}</span></a>
                                 </li>
                                 <li>
                                     <span class="contact-info-label">Working Days/Hours:</span>
@@ -563,12 +531,12 @@
 
 <div class="sticky-navbar">
     <div class="sticky-info">
-        <a href="demo42.html">
+        <a href="{{ route('homepage') }}">
             <i class="icon-home"></i>Home
         </a>
     </div>
     <div class="sticky-info">
-        <a href="demo42-shop.html" class="">
+        <a href="{{ route('products.guest.categoriesList') }}" class="">
             <i class="icon-bars"></i>Categories
         </a>
     </div>

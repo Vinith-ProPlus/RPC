@@ -972,51 +972,6 @@
             line-height: 1
         }
 
-        .breadcrumb-nav {
-            color: #000;
-            border-top: 1px solid #dfdfdf;
-            border-bottom: 1px solid #dfdfdf;
-            margin-bottom: 3.5rem
-        }
-
-        .breadcrumb {
-            margin-bottom: 0;
-            padding: 1.5rem 0;
-            border-radius: 0;
-            background-color: transparent
-        }
-
-        .breadcrumb-item {
-            font-weight: 700;
-            font-size: 12px;
-            letter-spacing: 0.05em;
-            line-height: 24px;
-            text-transform: uppercase
-        }
-
-        .breadcrumb-item + .breadcrumb-item {
-            padding-left: 1.3rem
-        }
-
-        .breadcrumb-item + .breadcrumb-item:before {
-            color: inherit;
-            padding-right: 1.1rem;
-            content: "";
-            font-size: 12px;
-            font-family: "porto";
-            vertical-align: middle;
-            margin-top: -2px
-        }
-
-        .breadcrumb-item a:not(:first-child) {
-            margin-left: 5px
-        }
-
-        .breadcrumb-item.active,
-        .breadcrumb-item a {
-            color: inherit
-        }
-
         .owl-dots .owl-dot,
         .owl-nav .owl-next,
         .owl-nav .owl-prev {

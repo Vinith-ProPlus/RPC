@@ -999,51 +999,6 @@
             line-height: 1
         }
 
-        .breadcrumb-nav {
-            color: #000;
-            border-top: 1px solid #dfdfdf;
-            border-bottom: 1px solid #dfdfdf;
-            margin-bottom: 3.5rem
-        }
-
-        .breadcrumb {
-            margin-bottom: 0;
-            padding: 1.5rem 0;
-            border-radius: 0;
-            background-color: transparent
-        }
-
-        .breadcrumb-item {
-            font-weight: 700;
-            font-size: 12px;
-            letter-spacing: 0.05em;
-            line-height: 24px;
-            text-transform: uppercase
-        }
-
-        .breadcrumb-item + .breadcrumb-item {
-            padding-left: 1.3rem
-        }
-
-        .breadcrumb-item + .breadcrumb-item:before {
-            color: inherit;
-            padding-right: 1.1rem;
-            content: "";
-            font-size: 12px;
-            font-family: "porto";
-            vertical-align: middle;
-            margin-top: -2px
-        }
-
-        .breadcrumb-item a:not(:first-child) {
-            margin-left: 5px
-        }
-
-        .breadcrumb-item.active,
-        .breadcrumb-item a {
-            color: inherit
-        }
-
         .owl-dots .owl-dot,
         .owl-nav .owl-next,
         .owl-nav .owl-prev {
@@ -12904,22 +12859,9 @@
             <div class="container">
                 <div class="header-left d-md-block">
                     <div class="info-box info-box-icon-left text-primary justify-content-start p-0">
-                        {{-- <i class="icon-location" style="color: #0f43b0;"></i>
-                        <h6 class="font-weight-bold text-dark">Delivery Location - </h6> --}}
-                        {{-- <span><a href="#" class="text-dark">45,Eden Garden, R.S.Puram, 3rd Cross, Coimbatore. 641006</a></span> --}}
                         <i class="fa fa-arrow"></i>
                     </div>
                 </div>
-                {{-- <div class="header-dropdown ">
-                    <a href="#"></a>
-                    <div class="header-menu">
-                        <ul>
-                            <li><a href="#">45, Eden Garden, Ganapathy, Coimbatore. 641006</a></li>
-                            <li><a href="#">R.S.Puram, 3rd Cross, Coimbatore. 641003</a></li>
-                        </ul>
-                    </div>
-                </div> --}}
-
                 <div class="header-right header-dropdowns ml-0 ml-md-auto w-md-100">
                     <div class="header-dropdown mr-auto mr-md-0">
                         <div class="header-menu">
@@ -12996,22 +12938,12 @@
                             </div>
                         </div>
                     </a>
-
-                    {{-- <span class="separator d-none d-lg-block mr-4"></span>
-                    <a href="{{url('/')}}/login" class="d-lg-block d-none">
-                        <div class="header-user">
-                            <i class="icon-user-2"></i>
-                        </div>
-                    </a> --}}
-
                     <span class="separator d-block"></span>
 
                     <div class="dropdown cart-dropdown">
                         <a href="#" title="Cart" class="dropdown-toggle dropdown-arrow cart-toggle" role="button"
                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-display="static">
                             <i class="icon-cart-thick"></i>
-                            {{-- <i class="fa-regular fa-cart-shopping"></i> --}}
-                            {{-- <span class="cart-count badge-circle">3</span> --}}
                         </a>
 
                         <div class="cart-overlay"></div>
@@ -13049,9 +12981,9 @@
                                 @endforeach
                             </div>
                         </li>
-                        <li class="active">
-                            <a href="#">Home</a>
-                        </li>
+                        <li class="{{ (Route::currentRouteName() == "homepage") ? 'active' : '' }}">
+                                <a href="{{ route('homepage') }}">Home</a>
+                            </li>
                         <li>
                             <a href="#">Products</a>
                             <div class="megamenu megamenu-fixed-width">
@@ -13059,28 +12991,20 @@
                                     <div class="col-lg-12">
                                         <a href="#" class="nolink">PRODUCT CATEGORIES</a>
                                     </div>
-                                    <div class="col-lg-4">
-                                            <ul class="submenu">
-                                                <li><a href="{{ route('products.guest.subCategoryList', ['CID' => $PCategories[0]->PCID]) }}">{{ $PCategories[0]->PCName ?? '' }}</a></li>
-                                                <li><a href="{{ route('products.guest.subCategoryList', ['CID' => $PCategories[1]->PCID]) }}">{{ $PCategories[1]->PCName ?? '' }}</a></li>
-                                                <li><a href="{{ route('products.guest.subCategoryList', ['CID' => $PCategories[2]->PCID]) }}">{{ $PCategories[2]->PCName ?? '' }}</a></li>
-                                            </ul>
-                                        </div>
+                                    @php
+                                        $PCategories = $PCategories->take(9);
+                                        $chunks = $PCategories->chunk(3);
+                                    @endphp
 
+                                    @foreach ($chunks as $chunk)
                                         <div class="col-lg-4">
                                             <ul class="submenu">
-                                                <li><a href="{{ route('products.guest.subCategoryList', ['CID' => $PCategories[3]->PCID]) }}">{{ $PCategories[3]->PCName ?? '' }}</a></li>
-                                                <li><a href="{{ route('products.guest.subCategoryList', ['CID' => $PCategories[4]->PCID]) }}">{{ $PCategories[4]->PCName ?? '' }}</a></li>
-                                                <li><a href="{{ route('products.guest.subCategoryList', ['CID' => $PCategories[5]->PCID]) }}">{{ $PCategories[5]->PCName ?? '' }}</a></li>
+                                                @foreach ($chunk as $category)
+                                                    <li><a href="{{ route('products.guest.subCategoryList', ['CID' => $category->PCID]) }}">{{ $category->PCName }}</a></li>
+                                                @endforeach
                                             </ul>
                                         </div>
-                                        <div class="col-lg-4">
-                                            <ul class="submenu">
-                                                <li><a href="{{ route('products.guest.subCategoryList', ['CID' => $PCategories[6]->PCID]) }}">{{ $PCategories[6]->PCName ?? '' }}</a></li>
-                                                <li><a href="{{ route('products.guest.subCategoryList', ['CID' => $PCategories[7]->PCID]) }}">{{ $PCategories[7]->PCName ?? '' }}</a></li>
-                                                <li><a href="{{ route('products.guest.subCategoryList', ['CID' => $PCategories[8]->PCID]) }}">{{ $PCategories[8]->PCName ?? '' }}</a></li>
-                                            </ul>
-                                        </div>
+                                    @endforeach
                                     <div class="col-lg-12 p-1">
                                         <div class="row justify-content-end">
                                             <div class="col-lg-4">
@@ -13104,6 +13028,8 @@
             <div class="container">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ route('homepage') }}">Home</a></li>
+                    <li class="breadcrumb-item" aria-current="page"><a href="{{ route('products.guest.categoriesList') }}">Categories</a></li>
+                    <li class="breadcrumb-item" aria-current="page"><a href="{{ route('products.guest.subCategoryList') }}">Sub Categories</a></li>
                     <li class="breadcrumb-item active" aria-current="page">Products</li>
                 </ol>
             </div>
@@ -13211,25 +13137,6 @@
                 </div><!-- End .col-lg-9 -->
 
                 <div class="sidebar-overlay"></div>
-{{--                <aside class="sidebar-shop col-lg-3 order-lg-first mobile-sidebar">--}}
-{{--                    <div class="pin-wrapper" style="height: 904.35px;">--}}
-{{--                        <div class="sidebar-wrapper" style="border-bottom: 0px rgb(119, 119, 119); width: 335px;">--}}
-{{--                            <div class="widget">--}}
-{{--                                <h3 class="widget-title">--}}
-{{--                                    <a data-toggle="collapse" href="#widget-body-1" role="button" aria-expanded="true"--}}
-{{--                                       aria-controls="widget-body-1">Categories</a>--}}
-{{--                                </h3>--}}
-
-{{--                                <div class="collapse show" id="widget-body-1">--}}
-{{--                                    <div class="widget-body" id="categories-widget">--}}
-{{--                                        <ul class="cat-list">--}}
-{{--                                        </ul>--}}
-{{--                                    </div><!-- End .widget-body -->--}}
-{{--                                </div><!-- End .collapse -->--}}
-{{--                            </div><!-- End .widget -->--}}
-{{--                        </div>--}}
-{{--                    </div><!-- End .sidebar-wrapper -->--}}
-{{--                </aside><!-- End .col-lg-3 -->--}}
             </div><!-- End .row -->
 
             <div class="mb-4"></div>
@@ -13257,7 +13164,7 @@
                                     <span class="contact-info-label">Address:</span>45, RPC Building, Erode,<br>TamilNadu.638001.
                                 </li>
                                 <li>
-                                    <span class="contact-info-label">Phone:</span><a href="tel:">0422-4567890</a>
+                                    <span class="contact-info-label">Phone:</span><a href="tel:0422-4567890">0422-4567890</a>
                                 </li>
                                 <li>
                                     <span class="contact-info-label">Email:</span> <a href="#"><span
@@ -13350,12 +13257,12 @@
 
 <div class="sticky-navbar">
     <div class="sticky-info">
-        <a href="demo42.html">
+        <a href="{{ route('homepage') }}">
             <i class="icon-home"></i>Home
         </a>
     </div>
     <div class="sticky-info">
-        <a href="demo42-shop.html" class="">
+        <a href="{{ route('products.guest.categoriesList') }}" class="">
             <i class="icon-bars"></i>Categories
         </a>
     </div>

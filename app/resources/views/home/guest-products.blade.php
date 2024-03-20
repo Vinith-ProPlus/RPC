@@ -13048,9 +13048,9 @@
                                 @endforeach
                             </div>
                         </li>
-                        <li class="active">
-                            <a href="#">Home</a>
-                        </li>
+                        <li class="{{ (Route::currentRouteName() == "homepage") ? 'active' : '' }}">
+                                <a href="{{ route('homepage') }}">Home</a>
+                            </li>
                         <li>
                             <a href="#">Products</a>
                             <div class="megamenu megamenu-fixed-width">
@@ -13058,28 +13058,20 @@
                                     <div class="col-lg-12">
                                         <a href="#" class="nolink">PRODUCT CATEGORIES</a>
                                     </div>
-                                    <div class="col-lg-4">
-                                            <ul class="submenu">
-                                                <li><a href="{{ route('products.guest.subCategoryList', ['CID' => $PCategories[0]->PCID]) }}">{{ $PCategories[0]->PCName ?? '' }}</a></li>
-                                                <li><a href="{{ route('products.guest.subCategoryList', ['CID' => $PCategories[1]->PCID]) }}">{{ $PCategories[1]->PCName ?? '' }}</a></li>
-                                                <li><a href="{{ route('products.guest.subCategoryList', ['CID' => $PCategories[2]->PCID]) }}">{{ $PCategories[2]->PCName ?? '' }}</a></li>
-                                            </ul>
-                                        </div>
+                                    @php
+                                        $PCategories = $PCategories->take(9);
+                                        $chunks = $PCategories->chunk(3);
+                                    @endphp
 
+                                    @foreach ($chunks as $chunk)
                                         <div class="col-lg-4">
                                             <ul class="submenu">
-                                                <li><a href="{{ route('products.guest.subCategoryList', ['CID' => $PCategories[3]->PCID]) }}">{{ $PCategories[3]->PCName ?? '' }}</a></li>
-                                                <li><a href="{{ route('products.guest.subCategoryList', ['CID' => $PCategories[4]->PCID]) }}">{{ $PCategories[4]->PCName ?? '' }}</a></li>
-                                                <li><a href="{{ route('products.guest.subCategoryList', ['CID' => $PCategories[5]->PCID]) }}">{{ $PCategories[5]->PCName ?? '' }}</a></li>
+                                                @foreach ($chunk as $category)
+                                                    <li><a href="{{ route('products.guest.subCategoryList', ['CID' => $category->PCID]) }}">{{ $category->PCName }}</a></li>
+                                                @endforeach
                                             </ul>
                                         </div>
-                                        <div class="col-lg-4">
-                                            <ul class="submenu">
-                                                <li><a href="{{ route('products.guest.subCategoryList', ['CID' => $PCategories[6]->PCID]) }}">{{ $PCategories[6]->PCName ?? '' }}</a></li>
-                                                <li><a href="{{ route('products.guest.subCategoryList', ['CID' => $PCategories[7]->PCID]) }}">{{ $PCategories[7]->PCName ?? '' }}</a></li>
-                                                <li><a href="{{ route('products.guest.subCategoryList', ['CID' => $PCategories[8]->PCID]) }}">{{ $PCategories[8]->PCName ?? '' }}</a></li>
-                                            </ul>
-                                        </div>
+                                    @endforeach
                                     <div class="col-lg-12 p-1">
                                         <div class="row justify-content-end">
                                             <div class="col-lg-4">
@@ -13256,7 +13248,7 @@
                                     <span class="contact-info-label">Address:</span>45, RPC Building, Erode,<br>TamilNadu.638001.
                                 </li>
                                 <li>
-                                    <span class="contact-info-label">Phone:</span><a href="tel:">0422-4567890</a>
+                                    <span class="contact-info-label">Phone:</span><a href="tel:0422-4567890">0422-4567890</a>
                                 </li>
                                 <li>
                                     <span class="contact-info-label">Email:</span> <a href="#"><span
@@ -13349,12 +13341,12 @@
 
 <div class="sticky-navbar">
     <div class="sticky-info">
-        <a href="demo42.html">
+        <a href="{{ route('homepage') }}">
             <i class="icon-home"></i>Home
         </a>
     </div>
     <div class="sticky-info">
-        <a href="demo42-shop.html" class="">
+        <a href="{{ route('products.guest.categoriesList') }}" class="">
             <i class="icon-bars"></i>Categories
         </a>
     </div>

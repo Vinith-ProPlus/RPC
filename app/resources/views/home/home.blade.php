@@ -78,28 +78,46 @@
             }
         }
     }">
-    @for ($i = 0; $i < 4; $i++)
-        @php
-            $category = $PCategories[$i];
-        @endphp
-        <div class="product-category">
-            <a href="#">
-                <figure>
-                    <img src="{{ $category->PCImage }}" alt="{{ $category->PCName }}" width="25" height="25">
-                </figure>
-            </a>
-            <div class="category-content">
-                <h3 class="category-title">{{ $category->PCName }}</h3>
-                <ul class="sub-categories">
-                    @foreach ($category->PSCData as $subCategory)
-                        @if ($loop->index < 4)
-                            <li><a href="#">{{ $subCategory->PSCName }}</a></li>
-                        @endif
-                    @endforeach
-                </ul>
+{{--    @for ($i = 0; $i < 4; $i++)--}}
+{{--        @php--}}
+{{--            $category = $PCategories[$i];--}}
+{{--        @endphp--}}
+{{--        <div class="product-category">--}}
+{{--            <a href="#">--}}
+{{--                <figure>--}}
+{{--                    <img src="{{ $category->PCImage }}" alt="{{ $category->PCName }}" width="25" height="25">--}}
+{{--                </figure>--}}
+{{--            </a>--}}
+{{--            <div class="category-content">--}}
+{{--                <h3 class="category-title">{{ $category->PCName }}</h3>--}}
+{{--                <ul class="sub-categories">--}}
+{{--                    @foreach ($category->PSCData as $subCategory)--}}
+{{--                        @if ($loop->index < 4)--}}
+{{--                            <li><a href="#">{{ $subCategory->PSCName }}</a></li>--}}
+{{--                        @endif--}}
+{{--                    @endforeach--}}
+{{--                </ul>--}}
+{{--            </div>--}}
+{{--        </div>--}}
+{{--    @endfor--}}
+
+        @foreach ($PCategories->take(4) as $category)
+            <div class="product-category">
+                <a href="{{ route('products.customer.subCategoryList', ['CID' => $category->PCID]) }}">
+                    <figure>
+                        <img src="{{ $category->PCImage }}" alt="{{ $category->PCName }}" width="25" height="25">
+                    </figure>
+                </a>
+                <div class="category-content">
+                    <h3 class="category-title">{{ $category->PCName }}</h3>
+                    <ul class="sub-categories">
+                        @foreach ($category->PSCData->take(4) as $subCategory)
+                            <li><a href="{{ route('products.customer.productsList', ['SCID' => $subCategory->PSCID]) }}">{{ $subCategory->PSCName }}</a></li>
+                        @endforeach
+                    </ul>
+                </div>
             </div>
-        </div>
-    @endfor
+        @endforeach
 
     </div>
 </section>
@@ -268,12 +286,11 @@
         <div class="col-md-4 part-item appear-animate" data-animation-name="fadeInLeftShorter">
             <h4>Popular Categories:</h4>
             <ul class="list-unstyled mb-0">
-                @for ($i = 0; $i < 4; $i++)
-                    @php
-                        $category = $PCategories[$i];
-                    @endphp
-                    <li><a href="#">{{$category->PCName}}</a></li>
-                @endfor
+                @foreach ($PCategories->shuffle()->take(4) as $category)
+                    <li>
+                        <a href="{{ route('products.guest.subCategoryList', ['CID' => $category->PCID]) }}">{{ $category->PCName }}</a>
+                    </li>
+                @endforeach
                 <li><a class="show-action" href="#">Show All</a></li>
             </ul>
         </div>
@@ -292,12 +309,11 @@
             data-animation-delay="400">
             <h3>Popular Products:</h3>
             <ul class="list-unstyled mb-0">
-                @for ($i = 0; $i < 4; $i++)
-                    @php
-                        $hotProducts = $HotProducts[$i];
-                    @endphp
-                    <li><a href="#">{{$hotProducts->ProductName}}</a></li>
-                @endfor
+                @foreach ($PCategories->shuffle()->take(4) as $category)
+                    <li>
+                        <a href="{{ route('products.guest.subCategoryList', ['CID' => $category->PCID]) }}">{{ $category->PCName }}</a>
+                    </li>
+                @endforeach
                 <li><a class="show-action" href="#">Show All</a></li>
             </ul>
         </div>
