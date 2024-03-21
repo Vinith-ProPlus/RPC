@@ -27,7 +27,7 @@
 							@endif
 							@if($crud['add']==1)
 								<a href="{{ url('/') }}/admin/transaction/quote-enquiry/create" class="btn btn-outline-success btn-air-success {{$Theme['button-size']}} m-r-10" type="button" >Create</a>
-								<a href="{{ url('/') }}/admin/transaction/image-quote-enquiry/create" class="btn btn-outline-success btn-air-success {{$Theme['button-size']}}" type="button" >Image Quote Create</a>
+								<a href="{{ url('/') }}/admin/transaction/quote-enquiry/image-quote/create" class="btn btn-outline-success btn-air-success {{$Theme['button-size']}}" type="button" >Image Quote Create</a>
 							@endif
 						</div>
 					</div>

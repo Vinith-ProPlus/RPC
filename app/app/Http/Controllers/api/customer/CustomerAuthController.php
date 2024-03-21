@@ -210,7 +210,7 @@ class CustomerAuthController extends Controller{
         if($status==true){
             DB::commit();
             DocNum::updateDocNum(docTypes::Customer->value);
-            $NewData=(array)DB::table('tbl_customer as C')->join('tbl_customer_address as CA','CA.CustomerID','C.CustomerID')->where('CA.CustomerID',$CustomerID)->get();
+            $NewData=(array)DB::table('tbl_customer_address as CA')->leftJoin('tbl_customer as C','CA.CustomerID','C.CustomerID')->where('CA.CustomerID',$CustomerID)->get();
             $logData=array("Description"=>"New Customer Created","ModuleName"=>"Customer","Action"=>"Add","ReferID"=>$CustomerID,"OldData"=>$OldData,"NewData"=>$NewData,"UserID"=>$CustomerID,"IP"=>$req->ip());
             logs::Store($logData);
             return response()->json(['status' => true,'message' => "Customer Registered Successfully"]);
@@ -220,10 +220,9 @@ class CustomerAuthController extends Controller{
             return response()->json(['status' => false,'message' => "Customer Register Failed"]);
         }
     }
-
     public function Update(Request $req){
 		$CustomerID = $this->ReferID;
-		$OldData=DB::table('tbl_customer_address as CA')->join('tbl_customer as C','C.CustomerID','CA.CustomerID')->where('CA.CustomerID',$CustomerID)->get();
+		$OldData=DB::table('tbl_customer_address as CA')->leftJoin('tbl_customer as C','C.CustomerID','CA.CustomerID')->where('CA.CustomerID',$CustomerID)->get();
 		$NewData=array();
 		
 		$rules=array(
@@ -354,7 +353,7 @@ class CustomerAuthController extends Controller{
 		}
 		if($status==true){
 			DB::commit();
-			$NewData=DB::table('tbl_customer_address as CA')->join('tbl_customer as C','C.CustomerID','CA.CustomerID')->where('CA.CustomerID',$CustomerID)->get();
+			$NewData=DB::table('tbl_customer_address as CA')->leftJoin('tbl_customer as C','C.CustomerID','CA.CustomerID')->where('CA.CustomerID',$CustomerID)->get();
 			$logData=array("Description"=>"Customer Updated ","ModuleName"=>"Customer","Action"=>"Update","ReferID"=>$CustomerID,"OldData"=>$OldData,"NewData"=>$NewData,"UserID"=>$this->UserID,"IP"=>$req->ip());
 			logs::Store($logData);
             return response()->json(['status' => true,'message' => "Customer Updated Successfully"]);
@@ -367,55 +366,59 @@ class CustomerAuthController extends Controller{
     public function getSAddress(Request $req){
         $CustomerID = $this->ReferID;
         $SAddress = DB::table('tbl_customer_address as CA')->where('CustomerID',$CustomerID)
-        ->join($this->generalDB.'tbl_countries as C','C.CountryID','CA.CountryID')
-        ->join($this->generalDB.'tbl_states as S', 'S.StateID', 'CA.StateID')
-        ->join($this->generalDB.'tbl_districts as D', 'D.DistrictID', 'CA.DistrictID')
-        ->join($this->generalDB.'tbl_taluks as T', 'T.TalukID', 'CA.TalukID')
-        ->join($this->generalDB.'tbl_cities as CI', 'CI.CityID', 'CA.CityID')
-        ->join($this->generalDB.'tbl_postalcodes as PC', 'PC.PID', 'CA.PostalCodeID')
-        ->select('CA.AID', 'CA.Address', 'CA.isDefault', 'CA.CountryID', 'C.CountryName', 'CA.StateID', 'S.StateName', 'CA.DistrictID', 'D.DistrictName', 'CA.TalukID', 'T.TalukName', 'CA.CityID', 'CI.CityName', 'CA.PostalCodeID', 'PC.PostalCode','CA.Latitude', 'CA.Longitude','CA.CompleteAddress')
+        ->leftJoin($this->generalDB.'tbl_postalcodes as PC', 'PC.PID', 'CA.PostalCodeID')
+        ->leftJoin($this->generalDB.'tbl_cities as CI', 'CI.CityID', 'CA.CityID')
+        ->leftJoin($this->generalDB.'tbl_taluks as T', 'T.TalukID', 'CA.TalukID')
+        ->leftJoin($this->generalDB.'tbl_districts as D', 'D.DistrictID', 'PC.DistrictID')
+        ->leftJoin($this->generalDB.'tbl_states as S', 'S.StateID', 'D.StateID')
+        ->leftJoin($this->generalDB.'tbl_countries as C','C.CountryID','S.CountryID')
+        ->orderBy('CA.CreatedOn','desc')
+        ->select('CA.AID', 'CA.Address', 'CA.isDefault', 'CA.CountryID', 'C.CountryName', 'CA.StateID', 'S.StateName', 'CA.DistrictID', 'D.DistrictName', 'CA.TalukID', 'T.TalukName', 'CA.CityID', 'CI.CityName', 'CA.PostalCodeID', 'PC.PostalCode','CA.Latitude', 'CA.Longitude','CA.CompleteAddress','CA.AddressType')
         ->get();
 
         return response()->json(['status' => true,'data' => $SAddress]);
     }
-    public function UpdateSAddress(Request $req){ return $req;
+    public function UpdateSAddress(Request $req){
 		$CustomerID = $this->ReferID;
 		$OldData=$NewData=[];
 		$OldData=DB::table('tbl_customer_address')->where('CustomerID',$CustomerID)->get();
 		DB::beginTransaction();
 		$status=false;
 		try {
-            $AID = $req->AID;
-			if($AID){
+            $PostalCodeData = DB::table($this->generalDB.'tbl_postalcodes as P')
+            ->join($this->generalDB.'tbl_districts as D', 'D.DistrictID', 'P.DistrictID')
+            ->join($this->generalDB.'tbl_states as S', 'S.StateID', 'D.StateID')
+            ->join($this->generalDB.'tbl_countries as C','C.CountryID','S.CountryID')
+            ->where('P.PostalCode',$req->PostalCode)
+            ->where('P.ActiveStatus','Active')->where('P.DFlag',0)
+            ->where('D.ActiveStatus','Active')->where('D.DFlag',0)
+            ->where('S.ActiveStatus','Active')->where('S.DFlag',0)
+            ->where('C.ActiveStatus','Active')->where('C.DFlag',0)
+            ->select('P.PID as PostalCodeID','D.DistrictID','S.StateID','C.CountryID')->first();
+            if(!$PostalCodeData){
+                return response()->json(['status' => false,'message' => "Postal Code does not exist!"]);
+            }else{
+                $MapData = serialize($req->all());
+                $AID=DocNum::getDocNum(docTypes::CustomerAddress->value,"",Helper::getCurrentFY());
                 $data=array(
+                    "AID"=>$AID,
+                    "CustomerID"=>$CustomerID,
                     "CompleteAddress"=>$req->CompleteAddress,
                     "Address"=>$req->Address,
                     "AddressType"=>$req->AddressType,
-                    "PostalCodeID"=>$req->PostalCodeID,
-                    "CityID"=>$req->CityID,
-                    "TalukID"=>$req->TalukID,
-                    "DistrictID"=>$req->DistrictID,
-                    "StateID"=>$req->StateID,
-                    "CountryID"=>$req->CountryID,
-                    "UpdatedOn"=>date("Y-m-d H:i:s")
-                );
-                $status=DB::Table('tbl_customer_address')->where('CustomerID',$CustomerID)->where('AID',$req->AID)->update($data);
-            }else{
-                $AID=DocNum::getDocNum(docTypes::CustomerAddress->value,"",Helper::getCurrentFY());
-                $Ndata=array(
-                    "AID"=>$AID,
-                    "CustomerID"=>$CustomerID,
-                    "Address"=>$req->Address,
-                    "PostalCodeID"=>$req->PostalCodeID,
-                    "CityID"=>$req->CityID,
-                    "TalukID"=>$req->TalukID,
-                    "DistrictID"=>$req->DistrictID,
-                    "StateID"=>$req->StateID,
-                    "CountryID"=>$req->CountryID,
+                    "PostalCodeID"=>$PostalCodeData->PostalCodeID,
+                    "DistrictID"=>$PostalCodeData->DistrictID,
+                    "StateID"=>$PostalCodeData->StateID,
+                    "CountryID"=>$PostalCodeData->CountryID,
+                    "Latitude"=>$req->Latitude,
+                    "Longitude"=>$req->Longitude,
+                    "MapData"=>$MapData,
+                    "isDefault"=>1,
                     "CreatedOn"=>date("Y-m-d H:i:s")
                 );
-                $status=DB::Table('tbl_customer_address')->insert($Ndata);
+                $status=DB::Table('tbl_customer_address')->insert($data);
                 if($status==true){
+                    DB::Table('tbl_customer_address')->where('CustomerID',$CustomerID)->whereNot('AID',$AID)->update(['isDefault' =>0]);
                     DocNum::updateDocNum(docTypes::CustomerAddress->value);
                 }
             }
@@ -424,6 +427,7 @@ class CustomerAuthController extends Controller{
 		}
 		if($status==true){
 			DB::commit();
+            DB::Table('tbl_customer_cart')->where('CustomerID',$CustomerID)->delete();
             $NewData=DB::table('tbl_customer_address')->where('CustomerID',$CustomerID)->get();
 			$logData=array("Description"=>"Shipping Address Updated","ModuleName"=>"Customer","Action"=>"Update","ReferID"=>$AID,"OldData"=>$OldData,"NewData"=>$NewData,"UserID"=>$this->UserID,"IP"=>$req->ip());
 			logs::Store($logData);
@@ -439,12 +443,13 @@ class CustomerAuthController extends Controller{
         $status=false;
         try {
             $status=DB::Table('tbl_customer_address')->where('CustomerID',$CustomerID)->whereNot('AID',$req->AID)->update(['isDefault' =>0]);
-            $status=DB::Table('tbl_customer_address')->where('CustomerID',$CustomerID)->where('AID',$req->AID)->update(['isDefault' =>1,'UpdatedBy'=>$CustomerID,'UpdatedOn'=>date('Y-m-d H:i:s')]);
+            $status=DB::Table('tbl_customer_address')->where('CustomerID',$CustomerID)->where('AID',$req->AID)->update(['isDefault' =>1,'UpdatedBy'=>$CustomerID,'UpdatedOn'=>date("Y-m-d H:i:s")]);
         }catch(Exception $e) {
             $status=false;
         }
         if($status==true){
             DB::commit();
+            DB::Table('tbl_customer_cart')->where('CustomerID',$CustomerID)->delete();
             return response()->json(['status' => true,'message' => "Default Address Set Successfully"]);
         }else{
             DB::rollback();
@@ -456,7 +461,12 @@ class CustomerAuthController extends Controller{
         DB::beginTransaction();
         $status=false;
         try {
-            $status=DB::Table('tbl_customer_address')->where('CustomerID',$CustomerID)->where('AID',$req->AID)->delete();
+            $isDefault=DB::Table('tbl_customer_address')->where('CustomerID',$CustomerID)->where('AID',$req->AID)->where('isDefault',1)->exists();
+            if($isDefault){
+                return response()->json(['status' => false,'message' => "Default Address cannot be deleted!"]);
+            }else{
+                $status=DB::Table('tbl_customer_address')->where('CustomerID',$CustomerID)->where('AID',$req->AID)->delete();
+            }
         }catch(Exception $e) {
             $status=false;
         }
@@ -481,15 +491,16 @@ class CustomerAuthController extends Controller{
         $CustomerData->CustomerImage = $CustomerImageURL;
         $CustomerData->ProfileCompletePercent = 0;
         $CustomerData->ConTypeIDs = unserialize($CustomerData->ConTypeIDs);
-        $CustomerData->SAddress = DB::table('tbl_customer_address as CA')->where('CustomerID',$CustomerID)
-		->join($this->generalDB.'tbl_countries as C','C.CountryID','CA.CountryID')
-		->join($this->generalDB.'tbl_states as S', 'S.StateID', 'CA.StateID')
-		->join($this->generalDB.'tbl_districts as D', 'D.DistrictID', 'CA.DistrictID')
-		->join($this->generalDB.'tbl_taluks as T', 'T.TalukID', 'CA.TalukID')
-		->join($this->generalDB.'tbl_cities as CI', 'CI.CityID', 'CA.CityID')
-		->join($this->generalDB.'tbl_postalcodes as PC', 'PC.PID', 'CA.PostalCodeID')
-		->select('CA.AID', 'CA.Address', 'CA.isDefault', 'CA.CountryID', 'C.CountryName', 'CA.StateID', 'S.StateName', 'CA.DistrictID', 'D.DistrictName', 'CA.TalukID', 'T.TalukName', 'CA.CityID', 'CI.CityName', 'CA.PostalCodeID', 'PC.PostalCode')
-		->get();
+        $CustomerData->SAddress = DB::table('tbl_customer_address as CA')->where('CustomerID',$CustomerID)->where('isDefault',1)
+        ->leftJoin($this->generalDB.'tbl_postalcodes as PC', 'PC.PID', 'CA.PostalCodeID')
+        ->leftJoin($this->generalDB.'tbl_cities as CI', 'CI.CityID', 'CA.CityID')
+        ->leftJoin($this->generalDB.'tbl_taluks as T', 'T.TalukID', 'CA.TalukID')
+        ->leftJoin($this->generalDB.'tbl_districts as D', 'D.DistrictID', 'PC.DistrictID')
+        ->leftJoin($this->generalDB.'tbl_states as S', 'S.StateID', 'D.StateID')
+        ->leftJoin($this->generalDB.'tbl_countries as C','C.CountryID','S.CountryID')
+        ->orderBy('CA.CreatedOn','desc')
+        ->select('CA.AID', 'CA.Address', 'CA.isDefault', 'CA.CountryID', 'C.CountryName', 'CA.StateID', 'S.StateName', 'CA.DistrictID', 'D.DistrictName', 'CA.TalukID', 'T.TalukName', 'CA.CityID', 'CI.CityName', 'CA.PostalCodeID', 'PC.PostalCode','CA.Latitude', 'CA.Longitude','CA.CompleteAddress','CA.AddressType')
+        ->first();
         $return = [
 			'status' => true,
 			'data' => $CustomerData,
@@ -506,6 +517,7 @@ class CustomerAuthController extends Controller{
 		];
         return $return;
 	}
+    
     public function getCustomerType(request $req){
 		$return = [
 			'status' => true,
@@ -513,25 +525,36 @@ class CustomerAuthController extends Controller{
 		];
         return $return;
 	}
+
     public function GetCategory(Request $req){
         $pageNo = $req->PageNo ?? 1;
         $perPage = 15;
-    
-        $Category = DB::table('tbl_product_category as PC')->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0);
-    
-        if ($req->has('SearchText') && !empty($req->SearchText)) {
-            $Category->where('PC.PCName', 'like', '%' . $req->SearchText . '%');
+        if ($req->AID) {
+            $AddressData = DB::table('tbl_customer_address')->where('AID',$req->AID)->first();
+            $AllVendors = DB::table('tbl_vendors as V')
+                ->leftJoin('tbl_vendors_service_locations as VSL', 'V.VendorID', 'VSL.VendorID')
+                ->where('V.ActiveStatus', "Active")->where('V.DFlag', 0)->where('VSL.DFlag', 0)
+                ->where('VSL.PostalCodeID', $AddressData->PostalCodeID)->groupBy('VSL.VendorID')->pluck('VSL.VendorID')->toArray();
+
+            $Category = DB::table('tbl_vendors_product_mapping as VPM')
+                ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'VPM.PCID')
+                ->where('VPM.Status', 1)->WhereIn('VPM.VendorID', $AllVendors);
+                if ($req->has('SearchText') && !empty($req->SearchText)) {
+                    $Category->where('PC.PCName', 'like', '%' . $req->SearchText . '%');
+                }
+            $PCatagories = $Category->groupBy('PC.PCID', 'PC.PCName', 'PC.PCImage')
+                ->select('PC.PCID', 'PC.PCName', DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PCImage, ""), "assets/images/no-image-b.png")) AS CategoryImage'))
+                ->paginate($perPage, ['*'], 'page', $pageNo);
+                return response()->json([
+                    'status' => true,
+                    'data' => $PCatagories->items(),
+                    'CurrentPage' => $PCatagories->currentPage(),
+                    'LastPage' => $PCatagories->lastPage(),
+                ]);
+        }else{
+            return response()->json(['status' => false,'message' => "Shipping Address is required!"]);
         }
-    
-        $result = $Category->select('PC.PCName', 'PC.PCID', DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PCImage, ""), "assets/images/no-image-b.png")) AS CategoryImage'))
-            ->paginate($perPage, ['*'], 'page', $pageNo);
-    
-        return response()->json([
-            'status' => true,
-            'data' => $result->items(),
-            'CurrentPage' => $result->currentPage(),
-            'LastPage' => $result->lastPage(),
-        ]);
+        
     }
 	public function GetSubCategory(request $req){
 		$PCID = $req->PCID;
@@ -540,7 +563,7 @@ class CustomerAuthController extends Controller{
         $pageNo = $req->PageNo ?? 1;
         $perPage = 15;
 
-		$SubCategory = DB::table('tbl_product_subcategory as PSC')->join('tbl_product_category as PC','PC.PCID','PSC.PCID')
+		$SubCategory = DB::table('tbl_product_subcategory as PSC')->leftJoin('tbl_product_category as PC','PC.PCID','PSC.PCID')
         ->where('PSC.ActiveStatus', 'Active')->where('PSC.DFlag', 0)->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)->whereIn('PSC.PCID', $PCIDs);
         if ($req->has('SearchText') && !empty($req->SearchText)) {
             $SubCategory->where('PSC.PSCName', 'like', '%' . $req->SearchText . '%');
@@ -564,7 +587,7 @@ class CustomerAuthController extends Controller{
         $pageNo = $req->PageNo ?? 1;
         $perPage = 15;
     
-        $products = DB::table('tbl_products as P')->join('tbl_product_category as PC', 'PC.PCID', 'P.CID')->join('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')->join('tbl_uom as U', 'U.UID', 'P.UID')
+        $products = DB::table('tbl_products as P')->leftJoin('tbl_product_category as PC', 'PC.PCID', 'P.CID')->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')->leftJoin('tbl_uom as U', 'U.UID', 'P.UID')
             ->where('P.ActiveStatus', 'Active')->where('P.DFlag', 0)->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)->where('PSC.ActiveStatus', 'Active')->where('PSC.DFlag', 0)
             ->whereIn('P.CID', $PCIDs)->whereIn('P.SCID', $PSCIDs);
     
@@ -589,6 +612,7 @@ class CustomerAuthController extends Controller{
             'LastPage' => $products->lastPage(),
         ]);
     }
+    
     public function getCart(Request $req){
         $Cart = DB::table('tbl_customer_cart as C')
         ->leftJoin('tbl_products as P','P.ProductID','C.ProductID')
@@ -663,6 +687,7 @@ class CustomerAuthController extends Controller{
             return response()->json(['status' => false,'message' => "Product Deleted Failed!"]);
         }
     }
+
     public function getCustomerHome(Request $req){
         $CustomerID = $this->ReferID;
         $CustomerHome = [];

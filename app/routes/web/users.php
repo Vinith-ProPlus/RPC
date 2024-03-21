@@ -56,11 +56,15 @@ Route::group(['prefix'=>'manage-customers'],function (){
         Route::post('/create', 'save');
         Route::post('/edit/{CID}', 'update');
         Route::post('/delete/{CID}', 'delete');
+        Route::post('/set-default-address', 'SetDefaultAddress');
         Route::get('/trash-view/', 'TrashView');
         Route::post('/trash-data', 'TrashTableView');
         Route::post('/restore/{CID}', 'Restore');
 
         Route::post('/address-view','addressView');
         Route::post('/get/customer-type','getCustomerType');
+
+        Route::post('/get/customer-data','getCustomerData');
+
     });
 });

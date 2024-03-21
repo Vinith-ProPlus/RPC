@@ -13,6 +13,7 @@ use Helper;
 use general;
 use Laravel\Passport\RefreshToken;
 use Laravel\Passport\Token;
+use Illuminate\Support\Facades\Http;
 class GeneralAPIController extends Controller{
 	private $generalDB;
     private $tmpDB;
@@ -69,7 +70,6 @@ class GeneralAPIController extends Controller{
 	}
 	public function getCity(Request $req){
 		$data = Helper::getCity(["CountryID" => $req->CountryID,"StateID" => $req->StateID,"DistrictID" => $req->DistrictID,"TalukID" => $req->TalukID,"PostalID" => $req->PostalID,"PostalCode" => $req->PostalCode,]);
-	
 		if (isset($data['error'])) {
 			$return = [
 				'status' => false,
@@ -77,10 +77,7 @@ class GeneralAPIController extends Controller{
 				'data' => [],
 			];
 		} else {
-			$return = [
-				'status' => true,
-				'data' => $data,
-			];
+			$return = ['status' => true,'data' => $data];
 		}
 		return $return;
 	}
@@ -305,5 +302,24 @@ class GeneralAPIController extends Controller{
 		];
         return $return;
 	}
+	public function getCoordinates(Request $req){  return 1;
+		$address = $req->Address;
+        $response = Http::get('https://maps.googleapis.com/maps/api/geocode/json', [
+            'address' => $address,
+            'key' => config('app.map_api_key'),
+        ]);
+
+        $data = $response->json();
+        if ($data['status'] === 'OK') {
+            $location = $data['results'][0]['geometry']['location'];
+
+            $latitude = $location['lat'];
+            $longitude = $location['lng'];
+
+            return response()->json(['latitude' => $latitude, 'longitude' => $longitude]);
+        }
+        return response()->json(['error' => 'Could not retrieve coordinates'], 500);
+    }
+	
 	
 }

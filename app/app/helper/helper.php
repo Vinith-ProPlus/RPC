@@ -29,6 +29,30 @@ class helper{
 	public static function getDBPrefix(){
 		return config('app.db_prefix');
 	}
+	public static function formAddress($Address,$CityID){
+		$addressParts = DB::table(self::getGeneralDB().'tbl_cities as CI')
+			->leftJoin(self::getGeneralDB().'tbl_postalcodes as PC', 'PC.PID', 'CI.PostalID')
+			->leftJoin(self::getGeneralDB().'tbl_taluks as T', 'T.TalukID', 'CI.TalukID')
+			->leftJoin(self::getGeneralDB().'tbl_districts as D', 'D.DistrictID', 'T.DistrictID')
+			->leftJoin(self::getGeneralDB().'tbl_states as S', 'S.StateID', 'D.StateID')
+			->leftJoin(self::getGeneralDB().'tbl_countries as C', 'C.CountryID', 'S.CountryID')
+			->where('CI.CityID', $CityID)
+			->select('C.CountryName', 'S.StateName', 'D.DistrictName', 'T.TalukName', 'CI.CityName', 'PC.PostalCode')
+			->first();
+
+		if ($addressParts) {
+			$trimmedAddress = trim($Address);
+			$address = substr($trimmedAddress, -1) == ',' ? $trimmedAddress .' ' : $trimmedAddress . ', ';
+			$fullAddress = $address . 
+					$addressParts->CityName . ', ' .
+					$addressParts->TalukName . ', ' .
+					$addressParts->DistrictName . ', ' .
+					$addressParts->StateName . ', ' .
+					$addressParts->CountryName . ' - ' .
+					$addressParts->PostalCode;
+			return $fullAddress;
+		}
+	}
 	public static function getVendorDB($VendorID,$UserID){
 		$VendorDB = DB::table('tbl_vendors_database')->where('VendorID', $VendorID)->value('DBName');
 		if (!$VendorDB) {

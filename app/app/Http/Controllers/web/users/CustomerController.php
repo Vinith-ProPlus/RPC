@@ -185,6 +185,7 @@ class CustomerController extends Controller{
 				if(file_exists($CustomerImage)){
 					$images=helper::ImageResize($CustomerImage,$dir);
 				}
+				$CompleteAddress = Helper::formAddress($req->Address,$req->CityID);
 				$data=array(
 					"CustomerID"=>$CustomerID,
 					"CustomerName"=>$req->CustomerName,
@@ -193,6 +194,7 @@ class CustomerController extends Controller{
 					"MobileNo2"=>$req->MobileNo2,
 					"Email"=>$req->Email,
 					"CusTypeID"=>$req->CusTypeID,
+					"CompleteAddress"=>$CompleteAddress,
 					"Address"=>$req->Address,
 					"PostalCodeID"=>$req->PostalCodeID,
 					"CityID"=>$req->CityID,
@@ -207,11 +209,13 @@ class CustomerController extends Controller{
 				$status=DB::Table('tbl_customer')->insert($data);
 				if($status){
 					foreach($SAddress as $row){
+						$CompleteAddress = Helper::formAddress($row['Address'],$row['CityID']);
 						$AID=DocNum::getDocNum(docTypes::CustomerAddress->value,"",Helper::getCurrentFY());
 						$tmp=array(
 							"AID"=>$AID,
 							"CustomerID"=>$CustomerID,
 							"Address"=>$row['Address'],
+							"CompleteAddress"=>$CompleteAddress,
 							"PostalCodeID"=>$row['PostalCodeID'],
 							"CityID"=>$row['CityID'],
 							"TalukID"=>$row['TalukID'],
@@ -291,6 +295,8 @@ class CustomerController extends Controller{
 				if(($CustomerImage!="" || intval($req->removeCustomerImage)==1) && Count($OldData)>0){ 
 					$currCustomerImage=$OldData[0]->Images!=""?unserialize($OldData[0]->Images):array();
 				}
+				$CompleteAddress = Helper::formAddress($req->Address,$req->CityID);
+				// return $CompleteAddress;
 				$data=array(
 					"CustomerName"=>$req->CustomerName,
 					"MobileNo1"=>$req->MobileNo1,
@@ -298,6 +304,7 @@ class CustomerController extends Controller{
 					"Email"=>$req->Email,
 					"CusTypeID"=>$req->CusTypeID,
 					"Address"=>$req->Address,
+					"CompleteAddress"=>$CompleteAddress,
 					"PostalCodeID"=>$req->PostalCodeID,
 					"CityID"=>$req->CityID,
 					"TalukID"=>$req->TalukID,
@@ -319,10 +326,12 @@ class CustomerController extends Controller{
 				if($status){
 					$AIDs=[];
 					foreach($SAddress as $row){
+						$CompleteAddress = Helper::formAddress($row['Address'],$row['CityID']);
 						if($row['AID']){
 							$AIDs[] = $row['AID'];
 							$data=array(
 								"Address"=>$row['Address'],
+								"CompleteAddress"=>$CompleteAddress,
 								"PostalCodeID"=>$row['PostalCodeID'],
 								"CityID"=>$row['CityID'],
 								"TalukID"=>$row['TalukID'],
@@ -340,6 +349,7 @@ class CustomerController extends Controller{
 								"AID"=>$AID,
 								"CustomerID"=>$CustomerID,
 								"Address"=>$row['Address'],
+								"CompleteAddress"=>$CompleteAddress,
 								"PostalCodeID"=>$row['PostalCodeID'],
 								"CityID"=>$row['CityID'],
 								"TalukID"=>$row['TalukID'],
@@ -381,6 +391,25 @@ class CustomerController extends Controller{
 		}
 	}
 
+	public function SetDefaultAddress(Request $req){
+        $CustomerID = $req->CustomerID;
+        DB::beginTransaction();
+        $status=false;
+        try {
+            $status=DB::Table('tbl_customer_address')->where('CustomerID',$CustomerID)->whereNot('AID',$req->AID)->update(['isDefault' =>0]);
+            $status=DB::Table('tbl_customer_address')->where('CustomerID',$CustomerID)->where('AID',$req->AID)->update(['isDefault' =>1,'UpdatedBy'=>$CustomerID,'UpdatedOn'=>date("Y-m-d H:i:s")]);
+        }catch(Exception $e) {
+            $status=false;
+        }
+        if($status==true){
+            DB::commit();
+            return ['status' => true,'message' => "Default Address Set Successfully"];
+        }else{
+            DB::rollback();
+            return ['status' => false,'message' => "Default Address Set Failed!"];
+        }
+    }
+	
 	public function Delete(Request $req,$CID){
 		$OldData=$NewData=array();
 		if($this->general->isCrudAllow($this->CRUD,"delete")==true){
@@ -519,6 +548,47 @@ class CustomerController extends Controller{
 			$FormData['data']['uuid']=$this->general->RandomString(5);
 		}
         return view('app.users.manage-customer.address',$FormData);
+    }
+
+	public function getCustomerData(request $req){
+		$CustomerID = $req->CustomerID;
+        $CustomerData = DB::Table('tbl_customer as CU')
+        ->leftJoin($this->generalDB.'tbl_postalcodes as P','P.PID','CU.PostalCodeID')
+        ->where('CU.ActiveStatus','Active')->where('CU.CustomerID',$CustomerID)->where('CU.DFlag',0)
+        ->select('CustomerID','CustomerName','DOB','MobileNo1','Email','CustomerImage','CusTypeID','ConTypeIDs','GenderID','Address','CompleteAddress','CityID','TalukID','CU.DistrictID','CU.StateID','CU.CountryID','PostalCodeID','P.PostalCode')
+        ->first();
+        $CustomerImagePath = $CustomerData->CustomerImage;
+        $CustomerImageURL = file_exists($CustomerImagePath) ? url('/') . '/' . $CustomerData->CustomerImage : url('/') . '/assets/images/no-image-b.png';
+        $CustomerData->CustomerImage = $CustomerImageURL;
+        $CustomerData->ProfileCompletePercent = 0;
+        $CustomerData->ConTypeIDs = unserialize($CustomerData->ConTypeIDs);
+        $CustomerData->DefaultSAddress = DB::table('tbl_customer_address')->where('CustomerID',$CustomerID)->where('isDefault',1)->value('CompleteAddress');
+        $CustomerData->SAddress = DB::table('tbl_customer_address as CA')->where('CustomerID',$CustomerID)
+        ->leftJoin($this->generalDB.'tbl_postalcodes as PC', 'PC.PID', 'CA.PostalCodeID')
+        ->leftJoin($this->generalDB.'tbl_cities as CI', 'CI.CityID', 'CA.CityID')
+        ->leftJoin($this->generalDB.'tbl_taluks as T', 'T.TalukID', 'CA.TalukID')
+        ->leftJoin($this->generalDB.'tbl_districts as D', 'D.DistrictID', 'PC.DistrictID')
+        ->leftJoin($this->generalDB.'tbl_states as S', 'S.StateID', 'D.StateID')
+        ->leftJoin($this->generalDB.'tbl_countries as C','C.CountryID','S.CountryID')
+        ->orderBy('CA.CreatedOn','desc')
+        ->select('CA.AID', 'CA.Address','CA.CompleteAddress', 'CA.isDefault', 'CA.CountryID', 'C.CountryName', 'CA.StateID', 'S.StateName', 'CA.DistrictID', 'D.DistrictName', 'CA.TalukID', 'T.TalukName', 'CA.CityID', 'CI.CityName', 'CA.PostalCodeID', 'PC.PostalCode','CA.Latitude', 'CA.Longitude','CA.CompleteAddress','CA.AddressType')
+        ->get();
+		return $CustomerData;
+	}
+
+	public function getAddress(Request $req){
+        $FormData=[];
+        $FormData['Address']=DB::table('tbl_customer_address as CA')->where('CustomerID',$req->CustomerID)->where('isDefault',1)
+        ->leftJoin($this->generalDB.'tbl_postalcodes as PC', 'PC.PID', 'CA.PostalCodeID')
+        ->leftJoin($this->generalDB.'tbl_cities as CI', 'CI.CityID', 'CA.CityID')
+        ->leftJoin($this->generalDB.'tbl_taluks as T', 'T.TalukID', 'CA.TalukID')
+        ->leftJoin($this->generalDB.'tbl_districts as D', 'D.DistrictID', 'PC.DistrictID')
+        ->leftJoin($this->generalDB.'tbl_states as S', 'S.StateID', 'D.StateID')
+        ->leftJoin($this->generalDB.'tbl_countries as C','C.CountryID','S.CountryID')
+        ->orderBy('CA.CreatedOn','desc')
+        ->select('CA.AID', 'CA.Address', 'CA.isDefault', 'CA.CountryID', 'C.CountryName', 'CA.StateID', 'S.StateName', 'CA.DistrictID', 'D.DistrictName', 'CA.TalukID', 'T.TalukName', 'CA.CityID', 'CI.CityName', 'CA.PostalCodeID', 'PC.PostalCode','CA.Latitude', 'CA.Longitude','CA.CompleteAddress','CA.AddressType')
+        ->first();
+        return view('app.transaction.quote-enquiry.address',$FormData);
     }
 }
 

@@ -3,6 +3,7 @@
 use App\Http\Controllers\web\Transaction\EnquiryController;
 use App\Http\Controllers\web\Transaction\OrderController;
 use App\Http\Controllers\web\Transaction\PaymentController;
+use App\Http\Controllers\web\Transaction\QuotationController;
 use App\Http\Controllers\web\Transaction\QuoteEnquiryController;
 
 Route::group(['prefix'=>'enquiry'],function (){
@@ -31,6 +32,8 @@ Route::group(['prefix'=>'quote-enquiry'],function (){
         Route::get('/view/{ID}', 'QuoteView');
         // Route::get('/view/vendor-quote/{ID}', 'VendorQuoteView');
 
+        Route::get('/image-quote/create', 'ImageQuoteCreate');
+
         Route::post('/data', 'TableView');
         Route::post('/request-quote/{ID}', 'RequestQuote');
         Route::POST('/quote-convert/{ID}', 'QuoteConvert');
@@ -50,6 +53,21 @@ Route::group(['prefix'=>'quote-enquiry'],function (){
         Route::post('/get/customers', 'GetCustomers');
     });
 });
+Route::group(['prefix'=>'quotation'],function (){
+    Route::controller(QuotationController::class)->group(function () {
+        Route::get('/', 'view');
+        Route::get('/trash', 'TrashView');
+        Route::get('/create', 'Create');
+        Route::get('/edit/{ID}', 'Edit');
+        Route::get('/view/{ID}', 'QuoteView');
+
+
+        Route::post('/data', 'TableView');
+        Route::POST('/delete/{ID}', 'Delete');
+        Route::POST('/restore/{ID}', 'Restore');
+        Route::post('/trash-data', 'TrashTableView');
+    });
+});
 
 Route::group(['prefix'=>'order'],function (){
     Route::controller(OrderController::class)->group(function () {
@@ -66,9 +84,6 @@ Route::group(['prefix'=>'order'],function (){
         Route::POST('/delete/{ID}', 'Delete');
         Route::POST('/restore/{ID}', 'Restore');
         Route::post('/trash-data', 'TrashTableView');
-
-        Route::post('/get/vendor-quote-details', 'GetVendorQuoteDetails');
-        Route::post('/get/vendor-ratings', 'GetVendorRatings');
     });
 });
 Route::group(['prefix'=>'payments'],function (){

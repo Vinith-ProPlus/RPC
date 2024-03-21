@@ -84,7 +84,26 @@ class QuoteEnquiryController extends Controller{
 			$FormData['PageTitle']=$this->PageTitle;
 			$FormData['isEdit']=false;
 			$FormData['QNo']=DocNum::getInvNo($this->ActiveMenuName);
+			$FormData['Customers'] = DB::Table('tbl_customer')
+			->where('DFlag', 0)->where('ActiveStatus', 'Active')
+			->get();
             return view('app.transaction.quote-enquiry.quote',$FormData);
+        }elseif($this->general->isCrudAllow($this->CRUD,"view")==true){
+            return Redirect::to('/admin/transaction/quote-enquiry/');
+        }else{
+            return view('errors.403');
+        }
+    }
+    public function ImageQuoteCreate(Request $req){
+        if($this->general->isCrudAllow($this->CRUD,"add")==true){
+            $FormData=$this->general->UserInfo;
+            $FormData['menus']=$this->Menus;
+            $FormData['crud']=$this->CRUD;
+			$FormData['ActiveMenuName']=$this->ActiveMenuName;
+			$FormData['PageTitle']=$this->PageTitle;
+			$FormData['isEdit']=false;
+			$FormData['QNo']=DocNum::getInvNo($this->ActiveMenuName);
+            return view('app.transaction.quote-enquiry.image-quote',$FormData);
         }elseif($this->general->isCrudAllow($this->CRUD,"view")==true){
             return Redirect::to('/admin/transaction/quote-enquiry/');
         }else{
@@ -374,7 +393,6 @@ class QuoteEnquiryController extends Controller{
 			return array('status'=>false,'message'=>'Access denined');
 		}
 	}
-
 
     public function QuoteConvert(Request $req,$EnqID){
 		if($this->general->isCrudAllow($this->CRUD,"edit")==true){
@@ -736,7 +754,7 @@ class QuoteEnquiryController extends Controller{
 			->select('CU.*','C.CountryName','S.StateName','D.DistrictName','T.TalukName','CI.CityName','PC.PostalCode')
 			->get();
 
-			foreach($Customers as $customer){
+			/* foreach($Customers as $customer){
 				$billingAddressParts = array_map('trim', [
 					$customer->Address,
 					$customer->CityName,
@@ -774,7 +792,7 @@ class QuoteEnquiryController extends Controller{
 				}
 
 				$customer->DeliverAddress = count($customer->DeliverAddress) > 0 ? json_encode($customer->DeliverAddress) : [];
-			}
+			} */
 
 		return $Customers;
 	}

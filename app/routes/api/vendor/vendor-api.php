@@ -2,7 +2,7 @@
 
 use App\Http\Controllers\api\vendor\VendorAPIController;
 use App\Http\Controllers\api\vendor\VendorAuthController;
-use App\Http\Controllers\api\vendor\VendorStockUpdateController;
+use App\Http\Controllers\api\vendor\VendorStockPointController;
 use App\Http\Controllers\api\vendor\VendorTransactionAPIController;
 
 Route::controller(VendorAuthController::class)->group(function () {
@@ -30,6 +30,12 @@ Route::controller(VendorAuthController::class)->group(function () {
     Route::post('/get/vendor-home','getVendorHome');
 });
 
+Route::controller(VendorStockPointController::class)->group(function () {
+    Route::post('/get/stockpoint-data','getStockpointData');
+    Route::post('/add-stockpoint','AddStockpoint');
+    Route::post('/update-stockpoint','UpdateStockpoint');
+    Route::post('/delete-stockpoint','DeleteStockpoint');
+});
 Route::controller(VendorAPIController::class)->group(function () {
     Route::post('/login','Login');
     Route::post('/google-register','GoogleRegister');

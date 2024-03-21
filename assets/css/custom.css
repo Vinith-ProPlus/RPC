@@ -229,4 +229,7 @@ body.dark-only  .dropdown-menu a:hover{
 .my-gallery button{
     padding: 0.375rem 0.75rem;
 }
+.custom-height .dropify-wrapper {
+    height: 400px;
+}
 

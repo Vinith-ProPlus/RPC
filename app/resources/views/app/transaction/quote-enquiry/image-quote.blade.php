@@ -8,7 +8,7 @@
 					<li class="breadcrumb-item"><a href="{{ url('/') }}" data-original-title="" title=""><i class="f-16 fa fa-home"></i></a></li>
 					<li class="breadcrumb-item">Transaction</li>
 					<li class="breadcrumb-item"><a href="{{ url('/') }}/admin/transaction/quotation/" data-original-title="" title="">{{$PageTitle}}</a></li>
-                    <li class="breadcrumb-item">@if($isEdit==true)Update @else Create @endif</li>
+                    <li class="breadcrumb-item">Image Quote @if($isEdit==true)Update @else Create @endif</li>
 				</ol>
 			</div>
 		</div>
@@ -16,35 +16,33 @@
 </div>
 <div class="container-fluid">
 	<div class="row d-flex justify-content-center">
-		<div class="col-12 col-sm-12 col-lg-12">
+		<div class="col-12 col-sm-12 col-lg-6">
 			<div class="card">
-				<div class="card-header text-center"><h5 class="mt-10">{{$PageTitle}}</h5></div>
+				<div class="card-header text-center"><h5 class="mt-10">Image {{$PageTitle}}</h5></div>
 				<div class="card-body">
-                    <div class="row justify-content-center">
-                        {{-- <div class="col-sm-12 mt-20">
-                            <div class="form-group">
-                                <label class="txtQuotationName"> Quotation Name <span class="required"> * </span></label>
-                                <input type="text" class="form-control  {{$Theme['input-size']}}" id="txtQuotationName" value="<?php if($isEdit==true){ echo $EditData[0]->QuotationName;} ?>">
-                                <div class="errors" id="txtQuotationName-err"></div>
-                            </div>
-                        </div> --}}
-                        <div class="col-sm-2">
-                            <button type="button" class="btn btn-outline-info" id="btnAddAddress">Add New Address</button>
-                        </div>
-
+                    <div class="row justify-content-center ">
+                        <label>Quote Image </label>
+                        <input type="file" class="dropify imageScrop custom-height" id="txtQImage" data-default-file="@if($isEdit && $EditData[0]->BannerType == "Web") {{url('/')."/".$EditData[0]->BannerImage}} @endif"  data-allowed-file-extensions="jpeg jpg png gif">
                     </div>
-                    <div class="row mt-20">
-                        <div class="col-sm-12 text-right">
-                            @if($crud['view']==true)
-                            <a href="{{url('/')}}/admin/transaction/quotation" class="btn {{$Theme['button-size']}} btn-outline-dark mr-10" id="btnCancel">Back</a>
-                            @endif
-                            
-                            @if((($crud['add']==true) && ($isEdit==false))||(($crud['edit']==true) && ($isEdit==true)))
-                                <button class="btn {{$Theme['button-size']}} btn-outline-success" id="btnSave">@if($isEdit==true) Update @else Save @endif</button>
-                            @endif
+                    <div class="row justify-content-center">
+                        <div class="col-sm-9 mt-20">
+                            <div class="form-group">
+                                <label class="txtItemsCount">Items Count <span class="required"> * </span></label>
+                                <input type="number" class="form-control  {{$Theme['input-size']}}" id="txtItemsCount" value="@if($isEdit) {{$EditData->ItemCount}} @endif">
+                                <div class="errors" id="txtItemsCount-err"></div>
+                            </div>
                         </div>
                     </div>
 				</div>
+                <div class="card-footer text-right">
+                    @if($crud['view']==true)
+                    <a href="{{url('/')}}/admin/transaction/quote-enquiry" class="btn {{$Theme['button-size']}} btn-outline-dark mr-10" id="btnCancel">Back</a>
+                    @endif
+                    
+                    @if((($crud['add']==true) && ($isEdit==false))||(($crud['edit']==true) && ($isEdit==true)))
+                        <button class="btn {{$Theme['button-size']}} btn-outline-success" id="btnSave">@if($isEdit==true) Update @else Save @endif</button>
+                    @endif
+                </div>
 			</div>
 		</div>
 	</div>
@@ -56,9 +54,9 @@
         const formValidation=()=>{
             $('.errors').html('');
             let status=true;
-            let TaxName=$('#txtTaxName').val();
-            let Percentage=$('#txtPercentage').val();
-            if(TaxName==""){
+            let QImage=$('#txtQImage').val();
+            let ItemsCount=$('#txtItemsCount').val();
+            if(QImage==""){
                 $('#txtTaxName-err').html('The category name is required.');status=false;
             }else if(TaxName.length<2){
                 $('#txtTaxName-err').html('TaxName  must be greater than 2 characters');status=false;

@@ -205,6 +205,7 @@ class HomeAuthController extends Controller{
 			return view('errors.403');
 		}
     }
+	
 	public function Save(Request $req){
 		$OldData=array();$NewData=array();$CustomerID="";
 
