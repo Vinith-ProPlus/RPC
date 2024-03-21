@@ -32,6 +32,8 @@ Route::group(['prefix'=>'quote-enquiry'],function (){
         Route::get('/view/{ID}', 'QuoteView');
         // Route::get('/view/vendor-quote/{ID}', 'VendorQuoteView');
 
+        Route::get('/image-quote/create', 'ImageQuoteCreate');
+
         Route::post('/data', 'TableView');
         Route::post('/request-quote/{ID}', 'RequestQuote');
         Route::POST('/quote-convert/{ID}', 'QuoteConvert');

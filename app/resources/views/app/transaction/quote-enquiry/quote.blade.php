@@ -21,9 +21,9 @@
 				<div class="card-header text-center"><h5 class="mt-10">{{$PageTitle}}</h5></div>
                 <div class="card-body ">
                     <div class="row">
-                    <div class="col-sm-2">
-                        {{-- <button type="button" class="btn btn-outline-info btnAddAddress">Add New Address</button> --}}
-                    </div>
+                        <div class="col-sm-2">
+                            {{-- <button type="button" class="btn btn-outline-info btnAddAddress">Add New Address</button> --}}
+                        </div>
                         <div class="col-sm-12">
                             <div class="row">
                                 <div class="col-sm-6">
@@ -37,9 +37,9 @@
                                         </div>
                                         <div class="col-sm-4">
                                             <div class="form-group">
-                                                <label>Quote Date</label>
-                                                <input type="date" class="form-control" id="dtpQDate" min="<?php if($isEdit==true){ echo date("Y-m-d",strtotime($EditData[0]['QDate']));}else{ echo date("Y-m-d",strtotime('-5 days'));} ?>" value="<?php if($isEdit==true){ echo date("Y-m-d",strtotime($EditData[0]['QDate']));}else{ echo date("Y-m-d");} ?>">
-                                                <div class="errors" id="dtpQDate-err"></div>
+                                                <label>Expected Delivery Date</label>
+                                                <input type="date" class="form-control" id="dtpExpDeliveryDate" min="<?php if($isEdit==true){ echo date("Y-m-d",strtotime($EditData[0]['QDate']));}else{ echo date("Y-m-d",strtotime('-5 days'));} ?>" value="<?php if($isEdit==true){ echo date("Y-m-d",strtotime($EditData[0]['ExpectedDeliveryDate']));}else{ echo date("Y-m-d");} ?>">
+                                                <div class="errors" id="dtpExpDeliveryDate-err"></div>
                                             </div>
                                         </div>
                                         <div class="col-sm-4">
@@ -54,6 +54,9 @@
                                                 <label>Customer Name</label>
                                                 <select id="lstCustomer" class="form-control select2" data-selected="<?php if($isEdit==true){ echo $EditData[0]['CustomerID'];} ?>">
                                                     <option value="">Select a Customer</option>
+                                                    @foreach ($Customers as $row)
+                                                        <option value="{{$row->CustomerID}}">{{$row->CustomerName}} ({{$row->MobileNo1}})</option>
+                                                    @endforeach
                                                 </select>
                                                 <div class="errors" id="lstCustomer-err"></div>
                                             </div>
@@ -61,15 +64,15 @@
                                         <div class="col-sm-4 mt-20">
                                             <div class="form-group">
                                                 <label>Mobile No</label>
-                                                <input type="text" class="form-control" id="txtMobileNo" value="<?php if($isEdit==true){ echo $EditData[0]['MobileNo1'];} ?>">
-                                                <div class="errors" id="lstPlaceOfSupply-err"></div>
+                                                <input type="number" class="form-control" id="txtMobileNo" value="<?php if($isEdit==true){ echo $EditData[0]['ReceiverMobNo'];} ?>">
+                                                <div class="errors" id="txtMobileNo-err"></div>
                                             </div>
                                         </div>
                                         <div class="col-sm-4 mt-20">
                                             <div class="form-group">
                                                 <label>Email</label>
-                                                <input type="text" class="form-control" id="txtGSTNo" value="<?php if($isEdit==true){ echo $EditData[0]['GSTNo'];} ?>">
-                                                <div class="errors" id="txtGSTNo-err"></div>
+                                                <input type="text" class="form-control" id="txtEmail" value="<?php if($isEdit==true){ echo $EditData[0]['Email'];} ?>">
+                                                <div class="errors" id="txtEmail-err"></div>
                                             </div>
                                         </div>
                                     </div>
@@ -108,8 +111,7 @@
                                                                     $BData=array("Title"=>"","Attention"=>$EditData[0]['BAttention'],"Address"=>$EditData[0]['BAddress'],"CityID"=>$EditData[0]['BCityID'],"CityName"=>$EditData[0]['BCityName'],"StateName"=>$EditData[0]['BStateName'],"StateID"=>$EditData[0]['BStateID'],"CountryName"=>$EditData[0]['BCountryName'],"CountryID"=>$EditData[0]['BCountryID'],"PostalCode"=>$EditData[0]['BPostalCode'],"PostalCodeID"=>$EditData[0]['BPostalCodeID']);
                                                                 }
                                                             ?>
-                                                            <div id="divBillingAddress"><?php if($isEdit){ echo $tmp;} ?></div>
-                                                            <div class="display-none" id="divBillingData"><?php if($isEdit){ echo json_encode($BData);} ?></div>
+                                                            <div id="divBillingAddress" class="fs-15 fw-500 p-6"><?php if($isEdit){ echo $tmp;} ?></div>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -119,14 +121,22 @@
                                             <div class="row">
                                                 <div class="col-sm-12">
                                                     <div class="card shadow-sm">
-                                                        <div class="card-header p-10">
-                                                            <div class="text-center fs-17 fw-600">Shipping Address <button id="btnSAChange" title="Change the shipping address" class="btn btn-sm btn-link full-right mr-10 pt-5 btnAddAddress">
-                                                                    <i class="fa fa-pencil"></i>
-                                                                </button>
+                                                        <div class="card-header p-7">
+                                                            <div class="row">
+                                                                <div class="col-2">
+
+                                                                </div>
+                                                                <div class="col-8 text-center fs-17 fw-600 align-middle">
+                                                                    Shipping Address
+                                                                </div>
+                                                                <div class="col-2">
+                                                                    <button id="btnSAChange" title="Change the shipping address" class="btn btn-sm btn-link full-right mr-10">
+                                                                        <i class="fa fa-pencil"></i>
+                                                                    </button>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                         <div class="card-body mh-130 p-10">
-                                                            
                                                             <?php
                                                                 $SData=array();
                                                                 if($isEdit){
@@ -150,7 +160,7 @@
                                                                     $SData=array("Title"=>"","Attention"=>$EditData[0]['SAttention'],"Address"=>$EditData[0]['SAddress'],"CityID"=>$EditData[0]['SCityID'],"CityName"=>$EditData[0]['SCityName'],"StateName"=>$EditData[0]['SStateName'],"StateID"=>$EditData[0]['SStateID'],"CountryName"=>$EditData[0]['SCountryName'],"CountryID"=>$EditData[0]['SCountryID'],"PostalCode"=>$EditData[0]['SPostalCode'],"PostalCodeID"=>$EditData[0]['SPostalCodeID']);
                                                                 }
                                                             ?>
-                                                            <div id="divShippingAddress"><?php if($isEdit){ echo $tmp;} ?></div>
+                                                            <div id="divShippingAddress" class="fs-15 fw-500 p-6"><?php if($isEdit){ echo $tmp;} ?></div>
                                                             <div class="display-none" id="divShippingData"><?php if($isEdit){ echo json_encode($SData);} ?></div>
                                                         </div>
                                                     </div>
@@ -413,6 +423,27 @@
 @section('scripts')
 <script>
     $(document).ready(function(){
+        const formatAddress = async (address) => {
+            var parts = address.split(',');
+
+            parts = parts.map(part => part.trim());
+
+            var lastPartIndex = parts.length - 1;
+            var thirdFromLastPartIndex = parts.length - 3;
+            parts.splice(lastPartIndex, 0, '<br>');
+            parts.splice(thirdFromLastPartIndex, 0, '<br>');
+
+            parts = parts.map(function(part, index) {
+                if (index > 0 && parts[index - 1] === '<br>') {
+                    return part.replace(',', '');
+                }
+                return part;
+            });
+
+            var formattedAddress = parts.join(', ');
+            console.log(formattedAddress);
+            return formattedAddress;
+        }
         const getCustomer=async()=>{
             $('#lstCustomer').select2('destroy');
             $('#lstCustomer option').remove();
@@ -445,7 +476,7 @@
             $.ajax({
                 type:"post",
                 url:"{{url('/')}}/admin/master/product/products/get/category",
-                headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
+                headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content')},
                 dataType:"json",
                 error:function(e, x, settings, exception){ajaxErrors(e, x, settings, exception);},
                 complete: function(e, x, settings, exception){},
@@ -517,8 +548,90 @@
             $('#lstProduct').select2();
         };
         const LoadCustomerData=async(CustomerID)=>{
-            console.log(CustomerID);
+            if(CustomerID){
+                $.ajax({
+                    type:"post",
+                    url:"{{url('/')}}/admin/users-and-permissions/manage-customers/get/customer-data",
+                    headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
+                    data:{'CustomerID':CustomerID},
+                    dataType:"json",
+                    error:function(e, x, settings, exception){ajaxErrors(e, x, settings, exception);},
+                    complete: function(e, x, settings, exception){},
+                    success:function(response){
+                        $('#txtMobileNo').val(response.MobileNo1);
+                        $('#txtEmail').val(response.Email);
+                        $('#divBillingAddress').html(response.CompleteAddress);
+                        $('#divShippingAddress').html(response.DefaultSAddress);
+                    }
+                });
+            }else{
+                $('#txtMobileNo').val("");
+                $('#txtEmail').val("");
+                $('#divBillingAddress').html("");
+                $('#divShippingAddress').html("");
+            }
         }
+        $(document).on('click','#btnSAChange',function(){
+            let CustomerID = $('#lstCustomer').val();
+            if(CustomerID){
+                $.ajax({
+                    type:"post",
+                    url:"{{url('/')}}/admin/users-and-permissions/manage-customers/get/customer-data",
+                    headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
+                    data:{'CustomerID':CustomerID},
+                    dataType:"json",
+                    error:function(e, x, settings, exception){ajaxErrors(e, x, settings, exception);},
+                    complete: function(e, x, settings, exception){},
+                    success:function(response){
+                        var modalContent = $('<div>');
+                        var table = $('<table>').addClass('table');
+                        var tbody = $('<tbody>');
+    
+                        $.each(response.SAddress, function(index, item) {
+                            var tr = $('<tr>');
+                            var td1 = $('<td>').addClass('pointer').html('<b>' + item.Address + '</b>,<br>' +
+                                item.CityName + ', ' + item.TalukName + ',<br>' +
+                                item.DistrictName + ', ' + item.StateName + ',<br>' +
+                                item.CountryName + ' - ' + item.PostalCode + '.');
+                            var td2 = $('<td>').addClass('text-center').html('<button type="button" class="btn btn-sm btn-outline-danger m-5 btnSelectSAddress" data-id="' + item.AID + '">Select</button>');
+    
+                            tr.append(td1).append(td2);
+                            tbody.append(tr);
+                        });
+    
+                        table.append(tbody);
+                        modalContent.append(table);
+    
+                        bootbox.dialog({
+                            title: 'Select Shipping Address',
+                            message: modalContent,
+                            size: 'medium'
+                        });
+                    }
+                });
+            }
+        });
+        $(document).on('click','.btnSelectSAddress',function(){
+            let CustomerID = $('#lstCustomer').val();
+            if(CustomerID){
+                $.ajax({
+                    type:"post",
+                    url:"{{url('/')}}/admin/users-and-permissions/manage-customers/set-default-address",
+                    headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
+                    data:{'CustomerID':CustomerID,AID : $(this).attr('data-id')},
+                    dataType:"json",
+                    error:function(e, x, settings, exception){ajaxErrors(e, x, settings, exception);},
+                    complete: function(e, x, settings, exception){},
+                    success:function(response){
+                        if(response.status){
+                            $('#lstCustomer').trigger('change');
+                            bootbox.hideAll();
+                        }
+                    }
+                });
+            }
+        });
+
 
         $('#lstCustomer').change(function () {
             LoadCustomerData($(this).val());
@@ -545,7 +658,7 @@
             Load();
         });
 
-        getCustomer();
+        // getCustomer();
         getCategory();
     });
 

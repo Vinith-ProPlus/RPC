@@ -37,6 +37,7 @@ return [
     */
 
     'env' => env('APP_ENV', 'production'),
+    'map_api_key' => env('GOOGLE_MAPS_API_KEY', ''),
 
     /*
     |--------------------------------------------------------------------------
@@ -176,6 +177,8 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
         App\Providers\SocialiteServiceProvider::class,
+        App\Providers\GoogleMapsServiceProvider::class,
+
     ])->toArray(),
 
     /*

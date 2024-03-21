@@ -330,7 +330,7 @@ class VendorsController extends Controller{
 			$status=false;
 			$Logo="";
 			$RemoveImg=array();
-			$uploadingImgs=array();// if save failed than upload images remove
+			$uploadingImgs=array();
 			$isDeleteImage=false;
 			try {
 				$VendorID=DocNum::getDocNum(docTypes::Vendor->value);
@@ -1130,7 +1130,7 @@ class VendorsController extends Controller{
 			return array('status'=>false,'message'=>'Access denined');
 		}
 	}
-    public function updateServiceLocation(Request $req,$VendorID){
+    public function updateServiceLocation(Request $req,$VendorID){ 
         if($this->general->isCrudAllow($this->CRUD,"edit")==true){
             $OldData=array();$NewData=array();
             
@@ -1139,6 +1139,7 @@ class VendorsController extends Controller{
             try{
                 $OldData=$this->getVendor($VendorID);
                 $ServiceLocations=json_decode($req->ServiceLocations);
+				return $ServiceLocations;
 				$ServiceBy = $ServiceLocations->ServiceBy;
 				$ServiceData = $ServiceLocations->ServiceData;
 				if($ServiceBy == "District"){

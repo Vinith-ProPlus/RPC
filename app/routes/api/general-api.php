@@ -32,5 +32,7 @@ Route::controller(GeneralAPIController::class)->group(function () {
     Route::post('/get/support-type','getSupportType');
     Route::post('/get/cms','getCMS');
     Route::post('/get/banner-images','getBannerImages');
+    
+    Route::post('/get/co-ordinates','getCoordinates');
 
 });

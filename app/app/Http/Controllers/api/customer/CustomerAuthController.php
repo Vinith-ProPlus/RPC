@@ -220,7 +220,6 @@ class CustomerAuthController extends Controller{
             return response()->json(['status' => false,'message' => "Customer Register Failed"]);
         }
     }
-
     public function Update(Request $req){
 		$CustomerID = $this->ReferID;
 		$OldData=DB::table('tbl_customer_address as CA')->leftJoin('tbl_customer as C','C.CustomerID','CA.CustomerID')->where('CA.CustomerID',$CustomerID)->get();
@@ -428,6 +427,7 @@ class CustomerAuthController extends Controller{
 		}
 		if($status==true){
 			DB::commit();
+            DB::Table('tbl_customer_cart')->where('CustomerID',$CustomerID)->delete();
             $NewData=DB::table('tbl_customer_address')->where('CustomerID',$CustomerID)->get();
 			$logData=array("Description"=>"Shipping Address Updated","ModuleName"=>"Customer","Action"=>"Update","ReferID"=>$AID,"OldData"=>$OldData,"NewData"=>$NewData,"UserID"=>$this->UserID,"IP"=>$req->ip());
 			logs::Store($logData);
@@ -449,6 +449,7 @@ class CustomerAuthController extends Controller{
         }
         if($status==true){
             DB::commit();
+            DB::Table('tbl_customer_cart')->where('CustomerID',$CustomerID)->delete();
             return response()->json(['status' => true,'message' => "Default Address Set Successfully"]);
         }else{
             DB::rollback();
@@ -516,6 +517,7 @@ class CustomerAuthController extends Controller{
 		];
         return $return;
 	}
+    
     public function getCustomerType(request $req){
 		$return = [
 			'status' => true,
@@ -523,25 +525,36 @@ class CustomerAuthController extends Controller{
 		];
         return $return;
 	}
+
     public function GetCategory(Request $req){
         $pageNo = $req->PageNo ?? 1;
         $perPage = 15;
-    
-        $Category = DB::table('tbl_product_category as PC')->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0);
-    
-        if ($req->has('SearchText') && !empty($req->SearchText)) {
-            $Category->where('PC.PCName', 'like', '%' . $req->SearchText . '%');
+        if ($req->AID) {
+            $AddressData = DB::table('tbl_customer_address')->where('AID',$req->AID)->first();
+            $AllVendors = DB::table('tbl_vendors as V')
+                ->leftJoin('tbl_vendors_service_locations as VSL', 'V.VendorID', 'VSL.VendorID')
+                ->where('V.ActiveStatus', "Active")->where('V.DFlag', 0)->where('VSL.DFlag', 0)
+                ->where('VSL.PostalCodeID', $AddressData->PostalCodeID)->groupBy('VSL.VendorID')->pluck('VSL.VendorID')->toArray();
+
+            $Category = DB::table('tbl_vendors_product_mapping as VPM')
+                ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'VPM.PCID')
+                ->where('VPM.Status', 1)->WhereIn('VPM.VendorID', $AllVendors);
+                if ($req->has('SearchText') && !empty($req->SearchText)) {
+                    $Category->where('PC.PCName', 'like', '%' . $req->SearchText . '%');
+                }
+            $PCatagories = $Category->groupBy('PC.PCID', 'PC.PCName', 'PC.PCImage')
+                ->select('PC.PCID', 'PC.PCName', DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PCImage, ""), "assets/images/no-image-b.png")) AS CategoryImage'))
+                ->paginate($perPage, ['*'], 'page', $pageNo);
+                return response()->json([
+                    'status' => true,
+                    'data' => $PCatagories->items(),
+                    'CurrentPage' => $PCatagories->currentPage(),
+                    'LastPage' => $PCatagories->lastPage(),
+                ]);
+        }else{
+            return response()->json(['status' => false,'message' => "Shipping Address is required!"]);
         }
-    
-        $result = $Category->select('PC.PCName', 'PC.PCID', DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PCImage, ""), "assets/images/no-image-b.png")) AS CategoryImage'))
-            ->paginate($perPage, ['*'], 'page', $pageNo);
-    
-        return response()->json([
-            'status' => true,
-            'data' => $result->items(),
-            'CurrentPage' => $result->currentPage(),
-            'LastPage' => $result->lastPage(),
-        ]);
+        
     }
 	public function GetSubCategory(request $req){
 		$PCID = $req->PCID;
@@ -599,6 +612,7 @@ class CustomerAuthController extends Controller{
             'LastPage' => $products->lastPage(),
         ]);
     }
+    
     public function getCart(Request $req){
         $Cart = DB::table('tbl_customer_cart as C')
         ->leftJoin('tbl_products as P','P.ProductID','C.ProductID')
@@ -673,6 +687,7 @@ class CustomerAuthController extends Controller{
             return response()->json(['status' => false,'message' => "Product Deleted Failed!"]);
         }
     }
+
     public function getCustomerHome(Request $req){
         $CustomerID = $this->ReferID;
         $CustomerHome = [];
