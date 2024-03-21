@@ -5725,12 +5725,7 @@
             letter-spacing:0;
             color:#222529;
             letter-spacing:0
-        }
-        .main-nav .menu>li.active>a,
-        .main-nav .menu>li.show>a,
-        .main-nav .menu>li:hover>a {
-            color:#ff6840
-        }
+      }
         .main-nav .menu>li:first-child>a {
             padding-left:0
         }

@@ -6823,10 +6823,10 @@
             letter-spacing: 0
         }
 
-        .main-nav .menu > li.active > a,
+.main-nav .menu > li.active > a,
         .main-nav .menu > li.show > a,
         .main-nav .menu > li:hover > a {
-            color: #ff6840
+            color: #0f43b0
         }
 
         .main-nav .menu > li:first-child > a {
@@ -12976,9 +12976,12 @@
                                 <i class="custom-icon-toggle-menu d-inline-table"></i><span>All
                                         Categories</span></a>
                             <div class="menu-depart">
-                                @foreach ($PCategories as $row)
-                                    <a href="#">{{$row->PCName}}</a>
+                                @foreach ($PCategories->take(5) as $row)
+                                    <a href="{{ route('products.guest.subCategoryList', [ 'CID' => $row->PCID ]) }}">{{$row->PCName}}</a>
                                 @endforeach
+                                    <div style="text-align: center; display: flex; justify-content: center; align-items: center;">
+                                        <a href="{{ route('products.guest.categoriesList') }}" class="text-center">More</a>
+                                    </div>
                             </div>
                         </li>
                         <li class="{{ (Route::currentRouteName() == "homepage") ? 'active' : '' }}">

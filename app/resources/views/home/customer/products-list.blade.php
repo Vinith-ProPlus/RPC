@@ -6796,10 +6796,10 @@
             letter-spacing: 0
         }
 
-        .main-nav .menu > li.active > a,
+.main-nav .menu > li.active > a,
         .main-nav .menu > li.show > a,
         .main-nav .menu > li:hover > a {
-            color: #ff6840
+            color: #0f43b0
         }
 
         .main-nav .menu > li:first-child > a {

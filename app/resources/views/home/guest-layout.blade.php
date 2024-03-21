@@ -68,7 +68,7 @@
                     <div class="header-left d-md-block">
                         <div class="align-middle" style="display: inline-block;">
                             <div class="info-box info-box-icon-left justify-content-start">
-                                <i class="icon-location" style="color: #0f43b0;"></i>
+                                <i class="icon-location" style="color:#ff6840;"></i>
                                 <div class="align-middle" style="display: inline-block; height: 20px; vertical-align: middle !important;">
                                     <h6 class="font-weight-bold text-dark" style="line-height: 18px;">Delivery Location - </h6>
                                 </div>
@@ -219,9 +219,12 @@
                                 <i class="custom-icon-toggle-menu d-inline-table"></i><span>All
                                         Categories</span></a>
                             <div class="menu-depart">
-                                @foreach ($PCategories as $row)
-                                    <a href="#">{{$row->PCName}}</a>
+                                @foreach ($PCategories->take(5) as $row)
+                                    <a href="{{ route('products.guest.subCategoryList', [ 'CID' => $row->PCID ]) }}">{{$row->PCName}}</a>
                                 @endforeach
+                                    <div style="text-align: center; display: flex; justify-content: center; align-items: center;">
+                                        <a href="{{ route('products.guest.categoriesList') }}" class="text-center">More</a>
+                                    </div>
                             </div>
                         </li>
                         <li class="active">

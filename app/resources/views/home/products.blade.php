@@ -5718,25 +5718,20 @@
         .main-nav .menu>li {
             margin-right:3rem
         }
-        .main-nav .menu>li>a {
-            font-size:1.3rem;
-            font-weight:700;
-            padding:20px 0 21px;
-            letter-spacing:0;
-            color:#222529;
-            letter-spacing:0
+        .main-nav .menu > li > a {
+            font-size: 1.3rem;
+            font-weight: 700;
+            padding: 20px 0 21px;
+            letter-spacing: 0;
+            color: #222529;
+            letter-spacing: 0
         }
-        .main-nav .menu>li.active>a,
-        .main-nav .menu>li.show>a,
-        .main-nav .menu>li:hover>a {
-            color:#ff6840
+        .main-nav .menu > li:first-child > a {
+            padding-left: 0
         }
-        .main-nav .menu>li:first-child>a {
-            padding-left:0
-        }
-        .main-nav .menu>li:not(.float-right)+li.float-right,
-        .main-nav .menu>li:not(.float-right):last-child {
-            margin-right:0
+        .main-nav .menu > li:not(.float-right) + li.float-right,
+        .main-nav .menu > li:not(.float-right):last-child {
+            margin-right: 0
         }
         .main-nav .menu.sf-arrows ul {
             border-top:none

@@ -37,7 +37,12 @@
     <link rel="stylesheet" type="text/css" href="{{url('/')}}/assets/plugins/dataTable/css/bootstrap5.dataTables.min.css?r={{date('YmdHis')}}">
     <link rel="stylesheet" type="text/css" href="{{url('/')}}/assets/css/datatable-extension.css?r={{date('YmdHis')}}">
     {{-- <link rel="stylesheet" type="text/css" href="{{url('/')}}/assets/css/bootstrap.css?r={{date('YmdHis')}}"> --}}
-
+    <style>
+        .menu-depart.opened {
+            visibility: visible;
+            height: 28rem !important;
+        }
+    </style>
     <script>
         WebFontConfig = {
             google: { families: [ 'Open+Sans:400,600', 'Poppins:400,500,600,700' ] }
@@ -68,30 +73,11 @@
     <header class="header">
         <div class="header-top">
             <div class="container">
-                {{-- @if(!$isRegister)
-                    <div class="header-left d-md-block">
-                        <div class="info-box info-box-icon-left text-primary justify-content-start p-0">
-                            <i class="icon-location" style="color: #0f43b0;"></i>
-                            <h6 class="font-weight-bold text-dark">Delivery Location - </h6>
-                            <span><a href="#" class="text-dark">45,Eden Garden, R.S.Puram, 3rd Cross, Coimbatore. 641006</a></span>
-                            <i class="fa fa-arrow"></i>
-                        </div>
-                    </div>
-                    <div class="header-dropdown ">
-                        <a href="#"></a>
-                        <div class="header-menu">
-                            <ul>
-                                <li>45, Eden Garden, Ganapathy, Coimbatore. 641006</li>
-                                <li><a href="#">R.S.Puram, 3rd Cross, Coimbatore. 641003</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                @endif --}}
                 @if(!$isRegister)
                     <div class="header-left d-md-block">
                         <div class="align-middle" style="display: inline-block;">
                             <div class="info-box info-box-icon-left justify-content-start">
-                                <i class="icon-location" style="color: #0f43b0;"></i>
+                                <i class="icon-location" style="color:#ff6840;"></i>
                                 <div class="align-middle" style="display: inline-block; height: 20px; vertical-align: middle !important;">
                                     <h6 class="font-weight-bold text-dark" style="line-height: 18px;">Delivery Location - </h6>
                                 </div>
@@ -247,28 +233,6 @@
                                     @else
                                         <span>Your Cart is Empty!</span>
                                     @endif
-
-                                    {{-- <div class="product">
-                                        <div class="product-details">
-                                            <h4 class="product-title">
-                                                <a href="demo42-product.html">Brown Women Casual HandBag</a>
-                                            </h4>
-
-                                            <span class="cart-product-info">
-                                                <span class="cart-product-qty">1</span>
-                                                × $35.00
-                                            </span>
-                                        </div><!-- End .product-details -->
-
-                                        <figure class="product-image-container">
-                                            <a href="demo42-product.html" class="product-image">
-                                                <img src="assets/images/products/product-2.jpg" alt="product" width="80" height="80">
-                                            </a>
-
-                                            <a href="#" class="btn-remove btnRemoveCart" title="Remove Product"><span>×</span></a>
-                                        </figure>
-                                    </div> --}}
-
                                 </div>
 
                                 <div class="dropdown-cart-action" id="divCartAction">
@@ -290,13 +254,16 @@
                 <nav class="main-nav w-100">
                     <ul class="menu w-100" id="customerNavigationBar">
                         <li class="menu-item d-flex align-items-center">
-                            <a href="{{ route('products.customer.categoriesList') }}" class="d-inline-flex align-items-center sf-with-ul">
+                            <a href="#" class="d-inline-flex align-items-center sf-with-ul">
                                 <i class="custom-icon-toggle-menu d-inline-table"></i><span>All
                                         Categories</span></a>
                             <div class="menu-depart">
-                                @foreach ($PCategories as $row)
-                                    <a href="#">{{$row->PCName}}</a>
+                                @foreach ($PCategories->take(5) as $row)
+                                    <a href="{{ route('products.customer.subCategoryList', [ 'CID' => $row->PCID ]) }}">{{$row->PCName}}</a>
                                 @endforeach
+                                    <div style="text-align: center; display: flex; justify-content: center; align-items: center;">
+                                        <a href="{{ route('products.customer.categoriesList') }}" class="text-center">More</a>
+                                    </div>
                             </div>
                         </li>
                         <li class="{{ (Route::currentRouteName() == "homepage") ? 'active' : '' }}">

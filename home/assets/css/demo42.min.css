@@ -18170,7 +18170,7 @@ aside .widget-info i {
 
 .menu-depart.opened {
 	visibility: visible;
-	height: 22rem
+	height: 26rem !important;
 }
 
 .menu-banner.menu-banner-2 {
