@@ -740,6 +740,8 @@
                 },
                 success: function (response) {
                     if (response.status) {
+                        thiss.text("Added in cart");
+                        thiss.removeClass('btnAddCart btn-add-cart');
                         LoadCart(response.data);
                         UpdateItemQtyCount(response.data.length);
                     }

@@ -169,7 +169,7 @@ Route::get('requested-quotations/view/{EnqID}', [HomeTransactionController::clas
 Route::get('customer-orders', [HomeTransactionController::class, 'orders'])->name('customer-orders');
 Route::get('my-account', [HomeTransactionController::class, 'myAccount'])->name('my-account');
 Route::get('wishlist', [HomeTransactionController::class, 'wishlist'])->name('wishlist');
-Route::get('wishlistTableHtml', [HomeTransactionController::class, 'wishlistTableHtml'])->name('wishlistTableHtml');
+Route::post('wishlistTableHtml', [HomeAuthController::class, 'wishlistTableHtml'])->name('wishlistTableHtml');
 
 
 Route::controller(SocialController::class)->group(function () {

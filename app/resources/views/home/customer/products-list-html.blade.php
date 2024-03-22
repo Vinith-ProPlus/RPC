@@ -43,183 +43,86 @@
         </div>
     </nav>
 </div>
-
-<table class="table table-wishlist mb-0">
-    <thead>
-    <tr>
-        <th class="thumbnail-col"></th>
-        <th class="product-col">Product</th>
-        <th class="status-col">Stock Status</th>
-        <th class="action-col">Actions</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr class="product-row">
-        <td>
-            <figure class="product-image-container">
-                <a href="product.html" class="product-image">
-                    <img src="assets/images/products/product-4.jpg" alt="product">
-                </a>
-
-                <a href="#" class="btn-remove icon-cancel" title="Remove Product"></a>
-            </figure>
-        </td>
-        <td>
-            <h5 class="product-title">
-                <a href="product.html">Men Watch</a>
-            </h5>
-        </td>
-        <td>
-            <span class="stock-status">In stock</span>
-        </td>
-        <td class="action">
-            <a href="ajax/product-quick-view.html" class="btn btn-quickview mt-1 mt-md-0" title="Quick View">Quick
-                View</a>
-            <button class="btn btn-dark btn-add-cart product-type-simple btn-shop">
-                ADD TO CART
-            </button>
-        </td>
-    </tr>
-
-    <tr class="product-row">
-        <td>
-            <figure class="product-image-container">
-                <a href="product.html" class="product-image">
-                    <img src="assets/images/products/product-5.jpg" alt="product">
-                </a>
-
-                <a href="#" class="btn-remove icon-cancel" title="Remove Product"></a>
-            </figure>
-        </td>
-        <td>
-            <h5 class="product-title">
-                <a href="product.html">Men Cap</a>
-            </h5>
-        </td>
-        <td>
-            <span class="stock-status">In stock</span>
-        </td>
-        <td class="action">
-            <a href="ajax/product-quick-view.html" class="btn btn-quickview mt-1 mt-md-0" title="Quick View">Quick
-                View</a>
-            <a href="product.html" class="btn btn-dark btn-add-cart btn-shop">
-                SELECT OPTION
-            </a>
-        </td>
-    </tr>
-
-    <tr class="product-row">
-        <td>
-            <figure class="product-image-container">
-                <a href="product.html" class="product-image">
-                    <img src="assets/images/products/product-6.jpg" alt="product">
-                </a>
-
-                <a href="#" class="btn-remove icon-cancel" title="Remove Product"></a>
-            </figure>
-        </td>
-        <td>
-            <h5 class="product-title">
-                <a href="product.html">Men Black Gentle Belt</a>
-            </h5>
-        </td>
-        <td>
-            <span class="stock-status">In stock</span>
-        </td>
-        <td class="action">
-            <a href="ajax/product-quick-view.html" class="btn btn-quickview mt-1 mt-md-0" title="Quick View">Quick
-                View</a>
-            <a href="product.html" class="btn btn-dark btn-add-cart btn-shop">
-                SELECT OPTION
-            </a>
-        </td>
-    </tr>
-    </tbody>
-</table>
-
-
-
-
-{{--@if(count($productDetails) > 0)--}}
-{{--    <div class="row no-gutters">--}}
-{{--        @foreach($productDetails as $product)--}}
-{{--            @php $rating = rand(50, 100); @endphp--}}
-{{--            @if ($viewType == 'Grid')--}}
-{{--                <div class="col-6 col-sm-4 col-lg-3">--}}
-{{--                    <div class="product-default inner-quickview inner-icon product-div">--}}
-{{--                        <figure>--}}
-{{--                            <a href="#">--}}
-{{--                                <img src="{{ $product->ProductImage }}" width="300" height="300" alt="{{ $product->ProductName }}">--}}
-{{--                            </a>--}}
-{{--                            <div class="label-group"></div>--}}
-{{--                            <div class="btn-icon-group">--}}
-{{--                                <a href="#" class="btn-icon btn-add-cart product-type-simple btnAddCart" id="{{ $product->ProductID }}">--}}
-{{--                                    <i class="icon-shopping-cart"></i>--}}
-{{--                                </a>--}}
-{{--                            </div>--}}
-{{--                            <a href="{{ route('products.quickView', $product->ProductID) }}" class="btn-quickview" title="Quick View">Quick View</a>--}}
-{{--                        </figure>--}}
-{{--                        <div class="product-details">--}}
-{{--                            <div class="category-wrap">--}}
-{{--                                <div class="category-list">--}}
-{{--                                    <a href="#">{{ $product->SubCategoryName }}</a>--}}
-{{--                                </div>--}}
-{{--                                <a href="#" class="btn-icon-wish {{ $product->IsInWishlist ? 'added-wishlist' : '' }}" title="wishlist">--}}
-{{--                                    <i class="icon-heart"></i>--}}
-{{--                                </a>--}}
-{{--                            </div>--}}
-{{--                            <h3 class="product-title">--}}
-{{--                                <a href="#">{{ $product->ProductName }}</a>--}}
-{{--                            </h3>--}}
-{{--                            <div class="ratings-container">--}}
-{{--                                <div class="product-ratings">--}}
-{{--                                    <span class="ratings" style="width: {{ $rating }}%"></span>--}}
-{{--                                    <span class="tooltiptext tooltip-top"></span>--}}
-{{--                                </div>--}}
-{{--                            </div>--}}
-{{--                        </div>--}}
-{{--                    </div>--}}
-{{--                </div>--}}
-{{--            @else--}}
-{{--                <div class="col-sm-12 col-6 product-default left-details product-list mb-2 product-div">--}}
-{{--                    <figure>--}}
-{{--                        <a href="#">--}}
-{{--                            <img src="{{ $product->ProductImage }}" width="250" height="250" alt="product">--}}
-{{--                        </a>--}}
-{{--                    </figure>--}}
-{{--                    <div class="product-details">--}}
-{{--                        <div class="category-list">--}}
-{{--                            <a href="#" class="product-category">{{ $product->SubCategoryName }}</a>--}}
-{{--                        </div>--}}
-{{--                        <h3 class="product-title"><a href="#"> {{ $product->ProductName }}</a></h3>--}}
-{{--                        <div class="ratings-container">--}}
-{{--                            <div class="product-ratings">--}}
-{{--                                <span class="ratings" style="width:{{ $rating }}%"></span>--}}
-{{--                                <span class="tooltiptext tooltip-top"></span>--}}
-{{--                            </div>--}}
-{{--                        </div>--}}
-{{--                        <p class="product-description">{!! $product->Description !!}</p>--}}
-{{--                        <div class="price-box"></div>--}}
-{{--                        <div class="product-action">--}}
-{{--                            <a href="#" class="btn-icon btn-add-cart product-type-simple btnAddCart" id="{{ $product->ProductID }}">--}}
-{{--                                <i class="icon-shopping-cart"></i>--}}
-{{--                                <span>ADD TO CART</span>--}}
-{{--                            </a>--}}
-{{--                            <a href="#" class="btn-icon-wish {{ $product->IsInWishlist ? 'added-wishlist' : '' }}" title="wishlist">--}}
-{{--                                <i class="icon-heart"></i>--}}
-{{--                            </a>--}}
-{{--                            <a href="{{ route('products.quickView', $product->ProductID) }}" class="btn-quickview" title="Quick View">--}}
-{{--                                <i class="fas fa-external-link-alt"></i>--}}
-{{--                            </a>--}}
-{{--                        </div>--}}
-{{--                    </div>--}}
-{{--                </div>--}}
-{{--            @endif--}}
-{{--        @endforeach--}}
-{{--    </div>--}}
-{{--@else--}}
-{{--    <p>No products found.</p>--}}
-{{--@endif--}}
+@if(count($productDetails) > 0)
+    <div class="row no-gutters">
+        @foreach($productDetails as $product)
+            @php $rating = rand(50, 100); @endphp
+            @if ($viewType == 'Grid')
+                <div class="col-6 col-sm-4 col-lg-3">
+                    <div class="product-default inner-quickview inner-icon product-div">
+                        <figure>
+                            <a href="#">
+                                <img src="{{ $product->ProductImage }}" width="300" height="300" alt="{{ $product->ProductName }}">
+                            </a>
+                            <div class="label-group"></div>
+                            <div class="btn-icon-group">
+                                <a href="#" class="btn-icon btn-add-cart product-type-simple btnAddCart" id="{{ $product->ProductID }}">
+                                    <i class="icon-shopping-cart"></i>
+                                </a>
+                            </div>
+                            <a href="{{ route('products.quickView', $product->ProductID) }}" class="btn-quickview" title="Quick View">Quick View</a>
+                        </figure>
+                        <div class="product-details">
+                            <div class="category-wrap">
+                                <div class="category-list">
+                                    <a href="#">{{ $product->SubCategoryName }}</a>
+                                </div>
+                                <a href="#" class="btn-icon-wish {{ $product->IsInWishlist ? 'added-wishlist' : '' }}" title="wishlist">
+                                    <i class="icon-heart"></i>
+                                </a>
+                            </div>
+                            <h3 class="product-title">
+                                <a href="#">{{ $product->ProductName }}</a>
+                            </h3>
+                            <div class="ratings-container">
+                                <div class="product-ratings">
+                                    <span class="ratings" style="width: {{ $rating }}%"></span>
+                                    <span class="tooltiptext tooltip-top"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @else
+                <div class="col-sm-12 col-6 product-default left-details product-list mb-2 product-div">
+                    <figure>
+                        <a href="#">
+                            <img src="{{ $product->ProductImage }}" width="250" height="250" alt="product">
+                        </a>
+                    </figure>
+                    <div class="product-details">
+                        <div class="category-list">
+                            <a href="#" class="product-category">{{ $product->SubCategoryName }}</a>
+                        </div>
+                        <h3 class="product-title"><a href="#"> {{ $product->ProductName }}</a></h3>
+                        <div class="ratings-container">
+                            <div class="product-ratings">
+                                <span class="ratings" style="width:{{ $rating }}%"></span>
+                                <span class="tooltiptext tooltip-top"></span>
+                            </div>
+                        </div>
+                        <p class="product-description">{!! $product->Description !!}</p>
+                        <div class="price-box"></div>
+                        <div class="product-action">
+                            <a href="#" class="btn-icon btn-add-cart product-type-simple btnAddCart" id="{{ $product->ProductID }}">
+                                <i class="icon-shopping-cart"></i>
+                                <span>ADD TO CART</span>
+                            </a>
+                            <a href="#" class="btn-icon-wish {{ $product->IsInWishlist ? 'added-wishlist' : '' }}" title="wishlist">
+                                <i class="icon-heart"></i>
+                            </a>
+                            <a href="{{ route('products.quickView', $product->ProductID) }}" class="btn-quickview" title="Quick View">
+                                <i class="fas fa-external-link-alt"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            @endif
+        @endforeach
+    </div>
+@else
+    <p>No products found.</p>
+@endif
 
 <nav class="toolbox toolbox-pagination">
     <div class="toolbox-item toolbox-show">

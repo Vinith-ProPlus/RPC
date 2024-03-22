@@ -58,9 +58,11 @@
                 </ul>
 
                 <div class="product-action">
-                    <a href="#" class="btn btn-dark add-cart mr-2 btnAddCart" title="Add to Cart" id="{{ $product->ProductID }}">Add to Cart</a>
+                    <a href="#" class="btn btn-dark mr-2 product-type-simple btn-shop {{ $cartProducts->contains('ProductID', $product->ProductID) ? 'added-in-cart' : 'wishlistCartBtn btnAddCart' }}" title="Add to Cart" id="{{ $product->ProductID }}">
+                        {{ $cartProducts->contains('ProductID', $product->ProductID) ? 'Added in Cart' : 'ADD TO CART' }}
+                    </a>
                     <a href="#" class="btn view-cart d-none">View cart</a>
-                </div><!-- End .product-action -->
+                </div>
 
                 <hr class="divider mb-0 mt-0">
 

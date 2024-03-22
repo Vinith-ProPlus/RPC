@@ -124,6 +124,7 @@ class HomeAuthController extends Controller{
 
     public function quickViewHtml($PID)
     {
+        $cartProducts = $this->getCart();
         $customerID = $this->ReferID;
         $product = DB::table('tbl_products as P')->leftJoin('tbl_product_subcategory as PSC','PSC.PSCID','P.SCID')
             ->leftJoin('tbl_product_category as PC','PC.PCID','P.CID')
@@ -141,7 +142,7 @@ class HomeAuthController extends Controller{
             ->where('ProductID', $PID)
             ->pluck(DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(gImage, ""), "assets/images/no-image-b.png")) AS gImage'))
             ->toArray();
-        return view('home.quick-view-html', compact('product'))->render();
+        return view('home.quick-view-html', compact('product', 'cartProducts'))->render();
     }
 
     public function categoriesHtml(Request $request)
@@ -1061,35 +1062,44 @@ class HomeAuthController extends Controller{
 
     public function wishlistTableHtml(Request $request)
     {
-        $productCount = ($request->productCount != 'undefined') ? $request->productCount : 12;
+        $productCount = ((int)($request->productCount) != 0) ? $request->productCount : 12;
         $pageNo = ($request->pageNo != 'undefined') ? $request->pageNo : 1;
         $viewType = $request->viewType ?? 'Grid';
         $orderBy = $request->orderBy ?? '';
 
         $wishListDetails = $this->getWishlistDetails($request);
-        $wishListDetails = $wishListDetails['PCatagories'];
+        logger($wishListDetails);
         $totalWishListCount = $wishListDetails['totalWishListCount'];
+        $wishListDetails = $wishListDetails['wishListDetails'];
 
         $totalPages = ceil($totalWishListCount / $productCount);
         $range = 3;
         if($pageNo > $totalPages){
             $pageNo = $request->pageNo = $totalPages;
             $wishListDetails = $this->getWishlistDetails($request);
-            $wishListDetails = $wishListDetails['PCatagories'];
+            $wishListDetails = $wishListDetails['wishListDetails'];
         }
+        $cartProducts = $this->getCart();
+        logger("cartProducts");
+        logger($cartProducts);
 
         logger("wishListDetails");
         logger($wishListDetails);
 
-        return view('home.wish-list-html', compact('wishListDetails', 'productCount', 'pageNo', 'viewType', 'orderBy', 'range', 'totalPages'))->render();
+        return view('home.customer.wish-list-html', compact('wishListDetails', 'cartProducts', 'productCount', 'pageNo', 'viewType', 'orderBy', 'range', 'totalPages'))->render();
     }
 
     public function getWishlistDetails($request)
     {
+
         if($request->PostalID){
             $customerID = $this->ReferID;
-            $productCount = $request->productCount ?? 12;
+            $productCount = ((int)($request->productCount) != 0) ? $request->productCount : 12;
             $pageNo = $request->pageNo ?? 1;
+
+            logger($request);
+            logger($productCount);
+            logger($pageNo);
             $AllVendors = DB::table('tbl_vendors as V')
                 ->leftJoin('tbl_vendors_service_locations as VSL','V.VendorID','VSL.VendorID')
                 ->where('V.ActiveStatus',"Active")
@@ -1099,20 +1109,20 @@ class HomeAuthController extends Controller{
                 ->pluck('VSL.VendorID')
                 ->toArray();
 
-//            $totalProducts = DB::table('tbl_vendors_product_mapping as VPM')
-//                ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'VPM.PCID')
-//                ->leftJoin('tbl_products as P', 'P.ProductID', 'VPM.ProductID')
-//                ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')
-//                ->where('P.ActiveStatus',"Active")
-//                ->where('P.DFlag',0)
-//                ->where('VPM.Status', 1)
-//                ->WhereIn('VPM.VendorID', $AllVendors)
-//                ->when(isset($request->SubCategoryID), function ($query) use ($request) {
-//                    return $query->where('P.SCID', $request->SubCategoryID);
-//                })
-//                ->groupBy('P.ProductID', 'P.ProductName', 'P.Description', 'P.ProductImage', 'PSC.PSCName')
-//                ->select('P.ProductID')
-//                ->get();
+            $wishListCount = DB::table('tbl_vendors_product_mapping as VPM')
+                ->leftJoin('tbl_products as P', 'P.ProductID', 'VPM.ProductID')
+                ->leftJoin('tbl_wishlists as W', function($join) use ($customerID) {
+                    $join->on('W.product_id', '=', 'P.ProductID')
+                        ->where('W.customer_id', '=', $customerID);
+                })
+                ->where('W.customer_id',$customerID)
+                ->where('P.ActiveStatus',"Active")
+                ->where('P.DFlag',0)
+                ->where('VPM.Status', 1)
+                ->WhereIn('VPM.VendorID', $AllVendors)
+                ->groupBy('P.ProductID', 'P.ProductName', 'P.ProductImage')
+                ->select('P.ProductID')
+                ->count();
 
             $wishListDetails = DB::table('tbl_vendors_product_mapping as VPM')
                 ->leftJoin('tbl_products as P', 'P.ProductID', 'VPM.ProductID')
@@ -1141,7 +1151,7 @@ class HomeAuthController extends Controller{
 
             return [
                 'wishListDetails' => $wishListDetails,
-                'totalWishListCount' => count($wishListDetails)
+                'totalWishListCount' => $wishListCount
             ];
         } else {
             return [

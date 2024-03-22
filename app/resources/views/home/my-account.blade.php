@@ -1089,100 +1089,8 @@
                     <div class="tab-pane fade" id="wishlist" role="tabpanel">
                         <div class="download-content">
                             <h3 class="account-sub-title d-none d-md-block"><i class="sicon-cloud-download align-middle mr-3"></i>Wishlist</h3>
-                            <div class="download-table-container">
+                            <div class="download-table-container" style="margin-top: 20px !important;">
                                 <div class="wishlist-table-container" id="wishlistTableHtml">
-                                    <table class="table table-wishlist mb-0">
-                                        <thead>
-                                        <tr>
-                                            <th class="thumbnail-col"></th>
-                                            <th class="product-col">Product</th>
-                                            <th class="status-col">Stock Status</th>
-                                            <th class="action-col">Actions</th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        <tr class="product-row">
-                                            <td>
-                                                <figure class="product-image-container">
-                                                    <a href="product.html" class="product-image">
-                                                        <img src="assets/images/products/product-4.jpg" alt="product">
-                                                    </a>
-
-                                                    <a href="#" class="btn-remove icon-cancel" title="Remove Product"></a>
-                                                </figure>
-                                            </td>
-                                            <td>
-                                                <h5 class="product-title">
-                                                    <a href="product.html">Men Watch</a>
-                                                </h5>
-                                            </td>
-                                            <td>
-                                                <span class="stock-status">In stock</span>
-                                            </td>
-                                            <td class="action">
-                                                <a href="ajax/product-quick-view.html" class="btn btn-quickview mt-1 mt-md-0" title="Quick View">Quick
-                                                    View</a>
-                                                <button class="btn btn-dark btn-add-cart product-type-simple btn-shop">
-                                                    ADD TO CART
-                                                </button>
-                                            </td>
-                                        </tr>
-
-                                        <tr class="product-row">
-                                            <td>
-                                                <figure class="product-image-container">
-                                                    <a href="product.html" class="product-image">
-                                                        <img src="assets/images/products/product-5.jpg" alt="product">
-                                                    </a>
-
-                                                    <a href="#" class="btn-remove icon-cancel" title="Remove Product"></a>
-                                                </figure>
-                                            </td>
-                                            <td>
-                                                <h5 class="product-title">
-                                                    <a href="product.html">Men Cap</a>
-                                                </h5>
-                                            </td>
-                                            <td>
-                                                <span class="stock-status">In stock</span>
-                                            </td>
-                                            <td class="action">
-                                                <a href="ajax/product-quick-view.html" class="btn btn-quickview mt-1 mt-md-0" title="Quick View">Quick
-                                                    View</a>
-                                                <a href="product.html" class="btn btn-dark btn-add-cart btn-shop">
-                                                    SELECT OPTION
-                                                </a>
-                                            </td>
-                                        </tr>
-
-                                        <tr class="product-row">
-                                            <td>
-                                                <figure class="product-image-container">
-                                                    <a href="product.html" class="product-image">
-                                                        <img src="assets/images/products/product-6.jpg" alt="product">
-                                                    </a>
-
-                                                    <a href="#" class="btn-remove icon-cancel" title="Remove Product"></a>
-                                                </figure>
-                                            </td>
-                                            <td>
-                                                <h5 class="product-title">
-                                                    <a href="product.html">Men Black Gentle Belt</a>
-                                                </h5>
-                                            </td>
-                                            <td>
-                                                <span class="stock-status">In stock</span>
-                                            </td>
-                                            <td class="action">
-                                                <a href="ajax/product-quick-view.html" class="btn btn-quickview mt-1 mt-md-0" title="Quick View">Quick
-                                                    View</a>
-                                                <a href="product.html" class="btn btn-dark btn-add-cart btn-shop">
-                                                    SELECT OPTION
-                                                </a>
-                                            </td>
-                                        </tr>
-                                        </tbody>
-                                    </table>
                                 </div>
                             </div>
                         </div>
@@ -1458,20 +1366,20 @@
                 var formData = new FormData();
 
                 formData.append('PostalID', $('#customerSelectedAddress').attr('data-selected-postal-id'));
-                formData.append('productCount', $('#productCountSelect').val());
+                formData.append('productCount', parseInt($('#productCountSelect').val()));
                 formData.append('orderBy', $('#orderBySelect').val());
                 formData.append('viewType', viewType);
                 formData.append('pageNo', current_page_no);
 
                 $.ajax({
-                    url: '{{ route('products.customer.productsListHtml') }}',
+                    url: '{{ route('wishlistTableHtml') }}',
                     headers: {'X-CSRF-Token': '{{ csrf_token() }}'},
                     type: 'POST',
                     data: formData,
                     processData: false,
                     contentType: false,
                     success: function (response) {
-                        $('#productDetailsDiv').html(response);
+                        $('#wishlistTableHtml').html(response);
                         $('#productCountSelect').change(function () {
                             var selectedValue = $(this).val();
                             $('#productCountSelect2').val(selectedValue);

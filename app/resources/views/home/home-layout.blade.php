@@ -584,6 +584,7 @@
 
         $(document).on('click', '.btnAddCart', function () {
 
+            let thiss = $(this);
             let FormData = {
                 'ProductID': $(this).attr('id'),
             }
@@ -600,6 +601,18 @@
                 },
                 success: function (response) {
                     if (response.status) {
+                        if (thiss.hasClass('wishlistCartBtn')) {
+                            thiss.text("Added in cart");
+                        }
+                        if ($('#wishlistTableHtml').length){
+                            var $wishlistButton = $('#wishlistTableHtml').find('.btnAddCart#' + thiss.attr('id'));
+                            thiss.removeClass('wishlistCartBtn btnAddCart btn-add-cart add-cart');
+                            thiss.addClass('added-in-cart');
+                            $wishlistButton.attr('class', thiss.attr('class'));
+                            $wishlistButton.html(thiss.html());
+                        }
+                        thiss.addClass('added-in-cart');
+                        thiss.removeClass('wishlistCartBtn btnAddCart btn-add-cart add-cart');
                         LoadCart(response.data);
                         UpdateItemQtyCount(response.data.length);
                     }

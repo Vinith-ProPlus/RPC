@@ -1966,6 +1966,9 @@
 					$this.addClass('load-more-overlay loading');
 					let RootUrl = $('#txtRootUrl').val();
 					let product_id = $(this).closest('.product-div').find('.btnAddCart').attr('id');
+					if (!product_id || product_id.trim() === '') {
+						product_id = $(this).closest('.product-div').find('.added-in-cart').attr('id');
+					}
 					var formData = new FormData();
 					formData.append('product_id', product_id);
 
@@ -1997,6 +2000,7 @@
 										$element.find('.btn-icon-wish').attr('title', 'Remove from Wishlist');
 									}
 								});
+								$('#wishlist-tab').click();
 								setTimeout(function () {
 									$('.wishlist-popup').removeClass('active');
 								}, 3000);
@@ -2028,7 +2032,9 @@
 					$this.addClass('load-more-overlay loading');
 					let RootUrl = $('#txtRootUrl').val();
 					let product_id = $(this).closest('.product-div').find('.btnAddCart').attr('id');
-
+					if (!product_id || product_id.trim() === '') {
+						product_id = $(this).closest('.product-div').find('.added-in-cart').attr('id');
+					}
 					var formData = new FormData();
 					formData.append('product_id', product_id);
 
@@ -2060,6 +2066,8 @@
 										$element.find('.btn-icon-wish').attr('title', 'Add to Wishlist');
 									}
 								});
+
+								$('#wishlist-tab').click();
 
 								setTimeout(function () {
 									$('.wishlist-popup').removeClass('active');
