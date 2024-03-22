@@ -79,24 +79,18 @@ class HomeTransactionController extends Controller{
 
     public function quotations(Request $request)
     {
-        $RecentProducts = DB::table('tbl_products as P')->leftJoin('tbl_product_subcategory as PSC','PSC.PSCID','P.SCID')->where('P.ActiveStatus','Active')->where('P.DFlag',0)->select('P.ProductID','P.ProductName','P.ProductImage','PSC.PSCName')
-            ->inRandomOrder()->take(18)->get()->toArray();
-
-        foreach($RecentProducts as $data){
-            $data->ProductImage = $data->ProductImage ? 'https://rpc.prodemo.in/'.$data->ProductImage :url('/') . '/'.'assets/images/no-image-b.png';
-        }
-        $CustomerID = $this->ReferID;
-        $FormData['Company']=$this->Company;
-        $FormData['PCategories']=$this->PCategories;
-        $FormData['isRegister']=false;
-        $FormData['Cart']=$this->getCart();
-        $FormData['ShippingAddress']= $this->shippingAddress;
+        $FormData['Company'] = $this->Company;
+        $PCatagories = DB::Table('tbl_product_category')->where('ActiveStatus', 'Active')->where('DFlag', 0)->select('PCName', 'PCID', 'PCImage')
+            ->inRandomOrder()->take(10)->get();
+        $FormData['PCategories'] = $PCatagories;
+        $FormData['isRegister'] = false;
+        $FormData['Cart'] = $this->getCart();
+        $FormData['ShippingAddress'] = $this->shippingAddress;
         return view('home.quotations', $FormData);
     }
 
     public function quotationData(Request $request)
     {
-        logger($request);
         $columns = [
             ['db' => 'EnqNo', 'dt' => '0'],
             ['db' => 'EnqDate', 'dt' => '1', 'formatter' => function ($d, $row) {
@@ -146,12 +140,6 @@ class HomeTransactionController extends Controller{
     }
 
     public function QuoteView(Request $req,$EnqID){
-        logger($req);
-        logger($EnqID);
-//            $FormData=$this->general->UserInfo;
-//            $FormData['menus']=$this->Menus;
-//            $FormData['crud']=$this->CRUD;
-//            $FormData['ActiveMenuName']=$this->ActiveMenuName;
         $FormData['PageTitle'] = $this->PageTitle;
         $CustomerID = $this->ReferID;
         $FormData['Company']=$this->Company;
@@ -216,7 +204,6 @@ class HomeTransactionController extends Controller{
                 $FormData['PData'] = $PData;
                 $FormData['VendorQuote'] = $VendorQuote;
                 $FormData['FinalQuoteData'] = $FinalQuoteData;
-                // return $FormData['VendorQuote'];
                 return view('home.quote-view', $FormData);
             }else{
                 return view('errors.403');
@@ -228,6 +215,34 @@ class HomeTransactionController extends Controller{
         logger("orders");
         logger($request);
         logger($request->ip());
+    }
+
+    public function myAccount(Request $request)
+    {
+        $FormData['Company'] = $this->Company;
+        $PCatagories = DB::Table('tbl_product_category')->where('ActiveStatus', 'Active')->where('DFlag', 0)
+            ->select('PCName', 'PCID',
+                DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PCImage, ""), "assets/images/no-image-b.png")) AS PCImage'))
+            ->inRandomOrder()->take(10)->get();
+        $FormData['PCategories'] = $PCatagories;
+        $FormData['isRegister'] = false;
+        $FormData['Cart'] = $this->getCart();
+        $FormData['ShippingAddress'] = $this->shippingAddress;
+        return view('home.my-account', $FormData);
+    }
+
+    public function wishlist(Request $request)
+    {
+        $FormData['Company'] = $this->Company;
+        $PCatagories = DB::Table('tbl_product_category')->where('ActiveStatus', 'Active')->where('DFlag', 0)
+            ->select('PCName', 'PCID',
+                DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PCImage, ""), "assets/images/no-image-b.png")) AS PCImage'))
+            ->inRandomOrder()->take(10)->get();
+        $FormData['PCategories'] = $PCatagories;
+        $FormData['isRegister'] = false;
+        $FormData['Cart'] = $this->getCart();
+        $FormData['ShippingAddress'] = $this->shippingAddress;
+        return view('home.wishlist', $FormData);
     }
 
 	public function getCart(){

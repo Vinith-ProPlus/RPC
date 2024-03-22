@@ -24,6 +24,7 @@
     <link rel="stylesheet" href="{{url('/')}}/home/assets/css/slider.css">
     <link rel="stylesheet" href="{{url('/')}}/home/assets/css/demo42.min.css">
     <link rel="stylesheet" href="{{url('/')}}/home/assets/css/toastr.css">
+    <link rel="stylesheet" href="{{url('/')}}/assets/home/vendor/simple-line-icons/css/simple-line-icons.min.css">
     {{-- <link rel="stylesheet" href="{{url('/')}}/home/assets/css/style.min.css"> --}}
     <link rel="stylesheet" type="text/css" href="{{url('/')}}/home/assets/vendor/fontawesome-free/css/all.min.css">
     <link rel="stylesheet" type="text/css" href="{{url('/')}}/assets/plugins/image-cropper/cropper.css?r={{date('YmdHis')}}">
@@ -37,12 +38,6 @@
     <link rel="stylesheet" type="text/css" href="{{url('/')}}/assets/plugins/dataTable/css/bootstrap5.dataTables.min.css?r={{date('YmdHis')}}">
     <link rel="stylesheet" type="text/css" href="{{url('/')}}/assets/css/datatable-extension.css?r={{date('YmdHis')}}">
     {{-- <link rel="stylesheet" type="text/css" href="{{url('/')}}/assets/css/bootstrap.css?r={{date('YmdHis')}}"> --}}
-    <style>
-        .menu-depart.opened {
-            visibility: visible;
-            height: 28rem !important;
-        }
-    </style>
     <script>
         WebFontConfig = {
             google: { families: [ 'Open+Sans:400,600', 'Poppins:400,500,600,700' ] }
@@ -308,6 +303,9 @@
                             </li>
                             <li>
                                 <a href="{{ route('customer-orders') }}">Orders</a>
+                            </li>
+                            <li>
+                                <a href="{{ route('my-account') }}">My Account</a>
                             </li>
                         @endif
                     </ul>

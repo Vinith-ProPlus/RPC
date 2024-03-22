@@ -34,7 +34,10 @@ class HomeAuthController extends Controller{
 		$this->generalDB=Helper::getGeneralDB();
 		$this->tmpDB=Helper::getTmpDB();
 		$this->logDB=Helper::getLogDB();
-        $this->PCategories= DB::Table('tbl_product_category')->where('ActiveStatus','Active')->where('DFlag',0)->select('PCName','PCID','PCImage')->get()->toArray();
+        $this->PCategories = DB::Table('tbl_product_category')->where('ActiveStatus','Active')->where('DFlag',0)
+            ->select('PCName','PCID',
+                DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PCImage, ""), "assets/images/no-image-b.png")) AS PCImage'))
+            ->inRandomOrder()->take(10)->get();
 		$this->FileTypes=Helper::getFileTypes(array("category"=>array("Images","Documents")));
 		$CompanyData= DB::table('tbl_company_settings')->select('KeyName','KeyValue')->get();
 		$Company= [];
@@ -205,7 +208,7 @@ class HomeAuthController extends Controller{
 			return view('errors.403');
 		}
     }
-	
+
 	public function Save(Request $req){
 		$OldData=array();$NewData=array();$CustomerID="";
 
@@ -1054,6 +1057,98 @@ class HomeAuthController extends Controller{
             $productDetails = $productsData['productDetails'];
         }
         return view('home.customer.products-list-html', compact('productDetails', 'productCount', 'pageNo', 'viewType', 'orderBy', 'range', 'totalPages'))->render();
+    }
+
+    public function wishlistTableHtml(Request $request)
+    {
+        $productCount = ($request->productCount != 'undefined') ? $request->productCount : 12;
+        $pageNo = ($request->pageNo != 'undefined') ? $request->pageNo : 1;
+        $viewType = $request->viewType ?? 'Grid';
+        $orderBy = $request->orderBy ?? '';
+
+        $wishListDetails = $this->getWishlistDetails($request);
+        $wishListDetails = $wishListDetails['PCatagories'];
+        $totalWishListCount = $wishListDetails['totalWishListCount'];
+
+        $totalPages = ceil($totalWishListCount / $productCount);
+        $range = 3;
+        if($pageNo > $totalPages){
+            $pageNo = $request->pageNo = $totalPages;
+            $wishListDetails = $this->getWishlistDetails($request);
+            $wishListDetails = $wishListDetails['PCatagories'];
+        }
+
+        logger("wishListDetails");
+        logger($wishListDetails);
+
+        return view('home.wish-list-html', compact('wishListDetails', 'productCount', 'pageNo', 'viewType', 'orderBy', 'range', 'totalPages'))->render();
+    }
+
+    public function getWishlistDetails($request)
+    {
+        if($request->PostalID){
+            $customerID = $this->ReferID;
+            $productCount = $request->productCount ?? 12;
+            $pageNo = $request->pageNo ?? 1;
+            $AllVendors = DB::table('tbl_vendors as V')
+                ->leftJoin('tbl_vendors_service_locations as VSL','V.VendorID','VSL.VendorID')
+                ->where('V.ActiveStatus',"Active")
+                ->where('V.DFlag',0)
+                ->where('VSL.PostalCodeID',$request->PostalID)
+                ->groupBy('VSL.VendorID')
+                ->pluck('VSL.VendorID')
+                ->toArray();
+
+//            $totalProducts = DB::table('tbl_vendors_product_mapping as VPM')
+//                ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'VPM.PCID')
+//                ->leftJoin('tbl_products as P', 'P.ProductID', 'VPM.ProductID')
+//                ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')
+//                ->where('P.ActiveStatus',"Active")
+//                ->where('P.DFlag',0)
+//                ->where('VPM.Status', 1)
+//                ->WhereIn('VPM.VendorID', $AllVendors)
+//                ->when(isset($request->SubCategoryID), function ($query) use ($request) {
+//                    return $query->where('P.SCID', $request->SubCategoryID);
+//                })
+//                ->groupBy('P.ProductID', 'P.ProductName', 'P.Description', 'P.ProductImage', 'PSC.PSCName')
+//                ->select('P.ProductID')
+//                ->get();
+
+            $wishListDetails = DB::table('tbl_vendors_product_mapping as VPM')
+                ->leftJoin('tbl_products as P', 'P.ProductID', 'VPM.ProductID')
+                ->leftJoin('tbl_wishlists as W', function($join) use ($customerID) {
+                    $join->on('W.product_id', '=', 'P.ProductID')
+                        ->where('W.customer_id', '=', $customerID);
+                })
+                ->where('W.customer_id',$customerID)
+                ->where('P.ActiveStatus',"Active")
+                ->where('P.DFlag',0)
+                ->where('VPM.Status', 1)
+                ->WhereIn('VPM.VendorID', $AllVendors)
+                ->when($request->has('orderBy') && in_array($request->orderBy, ['new', 'popularity']), function ($query) use ($request) {
+                    if ($request->orderBy == "new"){
+                        return $query->orderBy('P.CreatedOn', 'desc');
+                    } elseif ($request->orderBy == "popularity"){
+                        return $query->orderBy('P.CreatedOn', 'asc');
+                    }
+                })
+                ->groupBy('P.ProductID', 'P.ProductName', 'P.ProductImage')
+                ->select('P.ProductID', 'P.ProductName',
+                    DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'))
+                ->skip(($pageNo - 1) * $productCount)
+                ->take($productCount)
+                ->get();
+
+            return [
+                'wishListDetails' => $wishListDetails,
+                'totalWishListCount' => count($wishListDetails)
+            ];
+        } else {
+            return [
+                'wishListDetails' => [],
+                'totalWishListCount' => 0
+            ];
+        }
     }
 
 }

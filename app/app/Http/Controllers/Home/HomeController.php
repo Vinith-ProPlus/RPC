@@ -42,13 +42,11 @@ class HomeController extends Controller
                     DB::raw('IF(W.product_id IS NOT NULL, true, false) AS IsInWishlist'))
                 ->inRandomOrder()
                 ->take(10)
-                ->get()
-                ->toArray();
+                ->get();
 
             $FormData['PCategories'] = $PCatagories;
-            shuffle($RecentProducts);
-            $FormData['HotProducts'] = $RecentProducts;
-            $FormData['RecentProducts'] = $RecentProducts;
+            $FormData['HotProducts'] = $RecentProducts->shuffle();
+            $FormData['RecentProducts'] = $RecentProducts->shuffle();
             $FormData['isRegister'] = false;
             $FormData['Cart'] = DB::table('tbl_customer_cart as C')->join('tbl_products as P', 'P.ProductID', 'C.ProductID')->join('tbl_product_category as PC', 'PC.PCID', 'P.CID')->join('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')->join('tbl_uom as U', 'U.UID', 'P.UID')
                 ->where('C.CustomerID', $CustomerID)->where('P.ActiveStatus', 'Active')->where('P.DFlag', 0)->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)->where('PSC.ActiveStatus', 'Active')->where('PSC.DFlag', 0)
@@ -63,7 +61,6 @@ class HomeController extends Controller
                 ->join($generalDB . 'tbl_postalcodes as PC', 'PC.PID', 'CA.PostalCodeID')
                 ->select('CA.AID', 'CA.Address', 'CA.isDefault', 'CA.CountryID', 'C.CountryName', 'CA.StateID', 'S.StateName', 'CA.DistrictID', 'D.DistrictName', 'CA.TalukID', 'T.TalukName', 'CA.CityID', 'CI.CityName', 'CA.PostalCodeID', 'PC.PostalCode')
                 ->get();
-            logger($RecentProducts);
 
             return view('home.home', $FormData);
         } else {
@@ -73,13 +70,11 @@ class HomeController extends Controller
                     DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(P.ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'))
                 ->inRandomOrder()
                 ->take(10)
-                ->get()
-                ->toArray();
+                ->get();
 
             $FormData['PCategories'] = $PCatagories;
-            shuffle($RecentProducts);
-            $FormData['HotProducts'] = $RecentProducts;
-            $FormData['RecentProducts'] = $RecentProducts;
+            $FormData['HotProducts'] = $RecentProducts->shuffle();
+            $FormData['RecentProducts'] = $RecentProducts->shuffle();
             return view('home.guest-home', $FormData);
         }
     }
@@ -215,7 +210,6 @@ class HomeController extends Controller
 
     public function getProductDetails(Request $request)
     {
-        logger('gyueuyfewf');
         $productCount = ($request->productCount != 'undefined') ? $request->productCount : 12;
         $pageNo = ($request->pageNo != 'undefined') ? $request->pageNo : 1;
         $AllVendors = DB::table('tbl_vendors as V')
@@ -280,6 +274,8 @@ class HomeController extends Controller
             ->select('PCName', 'PCID',
                 DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PCImage, ""), "assets/images/no-image-b.png")) AS PCImage'))
             ->inRandomOrder()->get();
+//        $PCatagories = DB::Table('tbl_product_category')->where('ActiveStatus','Active')->where('DFlag',0)->select('PCName','PCID', DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PCImage, ""), "assets/images/no-image-b.png")) AS PCImage'))
+//            ->inRandomOrder()->take(10)->get();
         $FormData['PCategories'] = $PCatagories;
         $FormData['isRegister'] = false;
         $FormData['Cart'] = [];
