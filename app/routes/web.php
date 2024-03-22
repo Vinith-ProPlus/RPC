@@ -170,6 +170,8 @@ Route::get('customer-orders', [HomeTransactionController::class, 'orders'])->nam
 Route::get('my-account', [HomeTransactionController::class, 'myAccount'])->name('my-account');
 Route::get('wishlist', [HomeTransactionController::class, 'wishlist'])->name('wishlist');
 Route::post('wishlistTableHtml', [HomeAuthController::class, 'wishlistTableHtml'])->name('wishlistTableHtml');
+Route::post('customerHomeSearch', [HomeAuthController::class, 'customerHomeSearch'])->name('customerHomeSearch');
+Route::post('guestHomeSearch', [HomeController::class, 'guestHomeSearch'])->name('guestHomeSearch');
 
 
 Route::controller(SocialController::class)->group(function () {

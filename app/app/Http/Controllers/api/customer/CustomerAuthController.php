@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\api\customer;
 
+use App\helper\helper;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
@@ -9,7 +10,6 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Redirect;
 use DB;
 use Auth;
-use Helper;
 use Laravel\Passport\RefreshToken;
 use Laravel\Passport\Token;
 use activeMenuNames;
@@ -41,12 +41,12 @@ class CustomerAuthController extends Controller{
 			return $next($request);
 		});
     }
-    public function Register(Request $req){ 
+    public function Register(Request $req){
         $reqData = $req->all();
 
         $NewData=$OldData=[];
 		$ValidDB=[];
-			
+
         $ValidDB['Country']['TABLE']=$this->generalDB."tbl_countries";
         $ValidDB['Country']['ErrMsg']="Country name does not exist";
         $ValidDB['Country']['WHERE'][]=array("COLUMN"=>"CountryID","CONDITION"=>"=","VALUE"=>$reqData['CountryID']);
@@ -97,7 +97,7 @@ class CustomerAuthController extends Controller{
         $ValidDB['City']['WHERE'][]=array("COLUMN"=>"ActiveStatus","CONDITION"=>"=","VALUE"=>"Active");
         $ValidDB['City']['WHERE'][]=array("COLUMN"=>"DFlag","CONDITION"=>"=","VALUE"=>0);
 
-        
+
         $rules=array(
             'MobileNo1' =>['required','max:10',new ValidUnique(array("TABLE"=>"tbl_customer","WHERE"=>" MobileNo1='".$req->MobileNo1."'  "),"This Mobile Number is already taken.")],
             'Email' =>['required','max:50',new ValidUnique(array("TABLE"=>"tbl_customer","WHERE"=>" Email='".$req->Email."'  "),"This Email is already taken.")],
@@ -208,7 +208,7 @@ class CustomerAuthController extends Controller{
 		$CustomerID = $this->ReferID;
 		$OldData=DB::table('tbl_customer_address as CA')->leftJoin('tbl_customer as C','C.CustomerID','CA.CustomerID')->where('CA.CustomerID',$CustomerID)->get();
 		$NewData=array();
-		
+
 		$rules=array(
 			'MobileNo1' =>['required','max:10',new ValidUnique(array("TABLE"=>"tbl_customer","WHERE"=>" MobileNo1='".$req->MobileNo1."' and CustomerID <> '".$CustomerID."' "),"This Mobile Number is already taken.")],
 		);
@@ -263,7 +263,7 @@ class CustomerAuthController extends Controller{
                     $SAddress=json_decode($req->SAddress,true);
                     foreach($SAddress as $row){
                         if($row['AID']){
-                            $AIDs[] = $row['AID']; 
+                            $AIDs[] = $row['AID'];
                             $data=array(
                                 "Address"=>$row['Address'],
                                 "PostalCodeID"=>$row['PostalCodeID'],
@@ -331,7 +331,7 @@ class CustomerAuthController extends Controller{
                 }
 				$status=DB::Table('users')->where('UserID',$this->UserID)->where('ReferID',$CustomerID)->update($Udata);
             }
-			
+
 		}catch(Exception $e) {
 			$status=false;
 		}
@@ -440,7 +440,7 @@ class CustomerAuthController extends Controller{
             return response()->json(['status' => false,'message' => "Default Address Set Failed!"]);
         }
     }
-    public function DeleteSAddress(Request $req){ 
+    public function DeleteSAddress(Request $req){
         $CustomerID = $this->ReferID;
         DB::beginTransaction();
         $status=false;
@@ -540,10 +540,10 @@ class CustomerAuthController extends Controller{
 
         $pageNo = $req->PageNo ?? 1;
         $perPage = 15;
-	
+
         if ($req->AID) {
             $AllVendors = Helper::getAvailableVendors($req->AID);
-            
+
             $SubCategory = DB::table('tbl_vendors_product_mapping as VPM')
                 ->leftJoin('tbl_product_subcategory as PSC','PSC.PSCID','VPM.PSCID')
                 ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'PSC.PCID')
@@ -565,7 +565,7 @@ class CustomerAuthController extends Controller{
         }else{
             return response()->json(['status' => false,'message' => "Shipping Address is required!"]);
         }
-        
+
 	}
     public function GetProducts(Request $req){
         $PCID = $req->PCID;
@@ -573,11 +573,11 @@ class CustomerAuthController extends Controller{
         $PCIDs = is_array($PCID) ? $PCID : [$PCID];
         $PSCIDs = is_array($PSCID) ? $PSCID : [$PSCID];
         $pageNo = $req->PageNo ?? 1;
-        $perPage = 15;       
+        $perPage = 15;
 
         if ($req->AID) {
             $AllVendors = Helper::getAvailableVendors($req->AID);
-            
+
             $products = DB::table('tbl_vendors_product_mapping as VPM')
                 ->leftJoin('tbl_products as P','P.ProductID','VPM.ProductID')
                 ->leftJoin('tbl_product_subcategory as PSC','PSC.PSCID','P.SCID')
@@ -611,7 +611,7 @@ class CustomerAuthController extends Controller{
             return response()->json(['status' => false,'message' => "Shipping Address is required!"]);
         }
     }
-    
+
     public function getCart(Request $req){
         $Cart = DB::table('tbl_customer_cart as C')
         ->leftJoin('tbl_products as P','P.ProductID','C.ProductID')
@@ -626,7 +626,7 @@ class CustomerAuthController extends Controller{
 
         return response()->json(['status' => true,'data' => $Cart]);
     }
-    public function AddCart(Request $req){ 
+    public function AddCart(Request $req){
         DB::beginTransaction();
         $status=false;
         try {
@@ -651,7 +651,7 @@ class CustomerAuthController extends Controller{
             return response()->json(['status' => false,'message' => "Product add to Cart Failed!"]);
         }
     }
-    public function UpdateCart(Request $req){ 
+    public function UpdateCart(Request $req){
         DB::beginTransaction();
         $status=false;
         try {
@@ -670,7 +670,7 @@ class CustomerAuthController extends Controller{
             ]);
         }
     }
-    public function DeleteCart(Request $req){ 
+    public function DeleteCart(Request $req){
         DB::beginTransaction();
         $status=false;
         try {
@@ -692,7 +692,7 @@ class CustomerAuthController extends Controller{
             $CustomerHome = [];
 
             $AllVendors = Helper::getAvailableVendors($req->AID);
-            
+
             $products = DB::table('tbl_vendors_product_mapping as VPM')
                 ->leftJoin('tbl_products as P','P.ProductID','VPM.ProductID')
                 ->leftJoin('tbl_product_subcategory as PSC','PSC.PSCID','P.SCID')
@@ -725,10 +725,10 @@ class CustomerAuthController extends Controller{
 	}
     public function getCustomerHomeSearchd(Request $req){
         $PostalID = $req->PostalID ?? DB::table('tbl_customer')->where('CustomerID',$this->ReferID)->value('PostalCodeID');
-        
+
         if($PostalID && $req->SearchText){
             $AllVendors = DB::table('tbl_vendors as V')->leftJoin('tbl_vendors_service_locations as VSL','V.VendorID','VSL.VendorID')->where('V.ActiveStatus',"Active")->where('V.DFlag',0)->where('VSL.PostalCodeID',$PostalID)->groupBy('VSL.VendorID')->pluck('VSL.VendorID')->toArray();
-            
+
             $query1 = DB::table('tbl_product_category as PC')
                 ->rightJoin('tbl_product_subcategory as PSC', 'PSC.PCID', 'PC.PCID')
                 ->rightJoin('tbl_products as P', 'PSC.PSCID', 'P.SCID')
@@ -800,7 +800,7 @@ class CustomerAuthController extends Controller{
                     ->select('P.ProductID', 'P.ProductName', 'PC.PCID', 'PC.PCName', 'PSC.PSCID', 'PSC.PSCName')->take(3)->get();
 
                 $ProductData = ['PCategories'=>$PCategories,'PSCategories'=>$PSCategories,'Products'=>$Products];
-                
+
                 return response()->json(['status' => true, 'data' => $ProductData ]);
             }
         }else{

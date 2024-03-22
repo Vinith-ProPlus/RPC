@@ -1161,4 +1161,47 @@ class HomeAuthController extends Controller{
         }
     }
 
+    public function customerHomeSearch(Request $req)
+    {
+        if ($req->AID) {
+            if ($req->SearchText) {
+                $AllVendors = Helper::getAvailableVendors($req->AID);
+
+                $PCategories = DB::table('tbl_product_category as PC')
+                    ->rightJoin('tbl_vendors_product_mapping as VPM', 'PC.PCID', 'VPM.PCID')
+                    ->where('VPM.Status', 1)
+                    ->whereIn('VPM.VendorID', $AllVendors)
+                    ->where('PC.PCName', 'like', '%' . $req->SearchText . '%')
+                    ->groupBy('PC.PCID', 'PC.PCName')
+                    ->select('PC.PCID', 'PC.PCName')->take(3)->get();
+
+                $PSCategories = DB::table('tbl_product_subcategory as PSC')
+                    ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'PSC.PCID')
+                    ->rightJoin('tbl_vendors_product_mapping as VPM', 'PSC.PSCID', 'VPM.PSCID')
+                    ->where('VPM.Status', 1)
+                    ->whereIn('VPM.VendorID', $AllVendors)
+                    ->where('PSC.PSCName', 'like', '%' . $req->SearchText . '%')
+                    ->groupBy('PC.PCID', 'PC.PCName', 'PSC.PSCID', 'PSC.PSCName')
+                    ->select('PC.PCID', 'PC.PCName', 'PSC.PSCID', 'PSC.PSCName')->take(3)->get();
+
+                $Products = DB::table('tbl_products as P')
+                    ->leftJoin('tbl_product_subcategory as PSC', 'P.SCID', 'PSC.PSCID')
+                    ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'PSC.PCID')
+                    ->rightJoin('tbl_vendors_product_mapping as VPM', 'P.ProductID', 'VPM.ProductID')
+                    ->where('VPM.Status', 1)
+                    ->whereIn('VPM.VendorID', $AllVendors)
+                    ->where('P.ProductName', 'like', '%' . $req->SearchText . '%')
+                    ->groupBy('P.ProductID', 'P.ProductName', 'PC.PCID', 'PC.PCName', 'PSC.PSCID', 'PSC.PSCName')
+                    ->select('P.ProductID', 'P.ProductName', 'PC.PCID', 'PC.PCName', 'PSC.PSCID', 'PSC.PSCName')->take(3)->get();
+                $resultHtml = view('home.customer.search-html', compact('PCategories', 'PSCategories', 'Products'))->render();
+
+                return response()->json(['status' => true, 'searchResults' => $resultHtml]);
+            } else {
+                return response()->json(['status' => false, 'message' => "search text is empty"]);
+            }
+        } else {
+            return response()->json(['status' => false, 'message' => "Shipping Address is required!"]);
+        }
+    }
+
 }

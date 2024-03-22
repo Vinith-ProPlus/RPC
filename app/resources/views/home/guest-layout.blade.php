@@ -137,18 +137,14 @@
                 </div><!-- End .header-left -->
 
                 <div class="header-right w-lg-max">
-                    <div
-                        class="header-icon header-search header-search-inline header-search-category w-lg-max text-right mb-0">
+                    <div class="header-icon header-search header-search-inline header-search-category w-lg-max text-right mb-0">
                         <a href="#" class="search-toggle" role="button"><i class="icon-search-3"></i></a>
-                        <form action="#" method="get">
-                            <div class="header-search-wrapper">
-                                <input type="search" class="form-control" name="q" id="q" placeholder="Search..."
-                                       required>
-
-                                <button class="btn icon-magnifier p-0" title="search" type="submit"></button>
-                            </div><!-- End .header-search-wrapper -->
-                        </form>
-                    </div><!-- End .header-search -->
+                        <div class="header-search-wrapper">
+                            <input class="form-control" placeholder="Search..." type="text" id="homeSearch" name="homeSearch">
+                            <div id="searchResults" class="search-results"></div>
+                            <button class="btn icon-magnifier p-0" title="search"></button>
+                        </div>
+                    </div>
 
                     <span class="separator d-none d-lg-block"></span>
 
@@ -617,9 +613,35 @@
             selectedAddress.attr('data-selected-longitude', $(this).data('longitude'));
             selectedAddress.html($(this).html());
         });
+
+        $('#homeSearch').on('keyup', function() {
+            var formData = new FormData();
+            formData.append('SearchText', $(this).val());
+            $.ajax({
+                url: "{{ route('guestHomeSearch') }}",
+                method: 'POST',
+                headers: { 'X-CSRF-Token' : '{{ csrf_token() }}' },
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    let searchResults = $('#searchResults');
+                    searchResults.empty();
+                    searchResults.append((response.searchResults !== "") ? response.searchResults : "No results found");
+                    searchResults.show();
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error:', error);
+                }
+            });
+        });
+
+        $(document).on('click', function(event) {
+            if (!$(event.target).closest('.header-search-wrapper').length) {
+                $('#searchResults').hide();
+            }
+        });
     });
-
-
 </script>
 
 @yield('scripts')
