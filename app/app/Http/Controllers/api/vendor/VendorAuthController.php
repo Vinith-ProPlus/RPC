@@ -472,6 +472,7 @@ class VendorAuthController extends Controller{
                 if (!empty($PSCIDs)) {
                     DB::Table('tbl_vendors_supply')->where('VendorID',$VendorID)->WhereIn('PSCID',$PSCIDs)->update(['DFlag'=>0,'UpdatedOn'=>date('Y-m-d H:i:s')]);
                     DB::Table('tbl_vendors_supply')->where('VendorID',$VendorID)->WhereNotIn('PSCID',$PSCIDs)->update(['DFlag'=>1,'UpdatedOn'=>date('Y-m-d H:i:s')]);
+                    DB::Table('tbl_vendors_product_mapping')->where('VendorID',$VendorID)->WhereNotIn('PSCID',$PSCIDs)->update(['Status'=>0,'UpdatedOn'=>date('Y-m-d H:i:s')]);
                     $status=true;
                 }
             }

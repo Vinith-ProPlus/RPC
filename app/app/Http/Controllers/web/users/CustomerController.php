@@ -562,7 +562,7 @@ class CustomerController extends Controller{
         $CustomerData->CustomerImage = $CustomerImageURL;
         $CustomerData->ProfileCompletePercent = 0;
         $CustomerData->ConTypeIDs = unserialize($CustomerData->ConTypeIDs);
-        $CustomerData->DefaultSAddress = DB::table('tbl_customer_address')->where('CustomerID',$CustomerID)->where('isDefault',1)->value('CompleteAddress');
+        $CustomerData->DefaultSAddress = DB::table('tbl_customer_address')->where('CustomerID',$CustomerID)->where('isDefault',1)->first();
         $CustomerData->SAddress = DB::table('tbl_customer_address as CA')->where('CustomerID',$CustomerID)
         ->leftJoin($this->generalDB.'tbl_postalcodes as PC', 'PC.PID', 'CA.PostalCodeID')
         ->leftJoin($this->generalDB.'tbl_cities as CI', 'CI.CityID', 'CA.CityID')

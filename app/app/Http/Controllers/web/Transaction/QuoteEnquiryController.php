@@ -17,6 +17,8 @@ use logs;
 use activeMenuNames;
 use docTypes;
 use cruds;
+use Hamcrest\Arrays\IsArray;
+use PHPUnit\TextUI\Help;
 
 class QuoteEnquiryController extends Controller{
 	private $general;
@@ -84,9 +86,7 @@ class QuoteEnquiryController extends Controller{
 			$FormData['PageTitle']=$this->PageTitle;
 			$FormData['isEdit']=false;
 			$FormData['QNo']=DocNum::getInvNo($this->ActiveMenuName);
-			$FormData['Customers'] = DB::Table('tbl_customer')
-			->where('DFlag', 0)->where('ActiveStatus', 'Active')
-			->get();
+			$FormData['Customers'] = DB::Table('tbl_customer')->where('DFlag', 0)->where('ActiveStatus', 'Active')->get();
             return view('app.transaction.quote-enquiry.quote',$FormData);
         }elseif($this->general->isCrudAllow($this->CRUD,"view")==true){
             return Redirect::to('/admin/transaction/quote-enquiry/');
@@ -130,7 +130,162 @@ class QuoteEnquiryController extends Controller{
             return view('errors.403');
         }
     }
+	public function Save(Request $req){ return $req;
+		if($this->general->isCrudAllow($this->CRUD,"add")==true){
+			$OldData=array();$NewData=array();$VCID="";
+			$rules=array(
+				'VCName' =>['required','max:50',new ValidUnique(array("TABLE"=>"tbl_vendor_category","WHERE"=>" VCName='".$req->VCName."'  "),"This Vendor Category Name is already taken.")],
+			);
+			$message=array(
+				'VCName.required'=>"Vendor Category Name is required",
+				'VCName.min'=>"Vendor Category Name must be greater than 2 characters",
+				'VCName.max'=>"Vendor Category Name may not be greater than 100 characters",
+				'VCImage.mimes'=>"The Vendor Category image field must be a file of type: ".implode(", ",$this->FileTypes['category']['Images'])."."
+			);
+			if($req->hasFile('VCImage')){
+				$rules['VCImage']='mimes:'.implode(",",$this->FileTypes['category']['Images']);
+			}
+			$validator = Validator::make($req->all(), $rules,$message);
+			
+			if ($validator->fails()) {
+				return array('status'=>false,'message'=>"Vendor Category Create Failed",'errors'=>$validator->errors());			
+			}
+			DB::beginTransaction();
+			$status=false;
+			$images=array();
+			try {
+				$VCImage="";
+				$VCID=DocNum::getDocNum(docTypes::VendorCategory->value,"",Helper::getCurrentFY());
+				$dir="uploads/master/vendor/category/".$VCID."/";
+				if (!file_exists( $dir)) {mkdir( $dir, 0777, true);}
+				if($req->hasFile('VCImage')){
+					$file = $req->file('VCImage');
+					$fileName=md5($file->getClientOriginalName() . time());
+					$fileName1 =  $fileName. "." . $file->getClientOriginalExtension();
+					$file->move($dir, $fileName1);  
+					$VCImage=$dir.$fileName1;
+				}else if(Helper::isJSON($req->VCImage)==true){
+					$Img=json_decode($req->VCImage);
+					if(file_exists($Img->uploadPath)){
+						$fileName1=$Img->fileName!=""?$Img->fileName:Helper::RandomString(10)."png";
+						copy($Img->uploadPath,$dir.$fileName1);
+						$VCImage=$dir.$fileName1;
+						unlink($Img->uploadPath);
+					}
+				}
+				if(file_exists($VCImage)){
+					$images=helper::ImageResize($VCImage,$dir);
+				}
+				$data=array(
+					"VCID"=>$VCID,
+					"VCName"=>$req->VCName,
+					'VCImage'=>$VCImage,
+					"Images"=>serialize($images),
+					"ActiveStatus"=>$req->ActiveStatus,
+					"CreatedBy"=>$this->UserID,
+					"CreatedOn"=>date("Y-m-d H:i:s")
+				);
+				$status=DB::Table('tbl_vendor_category')->insert($data);
+				if($status){
+					DB::commit();
+					$status=dynamicField::add(docTypes::VendorCategory->value,$req,"tbl_vendor_category","VCID",$VCID,$this->UserID);
+					if(DB::transactionLevel()==0){
+						DB::beginTransaction();
+					}
+				}
+			}catch(Exception $e) {
+				$status=false;
+			}
+
+			if($status==true){
+				DocNum::updateDocNum(docTypes::VendorCategory->value);
+				DB::commit();
+				$NewData=DB::table('tbl_vendor_category')->where('VCID',$VCID)->get();
+				$logData=array("Description"=>"New Vendor Category Created ","ModuleName"=>$this->ActiveMenuName,"Action"=>cruds::ADD->value,"ReferID"=>$VCID,"OldData"=>$OldData,"NewData"=>$NewData,"UserID"=>$this->UserID,"IP"=>$req->ip());
+				logs::Store($logData);
+				return array('status'=>true,'message'=>"Vendor Category Created Successfully");
+			}else{
+				DB::rollback();
+				//Helper::removeFile($VCImage);
+				foreach($images as $KeyName=>$Img){
+					Helper::removeFile($Img['url']);
+				}
+				return array('status'=>false,'message'=>"Vendor Category Create Failed");
+			}
+		}else{
+			return array('status'=>false,'message'=>'Access denined');
+		}
+
+	}
     public function QuoteView(Request $req,$EnqID){
+        if($this->general->isCrudAllow($this->CRUD,"edit")==true){
+            $FormData=$this->general->UserInfo;
+            $FormData['menus']=$this->Menus;
+            $FormData['crud']=$this->CRUD;
+			$FormData['ActiveMenuName']=$this->ActiveMenuName;
+			$FormData['PageTitle']=$this->PageTitle;
+			$FormData['isEdit']=false;
+			$FormData['Settings']=$this->Settings;
+			$EnqData=DB::Table($this->currfyDB.'tbl_enquiry as E')
+			->leftJoin('tbl_customer as CU', 'CU.CustomerID', 'E.CustomerID')
+			->leftJoin('tbl_customer_address as CA', 'CA.AID', 'E.AID')
+			->whereNot('E.Status','Cancelled')->Where('E.EnqID',$EnqID)
+			->select('EnqID','EnqNo','EnqDate','VendorIDs','Status','ReceiverName','ReceiverMobNo','ExpectedDeliveryDate','CU.Email','CU.CompleteAddress as BillingAddress','CA.CompleteAddress as ShippingAddress','E.AID')
+			->first();
+			$EnqData->BillingAddress=Helper::formatAddress($EnqData->BillingAddress);
+			$EnqData->ShippingAddress=Helper::formatAddress($EnqData->ShippingAddress);
+
+			$FormData['EnqData']=$EnqData;
+			if($EnqData){
+				$VendorQuote = [];
+				$FinalQuoteData = [];
+				$PData=DB::table($this->currfyDB.'tbl_enquiry_details as ED')->leftJoin('tbl_products as P','P.ProductID','ED.ProductID')->leftJoin('tbl_uom as UOM','UOM.UID','ED.UOMID')->where('ED.EnqID',$EnqID)->select('ED.ProductID','ED.CID','ED.SCID','ED.Qty','P.ProductName','UOM.UID','UOM.UName','UOM.UCode')->get();
+				if(count($PData) > 0){
+					foreach($PData as $row){
+						$row->AvailableVendors=[];
+						$AvailableVendors = Helper::getAvailableVendors($EnqData->AID);
+						$AllVendors = DB::table('tbl_vendors as V')->leftJoin('tbl_vendor_ratings as VR','VR.VendorID','V.VendorID')->whereIn('V.VendorID',$AvailableVendors)->select('V.VendorID','V.VendorName','VR.OverAll')->get();
+						if(count($AllVendors)>0){
+							foreach($AllVendors as $item){
+								$isProductAvailable= DB::Table('tbl_vendors_product_mapping')->where('Status',1)->Where('VendorID',$item->VendorID)->where('ProductID',$row->ProductID)->first();
+									if($isProductAvailable){
+										$row->AvailableVendors[] = [
+											"VendorID" => $item->VendorID,
+											"VendorName" => $item->VendorName,
+											"OverAll" => $item->OverAll,
+											"ProductID" => $isProductAvailable->ProductID,
+										];
+									}
+							}
+						}
+					}
+				}
+				if($EnqData->Status == "Quote Requested" && $EnqData->VendorIDs && count(unserialize($EnqData->VendorIDs)) > 0){
+					$VendorQuote = DB::Table($this->currfyDB.'tbl_vendor_quotation as VQ')->join('tbl_vendors as V','V.VendorID','VQ.VendorID')/* ->where('VQ.Status','Sent') */->where('VQ.EnqID',$EnqID)->select('VQ.VendorID','V.VendorName','VQ.VQuoteID','VQ.Status','VQ.AdditionalCost')->get();
+					foreach($VendorQuote as $row){
+						$row->ProductData = DB::table($this->currfyDB.'tbl_vendor_quotation_details as VQD')->where('VQuoteID',$row->VQuoteID)
+						->select('DetailID','ProductID','Price','VQuoteID')
+						->get();
+					}
+				}elseif($EnqData->Status == "Converted to Quotation"){
+					$FinalQuoteData = DB::Table($this->currfyDB.'tbl_quotation_details as QD')->join($this->currfyDB.'tbl_quotation as Q','Q.QID','QD.QID')->join('tbl_vendors as V','V.VendorID','QD.VendorID')->join('tbl_products as P','P.ProductID','QD.ProductID')->join('tbl_uom as UOM','UOM.UID','P.UID')->where('Q.EnqID',$EnqID)->get();
+				}
+
+				$FormData['PData'] = $PData;
+				$FormData['VendorQuote'] = $VendorQuote;
+				$FormData['FinalQuoteData'] = $FinalQuoteData;
+				// return $FormData['VendorQuote'];
+				return view('app.transaction.quote-enquiry.quote-view', $FormData);
+			}else{
+				return view('errors.403');
+			}
+        }elseif($this->general->isCrudAllow($this->CRUD,"view")==true){
+            return Redirect::to('admin/transaction/quote-enquiry/');
+        }else{
+            return view('errors.403');
+        }
+    }
+    public function QuoteView1(Request $req,$EnqID){
         if($this->general->isCrudAllow($this->CRUD,"edit")==true){
             $FormData=$this->general->UserInfo;
             $FormData['menus']=$this->Menus;
@@ -818,7 +973,6 @@ class QuoteEnquiryController extends Controller{
 		return $QuoteReqData;
 	}
 
-
 	public function GetVendorQuoteDetails(request $req){
 		$VendorDB = Helper::getVendorDB($req->VendorID, $this->UserID);
 		return DB::Table($VendorDB.'tbl_quotation_sent_details as QSD')->join('tbl_products as P','P.ProductID','QSD.ProductID')->join('tbl_uom as UOM','UOM.UID','QSD.UOMID')->where('QSD.QuoteSentID',$req->QuoteSentID)
@@ -834,5 +988,48 @@ class QuoteEnquiryController extends Controller{
 				->join($this->generalDB.'tbl_postalcodes as P','P.PID','V.PostalCode')
 				->where('VR.VendorID',$req->VendorID)->first();
 	}
+
+	public function GetCategory(Request $req){
+        $AllVendors = Helper::getAvailableVendors($req->AID);
+
+		return DB::table('tbl_vendors_product_mapping as VPM')
+			->leftJoin('tbl_product_category as PC', 'PC.PCID', 'VPM.PCID')
+			->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)
+			->where('VPM.Status', 1)->WhereIn('VPM.VendorID', $AllVendors)
+			->groupBy('PC.PCID', 'PC.PCName')
+			->select('PC.PCID', 'PC.PCName')
+			->get();
+    }
+	public function GetSubCategory(request $req){
+		$AllVendors = Helper::getAvailableVendors($req->AID);
+
+		if(is_array($AllVendors)){
+			return DB::table('tbl_vendors_product_mapping as VPM')
+			->leftJoin('tbl_product_subcategory as PSC','PSC.PSCID','VPM.PSCID')
+			->where('PSC.ActiveStatus', 'Active')->where('PSC.DFlag', 0)
+			->where('VPM.Status', 1)->WhereIn('VPM.VendorID', $AllVendors)->where('PSC.PCID', $req->PCID)
+			->groupBy('PSC.PSCID', 'PSCName')
+			->select('PSC.PSCID', 'PSCName')
+			->get();
+		}
+	}
+    public function GetProducts(Request $req){
+
+        $AllVendors = Helper::getAvailableVendors($req->AID);
+            
+		return DB::table('tbl_vendors_product_mapping as VPM')
+			->leftJoin('tbl_products as P','P.ProductID','VPM.ProductID')
+			->leftJoin('tbl_product_subcategory as PSC','PSC.PSCID','P.SCID')
+			->leftJoin('tbl_product_category as PC', 'PC.PCID', 'PSC.PCID')
+			->leftJoin('tbl_uom as U', 'U.UID', 'P.UID')
+			->where('VPM.Status', 1)->WhereIn('VPM.VendorID', $AllVendors)
+			->where('P.ActiveStatus', 'Active')->where('P.DFlag', 0)
+			->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)
+			->where('PSC.ActiveStatus', 'Active')->where('PSC.DFlag', 0)
+			->where('PSC.PCID', $req->PCID)->where('P.SCID', $req->PSCID)
+			->groupBy('PSC.PSCID', 'PSCName', 'PC.PCID', 'PCName', 'P.ProductID', 'ProductName','UName','UCode','U.UID')
+			->select('PSC.PSCID', 'PSCName','PC.PCID', 'PCName', 'P.ProductID', 'ProductName','UName','UCode','U.UID')
+			->get();
+    }
 
 }

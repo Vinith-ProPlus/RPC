@@ -29,6 +29,49 @@ class helper{
 	public static function getDBPrefix(){
 		return config('app.db_prefix');
 	}
+	public static function getAvailableVendors($AID) {
+        $AddressData = DB::table('tbl_customer_address')->where('AID',$AID)->first();
+		$AllVendors = DB::table('tbl_vendors as V')
+			->join('tbl_vendors_service_locations as VSL', 'V.VendorID', 'VSL.VendorID')
+			->where('V.ActiveStatus', "Active")
+			->where('V.DFlag', 0)
+			->where('VSL.DFlag', 0)
+			->where('VSL.PostalCodeID', $AddressData->PostalCodeID)->groupBy('V.VendorID')->pluck('V.VendorID')->toArray();
+			
+		$RadiusVendors = DB::table('tbl_vendors_stock_point as VSP')
+			->join('tbl_vendors as V','V.VendorID','VSP.VendorID')
+			->where('VSP.ServiceBy','Radius')
+			->where('V.ActiveStatus', "Active")->where('V.DFlag',0)
+			->where('VSP.DFlag',0)
+			->select('V.VendorID','Latitude','Longitude','Range')->get();
+		foreach ($RadiusVendors as $Vendor) {
+			$vendorID = self::findVendorsInRange($AddressData, $Vendor);
+			if ($vendorID && !in_array($vendorID, $AllVendors)) {
+				$AllVendors[] = $vendorID;
+			}
+		}
+		return $AllVendors;
+    }
+	public static function findVendorsInRange($Customer, $Vendor) {
+        $customerLat = $Customer->Latitude;
+        $customerLng = $Customer->Longitude;
+        $vendorLat = $Vendor->Latitude;
+        $vendorLng = $Vendor->Longitude;
+        $vendorID = $Vendor->VendorID;
+        $range = $Vendor->Range;
+
+        $earthRadius = 6371;
+        $dLat = deg2rad($vendorLat - $customerLat);
+        $dLon = deg2rad($vendorLng - $customerLng);
+        $a = sin($dLat / 2) * sin($dLat / 2) + cos(deg2rad($customerLat)) * cos(deg2rad($vendorLat)) * sin($dLon / 2) * sin($dLon / 2);
+        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+        $distance = $earthRadius * $c;
+        if ($distance <= $range) {
+            return $vendorID;
+        }else{
+            return false;
+        }
+    }
 	public static function formAddress($Address,$CityID){
 		$addressParts = DB::table(self::getGeneralDB().'tbl_cities as CI')
 			->leftJoin(self::getGeneralDB().'tbl_postalcodes as PC', 'PC.PID', 'CI.PostalID')
@@ -52,6 +95,16 @@ class helper{
 					$addressParts->PostalCode;
 			return $fullAddress;
 		}
+	}
+	public static function formatAddress($address){
+		$parts = explode(',', $address);
+		$splittedAddress = [];
+		foreach ($parts as $part) {
+			$splittedAddress[] = trim((string)$part);
+		}
+		$formattedAddress[] = implode(', ', array_slice($splittedAddress, 0, -3));
+		$formattedAddress = array_merge($formattedAddress, array_slice($splittedAddress, -3));
+		return $formattedAddress;
 	}
 	public static function getVendorDB($VendorID,$UserID){
 		$VendorDB = DB::table('tbl_vendors_database')->where('VendorID', $VendorID)->value('DBName');

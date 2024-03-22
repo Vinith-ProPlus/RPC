@@ -79,6 +79,88 @@ class CustomerTransactionAPIController extends Controller{
                 'ReceiverName' => $req->ReceiverName,
                 'ReceiverMobNo' => $req->ReceiverMobNo,
                 'ExpectedDeliveryDate' => $req->ExpectedDeliveryDate,
+                'AID'=>$req->AID,
+                'StageID' => $req->StageID,
+                'BuildingMeasurementID' => $req->BuildingMeasurementID,
+                'BuildingMeasurement' => $req->BuildingMeasurement,
+                'BuildingImage' => $BuildingImage,
+                'CreatedOn' => date('Y-m-d H:i:s'),
+                'CreatedBy' => $CustomerID,
+            ];
+            $status=DB::table($this->currfyDB.'tbl_enquiry')->insert($data);
+            if($status){
+                $ProductData = json_decode($req->ProductData,true);
+                foreach($ProductData as $item){
+                    $EnquiryDetailID = DocNum::getDocNum(docTypes::EnquiryDetails->value,$this->currfyDB,Helper::getCurrentFY());
+                    $data1=[
+                        'DetailID' => $EnquiryDetailID,
+                        'EnqID'=>$EnqID,
+                        'CID'=>$item['PCID'],
+                        'SCID'=>$item['PSCID'],
+                        'ProductID'=>$item['ProductID'],
+                        'Qty'=>$item['Qty'],
+                        'UOMID'=>$item['UID'],
+                        'CreatedOn'=>date('Y-m-d H:i:s'),
+                        'CreatedBy'=>$CustomerID,
+                    ];
+                    $status = DB::table($this->currfyDB.'tbl_enquiry_details')->insert($data1);
+                    if($status){
+                        DocNum::updateDocNum(docTypes::EnquiryDetails->value,$this->currfyDB);
+                    }
+                }
+                DocNum::updateDocNum(docTypes::Enquiry->value,$this->currfyDB);
+            }
+        }catch(Exception $e) {
+            $status=false;
+        }
+        if($status==true){
+            DB::commit();
+            DocNum::updateInvNo("Quote-Enquiry");
+            DB::table('tbl_customer_cart')->where('CustomerID',$CustomerID)->delete();
+            return response()->json(['status' => true,'message' => "Order Placed Successfully"]);
+        }else{
+            DB::rollback();
+            return response()->json(['status' => false,'message' => "Order Placing Failed!"]);
+        }
+    }
+    public function PlaceOrder1(Request $req){
+        DB::beginTransaction();
+        $status=false;
+        $CustomerID=$this->ReferID;
+        try {
+            $CustomerData = DB::table('tbl_customer')->where('CustomerID',$CustomerID)->first();
+            $EnqID = DocNum::getDocNum(docTypes::Enquiry->value,$this->currfyDB,Helper::getCurrentFY());
+            $BuildingImage = "";
+            if($req->BuildingImage != null) {
+                $dir = "uploads/transaction/enquiry/" . $EnqID . "/";
+                if (!file_exists($dir)) {
+                    mkdir($dir, 0777, true);
+                }
+                if ($req->hasFile('BuildingImage')) {
+                    $file = $req->file('BuildingImage');
+                    $fileName = md5($file->getClientOriginalName() . time());
+                    $fileName1 = $fileName . "." . $file->getClientOriginalExtension();
+                    $file->move($dir, $fileName1);
+                    $BuildingImage = $dir . $fileName1;
+                } else if (Helper::isJSON($req->BuildingImage) == true) {
+                    $Img = json_decode($req->BuildingImage);
+                    if (file_exists($Img->uploadPath)) {
+                        $fileName1 = $Img->fileName != "" ? $Img->fileName : Helper::RandomString(10) . "png";
+                        copy($Img->uploadPath, $dir . $fileName1);
+                        $BuildingImage = $dir . $fileName1;
+                        // unlink($Img->uploadPath);
+                    }
+                }
+            }
+            $data=[
+                'EnqID' => $EnqID,
+                'EnqNo' =>DocNum::getInvNo("Quote-Enquiry"),
+                'EnqDate' => date('Y-m-d'),
+                'EnqExpiryDate' => date('Y-m-d', strtotime('+15 days')),
+                'CustomerID' => $CustomerID,
+                'ReceiverName' => $req->ReceiverName,
+                'ReceiverMobNo' => $req->ReceiverMobNo,
+                'ExpectedDeliveryDate' => $req->ExpectedDeliveryDate,
                 'Address' => $req->Address,
                 'CountryID' => $req->CountryID,
                 'StateID' => $req->StateID,
@@ -176,9 +258,9 @@ class CustomerTransactionAPIController extends Controller{
         }
 
         $query = DB::table($this->currfyDB.'tbl_enquiry as E')
-        ->leftJoin($this->currfyDB.'tbl_quotation as Q','Q.EnqID','E.EnqID')
-        ->leftJoin('tbl_customer as CU','CU.CustomerID','E.CancelledBy')
-        ->where('E.CustomerID',$this->ReferID);
+            ->leftJoin($this->currfyDB.'tbl_quotation as Q','Q.EnqID','E.EnqID')
+            ->leftJoin('tbl_customer as CU','CU.CustomerID','E.CancelledBy')
+            ->where('E.CustomerID',$this->ReferID);
         if($Status){
             $query->where(function($query) use ($EnqStatus, $QStatus) {
                 $query->where(function($query) use ($EnqStatus) {
@@ -387,7 +469,7 @@ class CustomerTransactionAPIController extends Controller{
             $query->where('O.Status',$req->Status);
         }
         $OrderData=$query
-        ->select('O.OrderID','O.OrderNo','O.OrderDate','O.ReceiverName','O.ReceiverMobNo','O.Status','O.TaxAmount','O.SubTotal','O.CGSTAmount','O.SGSTAmount','O.IGSTAmount','O.TotalAmount','O.AdditionalCost','O.OverAllAmount')
+        // ->select('O.OrderID','O.OrderNo','O.OrderDate','O.ReceiverName','O.ReceiverMobNo','O.Status','O.TaxAmount','O.SubTotal','O.CGSTAmount','O.SGSTAmount','O.IGSTAmount','O.TotalAmount','O.AdditionalCost','O.OverAllAmount')
         ->get();
         
         foreach($OrderData as $order){
@@ -399,7 +481,7 @@ class CustomerTransactionAPIController extends Controller{
                 ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')
                 ->leftJoin('tbl_uom as U','U.UID','P.UID')
                 ->where('OD.OrderID',$order->OrderID)
-                ->select('P.ProductID','P.ProductName','OD.Qty','OD.Price','OD.Taxable','U.UName','PC.PCName','PSC.PSCName')
+                // ->select('P.ProductID','P.ProductName','OD.Qty','OD.Price','OD.Taxable','U.UName','PC.PCName','PSC.PSCName')
                 ->get();
         }
         return response()->json(['status' => true,'data' => $OrderData]);

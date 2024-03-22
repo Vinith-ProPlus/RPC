@@ -543,7 +543,7 @@ class product{
                                 foreach($tGallery as $index=>$tval){
                                     $RemoveImg[]=$tval['url'];
                                 }
-                                DB::Table('tbl_products_gallery')->where('ProductID',$ProductID)->where('ImgID',$ImgID)->get();
+                                DB::Table('tbl_products_gallery')->where('ProductID',$ProductID)->where('ImgID',$ImgID)->delete();
                             }
                         }
                     }

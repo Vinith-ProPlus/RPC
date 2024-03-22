@@ -57,19 +57,11 @@
                                             <p class="text-center fs-16 fw-500">Billing Address</p>
                                         </div>
                                         <div class="card-body">
-                                            <?php 
-                                                $Address="";
-                                                // if($EnqData->CustomerName!=""){$Address.="<b>".$EnqData->CustomerName."</b>";}
-                                                if($EnqData->Address!=""){if($Address!=""){$Address.=",<br> ";}$Address.=$EnqData->Address;}
-                                                if($EnqData->CityName!=""){if($Address!=""){$Address.=",<br> ";}$Address.=$EnqData->CityName;}
-                                                if($EnqData->TalukName!=""){if($Address!=""){$Address.=",<br> ";}$Address.=$EnqData->TalukName;}
-                                                if($EnqData->DistrictName!=""){if($Address!=""){$Address.=",<br> ";}$Address.=$EnqData->DistrictName;}
-                                                if($EnqData->StateName!=""){if($Address!=""){$Address.=",<br>";}$Address.=$EnqData->StateName;}
-                                                if($EnqData->CountryName!=""){if($Address!=""){$Address.=", ";}$Address.=$EnqData->CountryName;}
-                                                if($EnqData->PostalCode!=""){if($Address!=""){$Address.=" - ";}$Address.=$EnqData->PostalCode;}
-                                                if($Address!=""){$Address.=".";}
-                                                echo  $Address;
-                                            ?>
+                                            @foreach ($EnqData->BillingAddress as $row)
+                                                <div class="row my-1">
+                                                    <div class="col-sm-12 fw-500">{{ $row }}@if (!$loop->last), @else.@endif </div>
+                                                </div>
+                                            @endforeach
                                         </div>
                                     </div>
                                 </div>
@@ -79,18 +71,11 @@
                                             <p class="text-center fs-16 fw-500">Shipping Address</p>
                                         </div>
                                         <div class="card-body">
-                                            <?php 
-                                                $DAddress="";
-                                                if($EnqData->DAddress!=""){if($DAddress!=""){$DAddress.=",<br> ";}$DAddress.=$EnqData->DAddress;}
-                                                if($EnqData->DCityName!=""){if($DAddress!=""){$DAddress.=",<br> ";}$DAddress.=$EnqData->DCityName;}
-                                                if($EnqData->DTalukName!=""){if($DAddress!=""){$DAddress.=",<br> ";}$DAddress.=$EnqData->DTalukName;}
-                                                if($EnqData->DDistrictName!=""){if($DAddress!=""){$DAddress.=",<br> ";}$DAddress.=$EnqData->DDistrictName;}
-                                                if($EnqData->DStateName!=""){if($DAddress!=""){$DAddress.=",<br>";}$DAddress.=$EnqData->DStateName;}
-                                                if($EnqData->DCountryName!=""){if($DAddress!=""){$DAddress.=", ";}$DAddress.=$EnqData->DCountryName;}
-                                                if($EnqData->DPostalCode!=""){if($DAddress!=""){$DAddress.=" - ";}$DAddress.=$EnqData->DPostalCode;}
-                                                if($DAddress!=""){$DAddress.=".";}
-                                                echo  $DAddress;
-                                            ?>
+                                            @foreach ($EnqData->ShippingAddress as $row)
+                                                <div class="row my-1">
+                                                    <div class="col-sm-12 fw-500">{{ $row }}@if (!$loop->last), @else.@endif </div>
+                                                </div>
+                                            @endforeach
                                         </div>
                                     </div>
                                 </div>

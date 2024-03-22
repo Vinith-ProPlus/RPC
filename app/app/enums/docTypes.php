@@ -58,6 +58,7 @@ enum docTypes:string{
     case VendorQuotationDetails="Vendor-Quotation-Details";
     case Order="Order";
     case OrderDetails="Order-Details";
+    case VendorOrders="Vendor-Orders";
     case Payments="Payments";
     case PaymentsDetails="Payment-Details";
 

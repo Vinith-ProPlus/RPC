@@ -139,6 +139,7 @@ class CustomerAuthController extends Controller{
                     // unlink($Img->uploadPath);
                 }
             }
+            $CompleteAddress = Helper::formAddress($req->Address,$req->CityID);
             $data=array(
                 "CustomerID"=>$CustomerID,
                 "CustomerName"=>$req->CustomerName,
@@ -151,6 +152,7 @@ class CustomerAuthController extends Controller{
                 "CusTypeID"=>$req->CusTypeID,
                 "ConTypeIDs"=>serialize(json_decode($req->ConTypeIDs)),
                 "Address"=>$req->Address,
+                "CompleteAddress"=>$CompleteAddress,
                 "PostalCodeID"=>$req->PostalCodeID,
                 "CityID"=>$req->CityID,
                 "TalukID"=>$req->TalukID,
@@ -162,10 +164,19 @@ class CustomerAuthController extends Controller{
             // return $data;
             $status=DB::Table('tbl_customer')->insert($data);
             if($status){
-                $AID=DocNum::getDocNum(docTypes::CustomerAddress->value,"",Helper::getCurrentFY());
-                $tmp=array(
-                    "AID"=>$AID,
-                    "CustomerID"=>$CustomerID,
+                $customerName = $reqData['CustomerName'];
+                $nameParts = explode(' ', $customerName, 2);
+                $firstName = $nameParts[0] ?? '';
+                $lastName = $nameParts[1] ?? '';
+
+                $Udata=array(
+                    "ReferID"=>$CustomerID,
+                    "Name" => $customerName,
+                    "GenderID"=>$req->GenderID,
+                    "ProfileImage"=>$CustomerImage,
+                    "FirstName" => $firstName,
+                    "LastName" => $lastName,
+                    "MobileNumber"=>$req->MobileNo1,
                     "Address"=>$req->Address,
                     "PostalCodeID"=>$req->PostalCodeID,
                     "CityID"=>$req->CityID,
@@ -173,36 +184,9 @@ class CustomerAuthController extends Controller{
                     "DistrictID"=>$req->DistrictID,
                     "StateID"=>$req->StateID,
                     "CountryID"=>$req->CountryID,
-                    "isDefault"=>1,
-                    "CreatedOn"=>date("Y-m-d H:i:s")
+                    "UpdatedBy"=>$CustomerID,
                 );
-                $status=DB::Table('tbl_customer_address')->insert($tmp);
-                if($status){
-                    DocNum::updateDocNum(docTypes::CustomerAddress->value);
-                    $customerName = $reqData['CustomerName'];
-                    $nameParts = explode(' ', $customerName, 2);
-                    $firstName = $nameParts[0] ?? '';
-                    $lastName = $nameParts[1] ?? '';
-    
-                    $Udata=array(
-                        "ReferID"=>$CustomerID,
-                        "Name" => $customerName,
-                        "GenderID"=>$req->GenderID,
-                        "ProfileImage"=>$CustomerImage,
-                        "FirstName" => $firstName,
-                        "LastName" => $lastName,
-                        "MobileNumber"=>$req->MobileNo1,
-                        "Address"=>$req->Address,
-                        "PostalCodeID"=>$req->PostalCodeID,
-                        "CityID"=>$req->CityID,
-                        "TalukID"=>$req->TalukID,
-                        "DistrictID"=>$req->DistrictID,
-                        "StateID"=>$req->StateID,
-                        "CountryID"=>$req->CountryID,
-                        "UpdatedBy"=>$CustomerID,
-                    );
-                    $status=DB::Table('users')->where('UserID',$this->UserID)->update($Udata);
-                }
+                $status=DB::Table('users')->where('UserID',$this->UserID)->update($Udata);
             }
         }catch(Exception $e) {
             $status=false;
@@ -317,7 +301,7 @@ class CustomerAuthController extends Controller{
                 }
 			}
 			if(count($AIDs)>0){
-				DB::table('tbl_customer_address')->where('CustomerID',$CustomerID)->whereNotIn('AID',$AIDs)->delete();
+				DB::table('tbl_customer_address')->where('CustomerID',$CustomerID)->whereNotIn('AID',$AIDs)->update(['DFlag'=>1,'UpdatedBy'=>$CustomerID,'UpdatedOn'=>date('Y-m-d H:i:s')]);
 			}
 			if($status){
                 $CustomerName = $req->CustomerName;
@@ -365,7 +349,7 @@ class CustomerAuthController extends Controller{
 
     public function getSAddress(Request $req){
         $CustomerID = $this->ReferID;
-        $SAddress = DB::table('tbl_customer_address as CA')->where('CustomerID',$CustomerID)
+        $SAddress = DB::table('tbl_customer_address as CA')->where('CA.CustomerID',$CustomerID)->where('CA.DFlag',0)
         ->leftJoin($this->generalDB.'tbl_postalcodes as PC', 'PC.PID', 'CA.PostalCodeID')
         ->leftJoin($this->generalDB.'tbl_cities as CI', 'CI.CityID', 'CA.CityID')
         ->leftJoin($this->generalDB.'tbl_taluks as T', 'T.TalukID', 'CA.TalukID')
@@ -465,7 +449,7 @@ class CustomerAuthController extends Controller{
             if($isDefault){
                 return response()->json(['status' => false,'message' => "Default Address cannot be deleted!"]);
             }else{
-                $status=DB::Table('tbl_customer_address')->where('CustomerID',$CustomerID)->where('AID',$req->AID)->delete();
+                $status=DB::Table('tbl_customer_address')->where('CustomerID',$CustomerID)->where('AID',$req->AID)->update(['DFlag'=>1,'UpdatedBy'=>$CustomerID,'UpdatedOn'=>date('Y-m-d H:i:s')]);
             }
         }catch(Exception $e) {
             $status=false;
@@ -517,7 +501,6 @@ class CustomerAuthController extends Controller{
 		];
         return $return;
 	}
-    
     public function getCustomerType(request $req){
 		$return = [
 			'status' => true,
@@ -530,31 +513,26 @@ class CustomerAuthController extends Controller{
         $pageNo = $req->PageNo ?? 1;
         $perPage = 15;
         if ($req->AID) {
-            $AddressData = DB::table('tbl_customer_address')->where('AID',$req->AID)->first();
-            $AllVendors = DB::table('tbl_vendors as V')
-                ->leftJoin('tbl_vendors_service_locations as VSL', 'V.VendorID', 'VSL.VendorID')
-                ->where('V.ActiveStatus', "Active")->where('V.DFlag', 0)->where('VSL.DFlag', 0)
-                ->where('VSL.PostalCodeID', $AddressData->PostalCodeID)->groupBy('VSL.VendorID')->pluck('VSL.VendorID')->toArray();
-
+            $AllVendors = Helper::getAvailableVendors($req->AID);
             $Category = DB::table('tbl_vendors_product_mapping as VPM')
                 ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'VPM.PCID')
+                ->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)
                 ->where('VPM.Status', 1)->WhereIn('VPM.VendorID', $AllVendors);
                 if ($req->has('SearchText') && !empty($req->SearchText)) {
                     $Category->where('PC.PCName', 'like', '%' . $req->SearchText . '%');
                 }
-            $PCatagories = $Category->groupBy('PC.PCID', 'PC.PCName', 'PC.PCImage')
+            $PCategories = $Category->groupBy('PC.PCID', 'PC.PCName', 'PC.PCImage')
                 ->select('PC.PCID', 'PC.PCName', DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PCImage, ""), "assets/images/no-image-b.png")) AS CategoryImage'))
                 ->paginate($perPage, ['*'], 'page', $pageNo);
                 return response()->json([
                     'status' => true,
-                    'data' => $PCatagories->items(),
-                    'CurrentPage' => $PCatagories->currentPage(),
-                    'LastPage' => $PCatagories->lastPage(),
+                    'data' => $PCategories->items(),
+                    'CurrentPage' => $PCategories->currentPage(),
+                    'LastPage' => $PCategories->lastPage(),
                 ]);
         }else{
             return response()->json(['status' => false,'message' => "Shipping Address is required!"]);
         }
-        
     }
 	public function GetSubCategory(request $req){
 		$PCID = $req->PCID;
@@ -562,55 +540,76 @@ class CustomerAuthController extends Controller{
 
         $pageNo = $req->PageNo ?? 1;
         $perPage = 15;
-
-		$SubCategory = DB::table('tbl_product_subcategory as PSC')->leftJoin('tbl_product_category as PC','PC.PCID','PSC.PCID')
-        ->where('PSC.ActiveStatus', 'Active')->where('PSC.DFlag', 0)->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)->whereIn('PSC.PCID', $PCIDs);
-        if ($req->has('SearchText') && !empty($req->SearchText)) {
-            $SubCategory->where('PSC.PSCName', 'like', '%' . $req->SearchText . '%');
-        }
-        $result = $SubCategory->select('PSC.PSCName', 'PSC.PSCID','PC.PCID','PC.PCName', DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PSC.PSCImage, ""), "assets/images/no-image-b.png")) AS SubCategoryImage'))
-        ->paginate($perPage, ['*'], 'page', $pageNo);
 	
-		return response()->json([
-            'status' => true,
-            'data' => $result->items(),
-            'CurrentPage' => $result->currentPage(),
-            'LastPage' => $result->lastPage(),
-        ]);
+        if ($req->AID) {
+            $AllVendors = Helper::getAvailableVendors($req->AID);
+            
+            $SubCategory = DB::table('tbl_vendors_product_mapping as VPM')
+                ->leftJoin('tbl_product_subcategory as PSC','PSC.PSCID','VPM.PSCID')
+                ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'PSC.PCID')
+                ->where('PSC.ActiveStatus', 'Active')->where('PSC.DFlag', 0)
+                ->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)
+                ->where('VPM.Status', 1)->WhereIn('VPM.VendorID', $AllVendors)->whereIn('PSC.PCID', $PCIDs);
+                if ($req->has('SearchText') && !empty($req->SearchText)) {
+                    $SubCategory->where('PSC.PSCName', 'like', '%' . $req->SearchText . '%');
+                }
+            $PSubCategories = $SubCategory->groupBy('PSC.PSCID', 'PSCName', 'PC.PCID', 'PCName', 'PSCImage')
+                ->select('PSC.PSCID', 'PSCName','PC.PCID', '.PCName', DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PSCImage, ""), "assets/images/no-image-b.png")) AS SubCategoryImage'))
+                ->paginate($perPage, ['*'], 'page', $pageNo);
+                return response()->json([
+                    'status' => true,
+                    'data' => $PSubCategories->items(),
+                    'CurrentPage' => $PSubCategories->currentPage(),
+                    'LastPage' => $PSubCategories->lastPage(),
+                ]);
+        }else{
+            return response()->json(['status' => false,'message' => "Shipping Address is required!"]);
+        }
+        
 	}
     public function GetProducts(Request $req){
         $PCID = $req->PCID;
         $PSCID = $req->PSCID;
         $PCIDs = is_array($PCID) ? $PCID : [$PCID];
         $PSCIDs = is_array($PSCID) ? $PSCID : [$PSCID];
-    
         $pageNo = $req->PageNo ?? 1;
-        $perPage = 15;
-    
-        $products = DB::table('tbl_products as P')->leftJoin('tbl_product_category as PC', 'PC.PCID', 'P.CID')->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')->leftJoin('tbl_uom as U', 'U.UID', 'P.UID')
-            ->where('P.ActiveStatus', 'Active')->where('P.DFlag', 0)->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)->where('PSC.ActiveStatus', 'Active')->where('PSC.DFlag', 0)
-            ->whereIn('P.CID', $PCIDs)->whereIn('P.SCID', $PSCIDs);
-    
-        if ($req->has('SearchText') && !empty($req->SearchText)) {
-            $products->where('P.ProductName', 'like', '%' . $req->SearchText . '%');
+        $perPage = 15;       
+
+        if ($req->AID) {
+            $AllVendors = Helper::getAvailableVendors($req->AID);
+            
+            $products = DB::table('tbl_vendors_product_mapping as VPM')
+                ->leftJoin('tbl_products as P','P.ProductID','VPM.ProductID')
+                ->leftJoin('tbl_product_subcategory as PSC','PSC.PSCID','P.SCID')
+                ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'PSC.PCID')
+                ->leftJoin('tbl_uom as U', 'U.UID', 'P.UID')
+                ->where('VPM.Status', 1)->WhereIn('VPM.VendorID', $AllVendors)
+                ->where('P.ActiveStatus', 'Active')->where('P.DFlag', 0)
+                ->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)
+                ->where('PSC.ActiveStatus', 'Active')->where('PSC.DFlag', 0)
+                ->whereIn('PSC.PCID', $PCIDs)->whereIn('P.SCID', $PSCIDs);
+                if ($req->has('SearchText') && !empty($req->SearchText)) {
+                    $products->where('P.ProductName', 'like', '%' . $req->SearchText . '%');
+                }
+            $Products = $products->groupBy('PSC.PSCID', 'PSCName', 'PC.PCID', 'PCName', 'P.ProductID', 'ProductName', 'ProductImage','UName','UCode','U.UID')
+                ->select('PSC.PSCID', 'PSCName','PC.PCID', 'PCName', 'P.ProductID', 'ProductName','UName','UCode','U.UID', DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'))
+                ->paginate($perPage, ['*'], 'page', $pageNo);
+
+            foreach ($Products as $row) {
+                $row->GalleryImages = DB::table('tbl_products_gallery')
+                    ->where('ProductID', $row->ProductID)
+                    ->pluck(DB::raw('CONCAT("' . url('/') . '/", gImage) AS gImage'))
+                    ->toArray();
+            }
+            return response()->json([
+                'status' => true,
+                'data' => $Products->items(),
+                'CurrentPage' => $Products->currentPage(),
+                'LastPage' => $Products->lastPage(),
+            ]);
+        }else{
+            return response()->json(['status' => false,'message' => "Shipping Address is required!"]);
         }
-    
-        $products = $products->select('P.ProductName', 'P.ProductID', 'PC.PCName', 'PC.PCID', 'PSC.PSCName', 'PSC.PSCID','U.UName','U.UCode','U.UID', DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(P.ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'))
-            ->paginate($perPage, ['*'], 'page', $pageNo);
-    
-        foreach ($products as $row) {
-            $row->GalleryImages = DB::table('tbl_products_gallery')
-                ->where('ProductID', $row->ProductID)
-                ->pluck(DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(gImage, ""), "assets/images/no-image-b.png")) AS gImage'))
-                ->toArray();
-        }
-    
-        return response()->json([
-            'status' => true,
-            'data' => $products->items(),
-            'CurrentPage' => $products->currentPage(),
-            'LastPage' => $products->lastPage(),
-        ]);
     }
     
     public function getCart(Request $req){
@@ -689,27 +688,40 @@ class CustomerAuthController extends Controller{
     }
 
     public function getCustomerHome(Request $req){
-        $CustomerID = $this->ReferID;
-        $CustomerHome = [];
+        if ($req->AID) {
+            $CustomerHome = [];
 
-        $RProducts = DB::table('tbl_products as P')
-        ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'P.CID')
-        ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')
-        ->leftJoin('tbl_uom as U', 'U.UID', 'P.UID')
-        ->where('P.ActiveStatus', 'Active')->where('P.DFlag', 0)->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)->where('PSC.ActiveStatus', 'Active')->where('PSC.DFlag', 0)
-        ->select('P.ProductName', 'P.ProductID', 'PC.PCName', 'PC.PCID', 'PSC.PSCName', 'PSC.PSCID','U.UName','U.UCode','U.UID', DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(P.ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'))
-        ->inRandomOrder()->take(5)->get();
+            $AllVendors = Helper::getAvailableVendors($req->AID);
+            
+            $products = DB::table('tbl_vendors_product_mapping as VPM')
+                ->leftJoin('tbl_products as P','P.ProductID','VPM.ProductID')
+                ->leftJoin('tbl_product_subcategory as PSC','PSC.PSCID','P.SCID')
+                ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'PSC.PCID')
+                ->leftJoin('tbl_uom as U', 'U.UID', 'P.UID')
+                ->where('VPM.Status', 1)->WhereIn('VPM.VendorID', $AllVendors)
+                ->where('P.ActiveStatus', 'Active')->where('P.DFlag', 0)
+                ->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)
+                ->where('PSC.ActiveStatus', 'Active')->where('PSC.DFlag', 0)
+                ->groupBy('PSC.PSCID', 'PSCName', 'PC.PCID', 'PCName', 'P.ProductID', 'ProductName', 'ProductImage','UName','UCode','U.UID')
+                ->select('PSC.PSCID', 'PSCName','PC.PCID', 'PCName', 'P.ProductID', 'ProductName','UName','UCode','U.UID', DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'))
+                ->inRandomOrder()->take(5)->get();
 
-        $PCategories = DB::table('tbl_product_category')->where('ActiveStatus', 'Active')->where('DFlag', 0)
-        ->select('PCName', 'PCID', DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PCImage, ""), "assets/images/no-image-b.png")) AS CategoryImage'))
-        ->inRandomOrder()->take(5)->get();
+            $PCategories = DB::table('tbl_vendors_product_mapping as VPM')
+                ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'VPM.PCID')
+                ->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)
+                ->where('VPM.Status', 1)->WhereIn('VPM.VendorID', $AllVendors)
+                ->groupBy('PC.PCID', 'PC.PCName', 'PC.PCImage')
+                ->select('PC.PCID', 'PC.PCName', DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PCImage, ""), "assets/images/no-image-b.png")) AS CategoryImage'))
+                ->inRandomOrder()->take(5)->get();
+                $CustomerHome['CurrentOrders'] = [];
+                $CustomerHome['CompletedOrders'] = [];
+                $CustomerHome['RecommendedProducts'] = $products;
+                $CustomerHome['PCategories'] = $PCategories;
 
-        $CustomerHome['CurrentOrders'] = [];
-        $CustomerHome['CompletedOrders'] = [];
-        $CustomerHome['RecommendedProducts'] = $RProducts;
-        $CustomerHome['PCategories'] = $PCategories;
-        
-		return response()->json(['status' => true, 'data' => $CustomerHome ]);
+            return response()->json(['status' => true, 'data' => $CustomerHome ]);
+        }else{
+            return response()->json(['status' => false,'message' => "Shipping Address is required!"]);
+        }
 	}
     public function getCustomerHomeSearchd(Request $req){
         $PostalID = $req->PostalID ?? DB::table('tbl_customer')->where('CustomerID',$this->ReferID)->value('PostalCodeID');
@@ -756,45 +768,43 @@ class CustomerAuthController extends Controller{
         }
 	}
     public function getCustomerHomeSearch(Request $req){
-        $PostalID = $req->PostalID ?? DB::table('tbl_customer')->where('CustomerID',$this->ReferID)->value('PostalCodeID');
-        
-        if($PostalID && $req->SearchText){
-            $AllVendors = DB::table('tbl_vendors as V')->leftJoin('tbl_vendors_service_locations as VSL','V.VendorID','VSL.VendorID')->where('V.ActiveStatus',"Active")->where('V.DFlag',0)->where('VSL.PostalCodeID',$PostalID)->groupBy('VSL.VendorID')->pluck('VSL.VendorID')->toArray();
-            
-            $PCategories = DB::table('tbl_product_category as PC')
-                ->rightJoin('tbl_vendors_product_mapping as VPM', 'PC.PCID', 'VPM.PCID')
-                ->where('VPM.Status', 1)
-                ->whereIn('VPM.VendorID', $AllVendors)
-                ->where('PC.PCName', 'like', '%' . $req->SearchText . '%')
-                ->groupBy('PC.PCID', 'PC.PCName')
-                ->select('PC.PCID', 'PC.PCName')->take(3)->get();
+        if ($req->AID) {
+            if($req->SearchText){
+                $AllVendors = Helper::getAvailableVendors($req->AID);
 
-            $PSCategories = DB::table('tbl_product_subcategory as PSC')
-                ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'PSC.PCID')
+                $PCategories = DB::table('tbl_product_category as PC')
+                    ->rightJoin('tbl_vendors_product_mapping as VPM', 'PC.PCID', 'VPM.PCID')
+                    ->where('VPM.Status', 1)
+                    ->whereIn('VPM.VendorID', $AllVendors)
+                    ->where('PC.PCName', 'like', '%' . $req->SearchText . '%')
+                    ->groupBy('PC.PCID', 'PC.PCName')
+                    ->select('PC.PCID', 'PC.PCName')->take(3)->get();
 
-                ->rightJoin('tbl_vendors_product_mapping as VPM', 'PSC.PSCID', 'VPM.PSCID')
-                ->where('VPM.Status', 1)
-                ->whereIn('VPM.VendorID', $AllVendors)
-                ->where('PSC.PSCName', 'like', '%' . $req->SearchText . '%')
-                ->groupBy('PC.PCID', 'PC.PCName', 'PSC.PSCID', 'PSC.PSCName')
-                ->select('PC.PCID', 'PC.PCName', 'PSC.PSCID', 'PSC.PSCName')->take(3)->get();
+                $PSCategories = DB::table('tbl_product_subcategory as PSC')
+                    ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'PSC.PCID')
+                    ->rightJoin('tbl_vendors_product_mapping as VPM', 'PSC.PSCID', 'VPM.PSCID')
+                    ->where('VPM.Status', 1)
+                    ->whereIn('VPM.VendorID', $AllVendors)
+                    ->where('PSC.PSCName', 'like', '%' . $req->SearchText . '%')
+                    ->groupBy('PC.PCID', 'PC.PCName', 'PSC.PSCID', 'PSC.PSCName')
+                    ->select('PC.PCID', 'PC.PCName', 'PSC.PSCID', 'PSC.PSCName')->take(3)->get();
 
-            $Products = DB::table('tbl_products as P')
-                ->leftJoin('tbl_product_subcategory as PSC', 'P.SCID', 'PSC.PSCID')
-                ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'PSC.PCID')
-                ->rightJoin('tbl_vendors_product_mapping as VPM', 'P.ProductID', 'VPM.ProductID')
-                ->where('VPM.Status', 1)
-                ->whereIn('VPM.VendorID', $AllVendors)
-                ->where('P.ProductName', 'like', '%' . $req->SearchText . '%')
-                ->groupBy('P.ProductID', 'P.ProductName', 'PC.PCID', 'PC.PCName', 'PSC.PSCID', 'PSC.PSCName')
-                ->select('P.ProductID', 'P.ProductName', 'PC.PCID', 'PC.PCName', 'PSC.PSCID', 'PSC.PSCName')->take(3)->get();
+                $Products = DB::table('tbl_products as P')
+                    ->leftJoin('tbl_product_subcategory as PSC', 'P.SCID', 'PSC.PSCID')
+                    ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'PSC.PCID')
+                    ->rightJoin('tbl_vendors_product_mapping as VPM', 'P.ProductID', 'VPM.ProductID')
+                    ->where('VPM.Status', 1)
+                    ->whereIn('VPM.VendorID', $AllVendors)
+                    ->where('P.ProductName', 'like', '%' . $req->SearchText . '%')
+                    ->groupBy('P.ProductID', 'P.ProductName', 'PC.PCID', 'PC.PCName', 'PSC.PSCID', 'PSC.PSCName')
+                    ->select('P.ProductID', 'P.ProductName', 'PC.PCID', 'PC.PCName', 'PSC.PSCID', 'PSC.PSCName')->take(3)->get();
 
-            $ProductData = ['PCategories'=>$PCategories,'PSCategories'=>$PSCategories,'Products'=>$Products];
-
-
-            return response()->json(['status' => true, 'data' => $ProductData ]);
+                $ProductData = ['PCategories'=>$PCategories,'PSCategories'=>$PSCategories,'Products'=>$Products];
+                
+                return response()->json(['status' => true, 'data' => $ProductData ]);
+            }
         }else{
-            return response()->json(['status' => false, 'data' => [] ]);
+            return response()->json(['status' => false,'message' => "Shipping Address is required!"]);
         }
 	}
 }

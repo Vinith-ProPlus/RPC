@@ -2352,7 +2352,7 @@
         $(document).on('click', '#btnCancelStockPoint', function () {
             $('.errors').html("");
             $("#btnAddStockPoint").attr('data-edit-id', "").attr('data-index', "").html("Add");
-            $("#btnCancelStockPoint").removeClass('display:block').css('display', 'none');
+            $("#btnCancelStockPoint").removeClass('display:block').css('display', 'none');  
             clearStockPointDetails();
         });
         $(document).on('click', '.btnDeleteStockPoint', function () {

@@ -2,15 +2,18 @@
 @section('content')
 <style>
     .stamp-badge {
-    padding: 3px 6px;
-    margin: -10px;
-    z-index: 1;
-}
+        padding: 3px 6px;
+        margin: -10px;
+        z-index: 1;
+    }
+    .valign-top th{
+        vertical-align:top !important;
+    }
 </style>
 <div class="container-fluid">
 	<div class="page-header">
 		<div class="row">
-			<div class="col-sm-12">
+			<div class="col-sm-6">
 				<ol class="breadcrumb">
 					<li class="breadcrumb-item"><a href="{{ url('/') }}" data-original-title="" title=""><i class="f-16 fa fa-home"></i></a></li>
 					<li class="breadcrumb-item">Transaction</li>
@@ -18,9 +21,21 @@
                     <li class="breadcrumb-item">Quote View</li>
 				</ol>
 			</div>
+            <div class="col-sm-6 text-right">
+                @if($crud['view']==true)
+                    <a href="{{url('/')}}/admin/transaction/quotation" class="btn {{$Theme['button-size']}} btn-outline-dark m-5" >Back</a>
+                @endif
+                @if($QData->Status=="New")
+                    <button class="btn {{$Theme['button-size']}} btn-outline-danger m-5 btnCancelQuote" data-id="{{$QID}}">Cancel Quote</button>
+                    <button class="btn {{$Theme['button-size']}} btn-outline-success btn-air-success m-5 btnOrderConvert" data-id="{{$QID}}">Move to Order</button>
+                @endif
+            </div>
 		</div>
 	</div>
 </div>
+<?php 
+    $vendorAdditionalCharges=[];
+?>
 <div class="container-fluid">
 	<div class="row d-flex justify-content-center">
 		<div class="col-12 col-sm-12 col-lg-12">
@@ -37,16 +52,20 @@
                                         </div>
                                         <div class="card-body">
                                             @foreach([
-                                                'Customer Name' => $QData->ReceiverName,
+                                                'Customer Name' => $QData->CustomerName,
+                                                
                                                 'Email' => $QData->Email,
-                                                'Contact Number' => $QData->ReceiverMobNo ,
+                                                'Contact Number' => $QData->MobileNo1 ,
                                                 'Quote Expiry Date' => date($Settings['date-format'], strtotime($QData->QExpiryDate)),
+                                                'Contact Person' => ($QData->ReceiverName!="")? $QData->ReceiverName." <span> (".$QData->ReceiverMobNo.")</span>":"",
                                             ] as $label => $value)
-                                                <div class="row my-1">
-                                                    <div class="col-sm-5 fw-600">{{ $label }}</div>
-                                                    <div class="col-sm-1 fw-600 text-center">:</div>
-                                                    <div class="col-sm-6">{{ $value }}</div>
-                                                </div>
+                                                @if($value!="")
+                                                    <div class="row my-1">
+                                                        <div class="col-sm-5 fw-600">{{ $label }}</div>
+                                                        <div class="col-sm-1 fw-600 text-center">:</div>
+                                                        <div class="col-sm-6"><?php echo $value ?></div>
+                                                    </div>
+                                                @endif
                                             @endforeach
                                         </div>
                                     </div>
@@ -60,13 +79,13 @@
                                             <?php 
                                                 $Address="";
                                                 // if($QData->CustomerName!=""){$Address.="<b>".$QData->CustomerName."</b>";}
-                                                if($QData->Address!=""){if($Address!=""){$Address.=",<br> ";}$Address.=$QData->Address;}
-                                                if($QData->CityName!=""){if($Address!=""){$Address.=",<br> ";}$Address.=$QData->CityName;}
-                                                if($QData->TalukName!=""){if($Address!=""){$Address.=",<br> ";}$Address.=$QData->TalukName;}
-                                                if($QData->DistrictName!=""){if($Address!=""){$Address.=",<br> ";}$Address.=$QData->DistrictName;}
-                                                if($QData->StateName!=""){if($Address!=""){$Address.=",<br>";}$Address.=$QData->StateName;}
-                                                if($QData->CountryName!=""){if($Address!=""){$Address.=", ";}$Address.=$QData->CountryName;}
-                                                if($QData->PostalCode!=""){if($Address!=""){$Address.=" - ";}$Address.=$QData->PostalCode;}
+                                                if($QData->BAddress!=""){if($Address!=""){$Address.=",<br> ";}$Address.=$QData->BAddress;}
+                                                if($QData->BCityName!=""){if($Address!=""){$Address.=",<br> ";}$Address.=$QData->BCityName;}
+                                                if($QData->BTalukName!=""){if($Address!=""){$Address.=",<br> ";}$Address.=$QData->BTalukName;}
+                                                if($QData->BDistrictName!=""){if($Address!=""){$Address.=",<br> ";}$Address.=$QData->BDistrictName;}
+                                                if($QData->BStateName!=""){if($Address!=""){$Address.=",<br>";}$Address.=$QData->BStateName;}
+                                                if($QData->BCountryName!=""){if($Address!=""){$Address.=", ";}$Address.=$QData->BCountryName;}
+                                                if($QData->BPostalCode!=""){if($Address!=""){$Address.=" - ";}$Address.=$QData->BPostalCode;}
                                                 if($Address!=""){$Address.=".";}
                                                 echo  $Address;
                                             ?>
@@ -99,97 +118,153 @@
                         <div class="col-12 col-sm-12 col-lg-12">
                             <div class="card">
                                 <div class="card-header">
-                                    <h6 class="text-center fw-700">Allocated Quotation</h6>
+                                    <h6 class="text-center fw-700">Quotation</h6>
                                 </div>
                                 <div class="card-body">
-                                    <table class="table" id="tblAllocatedQuote">
+                                    <table class="table" id="tblQuoteDetails">
                                         <thead>
-                                            <tr>
+                                            <tr class="valign-top">
                                                 <th class="text-center align-middle">S.No</th>
                                                 <th class="text-center align-middle">Product Name</th>
                                                 <th class="text-center align-middle">Qty</th>
-                                                <th class="text-center align-middle">UOM</th>
-                                                <th class="text-center align-middle">Price per Unit<br> (₹)</th>
+                                                <th class="text-center align-middle">Price<br> (₹)</th>
                                                 <th class="text-center align-middle">Tax Type</th>
                                                 <th class="text-center align-middle">Taxable<br> (₹)</th>
-                                                <th class="text-center align-middle">Tax Amount<br> (₹)</th>
-                                                <th class="text-center align-middle">CGST %</th>
-                                                <th class="text-center align-middle">CGST Amount<br> (₹)</th>
-                                                <th class="text-center align-middle">SGST %</th>
-                                                <th class="text-center align-middle">SGST Amount<br> (₹)</th>
-                                                <th class="text-center align-middle">IGST %</th>
-                                                <th class="text-center align-middle">IGST Amount<br> (₹)</th>
+                                                <!---->
+                                                @if(count($QData->Details)>0)
+                                                    @if(floatval($QData->Details[0]->IGSTAmt)<=0)
+                                                        <th class="text-center align-middle">CGST<br> (₹)</th>
+                                                        <th class="text-center align-middle">SGST<br> (₹)</th>
+                                                    @else
+                                                        <th class="text-center align-middle">IGST<br> (₹)</th>
+                                                    @endif
+                                                @else
+                                                    <th class="text-center align-middle">Tax Amount<br> (₹)</th>
+                                                @endif
                                                 <th class="text-center align-middle">Total Amount<br> (₹)</th>
                                                 <th class="text-center align-middle">Allocated To</th>
+                                                @if($QData->Status=="New" && $crud['delete']==true)
                                                 <th class="text-center align-middle">Action</th>
+                                                @endif
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            @foreach ($FinalQuoteData as $key=>$item)
-                                                <tr>
+                                            @foreach ($QData->Details as $key=>$item)
+                                                <tr data-vendor-id="{{$item->VendorID}}" data-detail-id="{{$item->DetailID}}">
                                                     <td>{{$key + 1}}</td>
                                                     <td>{{$item->ProductName}}</td>
-                                                    <td class="text-right">{{$item->Qty}}</td>
-                                                    <td>{{$item->UName}} ({{$item->UCode}})</td>
+                                                    <td class="text-right">{{$item->Qty}} {{$item->UCode}}</td>
                                                     <td class="text-right">{{!$item->isCancelled ? NumberFormat($item->Price, $Settings['price-decimals']) : '--'}}</td>
                                                     <td>{{!$item->isCancelled ? $item->TaxType : '--'}}</td>
                                                     <td class="text-right">{{!$item->isCancelled ? NumberFormat($item->Taxable, $Settings['price-decimals']) : '--'}}</td>
-                                                    <td class="text-right">{{!$item->isCancelled ? NumberFormat($item->TaxAmt, $Settings['price-decimals']) : '--'}}</td>
-                                                    <td class="text-right">{{!$item->isCancelled ? NumberFormat($item->CGSTPer, $Settings['percentage-decimals']) : '--'}}</td>
-                                                    <td class="text-right">{{!$item->isCancelled ? NumberFormat($item->CGSTAmt, $Settings['price-decimals']) : '--'}}</td>
-                                                    <td class="text-right">{{!$item->isCancelled ? NumberFormat($item->SGSTPer, $Settings['percentage-decimals']) : '--'}}</td>
-                                                    <td class="text-right">{{!$item->isCancelled ? NumberFormat($item->SGSTAmt, $Settings['price-decimals']) : '--'}}</td>
-                                                    <td class="text-right">{{!$item->isCancelled ? NumberFormat($item->IGSTPer, $Settings['percentage-decimals']) : '--'}}</td>
-                                                    <td class="text-right">{{!$item->isCancelled ? NumberFormat($item->IGSTAmt, $Settings['price-decimals']) : '--'}}</td>
+                                                    <!--<td class="text-right">{{!$item->isCancelled ? NumberFormat($item->TaxAmt, $Settings['price-decimals']) : '--'}}</td>-->
+                                                    @if(count($QData->Details)>0)
+                                                        @if(floatval($item->IGSTAmt)<=0)
+                                                            <td class="text-right">
+                                                                <div>{{NumberFormat($item->CGSTAmt, $Settings['price-decimals'])}}</div>
+                                                                <div class="fs-11">({{floatval(NumberFormat($item->CGSTPer, $Settings['percentage-decimals']))}}%)</div>
+                                                            </td>
+                                                            <td class="text-right">
+                                                                <div>{{NumberFormat($item->SGSTAmt, $Settings['price-decimals'])}}</div>
+                                                                <div class="fs-11">({{floatval(NumberFormat($item->SGSTPer, $Settings['percentage-decimals']))}}%)</div>
+                                                            </td>
+                                                        @else
+                                                            <td class="text-right">
+                                                                <div>{{NumberFormat($item->IGSTAmt, $Settings['price-decimals'])}}</div>
+                                                                <div class="fs-11">({{floatval(NumberFormat($item->IGSTPer, $Settings['percentage-decimals']))}}%)</div>
+                                                            </td>
+                                                        @endif
+                                                    @else
+                                                        <td class="text-right">{{NumberFormat(0, $Settings['price-decimals'])}}</td>
+                                                    @endif
                                                     <td class="text-right">{{!$item->isCancelled ? NumberFormat($item->TotalAmt, $Settings['price-decimals']) : '--'}}</td>
                                                     <td><span class=" fw-600 text-info text-center">{{$item->VendorName}}</span></td>
-                                                    <td class="text-center">
-                                                        @if(!$item->isCancelled)
-                                                        <button type="button" data-detail-id="{{$item->DetailID}}" data-q-id="{{$FinalQuoteData[0]->QID}}" class="btn btn-outline-danger btnQItemDelete" data-original-title="Delete"><i class="fa fa-trash" aria-hidden="true"></i></button>
-                                                        @else
-                                                        <span class=" fw-600 text-danger text-center">Cancelled</span>
-                                                        @endif
-                                                    </td>
+                                                    @if($QData->Status=="New"  && $crud['delete']==true)
+                                                        <td class="text-center">
+                                                            @if(!$item->isCancelled)
+                                                                <button type="button"  data-vendor-id="{{$item->VendorID}}" data-additional-charge="<?php if(array_key_exists($item->VendorID,$QData->AdditionalCharges)){ echo $QData->AdditionalCharges[$item->VendorID];}else{ echo 0;} ?>" data-detail-id="{{$item->DetailID}}" data-qno="{{$item->ProductName}}" data-id="{{$item->QID}}" class="btn btn-outline-danger btnQItemDelete" data-original-title="Delete"><i class="fa fa-trash" aria-hidden="true"></i></button>
+                                                            @else
+                                                                <span class=" fw-600 text-danger text-center">Cancelled</span>
+                                                            @endif
+                                                        </td>
+                                                    @endif
+                                                    <?php 
+                                                        $tmpAmount=0;
+                                                        if(array_key_exists($item->VendorID,$QData->AdditionalCharges)){ $tmpAmount=$QData->AdditionalCharges[$item->VendorID];}
+                                                        $vendorAdditionalCharges[$item->VendorID]=["name"=>$item->VendorName,"amount"=>$tmpAmount]
+                                                    ?>
+                                                    <td class="tdata" style="display:none"><?php echo json_encode($item); ?></td>
                                                 </tr>
                                             @endforeach
                                         </tbody>
                                     </table>
-                                    <div class="row justify-content-end">
+                                    <div class="row justify-content-end mt-20">
+                                        <div class="col-sm-6 ">
+                                            <div class="card shadow-sm">
+                                                <div class="card-header">
+                                                    <div class="row">
+                                                        <div class="col-2"></div>
+                                                        <div class="col-8 text-center fw-600">Vendor Additional Charges</div>
+                                                        <div class="col-2 text-right"> @if($QData->Status=="New")<a href="#" id="btnEditVACharges" title="Update Vendor's Additional Costs"><i class="fa fa-pencil" ></i></a> @endif</div>
+                                                    </div>
+                                                </div>
+                                                <div class="card-body">
+                                                    @foreach ($vendorAdditionalCharges as $VendorID=>$VData)
+                                                        <div class="row mt-10">
+                                                            <div class="col-4">{{$VData['name']}}</div>
+                                                            <div class="col-8 d-flex align-items-center">: {{$VData['amount']}}</div>
+                                                        </div>
+                                                    @endforeach
+                                                </div>
+                                            </div>
+                                        </div>
                                         <div class="col-sm-6">
-                                            <div class="row mt-20 fw-600 fs-15 mr-10 justify-content-end">
+                                            <div class="row fw-500 fs-13 mr-10 justify-content-end">
                                                 <div class="col-4">Sub Total</div>
                                                 <div class="col-1">:</div>
-                                                <div class="col-3 text-right" id="divSubTotal">{{NumberFormat($FinalQuoteData[0]->SubTotal,$Settings['price-decimals'])}}</div>
+                                                <div class="col-3 text-right" id="divSubTotal">{{NumberFormat($QData->SubTotal,$Settings['price-decimals'])}}</div>
                                             </div>
-                                            <div class="row mt-10 fw-600 fs-15 mr-10 justify-content-end">
-                                                <div class="col-4">CGST</div>
-                                                <div class="col-1">:</div>
-                                                <div class="col-3 text-right" id="divCGSTAmount">{{NumberFormat($FinalQuoteData[0]->CGSTAmount,$Settings['price-decimals'])}}</div>
-                                            </div>
-                                            <div class="row mt-10 fw-600 fs-15 mr-10 justify-content-end">
-                                                <div class="col-4">SGST</div>
-                                                <div class="col-1">:</div>
-                                                <div class="col-3 text-right" id="divSGSTAmount">{{NumberFormat($FinalQuoteData[0]->SGSTAmount,$Settings['price-decimals'])}}</div>
-                                            </div>
-                                            <div class="row mt-10 fw-600 fs-15 mr-10 justify-content-end">
-                                                <div class="col-4">IGST</div>
-                                                <div class="col-1">:</div>
-                                                <div class="col-3 text-right" id="divIGSTAmount">{{NumberFormat($FinalQuoteData[0]->IGSTAmount,$Settings['price-decimals'])}}</div>
-                                            </div>
-                                            <div class="row mt-10 fw-600 fs-16 mr-10 justify-content-end text-success">
+                                            @if(count($QData->Details)>0)
+                                                @if(floatval($QData->IGSTAmount)<=0)
+                                                    <div class="row mt-10 fw-500 fs-13 mr-10 justify-content-end">
+                                                        <div class="col-4">CGST</div>
+                                                        <div class="col-1">:</div>
+                                                        <div class="col-3 text-right" id="divCGSTAmount">{{NumberFormat($QData->CGSTAmount,$Settings['price-decimals'])}}</div>
+                                                    </div>
+                                                    <div class="row mt-10 fw-500 fs-13 mr-10 justify-content-end">
+                                                        <div class="col-4">SGST</div>
+                                                        <div class="col-1">:</div>
+                                                        <div class="col-3 text-right" id="divSGSTAmount">{{NumberFormat($QData->SGSTAmount,$Settings['price-decimals'])}}</div>
+                                                    </div>
+                                                @else
+                                                    <div class="row mt-10 fw-500 fs-13 mr-10 justify-content-end">
+                                                        <div class="col-4">IGST</div>
+                                                        <div class="col-1">:</div>
+                                                        <div class="col-3 text-right" id="divIGSTAmount">{{NumberFormat($QData->IGSTAmount,$Settings['price-decimals'])}}</div>
+                                                    </div>
+                                                @endif
+                                            @else
+                                            
+                                                <div class="row mt-10 fw-500 fs-13 mr-10 justify-content-end">
+                                                    <div class="col-4">Tax Amount</div>
+                                                    <div class="col-1">:</div>
+                                                    <div class="col-3 text-right" id="divTaxAmount">{{NumberFormat($QData->TaxAmount,$Settings['price-decimals'])}}</div>
+                                                </div>
+                                            @endif
+                                            <div class="row mt-10 fw-600 fs-14 mr-10 justify-content-end">
                                                 <div class="col-4">Total Amount</div>
                                                 <div class="col-1">:</div>
-                                                <div class="col-3 text-right" id="divTotalAmount">{{NumberFormat($FinalQuoteData[0]->TotalAmount,$Settings['price-decimals'])}}</div>
+                                                <div class="col-3 text-right" id="divTotalAmount">{{NumberFormat($QData->TotalAmount,$Settings['price-decimals'])}}</div>
                                             </div>
-                                            <div class="row mt-10 fw-600 fs-15 mr-10 justify-content-end">
-                                                <div class="col-4">Additional Amount</div>
+                                            <div class="row mt-10 fw-500 fs-13 mr-10 justify-content-end">
+                                                <div class="col-4">Additional Amount @if($QData->Status=="New") <a href="#" class="ml-5" id="btnEditCustomerCost" title="Click here to edit customer additional charges."><i class="fa fa-pencil"></i></a> @endif</div>
                                                 <div class="col-1">:</div>
-                                                <div class="col-3 text-right" id="divAdditionalAmount">{{NumberFormat($FinalQuoteData[0]->AdditionalCost,$Settings['price-decimals'])}}</div>
+                                                <div class="col-3 text-right" id="divAdditionalAmount">{{NumberFormat($QData->AdditionalCost,$Settings['price-decimals'])}}</div>
                                             </div>
                                             <div class="row mt-10 fw-800 fs-17 mr-10 justify-content-end text-success">
-                                                <div class="col-4">Overall Amount</div>
+                                                <div class="col-4">Net Amount</div>
                                                 <div class="col-1">:</div>
-                                                <div class="col-3 text-right" id="divOverAllAmount">{{NumberFormat($FinalQuoteData[0]->OverAllAmount,$Settings['price-decimals'])}}</div>
+                                                <div class="col-3 text-right" id="divOverAllAmount">{{NumberFormat($QData->NetAmount,$Settings['price-decimals'])}}</div>
                                             </div>
                                         </div>
                                     </div>
@@ -202,10 +277,16 @@
                     <div class="row">
                         <div class="col-sm-12 text-right">
                             @if($crud['view']==true)
-                            <a href="{{url('/')}}/admin/admin/transaction/quote-enquiry" class="btn {{$Theme['button-size']}} btn-outline-dark mr-10" id="btnCancel">Back</a>
+                                <a href="{{url('/')}}/admin/transaction/quotation" class="btn {{$Theme['button-size']}} btn-outline-dark m-5" >Back</a>
                             @endif
-                            
-                            <button class="btn {{$Theme['button-size']}} btn-outline-primary" id="btnOrderConvert">Convert to Order</button>
+                            @if($QData->Status=="New")
+                                @if($crud['delete'])
+                                    <button class="btn {{$Theme['button-size']}} btn-outline-danger m-5 btnCancelQuote" data-id="{{$QID}}">Cancel Quote</button>
+                                @endif
+                                @if($OtherCRUD['order']['add']==true)
+                                    <button class="btn {{$Theme['button-size']}} btn-outline-success btn-air-success m-5 btnOrderConvert" data-id="{{$QID}}">Move to Order</button>
+                                @endif
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -214,452 +295,420 @@
 	</div>
 </div>
 
+<div class="modal fade QuoteCancelModel" id="QuoteCancelModel" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+	<div class="modal-dialog modal-dialog-centered modal-fullscreen-md-down">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h1 class="modal-title fs-15 fw-600" id="QuoteCancelModelLabel">Quote Cancel</h1>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<input type="hidden" id="txtMQID" value="{{$QID}}">
+				<input type="hidden" id="txtMEnqID" value="{{$QData->EnqID}}">
+				<input type="hidden" id="txtMQDID">
+				<input type="hidden" id="txtMVendorID">
+				<div class="row">
+					<div class="col-12">
+						<div class="form-group">
+							<label for="txtCancelReason">Reason <span class="required">*</span></label>
+							<select id="lstMCancelReason" class="form-control select2" data-parent=".QuoteCancelModel">
+								<option value="">Select a reason</option>
+							</select>
+                            <div class="errors err-sm quote-cancel-err" id="lstMCancelReason-err"></div>
+						</div>
+					</div>
+					<div class="col-12 mt-10">
+						<div class="form-group">
+							<label for="txtMDescription">Description</label>
+							<textarea name="" id="txtMDescription" rows=4 class="form-control"></textarea>
+                            <div class="errors err-sm quote-cancel-err" id="txtMDescription-err"></div>
+						</div>
+					</div>
+				</div>
+                <div class="row">
+					<div class="col-12 mt-10 divMVACharge">
+						<div class="form-group">
+							<label for="spaVNoOfItems">Vendor Additional Charge</label>
+							<div class="input-group">
+                                <input type="number" step="{{Helper::NumberSteps($Settings['price-decimals'])}}" id="txtMVACost" class="form-control" >
+                                <span class="input-group-text"> for <span id="spaVNoOfItems" class="mr-5 ml-5">0</span>  Items</span>
+                            </div>
+                            <div class="errors err-sm quote-cancel-err" id="txtMVACost-err"></div>
+						</div>
+					</div>
+					<div class="col-12 mt-10 divMCACharge">
+						<div class="form-group">
+							<label for="txtMCACost">Customer Additional Charge</label>
+							<div class="input-group">
+                                <input type="number" step="{{Helper::NumberSteps($Settings['price-decimals'])}}" id="txtMCACost" class="form-control" value="<?php  echo NumberFormat($QData->AdditionalCost,$Settings['price-decimals']);?>">
+                                <span class="input-group-text"> for <span id="spaCNoOfItems" class="mr-5 ml-5">{{count($QData->Details)}}</span>  Items</span>
+                            </div>
+                            <div class="errors err-sm quote-cancel-err" id="txtMCACost-err"></div>
+						</div>
+					</div>
+                </div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+				<button type="button" class="btn btn-outline-primary btn-sm" id="btnCancelQuote">Cancel Quote</button>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="modal fade  updateAdditionalCharges" id="updateAdditionalCharges" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+	<div class="modal-dialog medium modal-fullscreen-lg-down">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h1 class="modal-title fs-15 fw-600" id="updateAdditionalChargesLabel">Additional Charges Update</h1>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+                <div class="row">
+                    <div class="col-12 table-responsive">
+                        <table class="table table-sm" id="tblVACharges">
+                            <thead>
+                                <tr class="valign-top">
+                                    <th class="text-center bg-dark  pl-5 pr-5">Vendor Name</th>
+                                    <th class="text-center bg-dark pl-5 pr-5">Items</th>
+                                    <th class="text-center bg-dark pl-5 pr-5">Additional Charges</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+				<button type="button" class="btn btn-outline-primary btn-sm" id="btnUpdateCost">Update</button>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="modal fade  updateCACharges" id="updateCACharges" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+	<div class="modal-dialog medium modal-fullscreen-lg-down">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h1 class="modal-title fs-15 fw-600" id="updateCAChargesLabel">Additional Charges Update</h1>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+                <div class="row">
+					<div class="col-12 mt-10">
+						<div class="form-group">
+							<label for="txtMCACost1">Customer Additional Charge</label>
+							<div class="input-group">
+                                <input type="number" step="{{Helper::NumberSteps($Settings['price-decimals'])}}" id="txtMCACost1" class="form-control" value="<?php  echo NumberFormat($QData->AdditionalCost,$Settings['price-decimals']);?>">
+                                <span class="input-group-text"> for <span  class="mr-5 ml-5">{{count($QData->Details)}}</span>  Items</span>
+                            </div>
+						</div>
+					</div>
+                </div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+				<button type="button" class="btn btn-outline-primary btn-sm" id="btnUpdateCustomerCost">Update</button>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="modal fade  ApproveOrder" id="ApproveOrder" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+	<div class="modal-dialog medium modal-fullscreen-lg-down">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h1 class="modal-title fs-15 fw-600" id="updateCAChargesLabel">Order Details</h1>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+                <div class="row">
+					<div class="col-12 mt-10">
+						<div class="form-group">
+							<label for="dtpDeliveryExpected">Expected Delivery</label>
+                            <input type="date"  id="dtpDeliveryExpected" class="form-control" min="{{date('Y-m-d')}}" value="<?php echo date("Y-m-d",strtotime(intval($Settings['Order-Delivery-Expected-days'])." days")); ?>">
+						</div>
+					</div>
+                </div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+				<button type="button" class="btn btn-outline-primary btn-sm" id="btnMoveOrder">Proceed to Order</button>
+			</div>
+		</div>
+	</div>
+</div>
 @endsection
 @section('scripts')
 <script>
     $(document).ready(function(){
-
-        const camelCaseToWords=(text)=> {
-            return text.replace(/([a-z])([A-Z])/g, '$1 $2');
+        let isItemCancel=false;
+		var cancelReasons={};
+        const init=async()=>{
+            getCancelReason();
         }
-        const generateStarRating = (rating) => {
-            const maxStars = 5;
-            const filledStars = Math.floor(rating);
-            let starsHtml = '';
-
-            let contextualClass = 'text-primary';
-
-            if (rating < 3) {
-                contextualClass = 'text-danger';
-            } else if (rating < 4) {
-                contextualClass = 'text-warning';
-            } else if (rating < 5) {
-                contextualClass = 'text-success';
-            }
-
-            for (let i = 0; i < filledStars; i++) {
-                starsHtml += `<i class="fa fa-star filled-star ${contextualClass}"></i>`;
-            }
-
-            return starsHtml;
-        };
-        /* const generateStarRating = (rating) => {
-            const maxStars = 5;
-            const filledStars = Math.floor(rating);
-            const remainder = rating % 1;
-            const emptyStars = maxStars - filledStars - (remainder > 0 ? 1 : 0);
-            let starsHtml = '';
-
-            for (let i = 0; i < maxStars; i++) {
-                starsHtml += '<i class="far fa-star"></i>';
-            }
-
-            for (let i = 0; i < filledStars; i++) {
-                starsHtml = starsHtml.replace('<i class="far fa-star"></i>', '<i class="fas fa-star filled-star"></i>');
-            }
-
-            if (remainder > 0) {
-                starsHtml = starsHtml.replace('<i class="far fa-star"></i>', '<i class="fas fa-star-half-alt filled-star"></i>');
-            }
-
-            return starsHtml;
-        }; */
-        /* $("#tblVendorQuote").DataTable({
-            searching: false,
-            lengthChange: false,
-            paging: false
-        }); */
-        
-        /* $(document).on('click', '.btnQuoteView', function (e) {
-            e.preventDefault();
-            let QNo = $(this).closest('tr').find('td:eq(0)').html();
-            let VendorName = $(this).closest('tr').find('td:eq(1)').html();
-            let AllocateButton = $(this).closest('tr').find('.btnQuoteConvert').clone();
-            $.ajax({
-                type: "post",
-                url: "{{url('/')}}/admin/transaction/quotation/get/vendor-quote-details",
-                data: { QuoteSentID: $(this).attr('data-id'), VendorID: $(this).attr('data-vendor-id') },
-                headers: { 'X-CSRF-Token': $('meta[name=_token]').attr('content') },
-                success: function (response) {
-                    let modalContent = $('<div>').append(response);
-
-                    let table = $('<table class="table">');
-                    let thead = $('<thead>').html(`<tr>
-                                                        <th class="text-center align-middle">S.No</th>
-                                                        <th class="text-center align-middle">Product Name</th>
-                                                        <th class="text-center align-middle">Qty</th>
-                                                        <th class="text-center align-middle">UOM</th>
-                                                        <th class="text-center align-middle">Price per Unit<br> (₹)</th>
-                                                        <th class="text-center align-middle">Tax Type</th>
-                                                        <th class="text-center align-middle">Taxable<br> (₹)</th>
-                                                        <th class="text-center align-middle">Tax Amount<br> (₹)</th>
-                                                        <th class="text-center align-middle">CGST %</th>
-                                                        <th class="text-center align-middle">CGST Amount<br> (₹)</th>
-                                                        <th class="text-center align-middle">SGST %</th>
-                                                        <th class="text-center align-middle">SGST Amount<br> (₹)</th>
-                                                        <th class="text-center align-middle">Total Amount<br> (₹)</th>
-                                                    </tr>`);
-                    let tbody = $('<tbody>');
-
-                    response.forEach(function (item, index) {
-                    let row = $('<tr>').html(
-                        `<td>${index + 1}</td>
-                        <td>${item.ProductName}</td>
-                        <td class="text-right">${item.Qty}</td>
-                        <td>${item.UName} (${item.UCode})</td>
-                        <td class="text-right">${Number(item.Price).toFixed({{$Settings['price-decimals']}})}</td>
-                        <td>${item.TaxType}</td>
-                        <td class="text-right">${Number(item.Taxable).toFixed({{$Settings['price-decimals']}})}</td>
-                        <td class="text-right">${Number(item.TaxAmount).toFixed({{$Settings['price-decimals']}})}</td>
-                        <td class="text-right">${Number(item.CGSTPer).toFixed({{$Settings['price-decimals']}})}</td>
-                        <td class="text-right">${Number(item.CGSTAmount).toFixed({{$Settings['price-decimals']}})}</td>
-                        <td class="text-right">${Number(item.SGSTPer).toFixed({{$Settings['price-decimals']}})}</td>
-                        <td class="text-right">${Number(item.SGSTAmount).toFixed({{$Settings['price-decimals']}})}</td>
-                        <td class="text-right">${Number(item.Amount).toFixed({{$Settings['price-decimals']}})}</td>`
-                    );
-                    tbody.append(row);
-                    });
-
-                    let totalPrice = response.reduce((total, item) => total + item.Amount, 0);
-                    let totalTaxable = response.reduce((total, item) => total + item.Taxable, 0);
-                    let totalCGST = response.reduce((total, item) => total + item.CGSTAmount, 0);
-                    let totalSGST = response.reduce((total, item) => total + item.SGSTAmount, 0);
-                    let totalIGST = 0;
-
-                    let tfoot = $('<div>').html(`
-                        <div class="row justify-content-end">
-                            <div class="col-sm-6">
-                                <div class="row mt-20 fw-600 fs-15 mr-10 justify-content-end">
-                                    <div class="col-4">Sub Total</div>
-                                    <div class="col-1">:</div>
-                                    <div class="col-3 text-right" id="divSubTotal">${totalTaxable.toFixed({{$Settings['price-decimals']}})}</div>
-                                </div>
-                                <div class="row mt-10 fw-600 fs-15 mr-10 justify-content-end">
-                                    <div class="col-4">CGST</div>
-                                    <div class="col-1">:</div>
-                                    <div class="col-3 text-right" id="divCGSTAmount">${totalCGST.toFixed({{$Settings['price-decimals']}})}</div>
-                                </div>
-                                <div class="row mt-10 fw-600 fs-15 mr-10 justify-content-end">
-                                    <div class="col-4">SGST</div>
-                                    <div class="col-1">:</div>
-                                    <div class="col-3 text-right" id="divSGSTAmount">${totalSGST.toFixed({{$Settings['price-decimals']}})}</div>
-                                </div>
-                                <div class="row mt-10 fw-600 fs-15 mr-10 justify-content-end">
-                                    <div class="col-4">IGST</div>
-                                    <div class="col-1">:</div>
-                                    <div class="col-3 text-right" id="divIGSTAmount">${totalIGST.toFixed({{$Settings['price-decimals']}})}</div>
-                                </div>
-                                <div class="row mt-10 fw-600 fs-16 mr-10 justify-content-end text-success">
-                                    <div class="col-4">Total Amount</div>
-                                    <div class="col-1">:</div>
-                                    <div class="col-3 text-right" id="divTotalAmount">${totalPrice.toFixed({{$Settings['price-decimals']}})}</div>
-                                </div>
-                            </div>
-                        </div>`);
-
-                    modalContent.append(table.append(thead).append(tbody)).append(tfoot);
-                    let modalFooter = $('<div class="modal-footer">').html(AllocateButton);
-
-                    let dialog = bootbox.dialog({
-                        title: 'Quotation Details ( ' + VendorName + ' - ' + QNo + ' )',
-                        closeButton: true,
-                        message: modalContent,
-                        className: 'modal-xl',
-                    });
-                    $(".modal-xl").css("max-width", "90% !important");
-                    dialog.find('.modal-content').append(modalFooter);
-
-                    modalFooter.on('click', 'button', function () {
-                        dialog.modal('hide');
-                    });
+		const getCancelReason=async()=>{
+			cancelReasons={};
+			$('#lstMCancelReason').select2('destroy');
+			$('#lstMCancelReason option').remove();
+			$('#lstMCancelReason').append('<option value="">Select a reason</option>');
+			$.ajax({
+            	type:"post",
+                url:"{{route('admin.transaction.quotes.get.cancel-reasons')}}",
+                headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
+                dataType:"json",
+                success:function(response){
+					for(let item of response){
+						let selected="";
+						cancelReasons[item.RReasonID]=item;
+						if(item.RReasonID==$('#lstMCancelReason').attr('data-selected')){selected="selected";}
+						$('#lstMCancelReason').append('<option '+selected+' value="'+item.RReasonID+'">'+item.RReason+'</option>');
+					}
                 }
             });
-        }); */
-        $(document).on('click', '#btnQuoteConvert', function (e) {
-            let status = false;
-            $('#tblVendorQuote tbody tr').each(function () {
-                if ($(this).find('.chkAmount:checked').length == 0) {
-                    status = false;toastr.error("Select All Product Prices!", "Failed", {positionClass: "toast-top-right",containerId: "toast-top-right",showMethod: "slideDown",hideMethod: "slideUp",progressBar: !0})
-                    return false;
-                } else {
-                    status = true;
-                }
-            });
-
-            if(status){
-                let FinalQuote = [];
-                $('#tblVendorQuote tbody tr').each(function () {
-                    let  PData = {
-                        ProductID : $(this).attr('data-product-id'),
-                        Qty : $(this).attr('data-qty'),
-                        VendorID : $(this).find('.chkAmount:checked').val(),
-                        FinalPrice : $(this).find('.chkAmount:checked').closest('.divPriceInput').find('.txtFinalPrice').val(),
-                        VQuoteID : $(this).find('.chkAmount:checked').attr('data-vendor-quote-id'),
-                        DetailID : $(this).find('.chkAmount:checked').attr('data-quote-detail-id'),
-                    }
-                    FinalQuote.push(PData);
-                });
-                AdditionalCost = [];
-                $('.txtAdditionalCost:not(:disabled)').each(function () {
-                    AdditionalCost.push({
-                        VendorID: $(this).data('vendor-id'),
-                        ACost: $(this).val()
-                    });
-                });
-
-
-                console.log(FinalQuote);
-                let formData = new FormData();
-                formData.append('AdditionalCost', JSON.stringify(AdditionalCost));
-                formData.append('FinalQuote', JSON.stringify(FinalQuote));
-                swal({
-                    title: "Are you sure?",
-                    text: "You want to Convert Quotation",
-                    type: "warning",
-                    showCancelButton: true,
-                    confirmButtonClass: "btn-outline-success",
-                    confirmButtonText: "Yes, Convert it!",
-                    closeOnConfirm: false
-                },function(){
-                    swal.close();
-                    btnLoading($('#btnQuoteConvert'));
-                    let postUrl="{{ url('/') }}/admin/transaction/quotation/quote-convert/{{$QData->QID}}";
-                    $.ajax({
-                        type:"post",
-                        url:postUrl,
-                        headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
-                        data:formData,
-                        cache: false,
-                        processData: false,
-                        contentType: false,
-                        error:function(e, x, settings, exception){ajaxErrors(e, x, settings, exception);},
-                        complete: function(e, x, settings, exception){btnReset($('#btnQuoteConvert'));ajaxIndicatorStop();$("html, body").animate({ scrollTop: 0 }, "slow");},
-                        success:function(response){
-                            if(response.status==true){
-                                swal({
-                                    title: "SUCCESS",
-                                    text: response.message,
-                                    type: "success",
-                                    showCancelButton: false,
-                                    confirmButtonClass: "btn-outline-success",
-                                    confirmButtonText: "Okay",
-                                    closeOnConfirm: false
-                                },function(){
-                                    window.location.replace("{{url('/')}}/admin/transaction/quote-enquiry");
-                                });
-                                
-                            }else{
-                                toastr.error(response.message, "Failed", {
-                                    positionClass: "toast-top-right",
-                                    containerId: "toast-top-right",
-                                    showMethod: "slideDown",
-                                    hideMethod: "slideUp",
-                                    progressBar: !0
-                                })
-                            }
-                        }
-                    });
-                });
-            }
-        });
-
-        const validateGetData=()=>{
-			let status = true;
-            let SelectedVendors = [];
-            $('.chkVendors').each(function () {
-                if ($(this).is(':checked')) {
-                    status1 = true;
-                    SelectedVendors.push($(this).attr('id'));
-                }
-            });
-            if(SelectedVendors.length == 0) {
-                status = false;
-                toastr.error("Please select a Vendor!", "Failed", {positionClass: "toast-top-right",containerId: "toast-top-right",showMethod: "slideDown",hideMethod: "slideUp",progressBar: !0})
-            }
-            $(".errors").each(function () {
-                if ($(this).html()) {
-                    let Element = $(this).closest('.divInput').find('input');
-                    Element.focus();
-                    status = false;
-                    return false;
-                }
-            });
-			let ProductDetails=[];
-			$("#tblProductDetails tbody tr").each(function () {
-				let PData = {
-					ProductID: $(this).attr("data-product-id"),
-					UOMID: $(this).find('td:eq(2)').attr("data-uom-id"),
-					Qty: $(this).find('td:eq(2)').attr("data-qty"),
-					PCID: $(this).attr("data-pcid"),
-					PSCID: $(this).attr("data-pscid"),
-					// Qty: $(this).find(".txtQty").val(),
-					// Qty: $(this).find('td:eq(2)').html(),
-				};
-                ProductDetails.push(PData);
-			});
-			let formData = new FormData();
-			formData.append('SelectedVendors', JSON.stringify(SelectedVendors));
-			formData.append('ProductDetails', JSON.stringify(ProductDetails));
-			return {formData , status};
+			$('#lstMCancelReason').select2({ dropdownParent: $('.QuoteCancelModel')});
 		}
-        $(document).on('input', '.txtQty', function () {
-			let errorElement = $(this).closest('.divInput').find('.txtQty-err');
-			let inputValue = parseFloat($(this).val());
-			if (isNaN(inputValue)) {inputValue = 0;}
-			if (inputValue < 0) {errorElement.text("Quantity cannot be less than 0");} else {errorElement.text("");}
-			$(this).val(inputValue);
-		});
-        $(document).on('blur', '.txtFinalPrice', function () {
-            let errorElement = $(this).closest('.divPriceInput').find('.errors');
-			let DefaultPrice = $(this).data('price');
-			let inputValue = parseFloat($(this).val());
-			if (inputValue < DefaultPrice) {errorElement.text("Price cannot be less than Vendor Price");$(this).val(DefaultPrice);} else {errorElement.text("");}
-		});
-
-        const LoadAdditionalCost = () => {
-            $('.txtAdditionalCost').each(function () {
-                let vendorId = $(this).data('vendor-id');
-                let VendorCount=$('.chkAmount:checked[data-vendor-id="' + vendorId + '"]').length;
-                if (VendorCount > 0) {
-                    $(this).prop('disabled', false);
-                } else {
-                    $(this).prop('disabled', true);
+        init();
+        $(document).on('click','#btnEditCustomerCost',function(e){
+            e.preventDefault();
+            $('#updateCACharges').modal('show');
+        });
+        $(document).on('click','#btnUpdateCustomerCost',function(e){
+			let formData={};
+			formData.QID="{{$QID}}";
+			formData.AdditionalCharges=$('#txtMCACost1').val();
+			$.ajax({
+                type:"post",
+                url: "{{route('admin.transaction.quotes.update.customer-cost',$QID)}}",
+                headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
+				data:formData,
+                dataType:"json",
+                async:true,
+				beforeSend:function(){
+					ajaxIndicatorStart ("The process of updating customer additional cost is currently in progress. Please wait a few seconds.")
+				},
+                complete: function(e, x, settings, exception){
+					ajaxIndicatorStop ()
+				},
+                success:function(response){
+					if(response.status){
+						$('#updateCACharges').modal('hide');
+						toastr.success(response.message, "", {positionClass: "toast-top-right",containerId: "toast-top-right",showMethod: "slideDown",hideMethod: "slideUp",progressBar: !0})
+                        window.location.reload();
+					}else{
+						toastr.error(response.message, "", {positionClass: "toast-top-right",containerId: "toast-top-right",showMethod: "slideDown",hideMethod: "slideUp",progressBar: !0})
+					}
                 }
-                $('.SelectedItemCount[data-vendor-id="' + vendorId + '"]').text('Items(' + VendorCount + ')');
             });
-        };
+        });
+        $(document).on('click','#btnEditVACharges',function(e){
+            e.preventDefault();
+            const loadVAData=async()=>{
+                $('#tblVACharges tbody tr').remove()
+                try {
+                    let t=JSON.parse('<?php echo json_encode($vendorAdditionalCharges); ?>');
+                    Object.keys(t).forEach(vendorId => {
+                        let tdata=t[vendorId];
+                        let VNoOfItems=$('#tblQuoteDetails tbody tr[data-vendor-id="'+vendorId+'"]').length;
+                        let html="<tr>";
+                                html+='<td>'+tdata.name+'</td>';
+                                html+='<td  class="text-right">'+VNoOfItems+'</td>';
+                                html+='<td class="text-right"><input type="number" data-vendor-id="'+vendorId+'" class="form-control txtMVACosts" steps="{{Helper::NumberSteps($Settings['price-decimals'])}}" value="'+tdata.amount+'"></td>';
+                            html+='</tr>';
+                            console.log(html);
+                            $('#tblVACharges tbody').append(html);
+                    })
+                } catch (error) {
+                    console.log(error)
+                }
+            }
+            loadVAData();
+            $('#updateAdditionalCharges').modal('show');
+        });
+        $(document).on('click','#btnUpdateCost',function(e){
+            let details={};
+            $('#tblVACharges tbody tr input.txtMVACosts').each(function(index){
+                let VID=$(this).attr('data-vendor-id');
+                details[VID]=$(this).val()
+            });
+			let formData={};
+			formData.QID="{{$QID}}";
+			formData.EnqID="{{$QData->EnqID}}";
+			formData.details=JSON.stringify(details);
+			$.ajax({
+                type:"post",
+                url: "{{route('admin.transaction.quotes.update.vendor-cost',$QID)}}",
+                headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
+				data:formData,
+                dataType:"json",
+                async:true,
+				beforeSend:function(){
+					ajaxIndicatorStart ("The process of updating vendor additional cost is currently in progress. Please wait a few seconds.")
+				},
+                complete: function(e, x, settings, exception){
+					ajaxIndicatorStop ()
+				},
+                success:function(response){
+					if(response.status){
+						$('#updateAdditionalCharges').modal('hide');
+						toastr.success(response.message, "", {positionClass: "toast-top-right",containerId: "toast-top-right",showMethod: "slideDown",hideMethod: "slideUp",progressBar: !0})
+                        window.location.reload();
+					}else{
+						toastr.error(response.message, "", {positionClass: "toast-top-right",containerId: "toast-top-right",showMethod: "slideDown",hideMethod: "slideUp",progressBar: !0})
+					}
+                }
+            });
+        });
+		$(document).on('click','.btnQItemDelete',function(){
 
-
-        $(document).on('click', '.btnQItemDelete', function () {
-            let formData = new FormData();
-            formData.append('DetailID',$(this).data('detail-id'));
-            formData.append('QID',$(this).data('q-id'));
-
+            isItemCancel=true;
+			let ID=$(this).attr('data-id');
+			let DID=$(this).attr('data-detail-id');
+			let vendorId=$(this).attr('data-vendor-id');
+            let AdditionalCharges=$(this).attr('data-additional-charge');
+            let VNoOfItems=$('#tblQuoteDetails tbody tr[data-vendor-id="'+vendorId+'"]').length-1
+            let CNoOfItems=$('#tblQuoteDetails tbody tr').length-1
+			let QNo=$(this).attr('data-qno');
+			let QuoteCancelModelLabel="Item Cancel "
+			QuoteCancelModelLabel+=QNo!=""?" - "+QNo:"";
+			$('#QuoteCancelModelLabel').html(QuoteCancelModelLabel);
+			$('#txtMQDID').val(DID);
+			$('#txtMVendorID').val(vendorId);
+			$('#txtMVACost').val(AdditionalCharges);
+			$('#spaVNoOfItems').html(VNoOfItems);
+            $('#spaCNoOfItems').html(CNoOfItems);
+            if(VNoOfItems<=0){
+                $('.divMVACharge').hide();
+            }else{
+                $('.divMVACharge').show();
+            }
+            if(CNoOfItems<=0){
+                $('.divMCACharge').hide();
+            }else{
+                $('.divMCACharge').show();
+            }
+            $('#btnCancelQuote').html('Cancel Item');
+			$('#QuoteCancelModel').modal('show');
+		});
+		$(document).on('click','.btnCancelQuote',function(){
+            isItemCancel=false;
+			let ID=$(this).attr('data-id');
+			let QNo=$(this).attr('data-qno');
+			let QuoteCancelModelLabel="Quote Cancel "
+			QuoteCancelModelLabel+=QNo!=""?" - "+QNo:"";
+			$('#QuoteCancelModelLabel').html(QuoteCancelModelLabel);
+			$('#txtMQDID').val("");
+			$('#txtMVendorID').val("");
+            $('#btnCancelQuote').html('Cancel Quote');
+            $('.divMVACharge').hide();
+            $('.divMCACharge').hide();
+			$('#QuoteCancelModel').modal('show');
+		});
+		$(document).on('click','#btnCancelQuote',function(){
+            const validate=(formData)=>{
+                let status=true;
+                $('.quote-cancel-err').html('');
+                if(formData.ReasonID==""){
+                    $('#lstMCancelReason-err').html('Reason is required.');status=false;
+                }
+                if(isItemCancel){
+                    if(formData.VACharges==""){
+                        $('#txtMVACost-err').html('The Vendor Additional Charge is required.');status=false;
+                    }else if($.isNumeric(formData.VACharges)==false){
+                        $('#txtMVACost-err').html('The Vendor Additional Charge must be a numeric value.');status=false;
+                    }else if(parseFloat(formData.VACharges)<0){
+                        $('#txtMVACost-err').html('The Vendor Additional Charge must be greater than or equal to 0.');status=false;
+                    }
+                    if(formData.CACharges==""){
+                        $('#txtMCACost-err').html('The Customer Additional Charge is required.');status=false;
+                    }else if($.isNumeric(formData.CACharges)==false){
+                        $('#txtMCACost-err').html('The Customer Additional Charge must be a numeric value.');status=false;
+                    }else if(parseFloat(formData.CACharges)<0){
+                        $('#txtMCACost-err').html('The Customer Additional Charge must be greater than or equal to 0.');status=false;
+                    }
+                }
+                return status;
+            }
+			let formData={};
+			formData.QID=$('#txtMQID').val();
+			formData.QDID=$('#txtMQDID').val();
+			formData.ReasonID=$('#lstMCancelReason').val();
+			formData.Description=$('#txtMDescription').val();
+			formData.VACharges=$('#txtMVACost').val();
+			formData.CACharges=$('#txtMCACost').val();
+			formData.EnqID=$('#txtMEnqID').val();
+			formData.VendorID=$('#txtMVendorID').val();
+            if(validate(formData)==true){
+                $.ajax({
+                    type:"post",
+                    url: isItemCancel?"{{route('admin.transaction.quotes.cancel-item','__ID__')}}".replace("__ID__",formData.QDID):"{{route('admin.transaction.quotes.cancel','__ID__')}}".replace("__ID__",formData.QID),
+                    headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
+                    data:formData,
+                    dataType:"json",
+                    async:true,
+                    beforeSend:function(){
+                        let text=isItemCancel?"Quotation Item Cancellation on process.":"Quotation Cancellation on process.";
+                        ajaxIndicatorStart (text)
+                    },
+                    complete: function(e, x, settings, exception){
+                        ajaxIndicatorStop ()
+                    },
+                    success:function(response){ 
+                        if(response.status){
+                            $('#QuoteCancelModel').modal('hide');
+                            toastr.success(response.message, "", {positionClass: "toast-top-right",containerId: "toast-top-right",showMethod: "slideDown",hideMethod: "slideUp",progressBar: !0})
+                            window.location.reload();
+                        }else{
+                            toastr.error(response.message, "", {positionClass: "toast-top-right",containerId: "toast-top-right",showMethod: "slideDown",hideMethod: "slideUp",progressBar: !0})
+                        }
+                    }
+                });
+            }
+		});
+		$(document).on('change','#lstMCancelReason',function(){ console.log(cancelReasons)
+			try {
+				let ReasonID=$('#lstMCancelReason').val();
+				$('#txtMDescription').text(cancelReasons[ReasonID].Description);
+			} catch (error) {
+				console.log(error);
+			}
+		});
+        $(document).on('click','.btnOrderConvert',function(){
+            $('#ApproveOrder').modal('show');
+        });
+        $(document).on('click','#btnMoveOrder',function(){
             swal({
                 title: "Are you sure?",
-                text: "You want to Delete this Quote Item!",
+                text: "Do you want to move this quote to an order?",
                 type: "warning",
                 showCancelButton: true,
                 confirmButtonClass: "btn-outline-success",
-                confirmButtonText: "Yes, Delete it!",
+                confirmButtonText: "Move",
                 closeOnConfirm: false
             },function(){
                 swal.close();
-                let postUrl="{{ url('/') }}/admin/transaction/quotation/delete-quote-item";
                 $.ajax({
                     type:"post",
-                    url:postUrl,
+                    url: "{{route('admin.transaction.quotes.approve',$QID)}}",
                     headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
-                    data:formData,
-                    cache: false,
-                    processData: false,
-                    contentType: false,
-                    error:function(e, x, settings, exception){ajaxErrors(e, x, settings, exception);},
-                    complete: function(e, x, settings, exception){ajaxIndicatorStop();$("html, body").animate({ scrollTop: 0 }, "slow");},
+                    data:{ExpectedDelivery:$('#dtpDeliveryExpected').val()},
+                    dataType:"json",
+                    async:true,
+                    beforeSend:function(){
+                        ajaxIndicatorStart ("The process of moving the quote to the order is currently in progress. Please wait for a few minutes.")
+                    },
+                    complete: function(e, x, settings, exception){
+                        ajaxIndicatorStop ()
+                    },
                     success:function(response){
-                        document.documentElement.scrollTop = 0;
-                        if(response.status==true){
-                            swal({
-                                title: "SUCCESS",
-                                text: response.message,
-                                type: "success",
-                                showCancelButton: false,
-                                confirmButtonClass: "btn-outline-success",
-                                confirmButtonText: "Okay",
-                                closeOnConfirm: false
-                            },function(){
-                                window.location.replace("{{url('/')}}/admin/transaction/quotation/view/{{$QData->QID}}");
-                            });
-                            
+                        if(response.status){
+                            $('#ApproveOrder').modal('hide');
+                            toastr.success(response.message, "", {positionClass: "toast-top-right",containerId: "toast-top-right",showMethod: "slideDown",hideMethod: "slideUp",progressBar: !0})
+                            window.location.reload();
                         }else{
-                            toastr.error(response.message, "Failed", {positionClass: "toast-top-right",containerId: "toast-top-right",showMethod: "slideDown",hideMethod: "slideUp",progressBar: !0})
+                            toastr.error(response.message, "", {positionClass: "toast-top-right",containerId: "toast-top-right",showMethod: "slideDown",hideMethod: "slideUp",progressBar: !0})
                         }
                     }
                 });
             });
-        });
-        $('#btnRequestQuote').click(async function(){
-            let { formData , status } = await validateGetData();
-            if(status){
-                swal({
-                    title: "Are you sure?",
-                    text: "You want to Send Quote Request!",
-                    type: "warning",
-                    showCancelButton: true,
-                    confirmButtonClass: "btn-outline-success",
-                    confirmButtonText: "Yes, Send it!",
-                    closeOnConfirm: false
-                },function(){
-                    swal.close();
-                    btnLoading($('#btnRequestQuote'));
-                    let postUrl="{{ url('/') }}/admin/transaction/quotation/request-quote/{{$QData->QID}}";
-                    $.ajax({
-                        type:"post",
-                        url:postUrl,
-                        headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
-                        data:formData,
-                        cache: false,
-                        processData: false,
-                        contentType: false,
-                        xhr: function() {
-                            var xhr = new window.XMLHttpRequest();
-                            xhr.upload.addEventListener("progress", function(evt) {
-                                if (evt.lengthComputable) {
-                                    var percentComplete = (evt.loaded / evt.total) * 100;
-                                    percentComplete=parseFloat(percentComplete).toFixed(2);
-                                    $('#divProcessText').html(percentComplete+'% Completed.<br> Please wait for until upload process complete.');
-                                    //Do something with upload progress here
-                                }
-                            }, false);
-                            return xhr;
-                        },
-                        beforeSend: function() {
-                            ajaxIndicatorStart("Please wait Upload Process on going.");
-
-                            var percentVal = '0%';
-                            setTimeout(() => {
-                            $('#divProcessText').html(percentVal+' Completed.<br> Please wait for until upload process complete.');
-                            }, 100);
-                        },
-                        error:function(e, x, settings, exception){ajaxErrors(e, x, settings, exception);},
-                        complete: function(e, x, settings, exception){btnReset($('#btnRequestQuote'));ajaxIndicatorStop();$("html, body").animate({ scrollTop: 0 }, "slow");},
-                        success:function(response){
-                            document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
-                            if(response.status==true){
-                                swal({
-                                    title: "SUCCESS",
-                                    text: response.message,
-                                    type: "success",
-                                    showCancelButton: false,
-                                    confirmButtonClass: "btn-outline-success",
-                                    confirmButtonText: "Okay",
-                                    closeOnConfirm: false
-                                },function(){
-                                    window.location.replace("{{url('/')}}/admin/transaction/quote-enquiry");
-                                });
-                                
-                            }else{
-                                toastr.error(response.message, "Failed", {
-                                    positionClass: "toast-top-right",
-                                    containerId: "toast-top-right",
-                                    showMethod: "slideDown",
-                                    hideMethod: "slideUp",
-                                    progressBar: !0
-                                })
-                                if(response['errors']!=undefined){
-                                    $('.errors').html('');
-                                    $.each( response['errors'], function( KeyName, KeyValue ) {
-                                        var key=KeyName;
-                                        if(key=="TaxName"){$('#txtTaxName-err').html(KeyValue);}
-                                        if(key=="Percentage"){$('#txtPercentage-err').html(KeyValue);}
-                          
-                                    });
-                                }
-                            }
-                        }
-                    });
-                });
-            }
         });
     });
 </script>

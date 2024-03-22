@@ -33,6 +33,7 @@ enum activeMenuNames:string{
     case CustomerGroups="Customer-Groups";
     case ManageCustomers="Manage-Customers";
     case Supplier="Manage-Suppliers";
+    case PaymentRequest="Payment-Request";
     
     case UserRoles="User-and-Roles";
     case Users="Users";
