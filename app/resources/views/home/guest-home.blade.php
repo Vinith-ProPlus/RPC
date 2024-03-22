@@ -56,22 +56,9 @@
                 <div class="container">
                     <div class="header-left d-md-block">
                         <div class="info-box info-box-icon-left text-primary justify-content-start p-0">
-							{{-- <i class="icon-location" style="color: #0f43b0;"></i>
-							<h6 class="font-weight-bold text-dark">Delivery Location - </h6> --}}
-							{{-- <span><a href="#" class="text-dark">45,Eden Garden, R.S.Puram, 3rd Cross, Coimbatore. 641006</a></span> --}}
 							<i class="fa fa-arrow"></i>
                         </div>
                     </div>
-					{{-- <div class="header-dropdown ">
-						<a href="#"></a>
-						<div class="header-menu">
-							<ul>
-								<li><a href="#">45, Eden Garden, Ganapathy, Coimbatore. 641006</a></li>
-								<li><a href="#">R.S.Puram, 3rd Cross, Coimbatore. 641003</a></li>
-							</ul>
-						</div>
-					</div> --}}
-
                     <div class="header-right header-dropdowns ml-0 ml-md-auto w-md-100">
                         <div class="header-dropdown mr-auto mr-md-0">
                             <div class="header-menu">
@@ -145,22 +132,12 @@
                                 </div>
                             </div>
                         </a>
-
-						{{-- <span class="separator d-none d-lg-block mr-4"></span>
-                        <a href="{{url('/')}}/login" class="d-lg-block d-none">
-                            <div class="header-user">
-                                <i class="icon-user-2"></i>
-                            </div>
-                        </a> --}}
-
                         <span class="separator d-block"></span>
 
                         <div class="dropdown cart-dropdown">
                             <a href="#" title="Cart" class="dropdown-toggle dropdown-arrow cart-toggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-display="static">
                                 <i class="icon-cart-thick"></i>
-								{{-- <i class="fa-regular fa-cart-shopping"></i> --}}
-                                {{-- <span class="cart-count badge-circle">3</span> --}}
-                            </a>
+							</a>
 
                             <div class="cart-overlay"></div>
 
@@ -192,13 +169,16 @@
                                     <i class="custom-icon-toggle-menu d-inline-table"></i><span>All
                                         Categories</span></a>
                                 <div class="menu-depart">
-                                    @foreach ($PCategories as $row)
-									<a href="#">{{$row->PCName}}</a>
-									@endforeach
+                                    @foreach ($PCategories->take(5) as $row)
+                                        <a href="{{ route('products.guest.subCategoryList', [ 'CID' => $row->PCID ]) }}">{{$row->PCName}}</a>
+                                    @endforeach
+                                    <div style="text-align: center; display: flex; justify-content: center; align-items: center;">
+                                        <a href="{{ route('products.guest.categoriesList') }}" class="text-center">More</a>
+                                    </div>
                                 </div>
                             </li>
-                            <li class="active">
-                                <a href="#">Home</a>
+                            <li class="{{ (Route::currentRouteName() == "homepage") ? 'active' : '' }}">
+                                <a href="{{ route('homepage') }}">Home</a>
                             </li>
                             <li>
                                 <a href="#">Products</a>
@@ -207,35 +187,27 @@
                                         <div class="col-lg-12">
 											<a href="#" class="nolink">PRODUCT CATEGORIES</a>
 										</div>
-                                        <div class="col-lg-4">
-                                            <ul class="submenu">
-                                                <li><a href="#">{{ $PCategories[0]->PCName ?? '' }}</a></li>
-                                                <li><a href="#">{{ $PCategories[1]->PCName ?? '' }}</a></li>
-                                                <li><a href="#">{{ $PCategories[2]->PCName ?? '' }}</a></li>
-                                            </ul>
-                                        </div>
+                                        @php
+                                        $PCategories = $PCategories->take(9);
+                                        $chunks = $PCategories->chunk(3);
+                                    @endphp
 
+                                    @foreach ($chunks as $chunk)
                                         <div class="col-lg-4">
                                             <ul class="submenu">
-                                                <li><a href="#">{{ $PCategories[3]->PCName ?? '' }}</a></li>
-                                                <li><a href="#">{{ $PCategories[4]->PCName ?? '' }}</a></li>
-                                                <li><a href="#">{{ $PCategories[5]->PCName ?? '' }}</a></li>
+                                                @foreach ($chunk as $category)
+                                                    <li><a href="{{ route('products.guest.subCategoryList', ['CID' => $category->PCID]) }}">{{ $category->PCName }}</a></li>
+                                                @endforeach
                                             </ul>
                                         </div>
-                                        <div class="col-lg-4">
-                                            <ul class="submenu">
-                                                <li><a href="#">{{ $PCategories[6]->PCName ?? '' }}</a></li>
-                                                <li><a href="#">{{ $PCategories[7]->PCName ?? '' }}</a></li>
-                                                <li><a href="#">{{ $PCategories[8]->PCName ?? '' }}</a></li>
-                                            </ul>
+                                    @endforeach
+                                        <div class="col-lg-12 p-1">
+                                            <div class="row justify-content-end">
+                                                <div class="col-lg-4">
+                                                    <a href="{{ route('guest.products') }}" class="btn btn-sm btn-dark mr-0">View More</a>
+                                                </div>
+                                            </div>
                                         </div>
-{{--										<div class="col-lg-12 p-1">--}}
-{{--											<div class="row justify-content-end">--}}
-{{--												<div class="col-lg-4">--}}
-{{--													<a href="#" class="btn btn-sm btn-dark mr-0">View More</a>--}}
-{{--												</div>--}}
-{{--											</div>--}}
-{{--										</div>--}}
                                     </div><!-- End .row -->
                                 </div><!-- End .megamenu -->
                             </li>
@@ -306,7 +278,7 @@
             <section class="category-section container">
                 <div class="d-lg-flex align-items-center appear-animate" data-animation-name="fadeInLeftShorter">
                     <h2 class="title title-underline divider">Shop Categories</h2>
-                    <a href="demo42-shop.html" class="sicon-title">VIEW CATEGORIES<i class="fas fa-arrow-right"></i></a>
+                    <a href="{{ route('products.guest.categoriesList') }}" class="sicon-title">VIEW CATEGORIES<i class="fas fa-arrow-right"></i></a>
                 </div>
                 <div class="owl-carousel owl-theme appear-animate" data-owl-options="{
                     'loop': false,
@@ -324,29 +296,23 @@
                         }
                     }
                 }">
-                @for ($i = 0; $i < 4; $i++)
-                    @php
-                        $category = $PCategories[$i];
-                    @endphp
-                    <div class="product-category">
-                        <a href="#">
-                            <figure>
-                                <img src="{{ $category->PCImage }}" alt="{{ $category->PCName }}" width="25" height="25">
-                            </figure>
-                        </a>
-                        <div class="category-content">
-                            <h3 class="category-title">{{ $category->PCName }}</h3>
-                            <ul class="sub-categories">
-                                @foreach ($category->PSCData as $subCategory)
-                                    @if ($loop->index < 4)
-                                        <li><a href="#">{{ $subCategory->PSCName }}</a></li>
-                                    @endif
-                                @endforeach
-                            </ul>
+                  @foreach ($PCategories->take(4) as $category)
+                        <div class="product-category">
+                            <a href="{{ route('products.guest.subCategoryList', ['CID' => $category->PCID]) }}">
+                                <figure>
+                                    <img src="{{ $category->PCImage }}" alt="{{ $category->PCName }}" width="25" height="25">
+                                </figure>
+                            </a>
+                            <div class="category-content">
+                                <h3 class="category-title">{{ $category->PCName }}</h3>
+                                <ul class="sub-categories">
+                                    @foreach ($category->PSCData->take(4) as $subCategory)
+                                        <li><a href="{{ route('products.guest.productsList', ['SCID' => $subCategory->PSCID]) }}">{{ $subCategory->PSCName }}</a></li>
+                                    @endforeach
+                                </ul>
+                            </div>
                         </div>
-                    </div>
-                @endfor
-
+                    @endforeach
                 </div>
             </section>
             <section class="product-section1" style="background-color: #f4f4f4;">
@@ -514,13 +480,10 @@
                     <div class="col-md-4 part-item appear-animate" data-animation-name="fadeInLeftShorter">
                         <h4>Popular Categories:</h4>
                         <ul class="list-unstyled mb-0">
-                            @for ($i = 0; $i < 4; $i++)
-                                @php
-                                    $category = $PCategories[$i];
-                                @endphp
-                                <li><a href="#">{{$category->PCName}}</a></li>
-                            @endfor
-                            <li><a class="show-action" href="#">Show All</a></li>
+                            @foreach ($PCategories->take(4) as $category)
+                                <li><a href="{{ route('products.guest.subCategoryList', ['CID' => $category->PCID]) }}">{{ $category->PCName }}</a></li>
+                            @endforeach
+                            <li><a class="show-action" href="{{ route('products.guest.categoriesList') }}">Show All</a></li>
                         </ul>
                     </div>
                     <div class="col-md-4 part-item appear-animate" data-animation-name="fadeInLeftShorter"
@@ -531,20 +494,17 @@
                             <li><a href="#">UltraTech</a></li>
                             <li><a href="#">Bharathi Cements</a></li>
                             <li><a href="#">ACC</a></li>
-                            <li><a class="show-action" href="#">Show All</a></li>
+                            <li><a class="show-action" href="{{ route('guest.products') }}">Show All</a></li>
                         </ul>
                     </div>
                     <div class="col-md-4 part-item appear-animate" data-animation-name="fadeInLeftShorter"
                         data-animation-delay="400">
                         <h3>Popular Products:</h3>
                         <ul class="list-unstyled mb-0">
-                            @for ($i = 0; $i < 4; $i++)
-                                @php
-                                    $hotProducts = $HotProducts[$i];
-                                @endphp
-                                <li><a href="#">{{$hotProducts->ProductName}}</a></li>
-                            @endfor
-                            <li><a class="show-action" href="#">Show All</a></li>
+                            @foreach ($PCategories->shuffle()->take(4) as $category)
+                                <li><a href="{{ route('products.guest.subCategoryList', ['CID' => $category->PCID]) }}">{{ $category->PCName }}</a></li>
+                            @endforeach
+                            <li><a class="show-action" href="{{ route('products.guest.categoriesList') }}">Show All</a></li>
                         </ul>
                     </div>
 
@@ -573,10 +533,13 @@
 										<span class="contact-info-label">Address:</span>45, RPC Building, Erode,<br>TamilNadu.638001.
                                     </li>
                                     <li>
-                                        <span class="contact-info-label">Phone:</span><a href="tel:">0422-4567890</a>
+                                        <span class="contact-info-label">Phone:</span><a href="tel:0422-4567890">0422-4567890</a>
                                     </li>
                                     <li>
-                                        <span class="contact-info-label">Email:</span> <a href="#"><span class="__cf_email__" data-cfemail="f895999194b89d80999588949dd69b9795">{{$Company['E-Mail']}}</span></a>
+                                        <span class="contact-info-label">Email:</span>
+                                        <a href="mailto:{{$Company['E-Mail']}}"><span
+                                                class="__cf_email__"
+                                                data-cfemail="f895999194b89d80999588949dd69b9795">{{$Company['E-Mail']}}</span></a>
                                     </li>
                                     <li>
                                         <span class="contact-info-label">Working Days/Hours:</span>
@@ -598,10 +561,9 @@
                                 <h4 class="widget-title pb-1">Customer Services</h4>
 
                                 <ul class="links">
-                                    <li><a href="#">Help &amp; FAQs</a></li>
-                                    <li><a href="#">Shipping &amp; Delivery</a></li>
-                                    <li><a href="#">Orders History</a></li>
-                                    <li><a href="#">Login</a></li>
+                                    @foreach(DB::table('tbl_page_content')->select('Slug', 'PageName')->get() as $Policy)
+                                        <li><a href="{{ route('policies', $Policy->Slug) }}">{{ $Policy->PageName ?? '' }}</a></li>
+                                    @endforeach
                                 </ul>
                             </div><!-- End .widget -->
                         </div><!-- End .col-lg-3 -->

@@ -24,7 +24,6 @@
     <link rel="stylesheet" href="{{url('/')}}/home/assets/css/slider.css">
     <link rel="stylesheet" href="{{url('/')}}/home/assets/css/demo42.min.css">
     <link rel="stylesheet" href="{{url('/')}}/home/assets/css/toastr.css">
-    <link rel="stylesheet" href="{{url('/')}}/assets/home/vendor/simple-line-icons/css/simple-line-icons.min.css">
     {{-- <link rel="stylesheet" href="{{url('/')}}/home/assets/css/style.min.css"> --}}
     <link rel="stylesheet" type="text/css" href="{{url('/')}}/home/assets/vendor/fontawesome-free/css/all.min.css">
     <link rel="stylesheet" type="text/css" href="{{url('/')}}/assets/plugins/image-cropper/cropper.css?r={{date('YmdHis')}}">
@@ -38,6 +37,7 @@
     <link rel="stylesheet" type="text/css" href="{{url('/')}}/assets/plugins/dataTable/css/bootstrap5.dataTables.min.css?r={{date('YmdHis')}}">
     <link rel="stylesheet" type="text/css" href="{{url('/')}}/assets/css/datatable-extension.css?r={{date('YmdHis')}}">
     {{-- <link rel="stylesheet" type="text/css" href="{{url('/')}}/assets/css/bootstrap.css?r={{date('YmdHis')}}"> --}}
+
     <script>
         WebFontConfig = {
             google: { families: [ 'Open+Sans:400,600', 'Poppins:400,500,600,700' ] }
@@ -68,6 +68,25 @@
     <header class="header">
         <div class="header-top">
             <div class="container">
+                {{-- @if(!$isRegister)
+                    <div class="header-left d-md-block">
+                        <div class="info-box info-box-icon-left text-primary justify-content-start p-0">
+                            <i class="icon-location" style="color:#ff6840;"></i>
+                            <h6 class="font-weight-bold text-dark">Delivery Location - </h6>
+                            <span><a href="#" class="text-dark">45,Eden Garden, R.S.Puram, 3rd Cross, Coimbatore. 641006</a></span>
+                            <i class="fa fa-arrow"></i>
+                        </div>
+                    </div>
+                    <div class="header-dropdown ">
+                        <a href="#"></a>
+                        <div class="header-menu">
+                            <ul>
+                                <li>45, Eden Garden, Ganapathy, Coimbatore. 641006</li>
+                                <li><a href="#">R.S.Puram, 3rd Cross, Coimbatore. 641003</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                @endif --}}
                 @if(!$isRegister)
                     <div class="header-left d-md-block">
                         <div class="align-middle" style="display: inline-block;">
@@ -165,20 +184,23 @@
                     </div>
 
                     <span class="separator d-none d-lg-block mr-4"></span>
-                    {{-- <a href="{{url('/')}}/social/auth/google" class="d-lg-block d-none">
-                        <div class="header-user">
-                            <div class="header-userinfo">
-                                <span>Welcome</span>
-                                <h4>Sign In / Register</h4>
-                            </div>
-                        </div>
-                    </a> --}}
 
-                    <a href="@if($isRegister && !$isEdit) # @else {{url('/')}}/customer-profile @endif" class="d-lg-block d-none">
-                        <div class="header-user">
-                            <i class="icon-user-2"></i>
-                        </div>
-                    </a>
+                    @if($isRegister)
+                        <a href="{{url('/')}}/social/auth/google" class="d-lg-block d-none" id="loginBtn">
+                            <div class="header-user">
+                                <div class="header-userinfo">
+                                    <span>Welcome</span>
+                                    <h4>Sign In / Register</h4>
+                                </div>
+                            </div>
+                        </a>
+                    @else
+                        <a href="{{url('/')}}/customer-profile" class="d-lg-block d-none">
+                            <div class="header-user">
+                                <i class="icon-user-2"></i>
+                            </div>
+                        </a>
+                    @endif
 
                     <span class="separator d-block"></span>
 
@@ -254,14 +276,14 @@
                                         Categories</span></a>
                             <div class="menu-depart">
                                 @foreach ($PCategories->take(5) as $row)
-                                    <a href="{{ route('products.customer.subCategoryList', [ 'CID' => $row->PCID ]) }}">{{$row->PCName}}</a>
+                                    <a href="{{ route('products.guest.subCategoryList', [ 'CID' => $row->PCID ]) }}">{{$row->PCName}}</a>
                                 @endforeach
                                     <div style="text-align: center; display: flex; justify-content: center; align-items: center;">
-                                        <a href="{{ route('products.customer.categoriesList') }}" class="text-center">More</a>
+                                        <a href="{{ auth()->check() ? route('products.customer.categoriesList') : route('products.guest.categoriesList') }}" class="text-center">More</a>
                                     </div>
                             </div>
                         </li>
-                        <li class="{{ (Route::currentRouteName() == "homepage") ? 'active' : '' }}">
+                        <li class="">
                             <a href="{{ route('homepage') }}">Home</a>
                         </li>
                         <li>
@@ -271,7 +293,6 @@
                                     <div class="col-lg-12">
                                         <a href="#" class="nolink">PRODUCT CATEGORIES</a>
                                     </div>
-
                                     @php
                                         $PCategories = $PCategories->take(9);
                                         $chunks = $PCategories->chunk(3);
@@ -281,7 +302,7 @@
                                         <div class="col-lg-4">
                                             <ul class="submenu">
                                                 @foreach ($chunk as $category)
-                                                    <li><a href="{{ route('products.customer.subCategoryList', ['CID' => $category->PCID]) }}">{{ $category->PCName }}</a></li>
+                                                    <li><a href="{{ auth()->check() ? route('products.customer.subCategoryList', ['CID' => $category->PCID]) : route('products.guest.subCategoryList', ['CID' => $category->PCID]) }}">{{ $category->PCName }}</a></li>
                                                 @endforeach
                                             </ul>
                                         </div>
@@ -304,9 +325,6 @@
                             <li>
                                 <a href="{{ route('customer-orders') }}">Orders</a>
                             </li>
-                            <li>
-                                <a href="{{ route('my-account') }}">My Account</a>
-                            </li>
                         @endif
                     </ul>
                 </nav>
@@ -315,7 +333,11 @@
     </header><!-- End .header -->
 
     <main class="main">
-        @yield('content')
+        <section class="product-section1" style="background-color: #f4f4f4;">
+            <div class="container">
+                <iframe id="contentFrame" src="{{ route('policiesContent', $Slug) }}" style="width: 100%; min-height: 200px; overflow: hidden;" frameborder="0"></iframe>
+            </div>
+        </section>
     </main>
     <!-- End .main -->
 
@@ -423,6 +445,93 @@
 
 <div class="mobile-menu-overlay"></div><!-- End .mobil-menu-overlay -->
 
+{{-- <div class="mobile-menu-container">
+    <div class="mobile-menu-wrapper">
+        <span class="mobile-menu-close"><i class="fa fa-times"></i></span>
+        <nav class="mobile-nav">
+            <ul class="mobile-menu">
+                <li><a href="demo42.html">Home</a></li>
+                <li>
+                    <a href="demo42-shop.html" title="shop">Categories</a>
+                    <ul>
+                        <li><a href="category.html">Full Width Banner</a></li>
+                        <li><a href="category-banner-boxed-slider.html">Boxed Slider Banner</a></li>
+                        <li><a href="category-banner-boxed-image.html">Boxed Image Banner</a></li>
+                        <li><a href="https://www.portotheme.com/html/porto_ecommerce/category-sidebar-left.html">Left Sidebar</a></li>
+                        <li><a href="category-sidebar-right.html">Right Sidebar</a></li>
+                        <li><a href="category-off-canvas.html">Off Canvas Filter</a></li>
+                        <li><a href="category-horizontal-filter1.html">Horizontal Filter 1</a></li>
+                        <li><a href="category-horizontal-filter2.html">Horizontal Filter 2</a></li>
+                        <li><a href="#">List Types</a></li>
+                        <li><a href="category-infinite-scroll.html">Ajax Infinite Scroll<span
+                                    class="tip tip-new">New</span></a></li>
+                        <li><a href="demo42-shop.html" title="shop">3 Columns Products</a></li>
+                        <li><a href="category-4col.html">4 Columns Products</a></li>
+                        <li><a href="category-5col.html">5 Columns Products</a></li>
+                        <li><a href="category-6col.html">6 Columns Products</a></li>
+                        <li><a href="category-7col.html">7 Columns Products</a></li>
+                        <li><a href="category-8col.html">8 Columns Products</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="demo42-product.html">Products</a>
+                    <ul>
+                        <li>
+                            <a href="#" class="nolink">PRODUCT PAGES</a>
+                            <ul>
+                                <li><a href="product.html">SIMPLE PRODUCT</a></li>
+                                <li><a href="product-variable.html">VARIABLE PRODUCT</a></li>
+                                <li><a href="product.html">SALE PRODUCT</a></li>
+                                <li><a href="product.html">FEATURED & ON SALE</a></li>
+                                <li><a href="product-sticky-info.html">WIDTH CUSTOM TAB</a></li>
+                                <li><a href="product-sidebar-left.html">WITH LEFT SIDEBAR</a></li>
+                                <li><a href="product-sidebar-right.html">WITH RIGHT SIDEBAR</a></li>
+                                <li><a href="product-addcart-sticky.html">ADD CART STICKY</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#" class="nolink">PRODUCT LAYOUTS</a>
+                            <ul>
+                                <li><a href="product-extended-layout.html">EXTENDED LAYOUT</a></li>
+                                <li><a href="product-grid-layout.html">GRID IMAGE</a></li>
+                                <li><a href="product-full-width.html">FULL WIDTH LAYOUT</a></li>
+                                <li><a href="product-sticky-info.html">STICKY INFO</a></li>
+                                <li><a href="product-sticky-both.html">LEFT & RIGHT STICKY</a></li>
+                                <li><a href="product-transparent-image.html">TRANSPARENT IMAGE</a></li>
+                                <li><a href="product-center-vertical.html">CENTER VERTICAL</a></li>
+                                <li><a href="#">BUILD YOUR OWN</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+
+            <ul class="mobile-menu">
+                <li><a href="login.html">My Account</a></li>
+                <li><a href="contact.html">Contact Us</a></li>
+                <li><a href="blog.html">Blog</a></li>
+                <li><a href="wishlist.html">My Wishlist</a></li>
+                <li><a href="cart.html">Cart</a></li>
+                <li><a href="login.html" class="login-link">Log In</a></li>
+            </ul>
+        </nav><!-- End .mobile-nav -->
+
+        <form class="search-wrapper mb-2" action="#">
+            <input type="text" class="form-control mb-0" placeholder="Search..." required />
+            <button class="btn icon-search text-white bg-transparent p-0" title="submit" type="submit"></button>
+        </form>
+
+        <div class="social-icons">
+            <a href="#" class="social-icon social-facebook icon-facebook" target="_blank" title="facebook">
+            </a>
+            <a href="#" class="social-icon social-twitter icon-twitter" target="_blank" title="twitter">
+            </a>
+            <a href="#" class="social-icon social-instagram icon-instagram" target="_blank" title="instagram">
+            </a>
+        </div>
+    </div><!-- End .mobile-menu-wrapper -->
+</div> --}}<!-- End .mobile-menu-container -->
+
 <div class="sticky-navbar">
     <div class="sticky-info">
         <a href="{{ route('homepage') }}">
@@ -499,6 +608,37 @@
         </div>
     </div>
 </div>
+
+{{-- <div class="newsletter-popup mfp-hide bg-img p-0 h-auto" id="newsletter-popup-form" style="background: #f1f1f1 no-repeat center/cover">
+    <div class="row">
+        <div class="col-sm-7">
+            <div class="row justify-content-center mt-3">
+                <div class="col-6">
+                    <img src="{{url('/')}}/{{$Company['Logo']}}" alt="Logo" class="logo-newsletter" width="50" height="50">
+                    <span class="ml-3 font-weight-bold text-dark">RPC Construction</span>
+                </div>
+            </div>
+            <div class="row justify-content-center">
+                <div class="col-9">
+                    <h2>KINDLY TURN ON YOUR LOCATION</h2>
+                    <p>for location Offers!</p>
+                </div>
+            </div>
+            <div class="row my-1 justify-content-center">
+                <div class="col-12 newsletter-popup-content">
+                    <div class="input-group">
+                        <input type="email" class="form-control" id="newsletter-email" name="newsletter-email" placeholder="Enter your delivery location" required />
+                        <input type="submit" class="btn btn-warning" value="locate me" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-5">
+            <img src="{{url('/')}}/home/assets/images/location-pop-up/MapAnime.gif" alt="">
+        </div>
+    </div>
+    <button title="Close (Esc)" type="button" class="mfp-close">×</button>
+</div> --}}
 
 <a id="scroll-top" href="#top" title="Top" role="button"><i class="icon-angle-up"></i></a>
 
@@ -584,7 +724,6 @@
 
         $(document).on('click', '.btnAddCart', function () {
 
-            let thiss = $(this);
             let FormData = {
                 'ProductID': $(this).attr('id'),
             }
@@ -601,18 +740,8 @@
                 },
                 success: function (response) {
                     if (response.status) {
-                        if (thiss.hasClass('wishlistCartBtn')) {
-                            thiss.text("Added in cart");
-                        }
-                        if ($('#wishlistTableHtml').length){
-                            var $wishlistButton = $('#wishlistTableHtml').find('.btnAddCart#' + thiss.attr('id'));
-                            thiss.removeClass('wishlistCartBtn btnAddCart btn-add-cart add-cart');
-                            thiss.addClass('added-in-cart');
-                            $wishlistButton.attr('class', thiss.attr('class'));
-                            $wishlistButton.html(thiss.html());
-                        }
-                        thiss.addClass('added-in-cart');
-                        thiss.removeClass('wishlistCartBtn btnAddCart btn-add-cart add-cart');
+                        thiss.text("Added in cart");
+                        thiss.removeClass('btnAddCart btn-add-cart');
                         LoadCart(response.data);
                         UpdateItemQtyCount(response.data.length);
                     }
@@ -677,6 +806,24 @@
             selectedAddress.attr('data-selected-latitude', $(this).data('latitude'));
             selectedAddress.attr('data-selected-longitude', $(this).data('longitude'));
             selectedAddress.html($(this).html());
+        });
+    });
+
+    $(document).ready(function() {
+        function adjustIframeHeight() {
+            var iframe = document.getElementById('contentFrame');
+            var iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
+            var body = iframeDocument.querySelector('body');
+            iframe.style.height = (body.scrollHeight+10) + 'px';
+        }
+
+        // Adjust iframe height after content is loaded
+        window.addEventListener('load', adjustIframeHeight);
+        // Also adjust iframe height when the window is resized
+        window.addEventListener('resize', adjustIframeHeight);
+
+        $('.redirectLogin').on('click', function(){
+            window.location.replace($('#loginBtn').attr('href'));
         });
     });
 </script>

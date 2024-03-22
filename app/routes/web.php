@@ -127,6 +127,36 @@ Route::controller(HomeAuthController::class)->group(function () {
     Route::post('/place-order','PlaceOrder');
 });
 
+Route::get('policies/{Slug}', [HomeController::class, 'policies'])->name('policies');
+Route::get('get/iframe-contents/{Slug}', [HomeController::class, 'policiesContent'])->name('policiesContent');
+Route::get('guest/products', [HomeController::class, 'products'])->name('guest.products');
+Route::get('guest/products/quickView/html/{PID}', [HomeController::class, 'quickViewHtml'])->name('guest.products.quickView');
+Route::post('guest/products/get/categories/html', [HomeController::class, 'categoriesHtml'])->name('guest.products.categoriesHtml');
+Route::post('guest/products/get/products/html', [HomeController::class, 'productsHtml'])->name('guest.products.productsHtml');
+Route::get('products/category-list', [HomeController::class, 'categoryList'])->name('products.categoriesList');
+Route::get('products/sub-category-list', [HomeController::class, 'subCategoryList'])->name('products.subCategoryList');
+Route::get('products/products-list', [HomeController::class, 'productsList'])->name('products.productsList');
+Route::post('products/category-list-html', [HomeController::class, 'categoryListHtml'])->name('products.categoriesListHtml');
+Route::post('products/sub-category-list-html', [HomeController::class, 'subCategoryListHtml'])->name('products.subCategoriesListHtml');
+Route::post('products/products-list-html', [HomeController::class, 'productsListHtml'])->name('products.productsListHtml');
+
+Route::get('guest/products/category-list', [HomeController::class, 'guestCategoryList'])->name('products.guest.categoriesList');
+Route::get('guest/products/sub-category-list', [HomeController::class, 'guestSubCategoryList'])->name('products.guest.subCategoryList');
+Route::get('guest/products/products-list', [HomeController::class, 'guestProductsList'])->name('products.guest.productsList');
+Route::post('guest/products/category-list-html', [HomeController::class, 'guestCategoryListHtml'])->name('products.guest.categoriesListHtml');
+Route::post('guest/products/sub-category-list-html', [HomeController::class, 'guestSubCategoryListHtml'])->name('products.guest.subCategoriesListHtml');
+Route::post('guest/products/products-list-html', [HomeController::class, 'guestProductsListHtml'])->name('products.guest.productsListHtml');
+
+
+Route::get('customer/products/category-list', [HomeAuthController::class, 'customerCategoryList'])->name('products.customer.categoriesList');
+Route::get('customer/products/sub-category-list', [HomeAuthController::class, 'customerSubCategoryList'])->name('products.customer.subCategoryList');
+Route::get('customer/products/products-list', [HomeAuthController::class, 'customerProductsList'])->name('products.customer.productsList');
+Route::post('customer/products/category-list-html', [HomeAuthController::class, 'customerCategoryListHtml'])->name('products.customer.categoriesListHtml');
+Route::post('customer/products/sub-category-list-html', [HomeAuthController::class, 'customerSubCategoryListHtml'])->name('products.customer.subCategoriesListHtml');
+Route::post('customer/products/products-list-html', [HomeAuthController::class, 'customerProductsListHtml'])->name('products.customer.productsListHtml');
+
+
+
 Route::get('products', [HomeAuthController::class, 'products'])->name('products');
 Route::get('products/quickView/html/{PID}', [HomeAuthController::class, 'quickViewHtml'])->name('products.quickView');
 Route::post('products/get/categories/html', [HomeAuthController::class, 'categoriesHtml'])->name('products.categoriesHtml');
@@ -137,6 +167,10 @@ Route::get('requested-quotations', [HomeTransactionController::class, 'quotation
 Route::post('requested-quotations/data', [HomeTransactionController::class, 'quotationData'])->name('requested-quotations.data');
 Route::get('requested-quotations/view/{EnqID}', [HomeTransactionController::class, 'QuoteView'])->name('requested-quotations.QuoteView');
 Route::get('customer-orders', [HomeTransactionController::class, 'orders'])->name('customer-orders');
+Route::get('my-account', [HomeTransactionController::class, 'myAccount'])->name('my-account');
+Route::get('wishlist', [HomeTransactionController::class, 'wishlist'])->name('wishlist');
+Route::post('wishlistTableHtml', [HomeAuthController::class, 'wishlistTableHtml'])->name('wishlistTableHtml');
+
 
 Route::controller(SocialController::class)->group(function () {
     Route::get('/social/auth/{provider}', 'redirect');

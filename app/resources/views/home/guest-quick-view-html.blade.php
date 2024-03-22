@@ -58,17 +58,14 @@
                 </ul>
 
                 <div class="product-action">
-                    <a href="#" class="btn btn-dark mr-2 product-type-simple btn-shop {{ $cartProducts->contains('ProductID', $product->ProductID) ? 'added-in-cart' : 'wishlistCartBtn btnAddCart' }}" title="Add to Cart" id="{{ $product->ProductID }}">
-                        {{ $cartProducts->contains('ProductID', $product->ProductID) ? 'Added in Cart' : 'ADD TO CART' }}
-                    </a>
-                    <a href="#" class="btn view-cart d-none">View cart</a>
-                </div>
+                    <a href="#" class="btn btn-dark add-cart mr-2 redirectLogin" title="Add to Cart" id="{{ $product->ProductID }}">Add to Cart</a>
+                </div><!-- End .product-action -->
 
                 <hr class="divider mb-0 mt-0">
 
                 <div class="product-single-share mb-0">
-                    <a href="#" class="btn-icon-wish add-wishlist {{ $product->IsInWishlist ? 'added-wishlist' : '' }}" title="{{ $product->IsInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist' }}"><i
-                            class="icon-wishlist-2"></i><span>{{ $product->IsInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist' }}</span></a>
+                    <a href="#" class="guest-btn-icon-wish redirectLogin add-wishlist" title="Add to Wishlist"><i
+                            class="icon-wishlist-2"></i><span>Add to Wishlist</span></a>
                 </div>
             </div>
         </div>
@@ -79,21 +76,15 @@
     </div><!-- End .row -->
 </div><!-- End .product-single-container -->
 <script>
-    $(document).ready(function(){
-        $('.prod-thumbnail .owl-stage-outer .owl-stage').each(function() {
+    $(document).ready(function () {
+        $('.prod-thumbnail .owl-stage-outer .owl-stage').each(function () {
             var existingStyle = $(this).attr('style');
             var updatedStyle = existingStyle.replace(/width:[^;]*/i, 'width: 1500px !important');
             $(this).attr('style', updatedStyle);
         });
 
-        $('.add-cart').click(function() {
-            $(this).attr('title', "Added to Cart");
-            $(this).text("Added to Cart");
-        });
-
-        $('.view-cart').click(function() {
-            $('.mfp-close').click();
-            $('.icon-cart-thick').click();
+        $('.redirectLogin').on('click', function () {
+            window.location.replace($('#loginBtn').attr('href'));
         });
     });
 </script>
