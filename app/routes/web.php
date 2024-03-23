@@ -3,6 +3,7 @@
 use App\Http\Controllers\Home\HomeAuthController;
 use App\Http\Controllers\Home\HomeTransactionController;
 use App\Http\Controllers\Home\WishlistController;
+use App\Http\Controllers\web\CustomerSupportController;
 use App\Http\Controllers\web\loginController;
 use App\Http\Controllers\web\dashboardController;
 use App\Http\Controllers\web\generalController;
@@ -170,8 +171,16 @@ Route::get('customer-orders', [HomeTransactionController::class, 'orders'])->nam
 Route::get('my-account', [HomeTransactionController::class, 'myAccount'])->name('my-account');
 Route::get('wishlist', [HomeTransactionController::class, 'wishlist'])->name('wishlist');
 Route::post('wishlistTableHtml', [HomeAuthController::class, 'wishlistTableHtml'])->name('wishlistTableHtml');
+Route::post('supportTableHtml', [HomeAuthController::class, 'supportTableHtml'])->name('supportTableHtml');
 Route::post('customerHomeSearch', [HomeAuthController::class, 'customerHomeSearch'])->name('customerHomeSearch');
 Route::post('guestHomeSearch', [HomeController::class, 'guestHomeSearch'])->name('guestHomeSearch');
+
+//Customer Support details
+Route::post('customer/support/get/details', [CustomerSupportController::class, 'getDetails'])->name('customer.support.getDetails');
+Route::post('customer/support/new-ticket', [CustomerSupportController::class, 'NewTicket'])->name('customer.support.NewTicket');
+Route::post('customer/support/new-ticket/save', [CustomerSupportController::class, 'SaveTicket'])->name('customer.support.SaveTicket');
+Route::post('customer/support/details/save', [CustomerSupportController::class, 'SupportDetailsSave'])->name('customer.support.SupportDetailsSave');
+Route::get('customer/support/details/{SID}', [CustomerSupportController::class, 'SupportDetailsView'])->name('customer.support.SupportDetailsView');
 
 
 Route::controller(SocialController::class)->group(function () {

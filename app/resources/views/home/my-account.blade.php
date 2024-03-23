@@ -954,7 +954,9 @@
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" id="wishlist-tab" data-toggle="tab" href="#wishlist" role="tab" aria-controls="wishlist" aria-selected="false">Wishlist</a>
-{{--                            <a class="nav-link" href="{{ route('wishlist') }}">Wishlist</a>--}}
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="support-tab" data-toggle="tab" href="#support" role="tab" aria-controls="support" aria-selected="false">Support</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="login.html">Logout</a>
@@ -1091,6 +1093,22 @@
                             <h3 class="account-sub-title d-none d-md-block"><i class="sicon-cloud-download align-middle mr-3"></i>Wishlist</h3>
                             <div class="download-table-container" style="margin-top: 20px !important;">
                                 <div class="wishlist-table-container" id="wishlistTableHtml">
+                                </div>
+                            </div>
+                        </div>
+                    </div><!-- End .tab-pane -->
+                    <div class="tab-pane fade" id="support" role="tabpanel">
+                        <div class="download-content">
+                            <div class="row align-items-center">
+                                <div class="col-md-6">
+                                    <h3 class="account-sub-title d-none d-md-block"><i class="sicon-cloud-download align-middle mr-3"></i>Support</h3>
+                                </div>
+                                <div class="col-md-6 text-md-right">
+                                    <button type="button" id="btnNewTicket" class="btn btn-dark btn-min-width box-shadow-2 round">New Ticket</button>
+                                </div>
+                            </div>
+                            <div class="download-table-container" style="margin-top: 20px !important;">
+                                <div class="wishlist-table-container" id="supportTableHtml">
                                 </div>
                             </div>
                         </div>
@@ -1360,7 +1378,7 @@
 @section('scripts')
     <script>
         $(document).ready(function(){
-            var current_page_no = 1;
+            var wish_current_page_no = 1;
             var viewType = 'List';
             const LoadWishlists = async () => {
                 var formData = new FormData();
@@ -1369,7 +1387,7 @@
                 formData.append('productCount', parseInt($('#productCountSelect').val()));
                 formData.append('orderBy', $('#orderBySelect').val());
                 formData.append('viewType', viewType);
-                formData.append('pageNo', current_page_no);
+                formData.append('pageNo', wish_current_page_no);
 
                 $.ajax({
                     url: '{{ route('wishlistTableHtml') }}',
@@ -1398,7 +1416,7 @@
                             LoadWishlists();
                         });
                         $('.changePage').click(function () {
-                            current_page_no = $(this).attr('data-page-no');
+                            wish_current_page_no = $(this).attr('data-page-no');
                             LoadWishlists();
                         });
                         $('.changeView').click(function () {
@@ -1406,11 +1424,11 @@
                             LoadWishlists();
                         });
                         $('.prevPage').click(function () {
-                            current_page_no = parseInt(current_page_no) - 1;
+                            wish_current_page_no = parseInt(wish_current_page_no) - 1;
                             LoadWishlists();
                         });
                         $('.nextPage').click(function () {
-                            current_page_no = parseInt(current_page_no) + 1;
+                            wish_current_page_no = parseInt(wish_current_page_no) + 1;
                             LoadWishlists();
                         });
                     },
@@ -1429,15 +1447,113 @@
                 LoadWishlists();
             });
 
+            var support_current_page_no = 1;
+            const LoadSupports = async () => {
+                var formData = new FormData();
+
+                formData.append('productCount', parseInt($('#supportProductCountSelect').val()));
+                formData.append('orderBy', $('#supportOrderBySelect').val());
+                formData.append('pageNo', support_current_page_no);
+
+                $.ajax({
+                    url: '{{ route('supportTableHtml') }}',
+                    headers: {'X-CSRF-Token': '{{ csrf_token() }}'},
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function (response) {
+                        $('#supportTableHtml').html(response);
+                        $('#supportProductCountSelect').change(function () {
+                            var selectedValue = $(this).val();
+                            $('#supportProductCountSelect2').val(selectedValue);
+                        });
+                        $('#supportProductCountSelect2').change(function () {
+                            var selectedValue = $(this).val();
+                            $('#supportProductCountSelect').val(selectedValue);
+                        });
+                        $('#supportProductCountSelect').change(function () {
+                            LoadSupports();
+                        });
+                        $('#supportProductCountSelect2').change(function () {
+                            LoadSupports();
+                        });
+                        $('#supportOrderBySelect').change(function () {
+                            LoadSupports();
+                        });
+                        $('.supportChangePage').click(function () {
+                            support_current_page_no = $(this).attr('data-page-no');
+                            LoadSupports();
+                        });
+                        $('.supportPrevPage').click(function () {
+                            support_current_page_no = parseInt(support_current_page_no) - 1;
+                            LoadSupports();
+                        });
+                        $('.supportNextPage').click(function () {
+                            support_current_page_no = parseInt(support_current_page_no) + 1;
+                            LoadSupports();
+                        });
+                    },
+                    error: function (xhr, status, error) {
+                        if (xhr.status === 419) {
+                            window.location.reload();
+                        } else {
+                            console.log('An error occurred: ' + xhr.responseText);
+                        }
+                    }
+                });
+            }
+
+            $('#support-tab').click(function (){
+                LoadSupports();
+            });
+
+            $(document).on('click','.btnDetails',function(e){
+                var CID=$(this).attr('id');
+                let t=$(e.target);
+                if((t.hasClass('SupportTicketReopen')==false)&&(t.hasClass('SupportTicketDelete')==false)&&(t.hasClass('SupportTicketClose')==false)){
+                    window.location.replace("{{url('/')}}/customer/support/details/"+CID);
+                }
+            });
+
+            $('#btnNewTicket').click(function(e){
+                e.preventDefault();
+                $.ajax({
+                    type:"post",
+                    url:"{{url('/')}}/customer/support/new-ticket",
+                    headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
+                    success:function(response){
+                        if(response!=""){
+                            bootbox.dialog({
+                                title: 'Support',
+                                size:'large',
+                                closeButton: true,
+                                message: response,
+                                buttons: {
+                                }
+                            });
+                        }
+                    }
+                })
+            });
+
             var observer = new MutationObserver(function(mutations) {
                 mutations.forEach(function(mutation) {
                     if (mutation.attributeName === 'data-selected-postal-id') {
                         LoadWishlists();
+                        LoadSupports();
                     }
                 });
             });
             var config = { attributes: true };
             observer.observe(document.getElementById('customerSelectedAddress'), config);
+
+            if (window.location.search) {
+                const param = new URLSearchParams(window.location.search);
+                param.forEach(function(value, key) {
+                    $('#' + value +'-tab').click();
+                });
+            }
         });
     </script>
 @endsection

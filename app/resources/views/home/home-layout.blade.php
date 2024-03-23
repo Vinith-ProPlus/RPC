@@ -50,6 +50,15 @@
         } )( document );
     </script>
 
+    <style>
+        .dropify-wrapper {
+            border-radius: unset !important;
+        }
+
+        .dropify-message p {
+            display: none !important;
+        }
+    </style>
 </head>
 
 <body>
@@ -510,6 +519,7 @@
 <script src="{{url('/')}}/assets/plugins/dropify/js/dropify.js?r={{date('YmdHis')}}"></script>
 <script src="{{url('/')}}/assets/plugins/image-cropper/cropper.js?r={{date('YmdHis')}}"></script>
 <script src="{{url('/')}}/assets/js/address-web.js?r={{date('YmdHis')}}"></script>
+<script src="{{url('/')}}/assets/js/custom.js?r={{date('YmdHis')}}"></script>
 {{--<script src="{{url('/')}}/assets/js/nouislider.min.js?r={{date('YmdHis')}}"></script>--}}
 <script src="{{url('/')}}/assets/plugins/bootbox-js/bootbox.min.js?r={{date('YmdHis')}}"></script>
 <script src="{{url('/')}}/assets/js/select2/select2.full.min.js?r={{date('YmdHis')}}"></script>

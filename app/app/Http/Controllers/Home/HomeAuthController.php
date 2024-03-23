@@ -29,11 +29,13 @@ class HomeAuthController extends Controller{
 	private $FileTypes;
 	private $UserData;
 	private $logDB;
+	private $supportDB;
 
 	public function __construct(){
 		$this->generalDB=Helper::getGeneralDB();
 		$this->tmpDB=Helper::getTmpDB();
 		$this->logDB=Helper::getLogDB();
+		$this->supportDB=Helper::getSupportDB();
         $this->PCategories = DB::Table('tbl_product_category')->where('ActiveStatus','Active')->where('DFlag',0)
             ->select('PCName','PCID',
                 DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PCImage, ""), "assets/images/no-image-b.png")) AS PCImage'))
@@ -1088,10 +1090,8 @@ class HomeAuthController extends Controller{
 
         return view('home.customer.wish-list-html', compact('wishListDetails', 'cartProducts', 'productCount', 'pageNo', 'viewType', 'orderBy', 'range', 'totalPages'))->render();
     }
-
     public function getWishlistDetails($request)
     {
-
         if($request->PostalID){
             $customerID = $this->ReferID;
             $productCount = ((int)($request->productCount) != 0) ? $request->productCount : 12;
@@ -1202,6 +1202,62 @@ class HomeAuthController extends Controller{
         } else {
             return response()->json(['status' => false, 'message' => "Shipping Address is required!"]);
         }
+    }
+
+    public function supportTableHtml(Request $request)
+    {
+        $productCount = ((int)($request->productCount) != 0) ? $request->productCount : 12;
+        $pageNo = ($request->pageNo != 'undefined') ? $request->pageNo : 1;
+        $viewType = $request->viewType ?? 'List';
+        $orderBy = ($request->has('orderBy') && in_array($request->orderBy, ['asc', 'desc'])) ? $request->orderBy : 'desc';
+
+        $supportDetails = $this->getSupportDetails($request);
+        logger($supportDetails);
+        $totalSupportCount = $supportDetails['totalSupportCount'];
+        $supportDetails = $supportDetails['supportDetails'];
+
+        $totalPages = ceil($totalSupportCount / $productCount);
+        $range = 3;
+        if($pageNo > $totalPages){
+            $pageNo = $request->pageNo = $totalPages;
+            $supportDetails = $this->getSupportDetails($request);
+            $supportDetails = $supportDetails['supportDetails'];
+        }
+
+        logger("supportDetails");
+        logger($supportDetails);
+
+        return view('home.customer.support-html', compact('supportDetails', 'productCount', 'pageNo', 'viewType', 'orderBy', 'range', 'totalPages'))->render();
+    }
+
+    public function getSupportDetails($request)
+    {
+        $customerID = $this->UserID;
+        $productCount = ((int)($request->productCount) != 0) ? $request->productCount : 12;
+        $pageNo = $request->pageNo ?? 1;
+        logger($request);
+        logger(in_array($request->orderBy, ['new', 'popularity']));
+        $orderBy = ($request->has('orderBy') && in_array($request->orderBy, ['asc', 'desc'])) ? $request->orderBy : 'desc';
+        $supportCount = DB::table($this->supportDB.'tbl_support as S')
+            ->leftJoin('tbl_support_type as ST', 'ST.SLNO', 'S.SupportType')
+            ->leftJoin('users as U', 'U.UserID', 'S.UserID')
+            ->where('U.UserID',$customerID)
+            ->select('S.SupportID')
+            ->count();
+
+        $supportDetails = DB::table($this->supportDB.'tbl_support as S')
+            ->leftJoin('tbl_support_type as ST', 'ST.SLNO', 'S.SupportType')
+            ->leftJoin('users as U', 'U.UserID', 'S.UserID')
+            ->where('U.UserID', $customerID)
+            ->orderBy('S.CreatedOn', $orderBy)
+            ->select('S.SupportID', 'U.Name', 'ST.SupportType', 'S.Subject', 'S.Priority', 'S.Status', 'S.CreatedOn')
+            ->skip(($pageNo - 1) * $productCount)
+            ->take($productCount)
+            ->get();
+        return [
+            'supportDetails' => $supportDetails,
+            'totalSupportCount' => $supportCount
+        ];
     }
 
 }
