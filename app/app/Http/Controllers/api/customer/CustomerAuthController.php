@@ -509,7 +509,8 @@ class CustomerAuthController extends Controller{
         return $return;
 	}
 
-    public function GetCategory(Request $req){
+    public function GetCategory(Request $req)
+    {
         $pageNo = $req->PageNo ?? 1;
         $perPage = 15;
         if ($req->AID) {
@@ -518,20 +519,20 @@ class CustomerAuthController extends Controller{
                 ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'VPM.PCID')
                 ->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)
                 ->where('VPM.Status', 1)->WhereIn('VPM.VendorID', $AllVendors);
-                if ($req->has('SearchText') && !empty($req->SearchText)) {
-                    $Category->where('PC.PCName', 'like', '%' . $req->SearchText . '%');
-                }
+            if ($req->has('SearchText') && !empty($req->SearchText)) {
+                $Category->where('PC.PCName', 'like', '%' . $req->SearchText . '%');
+            }
             $PCategories = $Category->groupBy('PC.PCID', 'PC.PCName', 'PC.PCImage')
                 ->select('PC.PCID', 'PC.PCName', DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PCImage, ""), "assets/images/no-image-b.png")) AS CategoryImage'))
                 ->paginate($perPage, ['*'], 'page', $pageNo);
-                return response()->json([
-                    'status' => true,
-                    'data' => $PCategories->items(),
-                    'CurrentPage' => $PCategories->currentPage(),
-                    'LastPage' => $PCategories->lastPage(),
-                ]);
-        }else{
-            return response()->json(['status' => false,'message' => "Shipping Address is required!"]);
+            return response()->json([
+                'status' => true,
+                'data' => $PCategories->items(),
+                'CurrentPage' => $PCategories->currentPage(),
+                'LastPage' => $PCategories->lastPage(),
+            ]);
+        } else {
+            return response()->json(['status' => false, 'message' => "Shipping Address is required!"]);
         }
     }
 	public function GetSubCategory(request $req){

@@ -6,6 +6,7 @@ use App\helper\helper;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Session;
 use SSP;
 use Illuminate\Support\Facades\DB;
 
@@ -28,6 +29,22 @@ class HomeController extends Controller
             $CustomerID = auth()->user()->ReferID;
             if (empty($CustomerID)) {
                 return redirect()->route('customer-register');
+            }
+            $customerAid = Session::get('selected_aid');
+            $customerDefaultAid = DB::table('tbl_customer_address')->where('CustomerID', $CustomerID)->where('isDefault', true)->first();
+            $AID = isset($customerAid) ? $customerAid : $customerDefaultAid->AID;
+            $AllVendors = Helper::getAvailableVendors($AID);
+            $PCatagories = DB::table('tbl_vendors_product_mapping as VPM')
+                ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'VPM.PCID')
+                ->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)
+                ->where('VPM.Status', 1)->WhereIn('VPM.VendorID', $AllVendors)
+                ->select('PC.PCName', 'PC.PCID', 'PC.PCImage')
+                ->inRandomOrder()->take(10)->get();
+//            $PCatagories = DB::Table('tbl_product_category')->where('ActiveStatus', 'Active')->where('DFlag', 0)->select('PCName', 'PCID', 'PCImage')
+//                ->inRandomOrder()->take(10)->get();
+            foreach ($PCatagories as $row) {
+                $row->PCImage = $row->PCImage ? url('/') . '/' . $row->PCImage : url('/') . '/' . 'assets/images/no-image-b.png';
+                $row->PSCData = DB::table('tbl_product_subcategory')->where('ActiveStatus', 'Active')->where('DFlag', 0)->where('PCID', $row->PCID)->select('PSCID', 'PSCName', 'PSCImage')->get();
             }
             $RecentProducts = DB::table('tbl_products as P')
                 ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')
@@ -68,8 +85,7 @@ class HomeController extends Controller
                 ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')
                 ->select('P.ProductID', 'P.ProductName', 'P.ProductImage', 'PSC.PSCName',
                     DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(P.ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'))
-                ->inRandomOrder()
-                ->take(10)
+                ->inRandomOrder()->take(10)
                 ->get();
 
             $FormData['PCategories'] = $PCatagories;
@@ -595,5 +611,12 @@ class HomeController extends Controller
         } else {
             return response()->json(['status' => false, 'message' => "search text is empty"]);
         }
+    }
+    public function setAidInSession(Request $request)
+    {
+        $aid = $request->input('aid');
+        Session::put('selected_aid', $aid);
+
+        return response()->json(['message' => 'Selected aid set successfully']);
     }
 }

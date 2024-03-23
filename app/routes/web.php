@@ -128,6 +128,7 @@ Route::controller(HomeAuthController::class)->group(function () {
     Route::post('/place-order','PlaceOrder');
 });
 
+Route::post('setAidInSession', [HomeController::class, 'setAidInSession'])->name('setAidInSession');
 Route::get('policies/{Slug}', [HomeController::class, 'policies'])->name('policies');
 Route::get('get/iframe-contents/{Slug}', [HomeController::class, 'policiesContent'])->name('policiesContent');
 Route::get('guest/products', [HomeController::class, 'products'])->name('guest.products');

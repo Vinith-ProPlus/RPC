@@ -497,13 +497,12 @@
                     </div>
                     <div class="col-md-4 part-item appear-animate" data-animation-name="fadeInLeftShorter"
                         data-animation-delay="200">
-                        <h3>Popular Brands:</h3>
+                        <h3>Popular Sub-Catgeories:</h3>
                         <ul class="list-unstyled mb-0">
-                            <li><a href="#">Dalmia</a></li>
-                            <li><a href="#">UltraTech</a></li>
-                            <li><a href="#">Bharathi Cements</a></li>
-                            <li><a href="#">ACC</a></li>
-                            <li><a class="show-action" href="{{ route('guest.products') }}">Show All</a></li>
+                            @foreach ($PCategories->shuffle()->take(4) as $category)
+                                <li><a href="{{ route('products.guest.subCategoryList', ['CID' => $category->PCID]) }}">{{ $category->PCName }}</a></li>
+                            @endforeach
+                            <li><a class="show-action" href="{{ route('products.guest.categoriesList') }}">Show All</a></li>
                         </ul>
                     </div>
                     <div class="col-md-4 part-item appear-animate" data-animation-name="fadeInLeftShorter"
