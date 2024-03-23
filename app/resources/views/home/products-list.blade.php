@@ -1,6 +1,6 @@
-@extends('home.home-layout')
+@extends('home.guest-layout')
 @section('content')
-
+    <input type="hidden" id="SCID" value="{{ $SCID }}">
     <style>
         @charset "UTF-8";
 
@@ -845,6 +845,44 @@
         .banner h5,
         .banner h6 {
             line-height:1
+        }
+        .breadcrumb-nav {
+            color:#000;
+            border-top:1px solid #dfdfdf;
+            border-bottom:1px solid #dfdfdf;
+            margin-bottom:3.5rem
+        }
+        .breadcrumb {
+            margin-bottom:0;
+            padding:1.5rem 0;
+            border-radius:0;
+            background-color:transparent
+        }
+        .breadcrumb-item {
+            font-weight:700;
+            font-size:12px;
+            letter-spacing:0.05em;
+            line-height:24px;
+            text-transform:uppercase
+        }
+        .breadcrumb-item+.breadcrumb-item {
+            padding-left:1.3rem
+        }
+        .breadcrumb-item+.breadcrumb-item:before {
+            color:inherit;
+            padding-right:1.1rem;
+            content:"";
+            font-size:12px;
+            font-family:"porto";
+            vertical-align:middle;
+            margin-top:-2px
+        }
+        .breadcrumb-item a:not(:first-child) {
+            margin-left:5px
+        }
+        .breadcrumb-item.active,
+        .breadcrumb-item a {
+            color:inherit
         }
         .owl-dots .owl-dot,
         .owl-nav .owl-next,
@@ -5680,20 +5718,20 @@
         .main-nav .menu>li {
             margin-right:3rem
         }
-        .main-nav .menu > li > a {
-            font-size: 1.3rem;
-            font-weight: 700;
-            padding: 20px 0 21px;
-            letter-spacing: 0;
-            color: #222529;
-            letter-spacing: 0
+        .main-nav .menu>li>a {
+            font-size:1.3rem;
+            font-weight:700;
+            padding:20px 0 21px;
+            letter-spacing:0;
+            color:#222529;
+            letter-spacing:0
+      }
+        .main-nav .menu>li:first-child>a {
+            padding-left:0
         }
-        .main-nav .menu > li:first-child > a {
-            padding-left: 0
-        }
-        .main-nav .menu > li:not(.float-right) + li.float-right,
-        .main-nav .menu > li:not(.float-right):last-child {
-            margin-right: 0
+        .main-nav .menu>li:not(.float-right)+li.float-right,
+        .main-nav .menu>li:not(.float-right):last-child {
+            margin-right:0
         }
         .main-nav .menu.sf-arrows ul {
             border-top:none
@@ -10714,7 +10752,7 @@
                                         <option value="" selected="selected">Default sorting</option>
                                         <option value="new">Sort by newness</option>
                                         <option value="popularity">Sort by popularity</option>
-{{--                                        <option value="rating">Sort by average rating</option>--}}
+                                        {{--                                        <option value="rating">Sort by average rating</option>--}}
                                     </select>
                                 </div><!-- End .select-custom -->
 
@@ -10801,36 +10839,14 @@
 
         <div class="mb-4"></div>
     </div>
+
 @endsection
 @section('scripts')
     <script>
         $(document).ready(function(){
-            var sub_category_id = "";
+            var sub_category_id = $('#SCID').val();
             var current_page_no = 1;
             var viewType = 'Grid';
-            const LoadCategories=async()=>{
-                var formData = new FormData();
-                formData.append('PostalID', $('#customerSelectedAddress').attr('data-selected-postal-id'));
-                $.ajax({
-                    type:"post",
-                    url:"{{url('/')}}/products/get/categories/html",
-                    headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
-                    data: formData,
-                    cache: false,
-                    processData: false,
-                    contentType: false,
-                    success:function(response){
-                        $('#categories-widget').html(response);
-                        $(".sub-category").on('click', function(e) {
-                            e.preventDefault();
-                            sub_category_id = $(this).data('sub-category-id');
-                            current_page_no = 1;
-                            LoadProducts();
-                        });
-                    }
-                });
-            }
-
             const LoadProducts = async () => {
                 var formData = new FormData();
 
@@ -10842,8 +10858,8 @@
                 formData.append('pageNo', current_page_no);
 
                 $.ajax({
-                    url: '{{ route('products.productsHtml') }}',
-                    headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
+                    url: '{{ route('products.productsListHtml') }}',
+                    headers: { 'X-CSRF-Token' : '{{ csrf_token() }}' },
                     type: 'POST',
                     data: formData,
                     processData: false,
@@ -10895,18 +10911,25 @@
                 });
             }
 
-            LoadCategories();
             LoadProducts();
 
-            var observer = new MutationObserver(function(mutations) {
-                mutations.forEach(function(mutation) {
-                    if (mutation.attributeName === 'data-selected-postal-id') {
-                        LoadProducts();
-                    }
-                });
-            });
-            var config = { attributes: true };
-            observer.observe(document.getElementById('customerSelectedAddress'), config);
+
         });
     </script>
+
+    @if(auth()->check())
+        <script>
+            $(document).ready(function () {
+                var observer = new MutationObserver(function (mutations) {
+                    mutations.forEach(function (mutation) {
+                        if (mutation.attributeName === 'data-selected-postal-id') {
+                            LoadProducts();
+                        }
+                    });
+                });
+                var config = {attributes: true};
+                observer.observe(document.getElementById('customerSelectedAddress'), config);
+            });
+        </script>
+    @endif
 @endsection
