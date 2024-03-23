@@ -13305,7 +13305,8 @@
         var viewType = 'Grid';
         {{--const LoadCategories = async () => {--}}
         {{--    var formData = new FormData();--}}
-        {{--    formData.append('PostalID', $('#customerSelectedAddress').attr('data-selected-postal-id'));--}}
+        {{-- formData.append('PostalID', $('#customerSelectedAddress').attr('data-selected-postal-id'));
+             formData.append('AID', $('#customerSelectedAddress').attr('data-aid'));--}}
         {{--    $.ajax({--}}
         {{--        type: "post",--}}
         {{--        url: "{{url('/')}}/guest/products/get/categories/html",--}}
@@ -13330,6 +13331,7 @@
             var formData = new FormData();
 
             formData.append('PostalID', $('#customerSelectedAddress').attr('data-selected-postal-id'));
+            formData.append('AID', $('#customerSelectedAddress').attr('data-aid'));
             if(sub_category_id){
                 formData.append('SubCategoryID', sub_category_id);
             }

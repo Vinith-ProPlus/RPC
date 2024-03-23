@@ -2,20 +2,20 @@
 
 namespace App\Http\Controllers\api\customer;
 
+use App\helper\helper;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Redirect;
-use DB;
-use Auth;
-use Helper;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use Laravel\Passport\RefreshToken;
 use Laravel\Passport\Token;
-use ValidUnique;
-use ValidDB;
-use DocNum;
-use docTypes;
+use App\Rules\ValidUnique;
+use App\Rules\ValidDB;
+use App\Models\DocNum;
+use App\enums\docTypes;
 use logs;
 
 class CustomerTransactionAPIController extends Controller{
@@ -273,7 +273,7 @@ class CustomerTransactionAPIController extends Controller{
         $QuoteEnq=$query
         ->select('E.EnqID','E.EnqNo','E.EnqDate','E.EnqExpiryDate','E.ReceiverName','E.ReceiverMobNo','E.ExpectedDeliveryDate','E.Status AS EnqStatus','Q.Status AS QStatus','Q.QID','Q.QNo','Q.QExpiryDate','Q.QDate','Q.TaxAmount','Q.SubTotal','Q.CGSTAmount','Q.SGSTAmount','Q.IGSTAmount','Q.TotalAmount','Q.AdditionalCost','Q.OverAllAmount','CU.CustomerName as CancelledBy')
         ->get();
-        
+
         foreach($QuoteEnq as $quote){
             if($quote->EnqStatus == "New"){
                 $quote->Status = "New";
@@ -300,10 +300,10 @@ class CustomerTransactionAPIController extends Controller{
                 ->select('QD.DetailID','P.ProductID','P.ProductName','ED.Qty','QD.Price','QD.Taxable','PC.PCName','PSC.PSCName','QD.isCancelled','US.LoginType as CancelledBy')
                 ->get();
         }
-        
+
         return response()->json(['status' => true,'data' => $QuoteEnq]);
     }
-    
+
     public function AcceptQuote(Request $req){
         $CustomerID = $this->ReferID;
 		DB::beginTransaction();
@@ -471,7 +471,7 @@ class CustomerTransactionAPIController extends Controller{
         $OrderData=$query
         // ->select('O.OrderID','O.OrderNo','O.OrderDate','O.ReceiverName','O.ReceiverMobNo','O.Status','O.TaxAmount','O.SubTotal','O.CGSTAmount','O.SGSTAmount','O.IGSTAmount','O.TotalAmount','O.AdditionalCost','O.OverAllAmount')
         ->get();
-        
+
         foreach($OrderData as $order){
 
             $order->TotalUnit = DB::table($this->currfyDB.'tbl_order_details')->where('OrderID',$order->OrderID)->sum('Qty');
@@ -489,7 +489,7 @@ class CustomerTransactionAPIController extends Controller{
     public function getCategory(Request $req){
         if($req->PostalID){
             $AllVendors = DB::table('tbl_vendors as V')->leftJoin('tbl_vendors_service_locations as VSL','V.VendorID','VSL.VendorID')->where('V.ActiveStatus',"Active")->where('V.DFlag',0)->where('VSL.PostalCodeID',$req->PostalID)->groupBy('VSL.VendorID')->pluck('VSL.VendorID')->toArray();
-            
+
             $PCatagories= DB::table('tbl_vendors_product_mapping as VPM')
             ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'VPM.PCID')
             ->where('VPM.Status',1)->WhereIn('VPM.VendorID',$AllVendors)

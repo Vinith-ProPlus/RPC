@@ -1444,7 +1444,6 @@
             }
 
             $('#wishlist-tab').click(function (){
-                console.log('skqjbxs');
                 LoadWishlists();
             });
 
