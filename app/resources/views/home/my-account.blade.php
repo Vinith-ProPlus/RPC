@@ -911,6 +911,9 @@
             }
         }
     </style>
+    <form id="logout-form" action="{{ url('/') }}/logout" method="POST" style="display: none;">
+        @csrf
+    </form>
     <nav aria-label="breadcrumb" class="breadcrumb-nav">
         <div class="container">
             <ol class="breadcrumb">
@@ -959,7 +962,7 @@
                             <a class="nav-link" id="support-tab" data-toggle="tab" href="#support" role="tab" aria-controls="support" aria-selected="false">Support</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="login.html">Logout</a>
+                            <a class="nav-link" href="#" onclick="$('#logout-form').submit();">Logout</a>
                         </li>
                     </ul>
                 </div>
@@ -971,7 +974,7 @@
                             <div class="row row-lg">
                                 <div class="col-6 col-md-4">
                                     <div class="feature-box text-center pb-4">
-                                        <a href="#order" class="link-to-tab"><i class="sicon-social-dropbox"></i></a>
+                                        <a onclick="$('#order-tab').click();" class="link-to-tab"><i class="sicon-social-dropbox"></i></a>
                                         <div class="feature-box-content">
                                             <h3>ORDERS</h3>
                                         </div>
@@ -1007,7 +1010,7 @@
 
                                 <div class="col-6 col-md-4">
                                     <div class="feature-box text-center pb-4">
-                                        <a href="#wishlist-tab"><i class="sicon-heart"></i></a>
+                                        <a onclick="$('#wishlist-tab').click();"><i class="sicon-heart"></i></a>
                                         <div class="feature-box-content">
                                             <h3>WISHLIST</h3>
                                         </div>
@@ -1016,7 +1019,7 @@
 
                                 <div class="col-6 col-md-4">
                                     <div class="feature-box text-center pb-4">
-                                        <a href="login.html"><i class="sicon-logout"></i></a>
+                                        <a onclick="$('#logout-form').submit();"><i class="sicon-logout"></i></a>
                                         <div class="feature-box-content">
                                             <h3>LOGOUT</h3>
                                         </div>
