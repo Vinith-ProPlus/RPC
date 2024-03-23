@@ -7,7 +7,7 @@
 				<ol class="breadcrumb">
 					<li class="breadcrumb-item"><a href="{{ url('/') }}" data-original-title="" title=""><i class="f-16 fa fa-home"></i></a></li>
 					<li class="breadcrumb-item">Transaction</li>
-					<li class="breadcrumb-item"><a href="{{ url('/') }}/transaction/quote-enquiry/" data-original-title="" title="">{{$PageTitle}}</a></li>
+					<li class="breadcrumb-item"><a href="{{ url('/') }}/admin/transaction/quote-enquiry/" data-original-title="" title="">{{$PageTitle}}</a></li>
                     <li class="breadcrumb-item">@if($isEdit==true)Update @else Create @endif</li>
 				</ol>
 			</div>
@@ -406,7 +406,7 @@
                 <div class="card-footer row mt-20">
                     <div class="col-sm-12 text-right">
                         @if($crud['view']==true)
-                        <a href="{{url('/')}}/transaction/quote-enquiry" class="btn {{$Theme['button-size']}} btn-outline-dark mr-10" id="btnCancel">Back</a>
+                        <a href="{{url('/')}}/admin/transaction/quote-enquiry" class="btn {{$Theme['button-size']}} btn-outline-dark mr-10" id="btnCancel">Back</a>
                         @endif
                         
                         @if((($crud['add']==true) && ($isEdit==false))||(($crud['edit']==true) && ($isEdit==true)))
@@ -553,7 +553,7 @@
                         for(let Item of response){
                             let selected="";
                             if(Item.ProductID==$('#lstProduct').attr('data-selected')){selected="selected";}
-                            $('#lstProduct').append('<option '+selected+' data-uom="'+Item.UName+'('+Item.UCode+')" value="'+Item.ProductID+'">'+Item.ProductName+' </option>');
+                            $('#lstProduct').append('<option '+selected+' data-uid="'+Item.UID+'" data-uom="'+Item.UName+'('+Item.UCode+')" value="'+Item.ProductID+'">'+Item.ProductName+' </option>');
                         }
                         if($('#lstProduct').val()!=""){
                             $('#lstProduct').trigger('change');
@@ -703,6 +703,7 @@
                 PSCName : $("#lstSubCategory option:selected").html(),
                 ProductName : $("#lstProduct option:selected").html(),
                 UOM : $("#txtUOM").val(),
+                UID : $("#lstProduct option:selected").attr('data-uid'),
             }
             if(!FormData.PCID){
                 $('#lstCategory-err').html('Category is required');status = false;
@@ -846,7 +847,7 @@
 
             formData.append('CustomerID',$('#lstCustomer').val());
             formData.append('ExpectedDeliveryDate',$('#dtpExpDate').val());
-            formData.append('dtpEnqDate',$('#dtpEnqDate').val());
+            formData.append('EnqDate',$('#dtpEnqDate').val());
             formData.append('ReceiverMobNo',$('#txtMobileNo').val());
             formData.append('AID',$('#divShippingAddress').data('aid'));
             formData.append('ProductData',JSON.stringify(ProductData));

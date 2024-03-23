@@ -31,7 +31,7 @@ Route::group(['prefix'=>'quote-enquiry'],function (){
         Route::get('/create', 'Create');
         Route::get('/edit/{ID}', 'Edit');
         Route::get('/view/{ID}', 'QuoteView');
-        Route::post('/create', 'Save');
+        Route::post('/save', 'Save');
 
         Route::get('/image-quote/create', 'ImageQuoteCreate');
 

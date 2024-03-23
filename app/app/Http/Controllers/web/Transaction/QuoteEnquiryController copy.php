@@ -593,7 +593,6 @@ class QuoteEnquiryController extends Controller{
 							'CreatedOn'=>date('Y-m-d H:i:s'),
 							'CreatedBy'=>$this->UserID,
 						];
-						
 						$status = DB::table($this->currfyDB.'tbl_quotation_details')->insert($data1);
 						if($status){
 							DocNum::updateDocNum(docTypes::QuotationDetails->value, $this->currfyDB);
@@ -610,13 +609,6 @@ class QuoteEnquiryController extends Controller{
 							'ReceiverName' => $EnqData[0]->ReceiverName,
 							'ReceiverMobNo' => $EnqData[0]->ReceiverMobNo,
 							'AID' => $EnqData[0]->AID,
-							'DAddress' => $EnqData[0]->DAddress,
-							'DCountryID' => $EnqData[0]->DCountryID,
-							'DStateID' => $EnqData[0]->DStateID,
-							'DDistrictID' => $EnqData[0]->DDistrictID,
-							'DTalukID' => $EnqData[0]->DTalukID,
-							'DCityID' => $EnqData[0]->DCityID,
-							'DPostalCodeID' => $EnqData[0]->DPostalCodeID,
 							'SubTotal' => $totalTaxable,
 							'TaxAmount' => $totalTaxAmount,
 							'CGSTAmount' => $totalCGST,
@@ -889,6 +881,7 @@ class QuoteEnquiryController extends Controller{
 			->where('CU.DFlag', 0)->where('CU.ActiveStatus', 'Active')
 			->select('CU.*','C.CountryName','S.StateName','D.DistrictName','T.TalukName','CI.CityName','PC.PostalCode')
 			->get();
+
 			/* foreach($Customers as $customer){
 				$billingAddressParts = array_map('trim', [
 					$customer->Address,
@@ -928,6 +921,7 @@ class QuoteEnquiryController extends Controller{
 
 				$customer->DeliverAddress = count($customer->DeliverAddress) > 0 ? json_encode($customer->DeliverAddress) : [];
 			} */
+
 		return $Customers;
 	}
 
@@ -981,17 +975,21 @@ class QuoteEnquiryController extends Controller{
     }
 	public function GetSubCategory(request $req){
 		$AllVendors = Helper::getAvailableVendors($req->AID);
-		return DB::table('tbl_vendors_product_mapping as VPM')
+
+		if(is_array($AllVendors)){
+			return DB::table('tbl_vendors_product_mapping as VPM')
 			->leftJoin('tbl_product_subcategory as PSC','PSC.PSCID','VPM.PSCID')
 			->where('PSC.ActiveStatus', 'Active')->where('PSC.DFlag', 0)
 			->where('VPM.Status', 1)->WhereIn('VPM.VendorID', $AllVendors)->where('PSC.PCID', $req->PCID)
 			->groupBy('PSC.PSCID', 'PSCName')
 			->select('PSC.PSCID', 'PSCName')
 			->get();
+		}
 	}
     public function GetProducts(Request $req){
-        $AllVendors = Helper::getAvailableVendors($req->AID);
 
+        $AllVendors = Helper::getAvailableVendors($req->AID);
+            
 		return DB::table('tbl_vendors_product_mapping as VPM')
 			->leftJoin('tbl_products as P','P.ProductID','VPM.ProductID')
 			->leftJoin('tbl_product_subcategory as PSC','PSC.PSCID','P.SCID')

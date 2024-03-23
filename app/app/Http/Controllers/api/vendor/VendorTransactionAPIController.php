@@ -44,7 +44,6 @@ class VendorTransactionAPIController extends Controller{
 
     public function getQuoteRequest(Request $req){
         $VendorID = $this->ReferID;
-
         $pageNo = $req->PageNo ?? 1;
         $perPage = 10;
 
@@ -57,11 +56,11 @@ class VendorTransactionAPIController extends Controller{
 
         foreach($QuoteReqData as $row){
             $row->ProductData = DB::table($this->currfyDB.'tbl_vendor_quotation_details as VQD')->leftJoin('tbl_vendors_product_mapping as VPM','VPM.ProductID','VQD.ProductID')
-            ->join('tbl_products as P','P.ProductID','VQD.ProductID')
-            ->join('tbl_tax as T', 'T.TaxID', 'P.TaxID')
-            ->join('tbl_product_category as PC', 'PC.PCID', 'P.CID')
-            ->join('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')
-            ->join('tbl_uom as U', 'U.UID', 'P.UID')
+            ->leftJoin('tbl_products as P','P.ProductID','VQD.ProductID')
+            ->leftJoin('tbl_tax as T', 'T.TaxID', 'P.TaxID')
+            ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'P.CID')
+            ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')
+            ->leftJoin('tbl_uom as U', 'U.UID', 'P.UID')
             ->where('P.ActiveStatus', 'Active')->where('P.DFlag', 0)->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)->where('PSC.ActiveStatus', 'Active')->where('PSC.DFlag', 0)
             ->where('VQD.VQuoteID',$row->VQuoteID)->where('VQD.Status',NULL)
             ->where('VPM.VendorID',$VendorID)
@@ -151,7 +150,7 @@ class VendorTransactionAPIController extends Controller{
         $pageNo = $req->PageNo ?? 1;
         $perPage = 10;
 
-        $query = DB::table($this->currfyDB.'tbl_vendor_quotation as VQ')->join($this->currfyDB.'tbl_enquiry as E','E.EnqID','VQ.EnqID')
+        $query = DB::table($this->currfyDB.'tbl_vendor_quotation as VQ')->leftJoin($this->currfyDB.'tbl_enquiry as E','E.EnqID','VQ.EnqID')
         ->where('VQ.VendorID',$VendorID);
         if(count($Status)>0){
             $query->whereIn('VQ.Status',$Status);
@@ -161,11 +160,11 @@ class VendorTransactionAPIController extends Controller{
 
         foreach($QuoteReqData as $row){
             $row->ProductData = DB::table($this->currfyDB.'tbl_vendor_quotation_details as VQD')->leftJoin('tbl_vendors_product_mapping as VPM','VPM.ProductID','VQD.ProductID')
-            ->join('tbl_products as P','P.ProductID','VQD.ProductID')
-            ->join('tbl_tax as T', 'T.TaxID', 'P.TaxID')
-            ->join('tbl_product_category as PC', 'PC.PCID', 'P.CID')
-            ->join('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')
-            ->join('tbl_uom as U', 'U.UID', 'P.UID')
+            ->leftJoin('tbl_products as P','P.ProductID','VQD.ProductID')
+            ->leftJoin('tbl_tax as T', 'T.TaxID', 'P.TaxID')
+            ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'P.CID')
+            ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')
+            ->leftJoin('tbl_uom as U', 'U.UID', 'P.UID')
             ->where('P.ActiveStatus', 'Active')->where('P.DFlag', 0)->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)->where('PSC.ActiveStatus', 'Active')->where('PSC.DFlag', 0)
             ->where('VQD.VQuoteID',$row->VQuoteID)
             ->where('VPM.VendorID',$VendorID)
@@ -180,6 +179,107 @@ class VendorTransactionAPIController extends Controller{
             'LastPage' => $QuoteReqData->lastPage(),
         ]);
     }
+    public function getOrders(Request $req){
+        $VendorID = $this->ReferID;
+        $Status = json_decode($req->Status) ?? [];
+        $pageNo = $req->PageNo ?? 1;
+        $perPage = 10;
+
+        $query = DB::table($this->currfyDB.'tbl_vendor_orders as VO')->leftJoin($this->currfyDB.'tbl_order as O','O.OrderID','VO.OrderID');
+        // ->where('VO.VendorID',$VendorID);
+        if(count($Status)>0){
+            $query->whereIn('VO.Status',$Status);
+        }
+        $OrderData = $query->select('VO.VOrderID','O.OrderID','O.OrderNo','O.OrderDate','O.ExpectedDelivery','O.ReceiverName','O.ReceiverMobNo','VO.TotalAmount','VO.SubTotal','VO.TaxAmount','VO.NetAmount','VO.AdditionalCost','VO.Status')->paginate($perPage, ['*'], 'page', $pageNo);
+
+        foreach($OrderData as $row){
+            $row->TotalUnit = DB::table($this->currfyDB.'tbl_order_details')->whereNot('Status','Cancelled')->where('OrderID',$row->OrderID)->sum('Qty');
+            $row->ProductData = DB::table($this->currfyDB.'tbl_order_details as OD')
+            ->leftJoin('tbl_products as P','P.ProductID','OD.ProductID')
+            ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'P.CID')
+            ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')
+            ->leftJoin('tbl_uom as U', 'U.UID', 'P.UID')
+            ->where('P.ActiveStatus', 'Active')->where('P.DFlag', 0)
+            ->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)
+            ->where('PSC.ActiveStatus', 'Active')->where('PSC.DFlag', 0)
+            ->where('OD.OrderID',$row->OrderID)
+            ->whereNot('Status','Cancelled')
+            ->select('OD.DetailID','OD.Taxable','OD.TaxAmt','OD.TotalAmt','P.ProductName','P.ProductID','OD.Qty', 'PC.PCName', 'PC.PCID', 'PSC.PSCName','U.UName','U.UCode','U.UID', 'PSC.PSCID','OD.Price','OD.Status')
+            ->get();
+        }
+        
+        return response()->json([
+            'status' => true,
+            'data' => $OrderData->items(),
+            'CurrentPage' => $OrderData->currentPage(),
+            'LastPage' => $OrderData->lastPage(),
+        ]);
+    }
+    public function getCurrentOrders(Request $req){
+        $VendorID = $this->ReferID;
+        $pageNo = $req->PageNo ?? 1;
+        $perPage = 10;
+
+        $query = DB::table($this->currfyDB.'tbl_vendor_orders as VO')->leftJoin($this->currfyDB.'tbl_order as O','O.OrderID','VO.OrderID')/* ->where('VO.VendorID',$VendorID) */->whereNotIn('VO.Status',['Delivered','Cancelled']);
+        
+        $OrderData = $query->paginate($perPage, ['*'], 'page', $pageNo);
+
+        foreach($OrderData as $row){
+            $row->TotalUnit = DB::table($this->currfyDB.'tbl_order_details')->whereNot('Status','Cancelled')->where('OrderID',$row->OrderID)->sum('Qty');
+            $row->ProductData = DB::table($this->currfyDB.'tbl_order_details as OD')
+            ->leftJoin('tbl_products as P','P.ProductID','OD.ProductID')
+            ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'P.CID')
+            ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')
+            ->leftJoin('tbl_uom as U', 'U.UID', 'P.UID')
+            ->where('P.ActiveStatus', 'Active')->where('P.DFlag', 0)
+            ->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)
+            ->where('PSC.ActiveStatus', 'Active')->where('PSC.DFlag', 0)
+            ->where('OD.OrderID',$row->OrderID)
+            ->whereNot('Status','Cancelled')
+            ->select('OD.DetailID','OD.Taxable','OD.TaxAmt','OD.TotalAmt','P.ProductName','P.ProductID','OD.Qty', 'PC.PCName', 'PC.PCID', 'PSC.PSCName','U.UName','U.UCode','U.UID', 'PSC.PSCID','OD.Price','OD.Status')
+            ->get();
+        }
+        
+        return response()->json([
+            'status' => true,
+            'data' => $OrderData->items(),
+            'CurrentPage' => $OrderData->currentPage(),
+            'LastPage' => $OrderData->lastPage(),
+        ]);
+    }
+    public function getCompletedOrders(Request $req){
+        $VendorID = $this->ReferID;
+        $pageNo = $req->PageNo ?? 1;
+        $perPage = 10;
+
+        $query = DB::table($this->currfyDB.'tbl_vendor_orders as VO')->leftJoin($this->currfyDB.'tbl_order as O','O.OrderID','VO.OrderID')->whereNotIn('VO.Status',['Delivered','Cancelled']);
+        
+        $OrderData = $query->paginate($perPage, ['*'], 'page', $pageNo);
+
+        foreach($OrderData as $row){
+            $row->TotalUnit = DB::table($this->currfyDB.'tbl_order_details')->whereNot('Status','Cancelled')->where('OrderID',$row->OrderID)->sum('Qty');
+            $row->ProductData = DB::table($this->currfyDB.'tbl_order_details as OD')
+            ->leftJoin('tbl_products as P','P.ProductID','OD.ProductID')
+            ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'P.CID')
+            ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')
+            ->leftJoin('tbl_uom as U', 'U.UID', 'P.UID')
+            ->where('P.ActiveStatus', 'Active')->where('P.DFlag', 0)
+            ->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)
+            ->where('PSC.ActiveStatus', 'Active')->where('PSC.DFlag', 0)
+            ->where('OD.OrderID',$row->OrderID)
+            ->whereNot('Status','Cancelled')
+            ->select('OD.DetailID','OD.Taxable','OD.TaxAmt','OD.TotalAmt','P.ProductName','P.ProductID','OD.Qty', 'PC.PCName', 'PC.PCID', 'PSC.PSCName','U.UName','U.UCode','U.UID', 'PSC.PSCID','OD.Price','OD.Status')
+            ->get();
+        }
+        
+        return response()->json([
+            'status' => true,
+            'data' => $OrderData->items(),
+            'CurrentPage' => $OrderData->currentPage(),
+            'LastPage' => $OrderData->lastPage(),
+        ]);
+    }
+
     public function RequestPayment(Request $req){
         $VendorID = $this->ReferID;
 		DB::beginTransaction();
@@ -215,12 +315,11 @@ class VendorTransactionAPIController extends Controller{
     public function getTransactionHistory(Request $req){
         $VendorID = $this->ReferID;
 
-        $query = DB::table($this->currfyDB.'tbl_withdraw_request')->where('VendorID',$VendorID);
-        if($req->Status){
-            $query->whereIn('Status',$req->Status);
-        }
-        $TransactionHistory = $query->select('WithdrawID','ReqOn','ReqAmount','Status')
-        ->orderBy('ReqOn','Desc')
+        $TransactionHistory = DB::table($this->currfyDB.'tbl_vendor_orders as VO')
+        ->leftJoin($this->currfyDB.'tbl_order as O','O.OrderID','VO.OrderID')
+        ->where('VO.VendorID',$VendorID)
+        // ->where('VO.Status','Delivered')
+        // ->select('OrderID','ReqOn','ReqAmount','Status')
         ->get();
         
         return response()->json([

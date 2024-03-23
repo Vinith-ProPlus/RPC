@@ -49,6 +49,11 @@ Route::controller(VendorTransactionAPIController::class)->group(function () {
     Route::post('/reject-quote','RejectQuote');
     Route::post('/stock-list','index');
     
+    Route::post('/get/orders','getOrders');
+    Route::post('/get/current-orders','getCurrentOrders');
+    Route::post('/get/completed-orders','getCompletedOrders');
+
+    
     Route::post('/request-payment','RequestPayment');
     Route::post('/get/transaction-history','getTransactionHistory');
     Route::post('/get/withdrawal-request','getWithdrawalRequest');

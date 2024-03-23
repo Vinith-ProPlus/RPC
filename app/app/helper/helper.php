@@ -773,32 +773,6 @@ class helper{
 		$sql.=" Order By VehicleBrandName asc";
 		return DB::SELECT($sql);
 	}
-	/* public static function getUserInfo($UserID){
-		$generalDB=self::getGeneralDB();
-		$return=array();
-		$sql="Select U.ID,U.UserID,U.ReferID,U.LoginType,U.RoleID,UR.RoleName,U.Name,U.EMail,U.FirstName,U.LastName,U.DOB,U.GenderID,G.Gender,U.Address,U.CityID,CI.CityName,U.StateID,S.StateName,U.CountryID,CO.CountryName,CO.PhoneCode,U.PostalCodeID,PC.PostalCode,U.EMail,U.MobileNumber,U.ProfileImage,U.ActiveStatus,U.DFlag From users AS U  left join ".$generalDB."tbl_cities AS CI On CI.CityID=U.CityID Left Join ".$generalDB."tbl_countries AS CO ON CO.CountryID=U.CountryID LEFT JOIN ".$generalDB."tbl_states as S On S.StateID=U.StateID  Left Join ".$generalDB."tbl_postalcodes as PC On PC.PID=U.PostalCodeID Left Join ".$generalDB."tbl_genders as G On G.GID=U.GenderID Left join tbl_user_roles as UR ON UR.RoleID=U.RoleID Where U.UserID='".$UserID."'";
-		$return=DB::select($sql);
-		for($i=0;$i<count($return);$i++){
-            if (!file_exists($return[$i]->ProfileImage)) {
-				$return[$i]->ProfileImage="";
-			}
-			if(($return[$i]->ProfileImage=="")||($return[$i]->ProfileImage==null)){
-                if(strtolower($return[$i]->Gender)=="female"){
-                    $return[$i]->ProfileImage="assets/images/female-icon.png";
-                }else{
-                    $return[$i]->ProfileImage="assets/images/male-icon.png";
-                }
-			}
-            $return[$i]->ActiveStatus=intval($return[$i]->ActiveStatus)==1?'Active':'Inactive';
-			$return[$i]->ProfileImage=url('/')."/".$return[$i]->ProfileImage;
-        }
-        if(count($return)>0){
-            return array("status"=>true,"data"=>$return[0]);
-        }else{
-            return array("status"=>false,"data"=>$return);
-        }
-		return $return;
-    } */
 	public static function getUserInfo($UserID){
 		$generalDB = self::getGeneralDB();
 
@@ -830,5 +804,48 @@ class helper{
 		}
 	}
 
+    public static function sendNotification($UserID,$Title,$Messase){
+        $firebaseToken=array();
+        $sql="Select  IFNULL(fcmToken,'') as fcmToken,IFNULL(WebFcmToken,'') as WebFcmToken From users where ActiveStatus=1 and DFlag=0  and UserID='".$UserID."'";
+        $result = DB::SELECT($sql);
+        for($i=0;$i<count($result);$i++){
+            if($result[$i]->fcmToken!=""){
+                $firebaseToken[]=$result[$i]->fcmToken;    
+            }
+            if($result[$i]->WebFcmToken!=""){
+                $firebaseToken[]=$result[$i]->WebFcmToken;    
+            }
+            
+        }
+        if(count($firebaseToken)>0){
+           $SERVER_API_KEY = '';// firebase server key
+      
+            $data = [
+                "registration_ids" => $firebaseToken,
+                "notification" => [
+                    "title" => $Title,
+                    "body" => $Messase,  
+                ]
+            ];
+            $dataString = json_encode($data);
+            
+            $headers = [
+                'Authorization: key=' . $SERVER_API_KEY,
+                'Content-Type: application/json',
+            ];
+        
+            $ch = curl_init();
+          
+            curl_setopt($ch, CURLOPT_URL, 'https://fcm.googleapis.com/fcm/send');
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $dataString);
+                   
+            $response = curl_exec($ch);
+            return $response;
+        }
+    }
 
 }

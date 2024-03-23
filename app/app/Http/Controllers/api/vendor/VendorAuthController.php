@@ -1059,8 +1059,16 @@ class VendorAuthController extends Controller{
     
     public function getVendorData(request $req){
         $VendorID = $this->ReferID;
-		$VendorData = DB::table('tbl_vendors')->where('DFlag',0)->where('ActiveStatus','Active')/* ->where('isApproved',1) */->whereNot('VendorType',Null)->where('VendorID',$VendorID)->first();
-        if($VendorData){
+		$VendorData = DB::table('tbl_vendors')->whereNot('VendorType',Null)->where('VendorID',$VendorID)->first();
+        if(!$VendorData){
+            return response()->json(['status' => false,'message' => "No Vendors Found! Contact Admin"]);
+        }elseif($VendorData->DFlag == 1){
+            return response()->json(['status' => false,'message' => "Vendor has been Deleted! Contact Admin"]);
+        }elseif($VendorData->ActiveStatus =='Inactive'){
+            return response()->json(['status' => false,'message' => "You are currently inactive! Contact Admin"]);
+        }elseif($VendorData->isApproved == 0){
+            return response()->json(['status' => false,'message' => "You are not approved by Admin"]);
+        }else{
             $VendorData->PCategories = unserialize($VendorData->PCategories);
             $VendorData->Logo = url('/').'/'.$VendorData->Logo;
             $VendorData->Documents = DB::table('tbl_vendors_document as VD')->leftJoin('tbl_vendor_required_documents as VRD','VRD.DocName','VD.DocName')->where('VD.VendorID', $VendorID)->select('VD.DocName','VRD.DisplayName', DB::raw('CONCAT("' . url('/') . '/", documents) AS Documents'))->get();
@@ -1100,11 +1108,7 @@ class VendorAuthController extends Controller{
                 }
             }
             $VendorData->ServiceLocations = $ServiceLocations;
-            
             return response()->json(['status' => true,'data' => $VendorData]);
-        }else{
-            return response()->json(['status' => false,'data' => ""]);
-
         }
 	}
 

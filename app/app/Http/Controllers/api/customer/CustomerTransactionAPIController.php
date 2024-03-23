@@ -128,7 +128,6 @@ class CustomerTransactionAPIController extends Controller{
         $status=false;
         $CustomerID=$this->ReferID;
         try {
-            $CustomerData = DB::table('tbl_customer')->where('CustomerID',$CustomerID)->first();
             $EnqID = DocNum::getDocNum(docTypes::Enquiry->value,$this->currfyDB,Helper::getCurrentFY());
             $BuildingImage = "";
             if($req->BuildingImage != null) {
@@ -463,17 +462,18 @@ class CustomerTransactionAPIController extends Controller{
         }
 	}
 
-    public function getOrder(Request $req){
-        $query = DB::table($this->currfyDB.'tbl_order as O');
+    public function getOrder(Request $req){ 
+        $query = DB::table($this->currfyDB.'tbl_order as O')
+        ->leftJoin('tbl_customer as CU','CU.CustomerID','O.CustomerID')
+        ->leftJoin('tbl_customer_address as CA','CA.AID','O.AID');
         if($req->Status){
             $query->where('O.Status',$req->Status);
         }
         $OrderData=$query
-        // ->select('O.OrderID','O.OrderNo','O.OrderDate','O.ReceiverName','O.ReceiverMobNo','O.Status','O.TaxAmount','O.SubTotal','O.CGSTAmount','O.SGSTAmount','O.IGSTAmount','O.TotalAmount','O.AdditionalCost','O.OverAllAmount')
+        ->select('O.OrderID','O.OrderNo','O.OrderDate','O.ReceiverName','O.ReceiverMobNo','O.Status','O.TaxAmount','O.SubTotal','O.CGSTAmount','O.SGSTAmount','O.IGSTAmount','O.TotalAmount','O.AdditionalCost','O.NetAmount','O.isRated','O.DeliveredOn','O.ExpectedDelivery','O.PaymentStatus','CU.CompleteAddress as BillingAddress','CA.CompleteAddress as ShippingAddress')
         ->get();
         
         foreach($OrderData as $order){
-
             $order->TotalUnit = DB::table($this->currfyDB.'tbl_order_details')->where('OrderID',$order->OrderID)->sum('Qty');
             $order->ProductData = DB::table($this->currfyDB.'tbl_order_details as OD')
                 ->leftJoin('tbl_products as P','P.ProductID','OD.ProductID')
@@ -481,11 +481,34 @@ class CustomerTransactionAPIController extends Controller{
                 ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')
                 ->leftJoin('tbl_uom as U','U.UID','P.UID')
                 ->where('OD.OrderID',$order->OrderID)
-                // ->select('P.ProductID','P.ProductName','OD.Qty','OD.Price','OD.Taxable','U.UName','PC.PCName','PSC.PSCName')
+                ->whereNot('OD.Status','Cancelled')
+                ->select('P.ProductID','P.ProductName','OD.Qty','OD.Price','OD.Taxable','OD.TaxAmt','OD.CGSTPer','OD.SGSTPer','OD.IGSTPer','OD.CGSTAmt','OD.SGSTAmt','OD.IGSTAmt','OD.TotalAmt','U.UName','PC.PCName','PSC.PSCName')
                 ->get();
         }
         return response()->json(['status' => true,'data' => $OrderData]);
     }
+
+    public function ReviewOrder(Request $req){
+		DB::beginTransaction();
+        try {
+            $isOrderCompleted = DB::Table($this->currfyDB.'tbl_order')->where('OrderID',$req->OrderID)->where('Status','Delivered')->exists();
+            if(!$isOrderCompleted){
+                return response()->json(['status' => false,'message' => "Order is not Delivered!"]);
+            }else{
+                $status = DB::Table($this->currfyDB.'tbl_order')->where('OrderID',$req->OrderID)->update(['Ratings'=>$req->Ratings,'Review'=>$req->Review,'isRated'=>1,'RatedOn'=>date('Y-m-d'),'UpdatedOn'=>date('Y-m-d H:i:s')]);
+            }
+        }catch(Exception $e) {
+            $status=false;
+        }
+        if($status==true){
+            DB::commit();
+            return response()->json(['status' => true ,'message' => "Order Rated Successfully!"]);
+        }else{
+            DB::rollback();
+            return response()->json(['status' => false,'message' => "Order Rating Failed!"]);
+        }
+	}
+
     public function getCategory(Request $req){
         if($req->PostalID){
             $AllVendors = DB::table('tbl_vendors as V')->leftJoin('tbl_vendors_service_locations as VSL','V.VendorID','VSL.VendorID')->where('V.ActiveStatus',"Active")->where('V.DFlag',0)->where('VSL.PostalCodeID',$req->PostalID)->groupBy('VSL.VendorID')->pluck('VSL.VendorID')->toArray();

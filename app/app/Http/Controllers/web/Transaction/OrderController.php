@@ -358,7 +358,7 @@ class OrderController extends Controller{
 				array( 'db' => 'C.MobileNo1', 'dt' => '3' ),
 				array( 'db' => 'O.ExpectedDelivery', 'dt' => '4' ),
 				array( 'db' => 'O.NetAmount', 'dt' => '5' ),
-				array( 'db' => 'O.PaidAmount', 'dt' => '6' ),
+				array( 'db' => 'O.TotalPaidAmount', 'dt' => '6' ),
 				array( 'db' => 'O.BalanceAmount', 'dt' => '7' ),
 				array( 'db' => 'O.Status', 'dt' => '8' ),
 				array( 'db' => 'O.PaymentStatus', 'dt' => '9' ),
@@ -379,7 +379,7 @@ class OrderController extends Controller{
 				),
 				array( 'db' => 'ExpectedDelivery', 'dt' => '4' ,'formatter' => function( $d, $row ) { return date($this->Settings['date-format'],strtotime($d));}  ),
 				array( 'db' => 'NetAmount', 'dt' => '5', 'formatter' => function( $d, $row ) { return Helper::NumberFormat($d,$this->Settings['price-decimals']);} ),
-				array( 'db' => 'PaidAmount', 'dt' => '6' , 'formatter' => function( $d, $row ) { return Helper::NumberFormat($d,$this->Settings['price-decimals']);} ),
+				array( 'db' => 'TotalPaidAmount', 'dt' => '6' , 'formatter' => function( $d, $row ) { return Helper::NumberFormat($d,$this->Settings['price-decimals']);} ),
 				array( 'db' => 'BalanceAmount', 'dt' => '7' , 'formatter' => function( $d, $row ) { return Helper::NumberFormat($d,$this->Settings['price-decimals']);} ),
 				array( 
 					'db' => 'Status', 

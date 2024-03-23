@@ -52,6 +52,7 @@ Route::controller(CustomerTransactionAPIController::class)->group(function () {
     Route::post('/reject-quote-item','RejectQuoteItem');
 
     Route::post('/get/order','getOrder');
+    Route::post('/review-order','ReviewOrder');
     
     Route::post('/order-ratings','OrderRatings');
 });

@@ -51,6 +51,7 @@ class CustomerAPIController extends Controller{
         if(count($result)>0){
             if(($result[0]->DFlag==0)&&($result[0]->ActiveStatus=='Active')&&($result[0]->isLogin==1)){
                 if(Auth::attempt(['UserName'=>$req->email,'password'=>$req->password,'ActiveStatus' => 1,'DFlag' => 0,'isLogin' => 1])){
+                    
                     $token=auth()->user()->createToken('Token')->accessToken;
 					DB::Table('users')->where('UserID',Auth()->user()->UserID)->update(array("fcmToken"=>$req->fcmToken));
                     $userInfo=helper::getUserInfo(Auth()->user()->UserID);
