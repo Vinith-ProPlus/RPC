@@ -1384,6 +1384,7 @@
                 var formData = new FormData();
 
                 formData.append('PostalID', $('#customerSelectedAddress').attr('data-selected-postal-id'));
+                formData.append('AID', $('#customerSelectedAddress').attr('data-aid'));
                 formData.append('productCount', parseInt($('#productCountSelect').val()));
                 formData.append('orderBy', $('#orderBySelect').val());
                 formData.append('viewType', viewType);

@@ -10810,10 +10810,11 @@
             var viewType = 'Grid';
             const LoadCategories=async()=>{
                 var formData = new FormData();
+                formData.append('AID', $('#customerSelectedAddress').attr('data-aid'));
                 formData.append('PostalID', $('#customerSelectedAddress').attr('data-selected-postal-id'));
                 $.ajax({
                     type:"post",
-                    url:"{{url('/')}}/products/get/categories/html",
+                    url:"{{ route('products.categoriesHtml') }}",
                     headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
                     data: formData,
                     cache: false,
@@ -10835,6 +10836,7 @@
                 var formData = new FormData();
 
                 formData.append('PostalID', $('#customerSelectedAddress').attr('data-selected-postal-id'));
+                formData.append('AID', $('#customerSelectedAddress').attr('data-aid'));
                 formData.append('SubCategoryID', sub_category_id);
                 formData.append('productCount', $('#productCountSelect').val());
                 formData.append('orderBy', $('#orderBySelect').val());

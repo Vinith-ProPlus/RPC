@@ -494,11 +494,8 @@ class HomeAuthController extends Controller{
 
     public function getCategory(Request $req)
     {
-        if ($req->PostalID) {
-            $AllVendors = DB::table('tbl_vendors as V')
-                ->leftJoin('tbl_vendors_service_locations as VSL', 'V.VendorID', 'VSL.VendorID')
-                ->where('V.ActiveStatus', "Active")->where('V.DFlag', 0)
-                ->where('VSL.PostalCodeID', $req->PostalID)->groupBy('VSL.VendorID')->pluck('VSL.VendorID')->toArray();
+        if ($req->AID) {
+            $AllVendors = Helper::getAvailableVendors($req->AID);
             $PCatagories = DB::table('tbl_vendors_product_mapping as VPM')
                 ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'VPM.PCID')
                 ->where('VPM.Status', 1)->WhereIn('VPM.VendorID', $AllVendors)
@@ -525,19 +522,11 @@ class HomeAuthController extends Controller{
     }
 
     public function getProductDetails(Request $request){
-        if($request->PostalID){
+        if($request->AID){
             $customerID = $this->ReferID;
             $productCount = $request->productCount ?? 12;
             $pageNo = $request->pageNo ?? 1;
-            $AllVendors = DB::table('tbl_vendors as V')
-                ->leftJoin('tbl_vendors_service_locations as VSL','V.VendorID','VSL.VendorID')
-                ->where('V.ActiveStatus',"Active")
-                ->where('V.DFlag',0)
-                ->where('VSL.PostalCodeID',$request->PostalID)
-                ->groupBy('VSL.VendorID')
-                ->pluck('VSL.VendorID')
-                ->toArray();
-
+            $AllVendors = Helper::getAvailableVendors($request->AID);
             $totalProducts = DB::table('tbl_vendors_product_mapping as VPM')
                 ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'VPM.PCID')
                 ->leftJoin('tbl_products as P', 'P.ProductID', 'VPM.ProductID')
@@ -806,13 +795,7 @@ class HomeAuthController extends Controller{
     {
         $CustomerID = $this->ReferID;
         $FormData['Company'] = $this->Company;
-        $AllVendors = DB::table('tbl_vendors as V')
-            ->leftJoin('tbl_vendors_service_locations as VSL', 'V.VendorID', 'VSL.VendorID')
-            ->where('V.ActiveStatus', "Active")->where('V.DFlag', 0)
-            ->when($request->has('PostalID') && ($request->PostalID != 'undefined'), function ($query) use ($request) {
-                return $query->where('VSL.PostalCodeID', $request->PostalID);
-            })
-            ->groupBy('VSL.VendorID')->pluck('VSL.VendorID')->toArray();
+        $AllVendors = Helper::getAvailableVendors($request->AID);
         $PCatagories = DB::table('tbl_vendors_product_mapping as VPM')
             ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'VPM.PCID')
             ->where('VPM.Status', 1)->WhereIn('VPM.VendorID', $AllVendors)
@@ -861,15 +844,11 @@ class HomeAuthController extends Controller{
 
     public function getCategoryDetails($request)
     {
-        if ($request->PostalID) {
+        if ($request->AID) {
             $productCount = ($request->productCount != 'undefined') ? $request->productCount : 12;
             $pageNo = ($request->pageNo != 'undefined') ? $request->pageNo : 1;
 
-            $AllVendors = DB::table('tbl_vendors as V')
-                ->leftJoin('tbl_vendors_service_locations as VSL', 'V.VendorID', 'VSL.VendorID')
-                ->where('V.ActiveStatus', "Active")->where('V.DFlag', 0)
-                ->where('VSL.PostalCodeID',$request->PostalID)
-                ->groupBy('VSL.VendorID')->pluck('VSL.VendorID')->toArray();
+            $AllVendors = Helper::getAvailableVendors($request->AID);
             $PCatagories = DB::table('tbl_vendors_product_mapping as VPM')
                 ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'VPM.PCID')
                 ->where('VPM.Status', 1)->WhereIn('VPM.VendorID', $AllVendors)
@@ -904,13 +883,7 @@ class HomeAuthController extends Controller{
     {
         $CustomerID = $this->ReferID;
         $FormData['Company'] = $this->Company;
-        $AllVendors = DB::table('tbl_vendors as V')
-            ->leftJoin('tbl_vendors_service_locations as VSL', 'V.VendorID', 'VSL.VendorID')
-            ->where('V.ActiveStatus', "Active")->where('V.DFlag', 0)
-            ->when($request->has('PostalID') && ($request->PostalID != 'undefined'), function ($query) use ($request) {
-                return $query->where('VSL.PostalCodeID', $request->PostalID);
-            })
-            ->groupBy('VSL.VendorID')->pluck('VSL.VendorID')->toArray();
+        $AllVendors = Helper::getAvailableVendors($request->AID);
         $PCatagories = DB::table('tbl_vendors_product_mapping as VPM')
             ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'VPM.PCID')
             ->where('VPM.Status', 1)->WhereIn('VPM.VendorID', $AllVendors)
@@ -959,16 +932,10 @@ class HomeAuthController extends Controller{
 
     public function getSubCategoryDetails($request)
     {
-        if ($request->PostalID) {
+        if ($request->AID) {
             $productCount = ($request->productCount != 'undefined') ? $request->productCount : 12;
             $pageNo = ($request->pageNo != 'undefined') ? $request->pageNo : 1;
-            $AllVendors = DB::table('tbl_vendors as V')
-                ->leftJoin('tbl_vendors_service_locations as VSL', 'V.VendorID', 'VSL.VendorID')
-                ->where('V.ActiveStatus', "Active")->where('V.DFlag', 0)
-                ->when($request->has('PostalID') && ($request->PostalID != 'undefined'), function ($query) use ($request) {
-                    return $query->where('VSL.PostalCodeID', $request->PostalID);
-                })
-                ->groupBy('VSL.VendorID')->pluck('VSL.VendorID')->toArray();
+            $AllVendors = Helper::getAvailableVendors($request->AID);
             $PSubCatagories = DB::table('tbl_vendors_product_mapping as VPM')
                 ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'VPM.PSCID')
                 ->where('VPM.Status', 1)->WhereIn('VPM.VendorID', $AllVendors)
@@ -1008,13 +975,7 @@ class HomeAuthController extends Controller{
     {
         $CustomerID = $this->ReferID;
         $FormData['Company'] = $this->Company;
-        $AllVendors = DB::table('tbl_vendors as V')
-            ->leftJoin('tbl_vendors_service_locations as VSL', 'V.VendorID', 'VSL.VendorID')
-            ->where('V.ActiveStatus', "Active")->where('V.DFlag', 0)
-            ->when($request->has('PostalID') && ($request->PostalID != 'undefined'), function ($query) use ($request) {
-                return $query->where('VSL.PostalCodeID', $request->PostalID);
-            })
-            ->groupBy('VSL.VendorID')->pluck('VSL.VendorID')->toArray();
+        $AllVendors = Helper::getAvailableVendors($request->AID);
         $PCatagories = DB::table('tbl_vendors_product_mapping as VPM')
             ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'VPM.PCID')
             ->where('VPM.Status', 1)->WhereIn('VPM.VendorID', $AllVendors)
@@ -1068,9 +1029,7 @@ class HomeAuthController extends Controller{
         $pageNo = ($request->pageNo != 'undefined') ? $request->pageNo : 1;
         $viewType = $request->viewType ?? 'Grid';
         $orderBy = $request->orderBy ?? '';
-
         $wishListDetails = $this->getWishlistDetails($request);
-        logger($wishListDetails);
         $totalWishListCount = $wishListDetails['totalWishListCount'];
         $wishListDetails = $wishListDetails['wishListDetails'];
 
@@ -1082,33 +1041,16 @@ class HomeAuthController extends Controller{
             $wishListDetails = $wishListDetails['wishListDetails'];
         }
         $cartProducts = $this->getCart();
-        logger("cartProducts");
-        logger($cartProducts);
-
-        logger("wishListDetails");
-        logger($wishListDetails);
-
         return view('home.customer.wish-list-html', compact('wishListDetails', 'cartProducts', 'productCount', 'pageNo', 'viewType', 'orderBy', 'range', 'totalPages'))->render();
     }
     public function getWishlistDetails($request)
     {
-        if($request->PostalID){
+        if($request->AID){
             $customerID = $this->ReferID;
             $productCount = ((int)($request->productCount) != 0) ? $request->productCount : 12;
             $pageNo = $request->pageNo ?? 1;
 
-            logger($request);
-            logger($productCount);
-            logger($pageNo);
-            $AllVendors = DB::table('tbl_vendors as V')
-                ->leftJoin('tbl_vendors_service_locations as VSL','V.VendorID','VSL.VendorID')
-                ->where('V.ActiveStatus',"Active")
-                ->where('V.DFlag',0)
-                ->where('VSL.PostalCodeID',$request->PostalID)
-                ->groupBy('VSL.VendorID')
-                ->pluck('VSL.VendorID')
-                ->toArray();
-
+            $AllVendors = Helper::getAvailableVendors($request->AID);
             $wishListCount = DB::table('tbl_vendors_product_mapping as VPM')
                 ->leftJoin('tbl_products as P', 'P.ProductID', 'VPM.ProductID')
                 ->leftJoin('tbl_wishlists as W', function($join) use ($customerID) {
