@@ -12948,6 +12948,7 @@
                 var formData = new FormData();
 
                 formData.append('PostalID', $('#customerSelectedAddress').attr('data-selected-postal-id'));
+                formData.append('AID', $('#customerSelectedAddress').attr('data-aid'));
                 if(sub_category_id){
                     formData.append('SubCategoryID', sub_category_id);
                 }

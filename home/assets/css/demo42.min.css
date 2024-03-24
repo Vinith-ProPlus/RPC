@@ -19574,8 +19574,33 @@ svg .appear-animate {
 	border-radius: 0px;
 	border: 3px outset #ffffff;
 }
+.header-search-wrapper {
+	position: relative;
+	display: inline-block;
+}
 
-.product-category .category-title {
-	white-space: normal;
-	word-wrap: break-word;
+.search-results {
+	position: absolute;
+	top: 100%;
+	left: 0;
+	z-index: 999;
+	background-color: #fff;
+	border: 1px solid #ccc;
+	width: 100%;
+	max-height: 200px;
+	overflow-y: auto;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	display: none;
+	text-align: left;
+}
+
+.search-results a {
+	display: block;
+	padding: 8px 10px;
+	color: #333;
+	text-decoration: none;
+}
+
+.search-results a:hover {
+	background-color: #f5f5f5;
 }

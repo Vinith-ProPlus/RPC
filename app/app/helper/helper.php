@@ -29,28 +29,38 @@ class helper{
 	public static function getDBPrefix(){
 		return config('app.db_prefix');
 	}
-	public static function getAvailableVendors($AID) {
-        $AddressData = DB::table('tbl_customer_address')->where('AID',$AID)->first();
-		$AllVendors = DB::table('tbl_vendors as V')
-			->join('tbl_vendors_service_locations as VSL', 'V.VendorID', 'VSL.VendorID')
-			->where('V.ActiveStatus', "Active")
-			->where('V.DFlag', 0)
-			->where('VSL.DFlag', 0)
-			->where('VSL.PostalCodeID', $AddressData->PostalCodeID)->groupBy('V.VendorID')->pluck('V.VendorID')->toArray();
-			
-		$RadiusVendors = DB::table('tbl_vendors_stock_point as VSP')
-			->join('tbl_vendors as V','V.VendorID','VSP.VendorID')
-			->where('VSP.ServiceBy','Radius')
-			->where('V.ActiveStatus', "Active")->where('V.DFlag',0)
-			->where('VSP.DFlag',0)
-			->select('V.VendorID','Latitude','Longitude','Range')->get();
-		foreach ($RadiusVendors as $Vendor) {
-			$vendorID = self::findVendorsInRange($AddressData, $Vendor);
-			if ($vendorID && !in_array($vendorID, $AllVendors)) {
-				$AllVendors[] = $vendorID;
-			}
-		}
-		return $AllVendors;
+
+    public static function getAvailableVendors($AID)
+    {
+        $AddressData = DB::table('tbl_customer_address')->where('AID', $AID)->first();
+        if ($AddressData) {
+            $AllVendors = DB::table('tbl_vendors as V')
+                ->join('tbl_vendors_service_locations as VSL', 'V.VendorID', 'VSL.VendorID')
+                ->where('V.ActiveStatus', "Active")
+                ->where('V.DFlag', 0)
+                ->where('VSL.DFlag', 0)
+                ->where('VSL.PostalCodeID', $AddressData->PostalCodeID)->groupBy('V.VendorID')->pluck('V.VendorID')->toArray();
+            $RadiusVendors = DB::table('tbl_vendors_stock_point as VSP')
+                ->join('tbl_vendors as V', 'V.VendorID', 'VSP.VendorID')
+                ->where('VSP.ServiceBy', 'Radius')
+                ->where('V.ActiveStatus', "Active")->where('V.DFlag', 0)
+                ->where('VSP.DFlag', 0)
+                ->select('V.VendorID', 'Latitude', 'Longitude', 'Range')->get();
+            foreach ($RadiusVendors as $Vendor) {
+                $vendorID = self::findVendorsInRange($AddressData, $Vendor);
+                if ($vendorID && !in_array($vendorID, $AllVendors)) {
+                    $AllVendors[] = $vendorID;
+                }
+            }
+        } else {
+            $AllVendors = DB::table('tbl_vendors as V')
+                ->join('tbl_vendors_service_locations as VSL', 'V.VendorID', 'VSL.VendorID')
+                ->where('V.ActiveStatus', "Active")
+                ->where('V.DFlag', 0)
+                ->where('VSL.DFlag', 0)
+                ->groupBy('V.VendorID')->pluck('V.VendorID')->toArray();
+        }
+        return $AllVendors;
     }
 	public static function findVendorsInRange($Customer, $Vendor) {
         $customerLat = $Customer->Latitude;
@@ -86,7 +96,7 @@ class helper{
 		if ($addressParts) {
 			$trimmedAddress = trim($Address);
 			$address = substr($trimmedAddress, -1) == ',' ? $trimmedAddress .' ' : $trimmedAddress . ', ';
-			$fullAddress = $address . 
+			$fullAddress = $address .
 					$addressParts->CityName . ', ' .
 					$addressParts->TalukName . ', ' .
 					$addressParts->DistrictName . ', ' .
@@ -117,11 +127,11 @@ class helper{
 	}
 	public static function getStockTable($VendorID) {
 		$StockDB = self::getStockDB();
-	
+
 		$vendorIDParts = explode('-', $VendorID);
-	
+
 		$tableName = 'tbl_' . implode('_',$vendorIDParts);
-		
+
 		$status = DB::statement("CREATE TABLE IF NOT EXISTS ".$StockDB."tbl_docnum (
 			`SLNO` INT AUTO_INCREMENT PRIMARY KEY,
 			`DocType` VARCHAR(50) NULL,
@@ -131,7 +141,7 @@ class helper{
 			`Suffix` VARCHAR(10),
 			`Year` VARCHAR(10) NULL
 		)");
-	
+
 		$status = DB::statement("CREATE TABLE IF NOT EXISTS ".$StockDB.$tableName." (
 			`DetailID` VARCHAR(50) PRIMARY KEY,
 			`Date` DATE,
@@ -153,7 +163,7 @@ class helper{
 			]);
 		}
 		return $StockDB.$tableName;
-	}	
+	}
 
 	public static function generateVendorDB($VendorID,$UserID){
 		$DBPrefix="";
@@ -205,7 +215,7 @@ class helper{
 			return $randomID;
 		}
 	}
-	
+
 	public static function generateFinancialYearName($FromDate,$ToDate){
 		return "FY-".date("y",strtotime($FromDate)).date("y",strtotime($ToDate));
 	}
@@ -221,7 +231,7 @@ class helper{
 		}
 		$FYName=self::generateFinancialYearName($ActiveFY->FromDate,$ActiveFY->ToDate);
 		$FYName=str_replace("-","_",$FYName);
-		$FYName=str_replace(" ","_",$FYName); 
+		$FYName=str_replace(" ","_",$FYName);
 		$TableName=$FYName!=""?"tbl_log_".$FYName:"tbl_log";
 		if(self::checkTableExists($LogDB,$TableName)==false){
 			$sql="CREATE TABLE IF NOT EXISTS ".$LogDB.$TableName." (LogID varchar(50) PRIMARY Key,ReferID varchar(50),Description varchar(255),ModuleName varchar(150),Action varchar(100) ,OldData text,NewData text,IPAddress varchar(100),UserID varchar(50),LogTime timestamp NOT NULL DEFAULT current_timestamp);";
@@ -449,7 +459,7 @@ class helper{
 			if(array_key_exists("sortname",$data)){if($data['sortname']!=""){$sql.=" and sortname='".$data['sortname']."'";}}
 			if(array_key_exists("CountryName",$data)){if($data['CountryName']!=""){$sql.=" and CountryName='".$data['CountryName']."'";}}
 			if(array_key_exists("PhoneCode",$data)){if($data['PhoneCode']!=""){$sql.=" and PhoneCode='".$data['PhoneCode']."'";}}
-			
+
 		}
 		$sql.=" Order By CountryName asc";
 		return DB::SELECT($sql);
@@ -503,7 +513,7 @@ class helper{
 				}
 			}
 			if(array_key_exists("DistrictName",$data)){if($data['DistrictName']!=""){$sql.=" and DistrictName='".$data['DistrictName']."'";}}
-			
+
 		}
 		$sql.=" Order By DistrictName asc";
 		return DB::SELECT($sql);
@@ -517,7 +527,7 @@ class helper{
 			if(array_key_exists("DistrictID",$data)){if($data['DistrictID']!=""){$sql.=" and DistrictID='".$data['DistrictID']."'";}}
 			if(array_key_exists("TalukID",$data)){if($data['TalukID']!=""){$sql.=" and TalukID='".$data['TalukID']."'";}}
 			if(array_key_exists("TalukName",$data)){if($data['TalukName']!=""){$sql.=" and TalukName='".$data['TalukName']."'";}}
-			
+
 		}
 		$sql.=" Order By TalukName asc";
 		return DB::SELECT($sql);
@@ -558,7 +568,7 @@ class helper{
 			if(array_key_exists("DistrictID",$data)){if($data['DistrictID']!=""){$sql.=" and DistrictID='".$data['DistrictID']."'";}}
 			if(array_key_exists("PostalCodeID",$data)){if($data['PostalCodeID']!=""){$sql.=" and PID='".$data['PostalCodeID']."'";}}
 			if(array_key_exists("PostalCode",$data)){if($data['PostalCode']!=""){$sql.=" and PostalCode='".$data['PostalCode']."'";}}
-			
+
 		}
 		$sql.=" Order By PostalCode asc ";
 		return DB::SELECT($sql);
@@ -593,8 +603,8 @@ class helper{
 		$sql="Select * From ".$generalDB."tbl_bank_branches Where ActiveStatus='Active' and DFlag=0 ";
 		if(is_array($data)){
 			if(array_key_exists("BankID",$data)){if($data['BankID']!=""){$sql.=" and BankID='".$data['BankID']."'";}}
-			if(array_key_exists("BranchID",$data)){if($data['BranchID']!=""){$sql.=" and SLNO='".$data['BranchID']."'";}}	
-			
+			if(array_key_exists("BranchID",$data)){if($data['BranchID']!=""){$sql.=" and SLNO='".$data['BranchID']."'";}}
+
 		}
 		$sql.=" Order By BranchName asc ";
 		return DB::SELECT($sql);
@@ -642,7 +652,7 @@ class helper{
 		if (file_exists($url)) {
 			// Get image information
 			$imageInfo = getimagesize($url);
-		
+
 			// Check if the image type is supported
 			$supportedTypes = [
 				IMAGETYPE_PNG,
@@ -654,7 +664,7 @@ class helper{
 			if ($imageInfo && in_array($imageInfo[2], $supportedTypes)) {
 				// Attempt to create the image resource directly from URL
 				$image = call_user_func('imagecreatefrom' . image_type_to_extension($imageInfo[2], false), $url);
-		
+
 				// Check if the image resource was created successfully
 				if ($image !== false) {
 					return $image;
@@ -684,15 +694,15 @@ class helper{
 			if($fileName==""){
 				$fileName = basename($FileUrl, ".".$ext)."_".$new_width."x".$new_height.".".$ext;
 			}
-			
-			
+
+
 			if(SELF::GDEnabled()){
 				list($width, $height) = getimagesize($FileUrl);
 				$dst = imagecreatetruecolor($new_width, $new_height);
 				$src=SELF::readImage($FileUrl);
 				if($src!=null){
 					imagecopyresized($dst, $src, 0, 0, 0, 0, $new_width, $new_height, $width, $height);
-	
+
 					if (!file_exists( $destination_dir)) {mkdir( $destination_dir, 0777, true);}
 					$uploadPath=$destination_dir.$fileName;
 					self::imgSave($ext,$dst,$uploadPath);
@@ -709,7 +719,7 @@ class helper{
 		foreach($ResizePercentages as $index=>$percentage){
 			$newWidth=($imgWidth*$percentage->Percentage)/100;
 			$newHeight=($imgHeight*$percentage->Percentage)/100;
-			
+
 			$ext = pathinfo($FileUrl, PATHINFO_EXTENSION);
 			$fileName = basename($FileUrl, ".".$ext)."_".$percentage->Percentage.".".$ext;
 			$uploadUrl=self::ResizeImage($FileUrl,$destination_dir,$newWidth,$newHeight,$fileName);
@@ -720,26 +730,26 @@ class helper{
 	public static function generateSlug($string) {
 		// Remove special characters
 		$string = preg_replace('/[^a-zA-Z0-9\s]/', '', $string);
-		
+
 		// Convert to lowercase
 		$string = strtolower($string);
-	
+
 		// Replace spaces with dashes
 		$string = str_replace(' ', '-', $string);
-	
+
 		// Remove consecutive dashes
 		$string = preg_replace('/-+/', '-', $string);
-	
+
 		// Trim dashes from the beginning and end
 		$string = trim($string, '-');
-	
+
 		return $string;
 	}
 	public static function checkProductImageExists($url){
 		$image=file_exists($url)?$url:"assets/images/no-images.jpg";
 		return $image;
 	}
-	
+
 	public static function getVehicleType($data=array()){
 		$generalDB=self::getGeneralDB();
 		$sql="Select * From ".$generalDB."tbl_vehicle_type Where ActiveStatus='Active' and DFlag=0 ";
@@ -797,7 +807,7 @@ class helper{
 			} else {
 				$userInfo->ProfileImage = url('/') . "/" . $userInfo->ProfileImage;
 			}
-			
+
 			return ["status" => true, "data" => $userInfo];
 		} else {
 			return ["status" => false, "data" => []];

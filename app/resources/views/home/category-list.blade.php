@@ -59,6 +59,7 @@
                 var formData = new FormData();
 
                 formData.append('PostalID', $('#customerSelectedAddress').attr('data-selected-postal-id'));
+                formData.append('AID', $('#customerSelectedAddress').attr('data-aid'));
                 $.ajax({
                     url: '{{ route('products.categoriesListHtml') }}',
                     headers: { 'X-CSRF-Token' : '{{ csrf_token() }}' },

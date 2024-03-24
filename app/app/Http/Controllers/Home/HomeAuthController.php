@@ -29,11 +29,13 @@ class HomeAuthController extends Controller{
 	private $FileTypes;
 	private $UserData;
 	private $logDB;
+	private $supportDB;
 
 	public function __construct(){
 		$this->generalDB=Helper::getGeneralDB();
 		$this->tmpDB=Helper::getTmpDB();
 		$this->logDB=Helper::getLogDB();
+		$this->supportDB=Helper::getSupportDB();
         $this->PCategories = DB::Table('tbl_product_category')->where('ActiveStatus','Active')->where('DFlag',0)
             ->select('PCName','PCID',
                 DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PCImage, ""), "assets/images/no-image-b.png")) AS PCImage'))
@@ -492,11 +494,8 @@ class HomeAuthController extends Controller{
 
     public function getCategory(Request $req)
     {
-        if ($req->PostalID) {
-            $AllVendors = DB::table('tbl_vendors as V')
-                ->leftJoin('tbl_vendors_service_locations as VSL', 'V.VendorID', 'VSL.VendorID')
-                ->where('V.ActiveStatus', "Active")->where('V.DFlag', 0)
-                ->where('VSL.PostalCodeID', $req->PostalID)->groupBy('VSL.VendorID')->pluck('VSL.VendorID')->toArray();
+        if ($req->AID) {
+            $AllVendors = Helper::getAvailableVendors($req->AID);
             $PCatagories = DB::table('tbl_vendors_product_mapping as VPM')
                 ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'VPM.PCID')
                 ->where('VPM.Status', 1)->WhereIn('VPM.VendorID', $AllVendors)
@@ -523,19 +522,11 @@ class HomeAuthController extends Controller{
     }
 
     public function getProductDetails(Request $request){
-        if($request->PostalID){
+        if($request->AID){
             $customerID = $this->ReferID;
             $productCount = $request->productCount ?? 12;
             $pageNo = $request->pageNo ?? 1;
-            $AllVendors = DB::table('tbl_vendors as V')
-                ->leftJoin('tbl_vendors_service_locations as VSL','V.VendorID','VSL.VendorID')
-                ->where('V.ActiveStatus',"Active")
-                ->where('V.DFlag',0)
-                ->where('VSL.PostalCodeID',$request->PostalID)
-                ->groupBy('VSL.VendorID')
-                ->pluck('VSL.VendorID')
-                ->toArray();
-
+            $AllVendors = Helper::getAvailableVendors($request->AID);
             $totalProducts = DB::table('tbl_vendors_product_mapping as VPM')
                 ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'VPM.PCID')
                 ->leftJoin('tbl_products as P', 'P.ProductID', 'VPM.ProductID')
@@ -804,13 +795,7 @@ class HomeAuthController extends Controller{
     {
         $CustomerID = $this->ReferID;
         $FormData['Company'] = $this->Company;
-        $AllVendors = DB::table('tbl_vendors as V')
-            ->leftJoin('tbl_vendors_service_locations as VSL', 'V.VendorID', 'VSL.VendorID')
-            ->where('V.ActiveStatus', "Active")->where('V.DFlag', 0)
-            ->when($request->has('PostalID') && ($request->PostalID != 'undefined'), function ($query) use ($request) {
-                return $query->where('VSL.PostalCodeID', $request->PostalID);
-            })
-            ->groupBy('VSL.VendorID')->pluck('VSL.VendorID')->toArray();
+        $AllVendors = Helper::getAvailableVendors($request->AID);
         $PCatagories = DB::table('tbl_vendors_product_mapping as VPM')
             ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'VPM.PCID')
             ->where('VPM.Status', 1)->WhereIn('VPM.VendorID', $AllVendors)
@@ -859,15 +844,11 @@ class HomeAuthController extends Controller{
 
     public function getCategoryDetails($request)
     {
-        if ($request->PostalID) {
+        if ($request->AID) {
             $productCount = ($request->productCount != 'undefined') ? $request->productCount : 12;
             $pageNo = ($request->pageNo != 'undefined') ? $request->pageNo : 1;
 
-            $AllVendors = DB::table('tbl_vendors as V')
-                ->leftJoin('tbl_vendors_service_locations as VSL', 'V.VendorID', 'VSL.VendorID')
-                ->where('V.ActiveStatus', "Active")->where('V.DFlag', 0)
-                ->where('VSL.PostalCodeID',$request->PostalID)
-                ->groupBy('VSL.VendorID')->pluck('VSL.VendorID')->toArray();
+            $AllVendors = Helper::getAvailableVendors($request->AID);
             $PCatagories = DB::table('tbl_vendors_product_mapping as VPM')
                 ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'VPM.PCID')
                 ->where('VPM.Status', 1)->WhereIn('VPM.VendorID', $AllVendors)
@@ -902,13 +883,7 @@ class HomeAuthController extends Controller{
     {
         $CustomerID = $this->ReferID;
         $FormData['Company'] = $this->Company;
-        $AllVendors = DB::table('tbl_vendors as V')
-            ->leftJoin('tbl_vendors_service_locations as VSL', 'V.VendorID', 'VSL.VendorID')
-            ->where('V.ActiveStatus', "Active")->where('V.DFlag', 0)
-            ->when($request->has('PostalID') && ($request->PostalID != 'undefined'), function ($query) use ($request) {
-                return $query->where('VSL.PostalCodeID', $request->PostalID);
-            })
-            ->groupBy('VSL.VendorID')->pluck('VSL.VendorID')->toArray();
+        $AllVendors = Helper::getAvailableVendors($request->AID);
         $PCatagories = DB::table('tbl_vendors_product_mapping as VPM')
             ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'VPM.PCID')
             ->where('VPM.Status', 1)->WhereIn('VPM.VendorID', $AllVendors)
@@ -957,16 +932,10 @@ class HomeAuthController extends Controller{
 
     public function getSubCategoryDetails($request)
     {
-        if ($request->PostalID) {
+        if ($request->AID) {
             $productCount = ($request->productCount != 'undefined') ? $request->productCount : 12;
             $pageNo = ($request->pageNo != 'undefined') ? $request->pageNo : 1;
-            $AllVendors = DB::table('tbl_vendors as V')
-                ->leftJoin('tbl_vendors_service_locations as VSL', 'V.VendorID', 'VSL.VendorID')
-                ->where('V.ActiveStatus', "Active")->where('V.DFlag', 0)
-                ->when($request->has('PostalID') && ($request->PostalID != 'undefined'), function ($query) use ($request) {
-                    return $query->where('VSL.PostalCodeID', $request->PostalID);
-                })
-                ->groupBy('VSL.VendorID')->pluck('VSL.VendorID')->toArray();
+            $AllVendors = Helper::getAvailableVendors($request->AID);
             $PSubCatagories = DB::table('tbl_vendors_product_mapping as VPM')
                 ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'VPM.PSCID')
                 ->where('VPM.Status', 1)->WhereIn('VPM.VendorID', $AllVendors)
@@ -1006,13 +975,7 @@ class HomeAuthController extends Controller{
     {
         $CustomerID = $this->ReferID;
         $FormData['Company'] = $this->Company;
-        $AllVendors = DB::table('tbl_vendors as V')
-            ->leftJoin('tbl_vendors_service_locations as VSL', 'V.VendorID', 'VSL.VendorID')
-            ->where('V.ActiveStatus', "Active")->where('V.DFlag', 0)
-            ->when($request->has('PostalID') && ($request->PostalID != 'undefined'), function ($query) use ($request) {
-                return $query->where('VSL.PostalCodeID', $request->PostalID);
-            })
-            ->groupBy('VSL.VendorID')->pluck('VSL.VendorID')->toArray();
+        $AllVendors = Helper::getAvailableVendors($request->AID);
         $PCatagories = DB::table('tbl_vendors_product_mapping as VPM')
             ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'VPM.PCID')
             ->where('VPM.Status', 1)->WhereIn('VPM.VendorID', $AllVendors)
@@ -1066,9 +1029,7 @@ class HomeAuthController extends Controller{
         $pageNo = ($request->pageNo != 'undefined') ? $request->pageNo : 1;
         $viewType = $request->viewType ?? 'Grid';
         $orderBy = $request->orderBy ?? '';
-
         $wishListDetails = $this->getWishlistDetails($request);
-        logger($wishListDetails);
         $totalWishListCount = $wishListDetails['totalWishListCount'];
         $wishListDetails = $wishListDetails['wishListDetails'];
 
@@ -1080,35 +1041,16 @@ class HomeAuthController extends Controller{
             $wishListDetails = $wishListDetails['wishListDetails'];
         }
         $cartProducts = $this->getCart();
-        logger("cartProducts");
-        logger($cartProducts);
-
-        logger("wishListDetails");
-        logger($wishListDetails);
-
         return view('home.customer.wish-list-html', compact('wishListDetails', 'cartProducts', 'productCount', 'pageNo', 'viewType', 'orderBy', 'range', 'totalPages'))->render();
     }
-
     public function getWishlistDetails($request)
     {
-
-        if($request->PostalID){
+        if($request->AID){
             $customerID = $this->ReferID;
             $productCount = ((int)($request->productCount) != 0) ? $request->productCount : 12;
             $pageNo = $request->pageNo ?? 1;
 
-            logger($request);
-            logger($productCount);
-            logger($pageNo);
-            $AllVendors = DB::table('tbl_vendors as V')
-                ->leftJoin('tbl_vendors_service_locations as VSL','V.VendorID','VSL.VendorID')
-                ->where('V.ActiveStatus',"Active")
-                ->where('V.DFlag',0)
-                ->where('VSL.PostalCodeID',$request->PostalID)
-                ->groupBy('VSL.VendorID')
-                ->pluck('VSL.VendorID')
-                ->toArray();
-
+            $AllVendors = Helper::getAvailableVendors($request->AID);
             $wishListCount = DB::table('tbl_vendors_product_mapping as VPM')
                 ->leftJoin('tbl_products as P', 'P.ProductID', 'VPM.ProductID')
                 ->leftJoin('tbl_wishlists as W', function($join) use ($customerID) {
@@ -1159,6 +1101,105 @@ class HomeAuthController extends Controller{
                 'totalWishListCount' => 0
             ];
         }
+    }
+
+    public function customerHomeSearch(Request $req)
+    {
+        if ($req->AID) {
+            if ($req->SearchText) {
+                $AllVendors = Helper::getAvailableVendors($req->AID);
+
+                $PCategories = DB::table('tbl_product_category as PC')
+                    ->rightJoin('tbl_vendors_product_mapping as VPM', 'PC.PCID', 'VPM.PCID')
+                    ->where('VPM.Status', 1)
+                    ->whereIn('VPM.VendorID', $AllVendors)
+                    ->where('PC.PCName', 'like', '%' . $req->SearchText . '%')
+                    ->groupBy('PC.PCID', 'PC.PCName')
+                    ->select('PC.PCID', 'PC.PCName')->take(3)->get();
+
+                $PSCategories = DB::table('tbl_product_subcategory as PSC')
+                    ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'PSC.PCID')
+                    ->rightJoin('tbl_vendors_product_mapping as VPM', 'PSC.PSCID', 'VPM.PSCID')
+                    ->where('VPM.Status', 1)
+                    ->whereIn('VPM.VendorID', $AllVendors)
+                    ->where('PSC.PSCName', 'like', '%' . $req->SearchText . '%')
+                    ->groupBy('PC.PCID', 'PC.PCName', 'PSC.PSCID', 'PSC.PSCName')
+                    ->select('PC.PCID', 'PC.PCName', 'PSC.PSCID', 'PSC.PSCName')->take(3)->get();
+
+                $Products = DB::table('tbl_products as P')
+                    ->leftJoin('tbl_product_subcategory as PSC', 'P.SCID', 'PSC.PSCID')
+                    ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'PSC.PCID')
+                    ->rightJoin('tbl_vendors_product_mapping as VPM', 'P.ProductID', 'VPM.ProductID')
+                    ->where('VPM.Status', 1)
+                    ->whereIn('VPM.VendorID', $AllVendors)
+                    ->where('P.ProductName', 'like', '%' . $req->SearchText . '%')
+                    ->groupBy('P.ProductID', 'P.ProductName', 'PC.PCID', 'PC.PCName', 'PSC.PSCID', 'PSC.PSCName')
+                    ->select('P.ProductID', 'P.ProductName', 'PC.PCID', 'PC.PCName', 'PSC.PSCID', 'PSC.PSCName')->take(3)->get();
+                $resultHtml = view('home.customer.search-html', compact('PCategories', 'PSCategories', 'Products'))->render();
+
+                return response()->json(['status' => true, 'searchResults' => $resultHtml]);
+            } else {
+                return response()->json(['status' => false, 'message' => "search text is empty"]);
+            }
+        } else {
+            return response()->json(['status' => false, 'message' => "Shipping Address is required!"]);
+        }
+    }
+
+    public function supportTableHtml(Request $request)
+    {
+        $productCount = ((int)($request->productCount) != 0) ? $request->productCount : 12;
+        $pageNo = ($request->pageNo != 'undefined') ? $request->pageNo : 1;
+        $viewType = $request->viewType ?? 'List';
+        $orderBy = ($request->has('orderBy') && in_array($request->orderBy, ['asc', 'desc'])) ? $request->orderBy : 'desc';
+
+        $supportDetails = $this->getSupportDetails($request);
+        logger($supportDetails);
+        $totalSupportCount = $supportDetails['totalSupportCount'];
+        $supportDetails = $supportDetails['supportDetails'];
+
+        $totalPages = ceil($totalSupportCount / $productCount);
+        $range = 3;
+        if($pageNo > $totalPages){
+            $pageNo = $request->pageNo = $totalPages;
+            $supportDetails = $this->getSupportDetails($request);
+            $supportDetails = $supportDetails['supportDetails'];
+        }
+
+        logger("supportDetails");
+        logger($supportDetails);
+
+        return view('home.customer.support-html', compact('supportDetails', 'productCount', 'pageNo', 'viewType', 'orderBy', 'range', 'totalPages'))->render();
+    }
+
+    public function getSupportDetails($request)
+    {
+        $customerID = $this->UserID;
+        $productCount = ((int)($request->productCount) != 0) ? $request->productCount : 12;
+        $pageNo = $request->pageNo ?? 1;
+        logger($request);
+        logger(in_array($request->orderBy, ['new', 'popularity']));
+        $orderBy = ($request->has('orderBy') && in_array($request->orderBy, ['asc', 'desc'])) ? $request->orderBy : 'desc';
+        $supportCount = DB::table($this->supportDB.'tbl_support as S')
+            ->leftJoin('tbl_support_type as ST', 'ST.SLNO', 'S.SupportType')
+            ->leftJoin('users as U', 'U.UserID', 'S.UserID')
+            ->where('U.UserID',$customerID)
+            ->select('S.SupportID')
+            ->count();
+
+        $supportDetails = DB::table($this->supportDB.'tbl_support as S')
+            ->leftJoin('tbl_support_type as ST', 'ST.SLNO', 'S.SupportType')
+            ->leftJoin('users as U', 'U.UserID', 'S.UserID')
+            ->where('U.UserID', $customerID)
+            ->orderBy('S.CreatedOn', $orderBy)
+            ->select('S.SupportID', 'U.Name', 'ST.SupportType', 'S.Subject', 'S.Priority', 'S.Status', 'S.CreatedOn')
+            ->skip(($pageNo - 1) * $productCount)
+            ->take($productCount)
+            ->get();
+        return [
+            'supportDetails' => $supportDetails,
+            'totalSupportCount' => $supportCount
+        ];
     }
 
 }

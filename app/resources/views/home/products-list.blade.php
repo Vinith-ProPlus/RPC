@@ -10851,6 +10851,7 @@
                 var formData = new FormData();
 
                 formData.append('PostalID', $('#customerSelectedAddress').attr('data-selected-postal-id'));
+                formData.append('AID', $('#customerSelectedAddress').attr('data-aid'));
                 formData.append('SubCategoryID', sub_category_id);
                 formData.append('productCount', $('#productCountSelect').val());
                 formData.append('orderBy', $('#orderBySelect').val());

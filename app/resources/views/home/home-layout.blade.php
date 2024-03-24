@@ -50,6 +50,15 @@
         } )( document );
     </script>
 
+    <style>
+        .dropify-wrapper {
+            border-radius: unset !important;
+        }
+
+        .dropify-message p {
+            display: none !important;
+        }
+    </style>
 </head>
 
 <body>
@@ -83,7 +92,7 @@
                         <div class="header-dropdown" style="display: inline-block;margin-left:0">
                             @if(isset($ShippingAddress) && (count($ShippingAddress) > 0))
                                 <a href="#" style="margin-top:10px" id="customerSelectedAddress"
-                                   data-selected-postal-id="{{ $ShippingAddress[0]->PostalCodeID }}" data-selected-latitude="{{ '11.048274' }}" data-selected-longitude="{{ '76.9885352' }}">
+                                   data-selected-postal-id="{{ $ShippingAddress[0]->PostalCodeID }}" data-aid="{{ $ShippingAddress[0]->AID }}" data-selected-latitude="{{ '11.048274' }}" data-selected-longitude="{{ '76.9885352' }}">
                                     {{ $ShippingAddress[0]->Address ?? '' }}
                                     , {{ $ShippingAddress[0]->CityName }}, {{ $ShippingAddress[0]->TalukName }}
                                     , {{ $ShippingAddress[0]->DistrictName }}, {{ $ShippingAddress[0]->StateName }}
@@ -91,7 +100,7 @@
                                 </a>
                                 <ul id="changeCustomerAddressUl">
                                     @foreach ($ShippingAddress as $key => $item)
-                                        <li><a href="#" data-postal-id="{{ $item->PostalCodeID }}" data-latitude="{{ $key.'11.048274' }}" data-longitude="{{ $key.'76.9885352' }}">
+                                        <li><a href="#" data-postal-id="{{ $item->PostalCodeID }}" data-aid="{{ $item->AID }}" data-latitude="{{ $key.'11.048274' }}" data-longitude="{{ $key.'76.9885352' }}">
                                                 {{ $item->Address }}, {{ $item->CityName }}
                                                 , {{ $item->TalukName }}, {{ $item->DistrictName }}
                                                 , {{ $item->StateName }},{{ $item->CountryName }}
@@ -136,21 +145,16 @@
                         <img src="{{url('/')}}/{{$Company['Logo']}}" width="50" height="50" alt="RPC">
                     </a>
                     <span class="ml-3 font-weight-bold" style="color:rgb(7, 54, 163)">RPC Construction</span>
-                </div><!-- End .header-left -->
-
+                </div>
                 <div class="header-right w-lg-max">
-                    <div
-                        class="header-icon header-search header-search-inline header-search-category w-lg-max text-right mb-0">
+                    <div class="header-icon header-search header-search-inline header-search-category w-lg-max text-right mb-0">
                         <a href="#" class="search-toggle" role="button"><i class="icon-search-3"></i></a>
-                        <form action="#" method="get">
                             <div class="header-search-wrapper">
-                                <input type="search" class="form-control" name="q" id="q" placeholder="Search..."
-                                       required>
-
-                                <button class="btn icon-magnifier p-0" title="search" type="submit"></button>
-                            </div><!-- End .header-search-wrapper -->
-                        </form>
-                    </div><!-- End .header-search -->
+                                <input class="form-control" placeholder="Search..." type="text" id="homeSearch" name="homeSearch">
+                                <div id="searchResults" class="search-results"></div>
+                                <button class="btn icon-magnifier p-0" title="search"></button>
+                            </div>
+                    </div>
 
                     <span class="separator d-none d-lg-block"></span>
 
@@ -515,6 +519,7 @@
 <script src="{{url('/')}}/assets/plugins/dropify/js/dropify.js?r={{date('YmdHis')}}"></script>
 <script src="{{url('/')}}/assets/plugins/image-cropper/cropper.js?r={{date('YmdHis')}}"></script>
 <script src="{{url('/')}}/assets/js/address-web.js?r={{date('YmdHis')}}"></script>
+<script src="{{url('/')}}/assets/js/custom.js?r={{date('YmdHis')}}"></script>
 {{--<script src="{{url('/')}}/assets/js/nouislider.min.js?r={{date('YmdHis')}}"></script>--}}
 <script src="{{url('/')}}/assets/plugins/bootbox-js/bootbox.min.js?r={{date('YmdHis')}}"></script>
 <script src="{{url('/')}}/assets/js/select2/select2.full.min.js?r={{date('YmdHis')}}"></script>
@@ -670,14 +675,79 @@
             }
         });
 
+        function setCookie(name, value, days) {
+            var expires = '';
+            if (days) {
+                var date = new Date();
+                date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+                expires = '; expires=' + date.toUTCString();
+            }
+            document.cookie = name + '=' + value + expires + '; path=/';
+        }
+
+        function getCookie(name) {
+            const cookieValue = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+            return cookieValue ? cookieValue.pop() : '';
+        }
+
         $('#changeCustomerAddressUl li a').on('click', function(e){
             e.preventDefault();
             let selectedAddress = $('#customerSelectedAddress');
+            selectedAddress.attr('data-aid', $(this).data('aid'));
             selectedAddress.attr('data-selected-postal-id', $(this).data('postal-id'));
             selectedAddress.attr('data-selected-latitude', $(this).data('latitude'));
             selectedAddress.attr('data-selected-longitude', $(this).data('longitude'));
             selectedAddress.html($(this).html());
+            setCookie('selected_aid', $(this).data('aid'), 30);
+            $.ajax({
+                url: "{{ route('setAidInSession') }}",
+                headers: { 'X-CSRF-Token' : '{{ csrf_token() }}' },
+                processData: false,
+                contentType: false,
+                type: "POST",
+                data: { aid: $(this).data('aid') },
+                success: function(response) {
+                    // console.log(response.message);
+                },
+                error: function(xhr, status, error) {
+                    console.error(error);
+                }
+            });
         });
+
+        $('#homeSearch').on('keyup', function() {
+            var formData = new FormData();
+            formData.append('AID', $('#customerSelectedAddress').attr('data-aid'));
+            formData.append('SearchText', $(this).val());
+            $.ajax({
+                url: "{{ route('customerHomeSearch') }}",
+                method: 'POST',
+                headers: { 'X-CSRF-Token' : '{{ csrf_token() }}' },
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    let searchResults = $('#searchResults');
+                    searchResults.empty();
+                    searchResults.append((response.searchResults !== "") ? response.searchResults : "No results found");
+                    searchResults.show();
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error:', error);
+                }
+            });
+        });
+
+        $(document).on('click', function(event) {
+            if (!$(event.target).closest('.header-search-wrapper').length) {
+                $('#searchResults').hide();
+            }
+        });
+
+        let selected_aid = getCookie('selected_aid');
+        if (selected_aid !== "") {
+            $('#changeCustomerAddressUl li a[data-aid="' + selected_aid + '"]').click();
+        }
     });
 </script>
 
