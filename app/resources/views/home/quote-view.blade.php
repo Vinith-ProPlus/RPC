@@ -7,7 +7,7 @@
     z-index: 1;
 }
 </style>
-<div class="container-fluid">
+<div class="container mt-2">
 	<div class="row d-flex justify-content-center">
 		<div class="col-12 col-sm-12 col-lg-12">
 			<div class="card">
@@ -363,15 +363,15 @@
                 <div class="card-footer">
                     <div class="row">
                         <div class="col-sm-12 text-right">
-                            <a href="{{route('requested-quotations')}}" class="btn btn-sm btn-outline-dark mr-10" id="btnCancel">Back</a>
+                            <a href="{{ route('my-account', ['tab'=> 'quotations']) }}" class="btn btn-sm btn-outline-dark mr-10" id="btnCancel">Back</a>
 
-                            @if(count($VendorQuote)==0 && count($FinalQuoteData) == 0)
-                                <button class="btn btn-sm btn-outline-success" id="btnRequestQuote">Request Quote</button>
-                            @elseif(count($VendorQuote)>0 && count($FinalQuoteData) == 0)
-                                <button class="btn btn-sm btn-outline-info" id="btnQuoteConvert">Convert to Quotation</button>
-                            @elseif(count($FinalQuoteData)>0)
-                                {{-- <button class="btn btn-sm btn-outline-primary" id="btnOrderConvert">Convert to Order</button> --}}
-                            @endif
+{{--                            @if(count($VendorQuote)==0 && count($FinalQuoteData) == 0)--}}
+{{--                                <button class="btn btn-sm btn-outline-success" id="btnRequestQuote">Request Quote</button>--}}
+{{--                            @elseif(count($VendorQuote)>0 && count($FinalQuoteData) == 0)--}}
+{{--                                <button class="btn btn-sm btn-outline-info" id="btnQuoteConvert">Convert to Quotation</button>--}}
+{{--                            @elseif(count($FinalQuoteData)>0)--}}
+{{--                                --}}{{-- <button class="btn btn-sm btn-outline-primary" id="btnOrderConvert">Convert to Order</button> --}}
+{{--                            @endif--}}
                         </div>
                     </div>
                 </div>

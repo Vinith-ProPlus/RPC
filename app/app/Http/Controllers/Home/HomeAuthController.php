@@ -30,12 +30,14 @@ class HomeAuthController extends Controller{
 	private $UserData;
 	private $logDB;
 	private $supportDB;
+    private $currfyDB;
 
 	public function __construct(){
 		$this->generalDB=Helper::getGeneralDB();
 		$this->tmpDB=Helper::getTmpDB();
 		$this->logDB=Helper::getLogDB();
 		$this->supportDB=Helper::getSupportDB();
+        $this->currfyDB=Helper::getCurrFYDB();
         $this->PCategories = DB::Table('tbl_product_category')->where('ActiveStatus','Active')->where('DFlag',0)
             ->select('PCName','PCID',
                 DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PCImage, ""), "assets/images/no-image-b.png")) AS PCImage'))
@@ -1202,4 +1204,107 @@ class HomeAuthController extends Controller{
         ];
     }
 
+    public function quotationTableHtml(Request $request)
+    {
+        $productCount = ((int)($request->productCount) != 0) ? $request->productCount : 12;
+        $pageNo = ($request->pageNo != 'undefined') ? $request->pageNo : 1;
+        $viewType = $request->viewType ?? 'List';
+        $orderBy = ($request->has('orderBy') && in_array($request->orderBy, ['asc', 'desc'])) ? $request->orderBy : 'desc';
+
+        $quotationDetails = $this->getQuotationDetails($request);
+        $totalQuotationCount = $quotationDetails['totalQuotationCount'];
+        $quotationDetails = $quotationDetails['quotationDetails'];
+
+        $totalPages = ceil($totalQuotationCount / $productCount);
+        $range = 3;
+        if($pageNo > $totalPages){
+            $pageNo = $request->pageNo = $totalPages;
+            $quotationDetails = $this->getQuotationDetails($request);
+            $quotationDetails = $quotationDetails['quotationDetails'];
+        }
+
+        logger("quotationDetails");
+        logger($quotationDetails);
+
+        return view('home.customer.quotations-html', compact('quotationDetails', 'productCount', 'pageNo', 'viewType', 'orderBy', 'range', 'totalPages'))->render();
+    }
+
+    public function getQuotationDetails($request)
+    {
+        $customerID = $this->ReferID;
+        $productCount = ((int)($request->productCount) != 0) ? $request->productCount : 12;
+        $pageNo = $request->pageNo ?? 1;
+
+        $orderBy = ($request->has('orderBy') && in_array($request->orderBy, ['asc', 'desc'])) ? $request->orderBy : 'desc';
+        $quotationCount = DB::table($this->currfyDB.'tbl_enquiry as E')
+            ->leftJoin('users as U', 'U.UserID', 'E.CustomerID')
+            ->where('U.UserID',$customerID)
+            ->select('E.EnqNo')
+            ->count();
+
+        $quotationDetails = DB::table($this->currfyDB.'tbl_enquiry as E')
+            ->leftJoin('users as U', 'U.UserID', 'E.CustomerID')
+            ->where('E.CustomerID',$customerID)
+            ->orderBy('U.CreatedOn', $orderBy)
+            ->select('E.EnqNo', 'E.EnqDate', 'E.ExpectedDeliveryDate', 'E.Status', 'E.EnqID')
+            ->skip(($pageNo - 1) * $productCount)
+            ->take($productCount)
+            ->get();
+        return [
+            'quotationDetails' => $quotationDetails,
+            'totalQuotationCount' => $quotationCount
+        ];
+    }
+
+    public function orderTableHtml(Request $request)
+    {
+        $productCount = ((int)($request->productCount) != 0) ? $request->productCount : 12;
+        $pageNo = ($request->pageNo != 'undefined') ? $request->pageNo : 1;
+        $viewType = $request->viewType ?? 'List';
+        $orderBy = ($request->has('orderBy') && in_array($request->orderBy, ['asc', 'desc'])) ? $request->orderBy : 'desc';
+
+        $orderDetails = $this->getQuotationDetails($request);
+        $totalOrderCount = $orderDetails['totalOrderCount'];
+        $orderDetails = $orderDetails['orderDetails'];
+
+        $totalPages = ceil($totalOrderCount / $productCount);
+        $range = 3;
+        if($pageNo > $totalPages){
+            $pageNo = $request->pageNo = $totalPages;
+            $orderDetails = $this->getOrderDetails($request);
+            $orderDetails = $orderDetails['orderDetails'];
+        }
+
+        logger("orderDetails");
+        logger($orderDetails);
+
+        return view('home.customer.orders-html', compact('orderDetails', 'productCount', 'pageNo', 'viewType', 'orderBy', 'range', 'totalPages'))->render();
+    }
+
+    public function getOrderDetails($request)
+    {
+        $customerID = $this->ReferID;
+        $productCount = ((int)($request->productCount) != 0) ? $request->productCount : 12;
+        $pageNo = $request->pageNo ?? 1;
+
+        $orderBy = ($request->has('orderBy') && in_array($request->orderBy, ['asc', 'desc'])) ? $request->orderBy : 'desc';
+        $orderCount = DB::table($this->currfyDB.'tbl_enquiry as E')
+            ->leftJoin('users as U', 'U.UserID', 'E.CustomerID')
+            ->where('U.UserID',$customerID)
+            ->select('E.EnqNo')
+            ->count();
+
+        $orderDetails = DB::table($this->currfyDB.'tbl_enquiry as E')
+            ->leftJoin('users as U', 'U.UserID', 'E.CustomerID')
+            ->where('E.CustomerID',$customerID)
+            ->orderBy('U.CreatedOn', $orderBy)
+            ->select('E.EnqNo', 'E.EnqDate', 'E.ExpectedDeliveryDate', 'E.Status', 'E.EnqID')
+            ->skip(($pageNo - 1) * $productCount)
+            ->take($productCount)
+            ->get();
+        return [
+            'orderDetails' => $orderDetails,
+            'totalOrderCount' => $orderCount
+        ];
+    }
 }

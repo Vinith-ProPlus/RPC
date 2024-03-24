@@ -47,7 +47,7 @@ class HomeTransactionController extends Controller{
         $this->tmpDB = Helper::getTmpDB();
         $this->logDB = Helper::getLogDB();
         $this->currfyDB = Helper::getCurrFYDB();
-        $this->PCategories = DB::Table('tbl_product_category')->where('ActiveStatus', 'Active')->where('DFlag', 0)->select('PCName', 'PCID', 'PCImage')->get()->toArray();
+        $this->PCategories = DB::Table('tbl_product_category')->where('ActiveStatus', 'Active')->where('DFlag', 0)->select('PCName', 'PCID', 'PCImage')->get();
         $this->FileTypes = Helper::getFileTypes(array("category" => array("Images", "Documents")));
         $CompanyData = DB::table('tbl_company_settings')->select('KeyName', 'KeyValue')->get();
         $Company = [];
@@ -163,7 +163,8 @@ class HomeTransactionController extends Controller{
                 ->leftJoin($this->generalDB.'tbl_taluks as DT', 'DT.TalukID', 'E.DTalukID')
                 ->leftJoin($this->generalDB.'tbl_cities as DCI', 'DCI.CityID', 'E.DCityID')
                 ->leftJoin($this->generalDB.'tbl_postalcodes as DPC', 'DPC.PID', 'E.DPostalCodeID')
-                ->whereNot('E.Status','Cancelled')->Where('E.EnqID',$EnqID)
+//                ->whereNot('E.Status','Cancelled')
+                ->Where('E.EnqID',$EnqID)
                 ->select('EnqID','EnqNo','EnqDate','VendorIDs','Status','ReceiverName','ReceiverMobNo','ExpectedDeliveryDate','CU.Email','DPostalCodeID','E.PostalCodeID','E.Address','C.CountryName','S.StateName','D.DistrictName','T.TalukName','CI.CityName','PC.PostalCode','DAddress','DC.CountryName as DCountryName','DS.StateName as DStateName','DD.DistrictName as DDistrictName','DT.TalukName as DTalukName','DCI.CityName as DCityName','DPC.PostalCode as DPostalCode')
                 ->first();
             $FormData['EnqData']=$EnqData;

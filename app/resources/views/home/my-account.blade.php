@@ -1030,32 +1030,15 @@
                     </div><!-- End .tab-pane -->
 
                     <div class="tab-pane fade" id="quotations" role="tabpanel">
-                        <div class="order-content">
-                            <h3 class="account-sub-title d-none d-md-block"><i class="sicon-social-dropbox align-middle mr-3"></i>Quotations</h3>
-                            <div class="order-table-container text-center">
-                                <table class="table table-order text-left">
-                                    <thead>
-                                    <tr>
-                                        <th class="order-id">ORDER</th>
-                                        <th class="order-date">DATE</th>
-                                        <th class="order-status">STATUS</th>
-                                        <th class="order-price">TOTAL</th>
-                                        <th class="order-action">ACTIONS</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    <tr>
-                                        <td class="text-center p-0" colspan="5">
-                                            <p class="mb-5 mt-5">
-                                                No Order has been made yet.
-                                            </p>
-                                        </td>
-                                    </tr>
-                                    </tbody>
-                                </table>
-                                <hr class="mt-0 mb-3 pb-2">
-
-                                <a href="category.html" class="btn btn-dark">Go Shop</a>
+                        <div class="download-content">
+                            <div class="row align-items-center">
+                                <div class="col-md-6">
+                                    <h3 class="account-sub-title d-none d-md-block"><i class="sicon-cloud-download align-middle mr-3"></i>Quotations</h3>
+                                </div>
+                            </div>
+                            <div class="download-table-container" style="margin-top: 20px !important;">
+                                <div class="wishlist-table-container" id="quotationTableHtml">
+                                </div>
                             </div>
                         </div>
                     </div><!-- End .tab-pane -->
@@ -1519,6 +1502,10 @@
                 }
             });
 
+            $(document).on('click','.btnQuoteView',function(){
+                window.location.replace("{{url('/')}}/requested-quotations/view/"+ $(this).attr('data-id'));
+            });
+
             $('#btnNewTicket').click(function(e){
                 e.preventDefault();
                 $.ajax({
@@ -1540,11 +1527,135 @@
                 })
             });
 
+            var quotation_current_page_no = 1;
+            const LoadQuotations = async () => {
+                var formData = new FormData();
+
+                formData.append('productCount', parseInt($('#quotationProductCountSelect').val()));
+                formData.append('orderBy', $('#quotationOrderBySelect').val());
+                formData.append('pageNo', quotation_current_page_no);
+
+                $.ajax({
+                    url: '{{ route('quotationTableHtml') }}',
+                    headers: {'X-CSRF-Token': '{{ csrf_token() }}'},
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function (response) {
+                        $('#quotationTableHtml').html(response);
+                        $('#quotationProductCountSelect').change(function () {
+                            var selectedValue = $(this).val();
+                            $('#quotationProductCountSelect2').val(selectedValue);
+                        });
+                        $('#quotationProductCountSelect2').change(function () {
+                            var selectedValue = $(this).val();
+                            $('#quotationProductCountSelect').val(selectedValue);
+                        });
+                        $('#quotationProductCountSelect').change(function () {
+                            LoadQuotations();
+                        });
+                        $('#quotationProductCountSelect2').change(function () {
+                            LoadQuotations();
+                        });
+                        $('#quotationOrderBySelect').change(function () {
+                            LoadQuotations();
+                        });
+                        $('.quotationChangePage').click(function () {
+                            quotation_current_page_no = $(this).attr('data-page-no');
+                            LoadQuotations();
+                        });
+                        $('.quotationPrevPage').click(function () {
+                            quotation_current_page_no = parseInt(quotation_current_page_no) - 1;
+                            LoadQuotations();
+                        });
+                        $('.quotationNextPage').click(function () {
+                            quotation_current_page_no = parseInt(quotation_current_page_no) + 1;
+                            LoadQuotations();
+                        });
+                    },
+                    error: function (xhr, status, error) {
+                        if (xhr.status === 419) {
+                            window.location.reload();
+                        } else {
+                            console.log('An error occurred: ' + xhr.responseText);
+                        }
+                    }
+                });
+            }
+
+            $('#quotations-tab').click(function (){
+                LoadQuotations();
+            });
+
+            var order_current_page_no = 1;
+            const LoadOrders = async () => {
+                var formData = new FormData();
+
+                formData.append('productCount', parseInt($('#orderProductCountSelect').val()));
+                formData.append('orderBy', $('#orderOrderBySelect').val());
+                formData.append('pageNo', order_current_page_no);
+
+                $.ajax({
+                    url: '{{ route('orderTableHtml') }}',
+                    headers: {'X-CSRF-Token': '{{ csrf_token() }}'},
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function (response) {
+                        $('#orderTableHtml').html(response);
+                        $('#orderProductCountSelect').change(function () {
+                            var selectedValue = $(this).val();
+                            $('#orderProductCountSelect2').val(selectedValue);
+                        });
+                        $('#orderProductCountSelect2').change(function () {
+                            var selectedValue = $(this).val();
+                            $('#orderProductCountSelect').val(selectedValue);
+                        });
+                        $('#orderProductCountSelect').change(function () {
+                            LoadOrders();
+                        });
+                        $('#orderProductCountSelect2').change(function () {
+                            LoadOrders();
+                        });
+                        $('#orderOrderBySelect').change(function () {
+                            LoadOrders();
+                        });
+                        $('.orderChangePage').click(function () {
+                            order_current_page_no = $(this).attr('data-page-no');
+                            LoadOrders();
+                        });
+                        $('.orderPrevPage').click(function () {
+                            order_current_page_no = parseInt(order_current_page_no) - 1;
+                            LoadOrders();
+                        });
+                        $('.orderNextPage').click(function () {
+                            order_current_page_no = parseInt(order_current_page_no) + 1;
+                            LoadOrders();
+                        });
+                    },
+                    error: function (xhr, status, error) {
+                        if (xhr.status === 419) {
+                            window.location.reload();
+                        } else {
+                            console.log('An error occurred: ' + xhr.responseText);
+                        }
+                    }
+                });
+            }
+
+            $('#orders-tab').click(function (){
+                LoadOrders();
+            });
+
             var observer = new MutationObserver(function(mutations) {
                 mutations.forEach(function(mutation) {
                     if (mutation.attributeName === 'data-selected-postal-id') {
                         LoadWishlists();
                         LoadSupports();
+                        LoadQuotations();
+                        LoadOrders();
                     }
                 });
             });

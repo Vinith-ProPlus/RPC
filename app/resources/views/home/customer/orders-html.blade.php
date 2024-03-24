@@ -11,7 +11,7 @@
             <div class="toolbox-item toolbox-sort">
                 <label>Sort By:</label>
                 <div class="select-custom">
-                    <select name="orderby" class="form-control" id="supportOrderBySelect">
+                    <select name="orderby" class="form-control" id="orderOrderBySelect">
                         <option value="">Default sorting</option>
                         <option value="desc" {{ ($orderBy=='desc') ? 'selected' : '' }}>Sort by newness</option>
                         <option value="asc" {{ ($orderBy=='asc') ? 'selected' : '' }}>Sort by oldest
@@ -23,9 +23,9 @@
 
         <div class="toolbox-right">
             <div class="toolbox-item toolbox-show">
-                <label for="supportProductCountSelect">Show:</label>
+                <label for="orderProductCountSelect">Show:</label>
                 <div class="select-custom">
-                    <select name="count" class="form-control" id="supportProductCountSelect">
+                    <select name="count" class="form-control" id="orderProductCountSelect">
                         <option value="12" {{ ($productCount == '12') ? 'selected' : '' }}>12</option>
                         <option value="24" {{ ($productCount == '24') ? 'selected' : '' }}>24</option>
                         <option value="36" {{ ($productCount == '36') ? 'selected' : '' }}>36</option>
@@ -46,29 +46,27 @@
 <table class="table table-wishlist mb-0">
     <thead>
     <tr>
-        <th class="product-col">Subject</th>
-        <th class="status-col">Priority</th>
+        <th class="status-col">Date</th>
+        <th class="action-col">Expected Delivery Date</th>
         <th class="action-col">Status</th>
-        <th class="action-col">Created On</th>
         <th class="action-col">Action</th>
     </tr>
     </thead>
     <tbody>
-    @if(count($supportDetails) > 0)
-        @foreach($supportDetails as $supportDetail)
+    @if(count($orderDetails) > 0)
+        @foreach($orderDetails as $orderDetail)
             <tr class="product-row product-div">
-                <td>{{ $supportDetail->Subject }}</td>
-                <td>{{ $supportDetail->Priority }}</td>
-                <td>{{ $supportDetail->Status }}</td>
-                <td>{{ $supportDetail->CreatedOn }}</td>
-                <td><button class="btn btn-dark product-type-simple btnDetails" id="{{ $supportDetail->SupportID }}">
+                <td>{{ $orderDetail->EnqDate }}</td>
+                <td>{{ $orderDetail->ExpectedDeliveryDate }}</td>
+                <td>{{ $orderDetail->Status }}</td>
+                <td><button class="btn btn-dark product-type-simple btnQuoteView" data-id="{{ $orderDetail->EnqID }}">
                         VIEW
                     </button></td>
             </tr>
         @endforeach
     @else
         <tr class="product-row product-div">
-            <td colspan="5" style="text-align: center !important;">Support is Empty!</td>
+            <td colspan="5" style="text-align: center !important;">Order is Empty!</td>
         </tr>
     @endif
     </tbody>
@@ -78,7 +76,7 @@
     <div class="toolbox-item toolbox-show">
         <label>Show:</label>
         <div class="select-custom">
-            <select name="count" class="form-control" id="supportProductCountSelect2">
+            <select name="count" class="form-control" id="orderProductCountSelect2">
                 <option value="12" {{ ($productCount == '12') ? 'selected' : '' }}>12</option>
                 <option value="24" {{ ($productCount == '24') ? 'selected' : '' }}>24</option>
                 <option value="36" {{ ($productCount == '36') ? 'selected' : '' }}>36</option>
@@ -87,14 +85,14 @@
     </div>
     <ul class="pagination toolbox-item">
         <li class="page-item {{ ($pageNo == 1) ? 'disabled' : '' }}">
-            <a class="page-link page-link-btn supportPrevPage" href="#"><i class="icon-angle-left"></i></a>
+            <a class="page-link page-link-btn orderPrevPage" href="#"><i class="icon-angle-left"></i></a>
         </li>
         @php
             $start = max(1, $pageNo - $range);
             $end = min($totalPages, $pageNo + $range);
         @endphp
         @if ($start > 1)
-            <li class="page-item"><a class="page-link supportChangePage" href="#" data-page-no="1">1</a></li>
+            <li class="page-item"><a class="page-link orderChangePage" href="#" data-page-no="1">1</a></li>
             @if ($start > 2)
                 <li class="page-item"><span class="page-link">...</span></li>
             @endif
@@ -102,7 +100,7 @@
 
         @for ($i = $start; $i <= $end; $i++)
             <li class="page-item {{ ($i == $pageNo) ? 'active' : '' }}">
-                <a class="page-link {{ ($i == $pageNo) ? '' : 'supportChangePage' }}" href="#"
+                <a class="page-link {{ ($i == $pageNo) ? '' : 'orderChangePage' }}" href="#"
                    data-page-no="{{ $i }}">{{ $i }}</a>
             </li>
         @endfor
@@ -111,12 +109,12 @@
             @if ($end < $totalPages - 1)
                 <li class="page-item"><span class="page-link">...</span></li>
             @endif
-            <li class="page-item"><a class="page-link supportChangePage" href="#"
+            <li class="page-item"><a class="page-link orderChangePage" href="#"
                                      data-page-no="{{ $totalPages }}">{{ $totalPages }}</a></li>
         @endif
 
         <li class="page-item {{ ($pageNo == $totalPages) ? 'disabled' : '' }}">
-            <a class="page-link page-link-btn supportNextPage" href="#"><i class="icon-angle-right"></i></a>
+            <a class="page-link page-link-btn orderNextPage" href="#"><i class="icon-angle-right"></i></a>
         </li>
     </ul>
 </nav>
