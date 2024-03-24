@@ -2,9 +2,11 @@
 namespace App\Http\Controllers\Home;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\web\Transaction\OrderController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Redirect;
 use App\Models\DocNum;
@@ -30,14 +32,14 @@ class HomeAuthController extends Controller{
 	private $UserData;
 	private $logDB;
 	private $supportDB;
-    private $currfyDB;
+    private $currFyDB;
 
 	public function __construct(){
 		$this->generalDB=Helper::getGeneralDB();
 		$this->tmpDB=Helper::getTmpDB();
 		$this->logDB=Helper::getLogDB();
 		$this->supportDB=Helper::getSupportDB();
-        $this->currfyDB=Helper::getCurrFYDB();
+        $this->currFyDB=Helper::getcurrFyDB();
         $this->PCategories = DB::Table('tbl_product_category')->where('ActiveStatus','Active')->where('DFlag',0)
             ->select('PCName','PCID',
                 DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PCImage, ""), "assets/images/no-image-b.png")) AS PCImage'))
@@ -1236,13 +1238,13 @@ class HomeAuthController extends Controller{
         $pageNo = $request->pageNo ?? 1;
 
         $orderBy = ($request->has('orderBy') && in_array($request->orderBy, ['asc', 'desc'])) ? $request->orderBy : 'desc';
-        $quotationCount = DB::table($this->currfyDB.'tbl_enquiry as E')
+        $quotationCount = DB::table($this->currFyDB.'tbl_enquiry as E')
             ->leftJoin('users as U', 'U.UserID', 'E.CustomerID')
             ->where('U.UserID',$customerID)
             ->select('E.EnqNo')
             ->count();
 
-        $quotationDetails = DB::table($this->currfyDB.'tbl_enquiry as E')
+        $quotationDetails = DB::table($this->currFyDB.'tbl_enquiry as E')
             ->leftJoin('users as U', 'U.UserID', 'E.CustomerID')
             ->where('E.CustomerID',$customerID)
             ->orderBy('U.CreatedOn', $orderBy)
@@ -1263,7 +1265,9 @@ class HomeAuthController extends Controller{
         $viewType = $request->viewType ?? 'List';
         $orderBy = ($request->has('orderBy') && in_array($request->orderBy, ['asc', 'desc'])) ? $request->orderBy : 'desc';
 
-        $orderDetails = $this->getQuotationDetails($request);
+        $orderDetails = $this->getOrderDetails($request);
+        logger("svsdv orderDetails");
+        logger($orderDetails);
         $totalOrderCount = $orderDetails['totalOrderCount'];
         $orderDetails = $orderDetails['orderDetails'];
 
@@ -1275,9 +1279,6 @@ class HomeAuthController extends Controller{
             $orderDetails = $orderDetails['orderDetails'];
         }
 
-        logger("orderDetails");
-        logger($orderDetails);
-
         return view('home.customer.orders-html', compact('orderDetails', 'productCount', 'pageNo', 'viewType', 'orderBy', 'range', 'totalPages'))->render();
     }
 
@@ -1288,17 +1289,17 @@ class HomeAuthController extends Controller{
         $pageNo = $request->pageNo ?? 1;
 
         $orderBy = ($request->has('orderBy') && in_array($request->orderBy, ['asc', 'desc'])) ? $request->orderBy : 'desc';
-        $orderCount = DB::table($this->currfyDB.'tbl_enquiry as E')
-            ->leftJoin('users as U', 'U.UserID', 'E.CustomerID')
-            ->where('U.UserID',$customerID)
-            ->select('E.EnqNo')
+        $orderCount = DB::table($this->currFyDB.'tbl_order as O')
+            ->leftJoin('users as U', 'U.UserID', 'O.CustomerID')
+            ->where('O.CustomerID',$customerID)
+            ->select('O.OrderNo')
             ->count();
 
-        $orderDetails = DB::table($this->currfyDB.'tbl_enquiry as E')
-            ->leftJoin('users as U', 'U.UserID', 'E.CustomerID')
-            ->where('E.CustomerID',$customerID)
-            ->orderBy('U.CreatedOn', $orderBy)
-            ->select('E.EnqNo', 'E.EnqDate', 'E.ExpectedDeliveryDate', 'E.Status', 'E.EnqID')
+        $orderDetails = DB::table($this->currFyDB.'tbl_order as O')
+            ->leftJoin('users as U', 'U.UserID', 'O.CustomerID')
+            ->where('O.CustomerID',$customerID)
+            ->orderBy('O.CreatedOn', $orderBy)
+            ->select('O.OrderNo', 'O.OrderDate', 'O.ExpectedDelivery', 'O.NetAmount', 'O.TotalPaidAmount', 'O.BalanceAmount', 'O.Status', 'O.PaymentStatus', 'O.OrderID', 'O.isRated')
             ->skip(($pageNo - 1) * $productCount)
             ->take($productCount)
             ->get();
@@ -1306,5 +1307,108 @@ class HomeAuthController extends Controller{
             'orderDetails' => $orderDetails,
             'totalOrderCount' => $orderCount
         ];
+    }
+
+    public function CustomerOrderView(Request $req,$OrderID){
+        $CustomerID = $this->ReferID;
+        $FormData['Company'] = $this->Company;
+        $customerAid = Session::get('selected_aid');
+        $customerDefaultAid = DB::table('tbl_customer_address')->where('CustomerID', $CustomerID)->where('isDefault', true)->first();
+        $AID = isset($customerAid) ? $customerAid : $customerDefaultAid->AID;
+        $AllVendors = Helper::getAvailableVendors($AID);
+        $PCatagories = DB::table('tbl_vendors_product_mapping as VPM')
+            ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'VPM.PCID')
+            ->where('VPM.Status', 1)->WhereIn('VPM.VendorID', $AllVendors)
+            ->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)
+            ->groupBy('PC.PCID', 'PC.PCName', 'PC.PCImage')
+            ->select('PC.PCID', 'PC.PCName',
+                DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PCImage, ""), "assets/images/no-image-b.png")) AS PCImage'))
+            ->inRandomOrder()->get();
+
+        $FormData['PCategories'] = $PCatagories;
+        $FormData['isRegister'] = false;
+        $FormData['Cart'] = $this->getCart();
+        $FormData['ShippingAddress'] = DB::table('tbl_customer_address as CA')->where('CustomerID', $CustomerID)
+            ->join($this->generalDB . 'tbl_countries as C', 'C.CountryID', 'CA.CountryID')
+            ->join($this->generalDB . 'tbl_states as S', 'S.StateID', 'CA.StateID')
+            ->join($this->generalDB . 'tbl_districts as D', 'D.DistrictID', 'CA.DistrictID')
+            ->join($this->generalDB . 'tbl_taluks as T', 'T.TalukID', 'CA.TalukID')
+            ->join($this->generalDB . 'tbl_cities as CI', 'CI.CityID', 'CA.CityID')
+            ->join($this->generalDB . 'tbl_postalcodes as PC', 'PC.PID', 'CA.PostalCodeID')
+            ->select('CA.AID', 'CA.Address', 'CA.isDefault', 'CA.CountryID', 'C.CountryName', 'CA.StateID', 'S.StateName', 'CA.DistrictID', 'D.DistrictName', 'CA.TalukID', 'T.TalukName', 'CA.CityID', 'CI.CityName', 'CA.PostalCodeID', 'PC.PostalCode')
+            ->get();
+
+            $FormData['OrderID']=$OrderID;
+            $FormData['OData']= $this->getCustomerOrder(["OrderID"=>$OrderID]);
+            if(count($FormData['OData'])>0){
+                $FormData['OData']=$FormData['OData'][0];
+                return view('home.customer.order-details', $FormData);
+            }else{
+                return view('errors.403');
+            }
+    }
+
+    public function getCustomerOrder($data=array()){
+        $sql ="SELECT O.OrderID, O.OrderNo, O.OrderDate, O.QID, O.EnqID, O.ExpectedDelivery, O.CustomerID, C.CustomerName, C.MobileNo1, C.MobileNo2, C.Email, C.Address as BAddress, C.CountryID as BCountryID, BC.CountryName as BCountryName, ";
+        $sql.=" C.StateID as BStateID, BS.StateName as BStateName, C.DistrictID as BDistrictID, BD.DistrictName as BDistrictName, C.TalukID, BT.TalukName as BTalukName, C.CityID as BCityID, BCI.CityName as BCityName, C.PostalCodeID as BPostalCodeID, ";
+        $sql.=" BPC.PostalCode as BPostalCode, BC.PhoneCode, O.ReceiverName, O.ReceiverMobNo, O.DAddress, O.DCountryID, CO.CountryName as DCountryName, O.DStateID, S.StateName as DStateName, O.DDistrictID, D.DistrictName as DDistrictName, O.DTalukID, ";
+        $sql.=" T.TalukName as DTalukName, O.DCityID, CI.CityName as DCityName, O.DPostalCodeID, PC.PostalCode as DPostalCode, O.TaxAmount, O.SubTotal, O.DiscountType, O.DiscountPercentage, O.DiscountAmount, O.CGSTAmount, ";
+        $sql.=" O.SGSTAmount, O.IGSTAmount, O.TotalAmount, O.AdditionalCost, O.NetAmount, O.PaidAmount, O.BalanceAmount, O.PaymentStatus,  O.AdditionalCostData, O.Status,  O.RejectedOn,  O.RejectedBy, O.ReasonID, RR.RReason, O.RDescription ";
+        $sql.=" FROM ".$this->currFyDB."tbl_order as O LEFT JOIN tbl_customer as C ON C.CustomerID=O.CustomerID LEFT JOIN ".$this->generalDB."tbl_countries as BC ON BC.CountryID=C.CountryID  ";
+        $sql.=" LEFT JOIN ".$this->generalDB."tbl_states as BS ON BS.StateID=C.StateID LEFT JOIN ".$this->generalDB."tbl_districts as BD ON BD.DistrictID=C.DistrictID  ";
+        $sql.=" LEFT JOIN ".$this->generalDB."tbl_taluks as BT ON BT.TalukID=C.TalukID LEFT JOIN ".$this->generalDB."tbl_cities as BCI ON BCI.CityID=C.CityID ";
+        $sql.=" LEFT JOIN ".$this->generalDB."tbl_postalcodes as BPC ON BPC.PID=C.PostalCodeID LEFT JOIN ".$this->generalDB."tbl_countries as CO ON CO.CountryID=O.DCountryID  ";
+        $sql.=" LEFT JOIN ".$this->generalDB."tbl_states as S ON S.StateID=O.DStateID LEFT JOIN ".$this->generalDB."tbl_districts as D ON D.DistrictID=O.DDistrictID ";
+        $sql.=" LEFT JOIN ".$this->generalDB."tbl_taluks as T ON T.TalukID=O.DTalukID LEFT JOIN ".$this->generalDB."tbl_cities as CI ON CI.CityID=O.DCityID ";
+        $sql.=" LEFT JOIN ".$this->generalDB."tbl_postalcodes as PC ON PC.PID=O.DPostalCodeID LEFT JOIN tbl_reject_reason as RR ON RR.RReasonID=O.ReasonID ";
+        $sql.=" Where 1=1 ";
+        logger($sql);
+        if(is_array($data)){
+            if(array_key_exists("OrderID",$data)){$sql.=" AND O.OrderID='".$data['OrderID']."'";}
+        }
+        $result=DB::SELECT($sql);
+        for($i=0;$i<count($result);$i++){
+            $result[$i]->AdditionalCostData=unserialize($result[$i]->AdditionalCostData);
+            $sql="SELECT OD.DetailID, OD.OrderID, OD.QID, OD.QDID, OD.VOrderID, OD.ProductID, P.ProductName, P.HSNSAC, P.UID, U.UCode, U.UName, OD.Qty, OD.Price, OD.TaxType, OD.TaxPer, OD.Taxable, OD.DiscountType, OD.DiscountPer, OD.DiscountAmt, OD.TaxAmt, OD.CGSTPer, OD.SGSTPer, OD.IGSTPer, OD.CGSTAmt, OD.SGSTAmt, OD.IGSTAmt, OD.TotalAmt, OD.VendorID, V.VendorName, OD.Status, OD.RejectedBy, OD.RejectedOn, OD.ReasonID, RR.RReason, OD.RDescription, OD.DeliveredOn, OD.DeliveredBy  ";
+            $sql.=" FROM ".$this->currFyDB."tbl_order_details as OD LEFT JOIN tbl_products as P ON P.ProductID=OD.ProductID LEFT JOIN tbl_uom as U ON U.UID=P.UID LEFT JOIN tbl_reject_reason as RR ON RR.RReasonID=OD.ReasonID LEFT JOIN tbl_vendors as V ON V.VendorID=OD.VendorID ";
+            $sql.=" Where OD.OrderID='".$result[$i]->OrderID."' Order By OD.DetailID ";
+            $result[$i]->Details=DB::SELECT($sql);
+            $addCharges=[];
+            $result1=DB::Table($this->currFyDB.'tbl_vendor_quotation')->Where('EnqID',$result[$i]->EnqID)->get();
+            foreach($result1 as $tmp){
+                $addCharges[$tmp->VendorID]=Helper::NumberFormat($tmp->AdditionalCost,2);
+            }
+            $result[$i]->AdditionalCharges=$addCharges;
+
+        }
+        return $result;
+    }
+
+    public function profileHtml()
+    {
+        $CustomerID = $this->ReferID;
+        $FormData['Company']=$this->Company;
+        $FormData['UserData']=$this->UserData['data'];
+        $FormData['PCategories']=$this->PCategories;
+        $FormData['isEdit']=true;
+        $FormData['isRegister']=true;
+        $FormData['Cart']=$this->getCart();
+        $FormData['EditData'] = DB::table('tbl_customer')->where('DFlag',0)->Where('CustomerID',$CustomerID)->first();
+        if($FormData['EditData']) {
+            $FormData['EditData']->CustomerImage = $FormData['EditData']->CustomerImage ? url('/') . '/' . $FormData['EditData']->CustomerImage : url('/') . '/' . 'assets/images/no-image-b.png';
+            $FormData['EditData']->PostalCode = DB::table($this->generalDB . 'tbl_postalcodes as P')->where('PID', $FormData['EditData']->PostalCodeID)->value('PostalCode');
+            $FormData['EditData']->SAddress = DB::table('tbl_customer_address as CA')->where('CustomerID', $CustomerID)
+                ->join($this->generalDB . 'tbl_countries as C', 'C.CountryID', 'CA.CountryID')
+                ->join($this->generalDB . 'tbl_states as S', 'S.StateID', 'CA.StateID')
+                ->join($this->generalDB . 'tbl_districts as D', 'D.DistrictID', 'CA.DistrictID')
+                ->join($this->generalDB . 'tbl_taluks as T', 'T.TalukID', 'CA.TalukID')
+                ->join($this->generalDB . 'tbl_cities as CI', 'CI.CityID', 'CA.CityID')
+                ->join($this->generalDB . 'tbl_postalcodes as PC', 'PC.PID', 'CA.PostalCodeID')
+                ->select('CA.AID', 'CA.Address', 'CA.isDefault', 'CA.CountryID', 'C.CountryName', 'CA.StateID', 'S.StateName', 'CA.DistrictID', 'D.DistrictName', 'CA.TalukID', 'T.TalukName', 'CA.CityID', 'CI.CityName', 'CA.PostalCodeID', 'PC.PostalCode')
+                ->get();
+            return view('home.customer.profile-html', $FormData)->render();
+        } else {
+            return "<p> Profile not found!</p>";
+        }
     }
 }

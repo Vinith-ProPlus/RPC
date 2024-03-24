@@ -1,5 +1,7 @@
 @extends('home.home-layout')
 @section('content')
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.css" integrity="sha512-3pIirOrwegjM6erE5gPSwkUzO+3cTjpnV9lexlNZqvupR64iZBnOOTiiLPb9M36zpMScbmUNIcHUqKD47M719g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js" integrity="sha512-VEd+nq25CkR676O+pLBnDW09R7VQX9Mdiij052gVCp5yVH3jGtH70Ho/UUv4mJDsEdTvqRCFZg0NKGiojGnUCw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <style>
         .sidebar {
             position:relative;
@@ -910,6 +912,19 @@
                 width:100%
             }
         }
+
+        #ordersTable th{
+            text-align: center !important;
+        }
+        #ordersTable td{
+            text-align: center !important;
+        }
+
+        .wishlist-table-container .btn {
+            font-size: 11px;
+            line-height: 42px;
+            text-indent: -2px;
+        }
     </style>
     <form id="logout-form" action="{{ url('/') }}/logout" method="POST" style="display: none;">
         @csrf
@@ -932,7 +947,7 @@
                         </li>
 
                         <li class="nav-item">
-                            <a class="nav-link" id="edit-tab" data-toggle="tab" href="#edit" role="tab" aria-controls="edit" aria-selected="false">Account
+                            <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">Account
                                 details</a>
                         </li>
 
@@ -941,20 +956,20 @@
                         </li>
 
                         <li class="nav-item">
-                            <a class="nav-link" id="order-tab" data-toggle="tab" href="#order" role="tab" aria-controls="order" aria-selected="false">Orders</a>
+                            <a class="nav-link" id="orders-tab" data-toggle="tab" href="#order" role="tab" aria-controls="order" aria-selected="false">Orders</a>
                         </li>
 
-                        <li class="nav-item">
-                            <a class="nav-link" id="download-tab" data-toggle="tab" href="#download" role="tab" aria-controls="download" aria-selected="false">Downloads</a>
-                        </li>
+{{--                        <li class="nav-item">--}}
+{{--                            <a class="nav-link" id="download-tab" data-toggle="tab" href="#download" role="tab" aria-controls="download" aria-selected="false">Downloads</a>--}}
+{{--                        </li>--}}
 
-                        <li class="nav-item">
-                            <a class="nav-link" id="address-tab" data-toggle="tab" href="#address" role="tab" aria-controls="address" aria-selected="false">Addresses</a>
-                        </li>
+{{--                        <li class="nav-item">--}}
+{{--                            <a class="nav-link" id="address-tab" data-toggle="tab" href="#address" role="tab" aria-controls="address" aria-selected="false">Addresses</a>--}}
+{{--                        </li>--}}
 
-                        <li class="nav-item">
-                            <a class="nav-link" id="shop-address-tab" data-toggle="tab" href="#shipping" role="tab" aria-controls="edit" aria-selected="false">Shopping Address</a>
-                        </li>
+{{--                        <li class="nav-item">--}}
+{{--                            <a class="nav-link" id="shop-address-tab" data-toggle="tab" href="#shipping" role="tab" aria-controls="edit" aria-selected="false">Shopping Address</a>--}}
+{{--                        </li>--}}
                         <li class="nav-item">
                             <a class="nav-link" id="wishlist-tab" data-toggle="tab" href="#wishlist" role="tab" aria-controls="wishlist" aria-selected="false">Wishlist</a>
                         </li>
@@ -974,7 +989,7 @@
                             <div class="row row-lg">
                                 <div class="col-6 col-md-4">
                                     <div class="feature-box text-center pb-4">
-                                        <a onclick="$('#order-tab').click();" class="link-to-tab"><i class="sicon-social-dropbox"></i></a>
+                                        <a onclick="$('#orders-tab').click();" class="link-to-tab"><i class="sicon-social-dropbox"></i></a>
                                         <div class="feature-box-content">
                                             <h3>ORDERS</h3>
                                         </div>
@@ -1044,34 +1059,45 @@
                     </div><!-- End .tab-pane -->
 
                     <div class="tab-pane fade" id="order" role="tabpanel">
-                        <div class="order-content">
-                            <h3 class="account-sub-title d-none d-md-block"><i class="sicon-social-dropbox align-middle mr-3"></i>Orders</h3>
-                            <div class="order-table-container text-center">
-                                <table class="table table-order text-left">
-                                    <thead>
-                                    <tr>
-                                        <th class="order-id">ORDER</th>
-                                        <th class="order-date">DATE</th>
-                                        <th class="order-status">STATUS</th>
-                                        <th class="order-price">TOTAL</th>
-                                        <th class="order-action">ACTIONS</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    <tr>
-                                        <td class="text-center p-0" colspan="5">
-                                            <p class="mb-5 mt-5">
-                                                No Order has been made yet.
-                                            </p>
-                                        </td>
-                                    </tr>
-                                    </tbody>
-                                </table>
-                                <hr class="mt-0 mb-3 pb-2">
-
-                                <a href="category.html" class="btn btn-dark">Go Shop</a>
+                        <div class="download-content">
+                            <div class="row align-items-center">
+                                <div class="col-md-6">
+                                    <h3 class="account-sub-title d-none d-md-block"><i class="sicon-cloud-download align-middle mr-3"></i>Orders</h3>
+                                </div>
+                            </div>
+                            <div class="download-table-container" style="margin-top: 20px !important;">
+                                <div class="wishlist-table-container" id="orderTableHtml">
+                                </div>
                             </div>
                         </div>
+{{--                        <div class="order-content">--}}
+{{--                            <h3 class="account-sub-title d-none d-md-block"><i class="sicon-social-dropbox align-middle mr-3"></i>Orders</h3>--}}
+{{--                            <div class="order-table-container text-center">--}}
+{{--                                <table class="table table-order text-left">--}}
+{{--                                    <thead>--}}
+{{--                                    <tr>--}}
+{{--                                        <th class="order-id">ORDER</th>--}}
+{{--                                        <th class="order-date">DATE</th>--}}
+{{--                                        <th class="order-status">STATUS</th>--}}
+{{--                                        <th class="order-price">TOTAL</th>--}}
+{{--                                        <th class="order-action">ACTIONS</th>--}}
+{{--                                    </tr>--}}
+{{--                                    </thead>--}}
+{{--                                    <tbody>--}}
+{{--                                    <tr>--}}
+{{--                                        <td class="text-center p-0" colspan="5">--}}
+{{--                                            <p class="mb-5 mt-5">--}}
+{{--                                                No Order has been made yet.--}}
+{{--                                            </p>--}}
+{{--                                        </td>--}}
+{{--                                    </tr>--}}
+{{--                                    </tbody>--}}
+{{--                                </table>--}}
+{{--                                <hr class="mt-0 mb-3 pb-2">--}}
+
+{{--                                <a href="category.html" class="btn btn-dark">Go Shop</a>--}}
+{{--                            </div>--}}
+{{--                        </div>--}}
                     </div><!-- End .tab-pane -->
 
                     <div class="tab-pane fade" id="wishlist" role="tabpanel">
@@ -1140,67 +1166,73 @@
                         </div>
                     </div><!-- End .tab-pane -->
 
-                    <div class="tab-pane fade" id="edit" role="tabpanel">
+                    <div class="tab-pane fade" id="profile" role="tabpanel">
                         <h3 class="account-sub-title d-none d-md-block mt-0 pt-1 ml-1"><i class="icon-user-2 align-middle mr-3 pr-1"></i>Account Details</h3>
-                        <div class="account-content">
-                            <form action="#">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="acc-name">First name <span class="required">*</span></label>
-                                            <input type="text" class="form-control" placeholder="Editor" id="acc-name" name="acc-name" required="">
-                                        </div>
-                                    </div>
+{{--                        <div class="account-content">--}}
+{{--                            <form action="#">--}}
+{{--                                <div class="row">--}}
+{{--                                    <div class="col-md-6">--}}
+{{--                                        <div class="form-group">--}}
+{{--                                            <label for="acc-name">First name <span class="required">*</span></label>--}}
+{{--                                            <input type="text" class="form-control" placeholder="Editor" id="acc-name" name="acc-name" required="">--}}
+{{--                                        </div>--}}
+{{--                                    </div>--}}
 
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="acc-lastname">Last name <span class="required">*</span></label>
-                                            <input type="text" class="form-control" id="acc-lastname" name="acc-lastname" required="">
-                                        </div>
-                                    </div>
-                                </div>
+{{--                                    <div class="col-md-6">--}}
+{{--                                        <div class="form-group">--}}
+{{--                                            <label for="acc-lastname">Last name <span class="required">*</span></label>--}}
+{{--                                            <input type="text" class="form-control" id="acc-lastname" name="acc-lastname" required="">--}}
+{{--                                        </div>--}}
+{{--                                    </div>--}}
+{{--                                </div>--}}
 
-                                <div class="form-group mb-2">
-                                    <label for="acc-text">Display name <span class="required">*</span></label>
-                                    <input type="text" class="form-control" id="acc-text" name="acc-text" placeholder="Editor" required="">
-                                    <p>This will be how your name will be displayed in the account section and
-                                        in
-                                        reviews</p>
-                                </div>
+{{--                                <div class="form-group mb-2">--}}
+{{--                                    <label for="acc-text">Display name <span class="required">*</span></label>--}}
+{{--                                    <input type="text" class="form-control" id="acc-text" name="acc-text" placeholder="Editor" required="">--}}
+{{--                                    <p>This will be how your name will be displayed in the account section and--}}
+{{--                                        in--}}
+{{--                                        reviews</p>--}}
+{{--                                </div>--}}
 
 
-                                <div class="form-group mb-4">
-                                    <label for="acc-email">Email address <span class="required">*</span></label>
-                                    <input type="email" class="form-control" id="acc-email" name="acc-email" placeholder="editor@gmail.com" required="">
-                                </div>
+{{--                                <div class="form-group mb-4">--}}
+{{--                                    <label for="acc-email">Email address <span class="required">*</span></label>--}}
+{{--                                    <input type="email" class="form-control" id="acc-email" name="acc-email" placeholder="editor@gmail.com" required="">--}}
+{{--                                </div>--}}
 
-                                <div class="change-password">
-                                    <h3 class="text-uppercase mb-2">Password Change</h3>
+{{--                                <div class="change-password">--}}
+{{--                                    <h3 class="text-uppercase mb-2">Password Change</h3>--}}
 
-                                    <div class="form-group">
-                                        <label for="acc-password">Current Password (leave blank to leave
-                                            unchanged)</label>
-                                        <input type="password" class="form-control" id="acc-password" name="acc-password">
-                                    </div>
+{{--                                    <div class="form-group">--}}
+{{--                                        <label for="acc-password">Current Password (leave blank to leave--}}
+{{--                                            unchanged)</label>--}}
+{{--                                        <input type="password" class="form-control" id="acc-password" name="acc-password">--}}
+{{--                                    </div>--}}
 
-                                    <div class="form-group">
-                                        <label for="acc-password">New Password (leave blank to leave
-                                            unchanged)</label>
-                                        <input type="password" class="form-control" id="acc-new-password" name="acc-new-password">
-                                    </div>
+{{--                                    <div class="form-group">--}}
+{{--                                        <label for="acc-password">New Password (leave blank to leave--}}
+{{--                                            unchanged)</label>--}}
+{{--                                        <input type="password" class="form-control" id="acc-new-password" name="acc-new-password">--}}
+{{--                                    </div>--}}
 
-                                    <div class="form-group">
-                                        <label for="acc-password">Confirm New Password</label>
-                                        <input type="password" class="form-control" id="acc-confirm-password" name="acc-confirm-password">
-                                    </div>
-                                </div>
+{{--                                    <div class="form-group">--}}
+{{--                                        <label for="acc-password">Confirm New Password</label>--}}
+{{--                                        <input type="password" class="form-control" id="acc-confirm-password" name="acc-confirm-password">--}}
+{{--                                    </div>--}}
+{{--                                </div>--}}
 
-                                <div class="form-footer mt-3 mb-0">
-                                    <button type="submit" class="btn btn-dark mr-0">
-                                        Save changes
-                                    </button>
-                                </div>
-                            </form>
+{{--                                <div class="form-footer mt-3 mb-0">--}}
+{{--                                    <button type="submit" class="btn btn-dark mr-0">--}}
+{{--                                        Save changes--}}
+{{--                                    </button>--}}
+{{--                                </div>--}}
+{{--                            </form>--}}
+{{--                        </div>--}}
+
+
+                        <div class="download-table-container" style="margin-top: 20px !important;">
+                            <div class="wishlist-table-container" id="profileHtml">
+                            </div>
                         </div>
                     </div><!-- End .tab-pane -->
 
@@ -1502,6 +1534,10 @@
                 }
             });
 
+            $(document).on('click','.btnOrderView',function(){
+                window.location.replace("{{url('/')}}/order/view/"+ $(this).attr('data-id'));
+            });
+
             $(document).on('click','.btnQuoteView',function(){
                 window.location.replace("{{url('/')}}/requested-quotations/view/"+ $(this).attr('data-id'));
             });
@@ -1647,6 +1683,32 @@
 
             $('#orders-tab').click(function (){
                 LoadOrders();
+            });
+
+            const LoadProfile = async () => {
+                $.ajax({
+                    url: '{{ route('profileHtml') }}',
+                    headers: {'X-CSRF-Token': '{{ csrf_token() }}'},
+                    type: 'POST',
+                    data: {},
+                    processData: false,
+                    contentType: false,
+                    success: function (response) {
+                        $('#profileHtml').html(response);
+                    },
+                    error: function (xhr, status, error) {
+                        if (xhr.status === 419) {
+                            window.location.reload();
+                        } else {
+                            console.log('An error occurred: ' + xhr.responseText);
+                        }
+                    }
+                });
+            }
+
+            $('#profile-tab').click(function (){
+                console.log("pascdbckjdsbcnjk kjdbcnkjd");
+                LoadProfile();
             });
 
             var observer = new MutationObserver(function(mutations) {

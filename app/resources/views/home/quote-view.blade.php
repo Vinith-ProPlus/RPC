@@ -1,19 +1,304 @@
 @extends('home.home-layout')
 @section('content')
-<style>
-    .stamp-badge {
-    padding: 3px 6px;
-    margin: -10px;
-    z-index: 1;
-}
-</style>
+    <style>
+        .stamp-badge {
+            padding: 3px 6px;
+            margin: -10px;
+            z-index: 1;
+        }
+
+        td {
+            text-align: center;
+        }
+
+        .checkout-progress-bar {
+            margin: 2.7rem 0 -2.9rem;
+            font-size: 0;
+            line-height: 1.4;
+        }
+
+        .checkout-progress-bar li a {
+            color: #0f43b0 !important;
+        }
+
+        .download-table-container .btn,
+        .order-detail-container .btn,
+        .order-table-container .btn {
+            padding:8px 12px;
+            font-size:14px;
+            font-weight:400
+        }
+        .order-table-container .btn-dark {
+            min-width:200px;
+            padding:16px 0 15px;
+            font-size:15px;
+            letter-spacing:-0.015em;
+            text-align:center;
+            font-family:"Open Sans",sans-serif;
+            font-weight:700
+        }
+        .table.table-striped {
+            margin-top:2rem;
+            margin-bottom:5.9rem
+        }
+        .table.table-striped td,
+        .table.table-striped th {
+            padding:1.1rem 1.2rem
+        }
+        .table.table-striped tr:nth-child(odd) {
+            background-color:#f9f9f9
+        }
+
+        .table.table-size tbody tr td,
+        .table.table-size thead tr th {
+            border:0;
+            color:#21293c;
+            font-size:1.4rem;
+            letter-spacing:0.005em;
+            text-transform:uppercase
+        }
+        .table.table-size thead tr th {
+            padding:2.8rem 1.5rem 1.7rem;
+            background-color:#f4f4f2;
+            font-weight:600
+        }
+        .table.table-size tbody tr td {
+            padding:1.1rem 1.5rem;
+            background-color:#fff;
+            font-weight:700
+        }
+        .table.table-size tbody tr:nth-child(2n) td {
+            background-color:#ebebeb
+        }
+        @media (min-width:992px) {
+            .product-both-info .row .col-lg-12 {
+                margin-bottom:4px
+            }
+            .main-content .col-lg-7 {
+                -ms-flex:0 0 54%;
+                flex:0 0 54%;
+                max-width:54%
+            }
+            .main-content .col-lg-5 {
+                -ms-flex:0 0 46%;
+                flex:0 0 46%;
+                max-width:46%
+            }
+            .product-full-width {
+                padding-right:3.5rem
+            }
+            .product-full-width .product-single-details .product-title {
+                font-size:4rem
+            }
+            .table.table-size thead tr th {
+                padding-top:2.9rem;
+                padding-bottom:2.9rem
+            }
+            .table.table-size tbody tr td,
+            .table.table-size thead tr th {
+                padding-right:4.2rem;
+                padding-left:3rem
+            }
+        }
+        @media (max-width:767px) {
+            .product-size-content .table.table-size {
+                margin-top:3rem
+            }
+        }
+
+        .table.table-downloads,
+        .table.table-order {
+            margin-bottom:1px;
+            font-size:14px
+        }
+        .table.table-downloads thead th,
+        .table.table-order thead th {
+            border-top:none;
+            border-bottom-width:1px;
+            padding:1.3rem 1rem;
+            font-weight:700;
+            color:#222524
+        }
+        .table.table-downloads tbody td,
+        .table.table-order tbody td {
+            vertical-align:middle
+        }
+
+        .table.table-order-detail th {
+            font-weight:600
+        }
+        .table.table-order-detail td,
+        .table.table-order-detail th {
+            padding:1rem;
+            font-size:1.4rem;
+            line-height:24px
+        }
+        .table.table-order-detail thead th {
+            border:none
+        }
+        .table.table-order-detail .product-title {
+            display:inline;
+            color:#08C;
+            font-size:1.4rem;
+            font-weight:400
+        }
+        .table.table-order-detail .product-count {
+            color:#08C
+        }
+        @media (max-width:767px) {
+            .table.table-order thead {
+                display:none
+            }
+            .table.table-order td {
+                display:block;
+                border-top:none;
+                text-align:center
+            }
+            .table.table-order .product-thumbnail img {
+                display:inline
+            }
+            .table.table-order tbody tr {
+                position:relative;
+                display:block;
+                padding:10px 0
+            }
+            .table.table-order tbody tr:not(:first-child) {
+                border-top:1px solid #ddd
+            }
+            .table.table-order .product-remove {
+                position:absolute;
+                top:12px;
+                right:0
+            }
+        }
+
+        .table.table-cart tr td,
+        .table.table-cart tr th,
+        .table.table-wishlist tr td,
+        .table.table-wishlist tr th {
+            vertical-align:middle
+        }
+        .table.table-cart tr th,
+        .table.table-wishlist tr th {
+            border:0;
+            color:#222529;
+            font-weight:700;
+            line-height:2.4rem;
+            text-transform:uppercase
+        }
+        .table.table-cart tr td,
+        .table.table-wishlist tr td {
+            border-top:1px solid #e7e7e7
+        }
+        .table.table-cart tr td.product-col,
+        .table.table-wishlist tr td.product-col {
+            padding:2rem 0.8rem 1.8rem 0
+        }
+        .table.table-cart tr.product-action-row td,
+        .table.table-wishlist tr.product-action-row td {
+            padding:0 0 2.2rem;
+            border:0
+        }
+        .table.table-cart .product-image-container,
+        .table.table-wishlist .product-image-container {
+            position:relative;
+            width:8rem;
+            margin:0
+        }
+        .table.table-cart .product-title,
+        .table.table-wishlist .product-title {
+            margin-bottom:0;
+            padding:0;
+            font-family:"Open Sans",sans-serif;
+            font-weight:400;
+            line-height:1.75
+        }
+        .table.table-cart .product-title a,
+        .table.table-wishlist .product-title a {
+            color:inherit
+        }
+        .table.table-cart .product-single-qty,
+        .table.table-wishlist .product-single-qty {
+            margin:0.5rem 4px 0.5rem 1px
+        }
+        .table.table-cart .product-single-qty .form-control,
+        .table.table-wishlist .product-single-qty .form-control {
+            height:48px;
+            width:44px;
+            font-size:1.6rem;
+            font-weight:700
+        }
+        .table.table-cart .subtotal-price,
+        .table.table-wishlist .subtotal-price {
+            color:#222529;
+            font-size:1.6rem;
+            font-weight:600
+        }
+        .table.table-cart .btn-remove,
+        .table.table-wishlist .btn-remove {
+            right:-10px;
+            font-size:1.1rem
+        }
+        .table.table-cart tfoot td,
+        .table.table-wishlist tfoot td {
+            padding:2rem 0.8rem 1rem
+        }
+        .table.table-cart tfoot .btn,
+        .table.table-wishlist tfoot .btn {
+            padding:1.2rem 2.4rem 1.3rem 2.5rem;
+            font-family:"Open Sans",sans-serif;
+            font-size:1.3rem;
+            font-weight:700;
+            height:43px;
+            letter-spacing:-0.018em
+        }
+        .table.table-cart tfoot .btn+.btn,
+        .table.table-wishlist tfoot .btn+.btn {
+            margin-left:1rem
+        }
+        .table.table-cart .bootstrap-touchspin.input-group,
+        .table.table-wishlist .bootstrap-touchspin.input-group {
+            margin-right:auto;
+            margin-left:auto
+        }
+        .table.table-wishlist tr th {
+            padding:10px 5px 10px 16px
+        }
+        .table.table-wishlist tr th.thumbnail-col {
+            width:10%
+        }
+        .table.table-wishlist tr th.product-col {
+            width:29%
+        }
+        .table.table-wishlist tr th.price-col {
+            width:13%
+        }
+        .table.table-wishlist tr th.status-col {
+            width:19%
+        }
+        .table.table-wishlist tr td {
+            padding:20px 5px 23px 16px
+        }
+        .table.table-wishlist .product-price {
+            color:inherit;
+            font-size:1.4rem;
+            font-weight:400
+        }
+        .table.table-wishlist .price-box {
+            margin-bottom:0
+        }
+        .table.table-wishlist .stock-status {
+            color:#222529;
+            font-weight:600
+        }
+    </style>
 <div class="container mt-2">
 	<div class="row d-flex justify-content-center">
 		<div class="col-12 col-sm-12 col-lg-12">
 			<div class="card">
                 <ul class="checkout-progress-bar d-flex justify-content-center flex-wrap">
                     <li class="active">
-                        <a href="#">Quote Enquiry ( {{$EnqData->EnqNo}} )</a>
+                        <a href="#">Quote Enquiry - ( {{$EnqData->EnqNo}} )</a>
                     </li>
                 </ul>
 				<div class="card-body">
@@ -90,16 +375,16 @@
                             <div class="col-sm-12">
                                 <div class="card">
                                     <div class="card-header">
-                                        <h6 class="text-center fw-700">Product Details</h6>
+                                        <h6 class="text-center bold fw-700">Product Details</h6>
                                     </div>
                                     <div class="card-body">
-                                        <table class="table" id="tblProductDetails">
+                                        <table class="table table-wishlist" id="tblProductDetails">
                                             <thead>
                                                 <tr>
                                                     <th class="text-center align-middle">S.No</th>
                                                     <th class="text-center align-middle">Product</th>
                                                     <th class="text-center align-middle">Qty</th>
-                                                    <th class="text-center align-middle">Vendors List</th>
+{{--                                                    <th class="text-center align-middle">Vendors List</th>--}}
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -115,39 +400,40 @@
                                                             <input class="form-control txtQty" type="number" value="{{$row->Qty}}">
                                                             <span class="errors txtQty-err err-sm"></span>
                                                         </td> --}}
-                                                        <td>
-                                                            @foreach ($row->AvailableVendors as $item)
-                                                                <span class="badge rounded-pill badge-secondary">{{$item['VendorName']}}</span>
-                                                                @php
-                                                                    $vendorID = $item['VendorID'];
-                                                                    $vendorExists = false;
+{{--                                                        <td>--}}
+{{--                                                            @foreach ($row->AvailableVendors as $item)--}}
+{{--                                                                <span class="badge rounded-pill badge-secondary">{{$item['VendorName']}}</span>--}}
+{{--                                                                @php--}}
+{{--                                                                    $vendorID = $item['VendorID'];--}}
+{{--                                                                    $vendorExists = false;--}}
 
-                                                                    foreach ($AllVendors as &$vendor) {
-                                                                        if ($vendor['VendorID'] === $vendorID) {
-                                                                            $vendor['VendorCount']++;
-                                                                            $vendorExists = true;
-                                                                            break;
-                                                                        }
-                                                                    }
+{{--                                                                    foreach ($AllVendors as &$vendor) {--}}
+{{--                                                                        if ($vendor['VendorID'] === $vendorID) {--}}
+{{--                                                                            $vendor['VendorCount']++;--}}
+{{--                                                                            $vendorExists = true;--}}
+{{--                                                                            break;--}}
+{{--                                                                        }--}}
+{{--                                                                    }--}}
 
-                                                                    if (!$vendorExists) {
-                                                                        $Vendors = [
-                                                                            'VendorID' => $vendorID,
-                                                                            'VendorName' => $item['VendorName'],
-                                                                            'Rating' => $item['OverAll'],
-                                                                            'VendorCount' => 1
-                                                                        ];
-                                                                        $AllVendors[] = $Vendors;
-                                                                    }
-                                                                @endphp
-                                                            @endforeach
-                                                        </td>
+{{--                                                                    if (!$vendorExists) {--}}
+{{--                                                                        $Vendors = [--}}
+{{--                                                                            'VendorID' => $vendorID,--}}
+{{--                                                                            'VendorName' => $item['VendorName'],--}}
+{{--                                                                            'Rating' => $item['OverAll'],--}}
+{{--                                                                            'VendorCount' => 1--}}
+{{--                                                                        ];--}}
+{{--                                                                        $AllVendors[] = $Vendors;--}}
+{{--                                                                    }--}}
+{{--                                                                @endphp--}}
+{{--                                                            @endforeach--}}
+{{--                                                        </td>--}}
                                                     </tr>
                                                 @endforeach
                                             </tbody>
                                         </table>
                                     </div>
-                                    <div class="card-footer d-flex">
+{{--                                    <div class="card-footer d-flex">--}}
+                                    <div class="card-footer d-none">
                                         @foreach ($AllVendors as $item)
                                             <div class="card w-auto">
                                                 <div class="card-body">

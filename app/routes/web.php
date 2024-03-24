@@ -170,11 +170,13 @@ Route::post('requested-quotations/data', [HomeTransactionController::class, 'quo
 Route::get('requested-quotations/view/{EnqID}', [HomeTransactionController::class, 'QuoteView'])->name('requested-quotations.QuoteView');
 Route::get('customer-orders', [HomeTransactionController::class, 'orders'])->name('customer-orders');
 Route::get('my-account', [HomeTransactionController::class, 'myAccount'])->name('my-account');
+Route::post('profileHtml', [HomeAuthController::class, 'profileHtml'])->name('profileHtml');
 Route::get('wishlist', [HomeTransactionController::class, 'wishlist'])->name('wishlist');
 Route::post('wishlistTableHtml', [HomeAuthController::class, 'wishlistTableHtml'])->name('wishlistTableHtml');
 Route::post('supportTableHtml', [HomeAuthController::class, 'supportTableHtml'])->name('supportTableHtml');
 Route::post('quotationTableHtml', [HomeAuthController::class, 'quotationTableHtml'])->name('quotationTableHtml');
 Route::post('orderTableHtml', [HomeAuthController::class, 'orderTableHtml'])->name('orderTableHtml');
+Route::get('order/view/{OrderID}', [HomeAuthController::class, 'CustomerOrderView'])->name('CustomerOrderView');
 Route::post('customerHomeSearch', [HomeAuthController::class, 'customerHomeSearch'])->name('customerHomeSearch');
 Route::post('guestHomeSearch', [HomeController::class, 'guestHomeSearch'])->name('guestHomeSearch');
 

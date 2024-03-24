@@ -43,12 +43,14 @@
     </nav>
 </div>
 
-<table class="table table-wishlist mb-0">
+<table class="table table-wishlist mb-0" id="ordersTable">
     <thead>
     <tr>
-        <th class="status-col">Date</th>
+        <th class="status-col">Order No</th>
+        <th class="status-col">Order Date</th>
         <th class="action-col">Expected Delivery Date</th>
         <th class="action-col">Status</th>
+        <th class="action-col">PaymentStatus</th>
         <th class="action-col">Action</th>
     </tr>
     </thead>
@@ -56,17 +58,27 @@
     @if(count($orderDetails) > 0)
         @foreach($orderDetails as $orderDetail)
             <tr class="product-row product-div">
-                <td>{{ $orderDetail->EnqDate }}</td>
-                <td>{{ $orderDetail->ExpectedDeliveryDate }}</td>
+                <td>{{ $orderDetail->OrderNo }}</td>
+                <td>{{ $orderDetail->OrderDate }}</td>
+                <td>{{ $orderDetail->ExpectedDelivery }}</td>
                 <td>{{ $orderDetail->Status }}</td>
-                <td><button class="btn btn-dark product-type-simple btnQuoteView" data-id="{{ $orderDetail->EnqID }}">
+                <td>{{ $orderDetail->PaymentStatus }}</td>
+                <td class="d-flex">
+                    <button class="btn btn-dark product-type-simple btnOrderView mr-2" data-id="{{ $orderDetail->OrderID }}" title="View order">
                         VIEW
-                    </button></td>
+                    </button>
+                    <button class="btn btn-dark product-type-simple {{ ($orderDetail->Status == "Delivered" && $orderDetail->isRated == "0") ? 'btnOrderReview' : 'disabled' }}"
+                            data-id="{{ $orderDetail->OrderID }}"
+{{--                            title="Product not delivered fully"--}}
+                    >
+                        Review
+                    </button>
+                </td>
             </tr>
         @endforeach
     @else
         <tr class="product-row product-div">
-            <td colspan="5" style="text-align: center !important;">Order is Empty!</td>
+            <td colspan="6" style="text-align: center !important;">Order is Empty!</td>
         </tr>
     @endif
     </tbody>
@@ -74,7 +86,7 @@
 
 <nav class="toolbox toolbox-pagination">
     <div class="toolbox-item toolbox-show">
-        <label>Show:</label>
+        <label for="orderProductCountSelect2">Show:</label>
         <div class="select-custom">
             <select name="count" class="form-control" id="orderProductCountSelect2">
                 <option value="12" {{ ($productCount == '12') ? 'selected' : '' }}>12</option>

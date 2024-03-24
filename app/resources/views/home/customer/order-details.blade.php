@@ -1,6 +1,12 @@
-@extends('layouts.app')
+@extends('home.home-layout')
 @section('content')
 <style>
+    .checkout-progress-bar {
+        margin: 2.7rem 0 -2.9rem;
+        font-size: 0;
+        line-height: 1.4;
+    }
+
     .stamp-badge {
         padding: 3px 6px;
         margin: -10px;
@@ -32,38 +38,319 @@
         border: 1px solid red;
         width: 140px
     }
+
+    .checkout-progress-bar li a {
+        color: #0f43b0 !important;
+    }
+
+    .download-table-container .btn,
+    .order-detail-container .btn,
+    .order-table-container .btn {
+        padding:8px 12px;
+        font-size:14px;
+        font-weight:400
+    }
+    .order-table-container .btn-dark {
+        min-width:200px;
+        padding:16px 0 15px;
+        font-size:15px;
+        letter-spacing:-0.015em;
+        text-align:center;
+        font-family:"Open Sans",sans-serif;
+        font-weight:700
+    }
+    .table.table-striped {
+        margin-top:2rem;
+        margin-bottom:5.9rem
+    }
+    .table.table-striped td,
+    .table.table-striped th {
+        padding:1.1rem 1.2rem
+    }
+    .table.table-striped tr:nth-child(odd) {
+        background-color:#f9f9f9
+    }
+
+    .table.table-size tbody tr td,
+    .table.table-size thead tr th {
+        border:0;
+        color:#21293c;
+        font-size:1.4rem;
+        letter-spacing:0.005em;
+        text-transform:uppercase
+    }
+    .table.table-size thead tr th {
+        padding:2.8rem 1.5rem 1.7rem;
+        background-color:#f4f4f2;
+        font-weight:600
+    }
+    .table.table-size tbody tr td {
+        padding:1.1rem 1.5rem;
+        background-color:#fff;
+        font-weight:700
+    }
+    .table.table-size tbody tr:nth-child(2n) td {
+        background-color:#ebebeb
+    }
+    @media (min-width:992px) {
+        .product-both-info .row .col-lg-12 {
+            margin-bottom:4px
+        }
+        .main-content .col-lg-7 {
+            -ms-flex:0 0 54%;
+            flex:0 0 54%;
+            max-width:54%
+        }
+        .main-content .col-lg-5 {
+            -ms-flex:0 0 46%;
+            flex:0 0 46%;
+            max-width:46%
+        }
+        .product-full-width {
+            padding-right:3.5rem
+        }
+        .product-full-width .product-single-details .product-title {
+            font-size:4rem
+        }
+        .table.table-size thead tr th {
+            padding-top:2.9rem;
+            padding-bottom:2.9rem
+        }
+        .table.table-size tbody tr td,
+        .table.table-size thead tr th {
+            padding-right:4.2rem;
+            padding-left:3rem
+        }
+    }
+    @media (max-width:767px) {
+        .product-size-content .table.table-size {
+            margin-top:3rem
+        }
+    }
+
+    .table.table-downloads,
+    .table.table-order {
+        margin-bottom:1px;
+        font-size:14px
+    }
+    .table.table-downloads thead th,
+    .table.table-order thead th {
+        border-top:none;
+        border-bottom-width:1px;
+        padding:1.3rem 1rem;
+        font-weight:700;
+        color:#222524
+    }
+    .table.table-downloads tbody td,
+    .table.table-order tbody td {
+        vertical-align:middle
+    }
+
+    .table.table-order-detail th {
+        font-weight:600
+    }
+    .table.table-order-detail td,
+    .table.table-order-detail th {
+        padding:1rem;
+        font-size:1.4rem;
+        line-height:24px
+    }
+    .table.table-order-detail thead th {
+        border:none
+    }
+    .table.table-order-detail .product-title {
+        display:inline;
+        color:#08C;
+        font-size:1.4rem;
+        font-weight:400
+    }
+    .table.table-order-detail .product-count {
+        color:#08C
+    }
+    @media (max-width:767px) {
+        .table.table-order thead {
+            display:none
+        }
+        .table.table-order td {
+            display:block;
+            border-top:none;
+            text-align:center
+        }
+        .table.table-order .product-thumbnail img {
+            display:inline
+        }
+        .table.table-order tbody tr {
+            position:relative;
+            display:block;
+            padding:10px 0
+        }
+        .table.table-order tbody tr:not(:first-child) {
+            border-top:1px solid #ddd
+        }
+        .table.table-order .product-remove {
+            position:absolute;
+            top:12px;
+            right:0
+        }
+    }
+
+    .table.table-cart tr td,
+    .table.table-cart tr th,
+    .table.table-wishlist tr td,
+    .table.table-wishlist tr th {
+        vertical-align:middle
+    }
+    .table.table-cart tr th,
+    .table.table-wishlist tr th {
+        border:0;
+        color:#222529;
+        font-weight:700;
+        line-height:2.4rem;
+        text-transform:uppercase
+    }
+    .table.table-cart tr td,
+    .table.table-wishlist tr td {
+        border-top:1px solid #e7e7e7
+    }
+    .table.table-cart tr td.product-col,
+    .table.table-wishlist tr td.product-col {
+        padding:2rem 0.8rem 1.8rem 0
+    }
+    .table.table-cart tr.product-action-row td,
+    .table.table-wishlist tr.product-action-row td {
+        padding:0 0 2.2rem;
+        border:0
+    }
+    .table.table-cart .product-image-container,
+    .table.table-wishlist .product-image-container {
+        position:relative;
+        width:8rem;
+        margin:0
+    }
+    .table.table-cart .product-title,
+    .table.table-wishlist .product-title {
+        margin-bottom:0;
+        padding:0;
+        font-family:"Open Sans",sans-serif;
+        font-weight:400;
+        line-height:1.75
+    }
+    .table.table-cart .product-title a,
+    .table.table-wishlist .product-title a {
+        color:inherit
+    }
+    .table.table-cart .product-single-qty,
+    .table.table-wishlist .product-single-qty {
+        margin:0.5rem 4px 0.5rem 1px
+    }
+    .table.table-cart .product-single-qty .form-control,
+    .table.table-wishlist .product-single-qty .form-control {
+        height:48px;
+        width:44px;
+        font-size:1.6rem;
+        font-weight:700
+    }
+    .table.table-cart .subtotal-price,
+    .table.table-wishlist .subtotal-price {
+        color:#222529;
+        font-size:1.6rem;
+        font-weight:600
+    }
+    .table.table-cart .btn-remove,
+    .table.table-wishlist .btn-remove {
+        right:-10px;
+        font-size:1.1rem
+    }
+    .table.table-cart tfoot td,
+    .table.table-wishlist tfoot td {
+        padding:2rem 0.8rem 1rem
+    }
+    .table.table-cart tfoot .btn,
+    .table.table-wishlist tfoot .btn {
+        padding:1.2rem 2.4rem 1.3rem 2.5rem;
+        font-family:"Open Sans",sans-serif;
+        font-size:1.3rem;
+        font-weight:700;
+        height:43px;
+        letter-spacing:-0.018em
+    }
+    .table.table-cart tfoot .btn+.btn,
+    .table.table-wishlist tfoot .btn+.btn {
+        margin-left:1rem
+    }
+    .table.table-cart .bootstrap-touchspin.input-group,
+    .table.table-wishlist .bootstrap-touchspin.input-group {
+        margin-right:auto;
+        margin-left:auto
+    }
+    .table.table-wishlist tr th {
+        padding:10px 5px 10px 16px
+    }
+    .table.table-wishlist tr th.thumbnail-col {
+        width:10%
+    }
+    .table.table-wishlist tr th.product-col {
+        width:29%
+    }
+    .table.table-wishlist tr th.price-col {
+        width:13%
+    }
+    .table.table-wishlist tr th.status-col {
+        width:19%
+    }
+    .table.table-wishlist tr td {
+        padding:20px 5px 23px 16px
+    }
+    .table.table-wishlist .product-price {
+        color:inherit;
+        font-size:1.4rem;
+        font-weight:400
+    }
+    .table.table-wishlist .price-box {
+        margin-bottom:0
+    }
+    .table.table-wishlist .stock-status {
+        color:#222529;
+        font-weight:600
+    }
+
+    td {
+        text-align: center;
+    }
 </style>
-<div class="container-fluid">
-	<div class="page-header">
-		<div class="row">
-			<div class="col-sm-6">
-				<ol class="breadcrumb">
-					<li class="breadcrumb-item"><a href="{{ url('/') }}" data-original-title="" title=""><i class="f-16 fa fa-home"></i></a></li>
-					<li class="breadcrumb-item">Transaction</li>
-					<li class="breadcrumb-item"><a href="{{ url('/') }}/admin/transaction/order/" data-original-title="" title="">{{$PageTitle}}</a></li>
-                    <li class="breadcrumb-item">Order View</li>
-				</ol>
-			</div>
-            <div class="col-sm-6 text-right">
-                @if($crud['view']==true)
-                    <a href="{{url('/')}}/admin/transaction/order" class="btn {{$Theme['button-size']}} btn-outline-dark m-5" >Back</a>
-                @endif
-                @if($OData->Status!="Cancelled" && $OData->Status!="Delivered")
-                    <button class="btn {{$Theme['button-size']}} btn-outline-danger m-5 btnCancelOrder" data-id="{{$OrderID}}">Cancel Order</button>
-                    <button class="btn {{$Theme['button-size']}} btn-outline-success btn-air-success m-5 btnMarkAsDelivered" data-id="{{$OrderID}}">Mark as Delivered</button>
-                @endif
-            </div>
-		</div>
-	</div>
-</div>
+{{--<div class="container">--}}
+{{--	<div class="page-header">--}}
+{{--		<div class="row">--}}
+{{--			<div class="col-sm-6">--}}
+{{--				<ol class="breadcrumb">--}}
+{{--					<li class="breadcrumb-item"><a href="{{ url('/') }}" data-original-title="" title=""><i class="f-16 fa fa-home"></i></a></li>--}}
+{{--                    <li class="breadcrumb-item"><a href="{{ route('my-account', ['tab' => 'orders']) }}" data-original-title="" title="">My Account</a></li>--}}
+{{--					<li class="breadcrumb-item"><a href="{{ url('/') }}/admin/transaction/order/" data-original-title="" title="">{{$PageTitle}}</a></li>--}}
+{{--                    <li class="breadcrumb-item">Order View</li>--}}
+{{--				</ol>--}}
+{{--			</div>--}}
+{{--            <div class="col-sm-6 text-right">--}}
+{{--                    <a href="{{ route('my-account', ['tab' => 'orders']) }}" class="btn btn-sm btn-outline-dark m-5">Back</a>--}}
+{{--                @if($OData->Status!="Cancelled" && $OData->Status!="Delivered")--}}
+{{--                    <button class="btn btn-sm btn-outline-danger m-5 btnCancelOrder" data-id="{{$OrderID}}">Cancel Order</button>--}}
+{{--                @endif--}}
+{{--            </div>--}}
+{{--		</div>--}}
+{{--	</div>--}}
+{{--</div>--}}
 <?php
     $vendorAdditionalCharges=[];
 ?>
-<div class="container-fluid">
+<div class="container">
 	<div class="row d-flex justify-content-center">
 		<div class="col-12 col-sm-12 col-lg-12">
 			<div class="card">
-				<div class="card-header text-center"><h5 class="mt-10">{{$PageTitle}} ( {{$OData->OrderNo}} )</h5></div>
+                <ul class="checkout-progress-bar d-flex justify-content-center flex-wrap">
+                    <li class="active">
+                        <a href="#">Order - ( {{$OData->OrderNo}} )</a>
+                    </li>
+                </ul>
+{{--				<div class="card-header text-center"><h5 class="mt-10"> Order - ( {{$OData->OrderNo}} )</h5></div>--}}
 				<div class="card-body">
                     <div class="row">
                         <div class="col-sm-12">
@@ -79,7 +366,7 @@
 
                                                 'Email' => $OData->Email,
                                                 'Contact Number' => $OData->MobileNo1 ,
-                                                'Expected Delivery' => date($Settings['date-format'], strtotime($OData->ExpectedDelivery)),
+                                                'Expected Delivery' => date('d-M-Y', strtotime($OData->ExpectedDelivery)),
                                                 'Contact Person' => ($OData->ReceiverName!="")? $OData->ReceiverName." <span> (".$OData->ReceiverMobNo.")</span>":"",
                                             ] as $label => $value)
                                                 @if($value!="")
@@ -144,7 +431,7 @@
                                     <h6 class="text-center fw-700">Order</h6>
                                 </div>
                                 <div class="card-body">
-                                    <table class="table" id="tblOrderDetails">
+                                    <table class="table table-wishlist" id="tblOrderDetails">
                                         <thead>
                                             <tr class="valign-top">
                                                 <th class="text-center align-middle">S.No</th>
@@ -165,12 +452,12 @@
                                                     <th class="text-center align-middle">Tax Amount<br> (₹)</th>
                                                 @endif
                                                 <th class="text-center align-middle">Total Amount<br> (₹)</th>
-                                                <th class="text-center align-middle">Allocated To</th>
+{{--                                                <th class="text-center align-middle">Allocated To</th>--}}
                                                 <th class="text-center align-middle">Status</th>
                                                 <th class="text-center align-middle">Delivered On</th>
-                                                @if($OData->Status=="New" && $crud['delete']==true)
-                                                    <th class="text-center align-middle">Action</th>
-                                                @endif
+{{--                                                @if($OData->Status=="New")--}}
+{{--                                                    <th class="text-center align-middle">Action</th>--}}
+{{--                                                @endif--}}
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -182,30 +469,30 @@
                                                     <td>{{$key + 1}}</td>
                                                     <td>{{$item->ProductName}}</td>
                                                     <td class="text-right">{{$item->Qty}} {{$item->UCode}}</td>
-                                                    <td class="text-right">{{NumberFormat($item->Price, $Settings['price-decimals'])}}</td>
+                                                    <td class="text-right">{{NumberFormat($item->Price, 2)}}</td>
                                                     <td>{{$item->TaxType}}</td>
-                                                    <td class="text-right">{{ $item->Status == 'Cancelled' ? '--' : NumberFormat($item->Taxable, $Settings['price-decimals']) }}</td>
+                                                    <td class="text-right">{{ $item->Status == 'Cancelled' ? '--' : NumberFormat($item->Taxable, 2) }}</td>
                                                     @if(count($OData->Details)>0)
                                                         @if(floatval($item->IGSTAmt)<=0)
                                                             <td class="text-right">
-                                                                <div>{{ $item->Status == 'Cancelled' ? '--' : NumberFormat($item->CGSTAmt, $Settings['price-decimals']) }} </div>
-                                                                <div class="fs-11">{{ $item->Status == 'Cancelled' ? '' : "(".NumberFormat($item->CGSTPer, $Settings['price-decimals'])." %)" }}</div>
+                                                                <div>{{ $item->Status == 'Cancelled' ? '--' : NumberFormat($item->CGSTAmt, 2) }} </div>
+                                                                <div class="fs-11">{{ $item->Status == 'Cancelled' ? '' : "(".NumberFormat($item->CGSTPer, 2)." %)" }}</div>
                                                             </td>
                                                             <td class="text-right">
-                                                                <div>{{ $item->Status == 'Cancelled' ? '--' : NumberFormat($item->SGSTAmt, $Settings['price-decimals']) }} </div>
-                                                                <div class="fs-11">{{ $item->Status == 'Cancelled' ? '' : "(".NumberFormat($item->SGSTPer, $Settings['price-decimals'])." %)" }}</div>
+                                                                <div>{{ $item->Status == 'Cancelled' ? '--' : NumberFormat($item->SGSTAmt, 2) }} </div>
+                                                                <div class="fs-11">{{ $item->Status == 'Cancelled' ? '' : "(".NumberFormat($item->SGSTPer, 2)." %)" }}</div>
                                                             </td>
                                                         @else
                                                             <td class="text-right">
-                                                                <div>{{ $item->Status == 'Cancelled' ? '--' : NumberFormat($item->IGSTAmt, $Settings['price-decimals']) }} </div>
-                                                                <div class="fs-11">{{ $item->Status == 'Cancelled' ? '' : "(".NumberFormat($item->IGSTPer, $Settings['price-decimals'])." %)" }}</div>
+                                                                <div>{{ $item->Status == 'Cancelled' ? '--' : NumberFormat($item->IGSTAmt, 2) }} </div>
+                                                                <div class="fs-11">{{ $item->Status == 'Cancelled' ? '' : "(".NumberFormat($item->IGSTPer, 2)." %)" }}</div>
                                                             </td>
                                                         @endif
                                                     @else
-                                                        <td class="text-right">{{ $item->Status == 'Cancelled' ? '--' : NumberFormat(0, $Settings['price-decimals']) }}</td>
+                                                        <td class="text-right">{{ $item->Status == 'Cancelled' ? '--' : NumberFormat(0, 2) }}</td>
                                                     @endif
-                                                    <td class="text-right">{{ $item->Status == 'Cancelled' ? '--' : NumberFormat($item->TotalAmt, $Settings['price-decimals']) }} </td>
-                                                    <td><span class=" fw-600 text-info text-center">{{$item->VendorName}}</span></td>
+                                                    <td class="text-right">{{ $item->Status == 'Cancelled' ? '--' : NumberFormat($item->TotalAmt, 2) }} </td>
+{{--                                                    <td><span class=" fw-600 text-info text-center">{{$item->VendorName}}</span></td>--}}
                                                     <td>
                                                         @if($item->Status=="Cancelled")
                                                             <span class="badge badge-danger">Cancelled</span>
@@ -217,18 +504,18 @@
                                                     </td>
                                                     <td class="text-center">
                                                         @if($item->Status=="Delivered")
-                                                            {{date($Settings['date-format'],strtotime($item->DeliveredOn))}}
+                                                            {{date('d-M-Y',strtotime($item->DeliveredOn))}}
                                                         @else
                                                             --
                                                         @endif
                                                     </td>
-                                                    @if($OData->Status!="Delivered" && $OData->Status!="Cencelled"  && $item->Status=="New" && $crud['delete']==true)
-                                                        <td class="text-center">
-                                                            <button type="button"  data-vendor-id="{{$item->VendorID}}" data-additional-charge="<?php if(array_key_exists($item->VendorID,$OData->AdditionalCharges)){ echo $OData->AdditionalCharges[$item->VendorID];}else{ echo 0;} ?>" data-detail-id="{{$item->DetailID}}" data-order-no="{{$item->ProductName}}" data-id="{{$item->OrderID}}" class="btn m-5 btn-outline-success btnItemMarkDelivered" title="Mark this item as Delivered"><i class="fa fa-check"></i></button>
-                                                            <button type="button"  data-vendor-id="{{$item->VendorID}}" data-additional-charge="<?php if(array_key_exists($item->VendorID,$OData->AdditionalCharges)){ echo $OData->AdditionalCharges[$item->VendorID];}else{ echo 0;} ?>" data-detail-id="{{$item->DetailID}}" data-order-no="{{$item->ProductName}}" data-id="{{$item->OrderID}}" class="btn m-5 btn-outline-danger btnOItemDelete" -title="Item Cancel"><i class="fa fa-trash" aria-hidden="true"></i></button>
+{{--                                                    @if($OData->Status!="Delivered" && $OData->Status!="Cencelled"  && $item->Status=="New")--}}
+{{--                                                        <td class="text-center">--}}
+{{--                                                            <button type="button"  data-vendor-id="{{$item->VendorID}}" data-additional-charge="<?php if(array_key_exists($item->VendorID,$OData->AdditionalCharges)){ echo $OData->AdditionalCharges[$item->VendorID];}else{ echo 0;} ?>" data-detail-id="{{$item->DetailID}}" data-order-no="{{$item->ProductName}}" data-id="{{$item->OrderID}}" class="btn m-5 btn-outline-success btnItemMarkDelivered" title="Mark this item as Delivered"><i class="fa fa-check"></i></button>--}}
+{{--                                                            <button type="button"  data-vendor-id="{{$item->VendorID}}" data-additional-charge="<?php if(array_key_exists($item->VendorID,$OData->AdditionalCharges)){ echo $OData->AdditionalCharges[$item->VendorID];}else{ echo 0;} ?>" data-detail-id="{{$item->DetailID}}" data-order-no="{{$item->ProductName}}" data-id="{{$item->OrderID}}" class="btn m-5 btn-outline-danger btnOItemDelete" -title="Item Cancel"><i class="fa fa-trash" aria-hidden="true"></i></button>--}}
 
-                                                        </td>
-                                                    @endif
+{{--                                                        </td>--}}
+{{--                                                    @endif--}}
                                                     <?php
                                                         if($item->Status!="Cancelled"){
                                                             $tmpAmount=0;
@@ -243,7 +530,7 @@
                                     </table>
                                     <div class="row justify-content-end mt-20">
                                         @if(count($vendorAdditionalCharges)>0)
-                                        <div class="col-sm-6 ">
+                                        <div class="col-sm-6 d-none">
                                             <div class="card shadow-sm">
                                                 <div class="card-header">
                                                     <div class="row">
@@ -267,49 +554,49 @@
                                             <div class="row fw-500 fs-13 mr-10 justify-content-end">
                                                 <div class="col-4">Sub Total</div>
                                                 <div class="col-1">:</div>
-                                                <div class="col-3 text-right" id="divSubTotal">{{NumberFormat($OData->SubTotal,$Settings['price-decimals'])}}</div>
+                                                <div class="col-3 text-right" id="divSubTotal">{{NumberFormat($OData->SubTotal,2)}}</div>
                                             </div>
                                             @if(count($OData->Details)>0)
                                                 @if(floatval($OData->IGSTAmount)<=0)
-                                                    <div class="row mt-10 fw-500 fs-13 mr-10 justify-content-end">
+                                                    <div class="row mt-1 fw-500 fs-13 mr-10 justify-content-end">
                                                         <div class="col-4">CGST</div>
                                                         <div class="col-1">:</div>
-                                                        <div class="col-3 text-right" id="divCGSTAmount">{{NumberFormat($OData->CGSTAmount,$Settings['price-decimals'])}}</div>
+                                                        <div class="col-3 text-right" id="divCGSTAmount">{{NumberFormat($OData->CGSTAmount,2)}}</div>
                                                     </div>
-                                                    <div class="row mt-10 fw-500 fs-13 mr-10 justify-content-end">
+                                                    <div class="row mt-1 fw-500 fs-13 mr-10 justify-content-end">
                                                         <div class="col-4">SGST</div>
                                                         <div class="col-1">:</div>
-                                                        <div class="col-3 text-right" id="divSGSTAmount">{{NumberFormat($OData->SGSTAmount,$Settings['price-decimals'])}}</div>
+                                                        <div class="col-3 text-right" id="divSGSTAmount">{{NumberFormat($OData->SGSTAmount,2)}}</div>
                                                     </div>
                                                 @else
-                                                    <div class="row mt-10 fw-500 fs-13 mr-10 justify-content-end">
+                                                    <div class="row mt-1 fw-500 fs-13 mr-10 justify-content-end">
                                                         <div class="col-4">IGST</div>
                                                         <div class="col-1">:</div>
-                                                        <div class="col-3 text-right" id="divIGSTAmount">{{NumberFormat($OData->IGSTAmount,$Settings['price-decimals'])}}</div>
+                                                        <div class="col-3 text-right" id="divIGSTAmount">{{NumberFormat($OData->IGSTAmount,2)}}</div>
                                                     </div>
                                                 @endif
                                             @else
 
-                                                <div class="row mt-10 fw-500 fs-13 mr-10 justify-content-end">
+                                                <div class="row mt-1 fw-500 fs-13 mr-10 justify-content-end">
                                                     <div class="col-4">Tax Amount</div>
                                                     <div class="col-1">:</div>
-                                                    <div class="col-3 text-right" id="divTaxAmount">{{NumberFormat($OData->TaxAmount,$Settings['price-decimals'])}}</div>
+                                                    <div class="col-3 text-right" id="divTaxAmount">{{NumberFormat($OData->TaxAmount,2)}}</div>
                                                 </div>
                                             @endif
-                                            <div class="row mt-10 fw-600 fs-14 mr-10 justify-content-end">
+                                            <div class="row mt-1 fw-600 fs-14 mr-10 justify-content-end">
                                                 <div class="col-4">Total Amount</div>
                                                 <div class="col-1">:</div>
-                                                <div class="col-3 text-right" id="divTotalAmount">{{NumberFormat($OData->TotalAmount,$Settings['price-decimals'])}}</div>
+                                                <div class="col-3 text-right" id="divTotalAmount">{{NumberFormat($OData->TotalAmount,2)}}</div>
                                             </div>
-                                            <div class="row mt-10 fw-500 fs-13 mr-10 justify-content-end">
+                                            <div class="row mt-1 fw-500 fs-13 mr-10 justify-content-end">
                                                 <div class="col-4">Additional Amount @if($OData->Status=="New") <a href="#" class="ml-5" id="btnEditCustomerCost" title="Click here to edit customer additional charges."><i class="fa fa-pencil"></i></a> @endif</div>
                                                 <div class="col-1">:</div>
-                                                <div class="col-3 text-right" id="divAdditionalAmount">{{NumberFormat($OData->AdditionalCost,$Settings['price-decimals'])}}</div>
+                                                <div class="col-3 text-right" id="divAdditionalAmount">{{NumberFormat($OData->AdditionalCost,2)}}</div>
                                             </div>
-                                            <div class="row mt-10 fw-800 fs-17 mr-10 justify-content-end text-success">
+                                            <div class="row mt-1 fw-800 fs-17 mr-10 justify-content-end text-success">
                                                 <div class="col-4">Net Amount</div>
                                                 <div class="col-1">:</div>
-                                                <div class="col-3 text-right" id="divOverAllAmount">{{NumberFormat($OData->NetAmount,$Settings['price-decimals'])}}</div>
+                                                <div class="col-3 text-right" id="divOverAllAmount">{{NumberFormat($OData->NetAmount,2)}}</div>
                                             </div>
                                         </div>
                                     </div>
@@ -321,16 +608,9 @@
                 <div class="card-footer">
                     <div class="row">
                         <div class="col-sm-12 text-right">
-                            @if($crud['view']==true)
-                                <a href="{{url('/')}}/admin/transaction/order" class="btn {{$Theme['button-size']}} btn-outline-dark m-5" >Back</a>
-                            @endif
+                                <a href="{{ route('my-account', ['tab' => 'orders']) }}" class="btn btn-sm btn-outline-dark m-5" >Back</a>
                             @if($OData->Status!="Cancelled" && $OData->Status!="Delivered")
-                                @if($crud['delete'])
-                                    <button class="btn {{$Theme['button-size']}} btn-outline-danger m-5 btnCancelOrder" data-id="{{$OrderID}}">Cancel Order</button>
-                                @endif
-                                @if($crud['edit'])
-                                    <button class="btn {{$Theme['button-size']}} btn-outline-success btn-air-success m-5 btnMarkAsDelivery" data-id="{{$OrderID}}">Mark as Delivered</button>
-                                @endif
+{{--                                    <button class="btn btn-sm btn-outline-danger m-5 btnCancelOrder" data-id="{{$OrderID}}">Cancel Order</button>--}}
                             @endif
                         </div>
                     </div>
@@ -375,7 +655,7 @@
 						<div class="form-group">
 							<label for="spaVNoOfItems">Vendor Additional Charge</label>
 							<div class="input-group">
-                                <input type="number" step="{{Helper::NumberSteps($Settings['price-decimals'])}}" id="txtMVACost" class="form-control" >
+                                <input type="number" step="{{Helper::NumberSteps(2)}}" id="txtMVACost" class="form-control" >
                                 <span class="input-group-text"> for <span id="spaVNoOfItems" class="mr-5 ml-5">0</span>  Items</span>
                             </div>
                             <div class="errors err-sm order-cancel-err" id="txtMVACost-err"></div>
@@ -385,7 +665,7 @@
 						<div class="form-group">
 							<label for="txtMCACost">Customer Additional Charge</label>
 							<div class="input-group">
-                                <input type="number" step="{{Helper::NumberSteps($Settings['price-decimals'])}}" id="txtMCACost" class="form-control" value="<?php  echo NumberFormat($OData->AdditionalCost,$Settings['price-decimals']);?>">
+                                <input type="number" step="{{Helper::NumberSteps(2)}}" id="txtMCACost" class="form-control" value="<?php  echo NumberFormat($OData->AdditionalCost,2);?>">
                                 <span class="input-group-text"> for <span id="spaCNoOfItems" class="mr-5 ml-5">{{count($OData->Details)}}</span>  Items</span>
                             </div>
                             <div class="errors err-sm order-cancel-err" id="txtMCACost-err"></div>
@@ -443,7 +723,7 @@
 						<div class="form-group">
 							<label for="txtMCACost1">Customer Additional Charge</label>
 							<div class="input-group">
-                                <input type="number" step="{{Helper::NumberSteps($Settings['price-decimals'])}}" id="txtMCACost1" class="form-control" value="<?php  echo NumberFormat($OData->AdditionalCost,$Settings['price-decimals']);?>">
+                                <input type="number" step="{{Helper::NumberSteps(2)}}" id="txtMCACost1" class="form-control" value="<?php  echo NumberFormat($OData->AdditionalCost,2);?>">
                                 <span class="input-group-text"> for <span d="spaCNoOfItems1" class="mr-5 ml-5">{{count($OData->Details)}}</span>  Items</span>
                             </div>
 						</div>
@@ -491,8 +771,8 @@
         let isItemDelivered=false;
 		var cancelReasons={};
         var ResendOTP=false;
-        const enableOTPVerify=@if($Settings['enable-Order-Delivery-verify']) true @else false @endif;
-        const OTPResendDuration=parseInt("{{$Settings['otp-resend-duration']}}");
+        const enableOTPVerify = true;
+        const OTPResendDuration=parseInt(40);
         var countdownValue =OTPResendDuration;
         const init=async()=>{
             getCancelReason();
@@ -677,7 +957,7 @@
                             let html="<tr>";
                                     html+='<td>'+tdata.name+'</td>';
                                     html+='<td  class="text-right">'+VNoOfItems+'</td>';
-                                    html+='<td class="text-right"><input type="number" data-vendor-id="'+vendorId+'" class="form-control txtMVACosts" steps="{{Helper::NumberSteps($Settings['price-decimals'])}}" value="'+tdata.amount+'"></td>';
+                                    html+='<td class="text-right"><input type="number" data-vendor-id="'+vendorId+'" class="form-control txtMVACosts" steps="{{Helper::NumberSteps(2)}}" value="'+tdata.amount+'"></td>';
                                 html+='</tr>';
                                 console.log(html);
                                 $('#tblVACharges tbody').append(html);
