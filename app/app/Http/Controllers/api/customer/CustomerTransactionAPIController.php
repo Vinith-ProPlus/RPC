@@ -70,6 +70,7 @@ class CustomerTransactionAPIController extends Controller{
                     }
                 }
             }
+            $AddressData = DB::table('tbl_customer_address')->where('AID',$req->AID)->first();
             $data=[
                 'EnqID' => $EnqID,
                 'EnqNo' =>DocNum::getInvNo("Quote-Enquiry"),
@@ -80,6 +81,13 @@ class CustomerTransactionAPIController extends Controller{
                 'ReceiverMobNo' => $req->ReceiverMobNo,
                 'ExpectedDeliveryDate' => $req->ExpectedDeliveryDate,
                 'AID'=>$req->AID,
+                "DAddress"=>$AddressData->Address,
+                "DPostalCodeID"=>$AddressData->PostalCodeID,
+                "DCityID"=>$AddressData->CityID,
+                "DTalukID"=>$AddressData->TalukID,
+                "DDistrictID"=>$AddressData->DistrictID,
+                "DStateID"=>$AddressData->StateID,
+                "DCountryID"=>$AddressData->CountryID,
                 'StageID' => $req->StageID,
                 'BuildingMeasurementID' => $req->BuildingMeasurementID,
                 'BuildingMeasurement' => $req->BuildingMeasurement,
@@ -123,6 +131,7 @@ class CustomerTransactionAPIController extends Controller{
             return response()->json(['status' => false,'message' => "Order Placing Failed!"]);
         }
     }
+
     public function PlaceOrder1(Request $req){
         DB::beginTransaction();
         $status=false;
@@ -509,33 +518,5 @@ class CustomerTransactionAPIController extends Controller{
         }
 	}
 
-    public function getCategory(Request $req){
-        if($req->PostalID){
-            $AllVendors = DB::table('tbl_vendors as V')->leftJoin('tbl_vendors_service_locations as VSL','V.VendorID','VSL.VendorID')->where('V.ActiveStatus',"Active")->where('V.DFlag',0)->where('VSL.PostalCodeID',$req->PostalID)->groupBy('VSL.VendorID')->pluck('VSL.VendorID')->toArray();
-            
-            $PCatagories= DB::table('tbl_vendors_product_mapping as VPM')
-            ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'VPM.PCID')
-            ->where('VPM.Status',1)->WhereIn('VPM.VendorID',$AllVendors)
-            ->groupBy('PC.PCID', 'PC.PCName','PC.PCImage')
-            ->select('PC.PCID','PC.PCName', DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PCImage, ""), "assets/images/no-image-b.png")) AS CategoryImage'))->get();
-            foreach($PCatagories as $row){
-                $row->PSCData = DB::table('tbl_vendors_product_mapping as VPM')
-                ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'VPM.PSCID')
-                ->where('VPM.Status',1)->where('PSC.PCID',$row->PCID)->WhereIn('VPM.VendorID',$AllVendors)
-                ->groupBy('PSC.PSCID', 'PSC.PSCName')
-                ->select('PSC.PSCID','PSC.PSCName')->get();
-                foreach($row->PSCData as $item){
-					$item->ProductData = DB::table('tbl_vendors_product_mapping as VPM')
-                    ->leftJoin('tbl_products as P', 'P.ProductID', 'VPM.ProductID')
-                    ->where('VPM.Status',1)->where('P.CID',$row->PCID)->where('P.SCID',$item->PSCID)->WhereIn('VPM.VendorID',$AllVendors)
-                    ->groupBy('P.ProductID', 'P.ProductName')
-                    ->select('P.ProductID','P.ProductName')->get();
-				}
-            }
-            return $PCatagories;
-        }else{
-            return [];
-        }
-    }
 
 }

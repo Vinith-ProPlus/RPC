@@ -300,7 +300,7 @@ class VendorsController extends Controller{
 
 			$rules=array(
 				'VendorName' =>['required','max:50',new ValidUnique(array("TABLE"=>"tbl_vendors","WHERE"=>" VendorName='".$req->VendorName."'  "),"This Vendor Name is already taken.")],
-				'GSTNo' =>'required',
+				// 'GSTNo' =>'required',
 				'CID' =>'required',
 				'VendorType' =>'required',
 				'MobileNumber1' =>'required',
@@ -682,7 +682,7 @@ class VendorsController extends Controller{
 
 			$rules=array(
 				'VendorName' =>['required','max:50',new ValidUnique(array("TABLE"=>"tbl_vendors","WHERE"=>" VendorName='".$req->VendorName."' and vendorID<>'".$VendorID."'  "),"This Vendor Name is already taken.")],
-				'GSTNo' =>'required',
+				// 'GSTNo' =>'required',
 				'CID' =>'required',
 				'VendorType' =>'required',
 				'MobileNumber1' =>'required',

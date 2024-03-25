@@ -385,7 +385,7 @@
                             @if (!$isEditSL)
                                 <div class="tab-contents" id="general-tab">
                                     <div class="row mt-20">
-                                        <div class="col-4 col-lg-2 d-flex align-items-center"><div >GST Number <span class="required"> * </span></div></div>
+                                        <div class="col-4 col-lg-2 d-flex align-items-center"><div >GST Number {{-- <span class="required"> * </span> --}}</div></div>
                                         <div class="col-6 col-lg-8">
                                             <input type="text" id="txtGSTNo" class="form-control" placeholder="GST Number" value="<?php if($isEdit){ echo $data->GSTNo;} ?>">
                                             <div class="errors err-sm" id="txtGSTNo-err"></div>
@@ -1853,9 +1853,9 @@
                 }else if(data.VendorName.length>100){
                     $('#txtVendorName-err').html('Vendor Name may not be greater than 100 characters');status=false;
                 }
-                if(data.GSTNo==""){
+                /* if(data.GSTNo==""){
                     $('#txtGSTNo-err').html('GST Number is required.');status=false;isGeneral=true;
-                }
+                } */
                 if(data.CID==""){
                     $('#lstCategory-err').html('Category is required.');status=false;isGeneral=true;
                 }

@@ -52,8 +52,10 @@ Route::controller(VendorTransactionAPIController::class)->group(function () {
     Route::post('/get/orders','getOrders');
     Route::post('/get/current-orders','getCurrentOrders');
     Route::post('/get/completed-orders','getCompletedOrders');
-
     
+    Route::post('/order/mark-as-delivered','MarkasDelivered');
+    Route::post('/order/delivered','Delivered');
+
     Route::post('/request-payment','RequestPayment');
     Route::post('/get/transaction-history','getTransactionHistory');
     Route::post('/get/withdrawal-request','getWithdrawalRequest');

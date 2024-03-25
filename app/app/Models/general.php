@@ -316,4 +316,204 @@ class general extends Model{
 		}
 		return $return;
 	}
+	
+	public function AdvanceAmountUsedLog($data,$CurrFYDB){ 
+		
+		$sql =" SELECT TranNo,LedgerID,SUM(TotalAmount) as Debit,0 as Credit  FROM ".$CurrFYDB."tbl_payments  Where  LedgerID='".$data['LedgerID']."'  and  PaymentType='Advance' Group By TranNo,LedgerID";
+		$sql.=" UNION ";
+		$sql.=" SELECT TranNo,LedgerID,SUM(TotalAmount) as Debit,0 as Credit  FROM ".$CurrFYDB."tbl_receipts  Where LedgerID='".$data['LedgerID']."'  and  PaymentType='Advance' Group By TranNo,LedgerID";
+		$sql.=" UNION";
+		$sql.=" Select AdvID,LedgerID,0 as Debit,SUM(Amount) as Credit From ".$CurrFYDB."tbl_advance_amount_log Where LedgerID='".$data['LedgerID']."'  ";
+		if(array_key_exists("TranNo",$data)){
+			if($data['TranNo']!=""){
+				$sql.=" and PaymentID<>'".$data['TranNo']."'";
+			}
+		}
+		$sql.=" Group By AdvID,LedgerID";
+		$sql="SELECT TranNo,LedgerID,SUM(IFNULL(Debit,0)) as Debit,SUM(IFNULL(Credit,0)) as Credit,(SUM(IFNULL(Debit,0))-SUM(IFNULL(Credit,0))) as Balance FROM ( ".$sql." ) as T Group By TranNo,LedgerID  having (SUM(IFNULL(Debit,0))-SUM(IFNULL(Credit,0)))>0 Order By TranNo";
+		$result=DB::SELECT($sql);
+
+		$AdvanceAmt=floatval($data['Amount']);
+		for($i=0;$i<count($result);$i++){
+			if($AdvanceAmt>0){
+				$UsedAmount=0;
+				if($result[$i]->Balance>=$AdvanceAmt){
+					$UsedAmount=$AdvanceAmt;
+				}else if($result[$i]->Balance<$AdvanceAmt){
+					$UsedAmount=$result[$i]->Balance;
+				}
+				$AdvanceAmt=$AdvanceAmt-$UsedAmount;
+				$tdata=array();
+				$tdata['TranNo']=DocNum::getDocNum("Advance-Amount-Log",$CurrFYDB,Helper::getCurrentFy());
+				$tdata['TranType']=$data['TranType'];
+				$tdata['AdvID']=$result[$i]->TranNo;
+				$tdata['LedgerID']=$data['LedgerID'];
+				$tdata['PaymentID']=$data['PaymentID'];
+				$tdata['DetailID']=$data['DetailID'];
+				$tdata['Amount']=$UsedAmount;
+				$status=DB::Table($CurrFYDB.'tbl_advance_amount_log')->insert($tdata);
+				if($status){
+					DocNum::updateDocNum("Advance-Amount-Log",$CurrFYDB);
+				}
+			}
+		}
+		$status=$this->UpdateAdvanceAmount($data['TranType'],$data['LedgerID'],$CurrFYDB);
+		return $status;
+	}
+	public function UpdateAdvanceAmount($TranType,$LedgerID,$CurrFYDB){
+		$status=true;
+		$sql="SELECT AdvID,LedgerID,SUM(Amount) as UsedAmount FROM ".$CurrFYDB."tbl_advance_amount_log where TranType='".$TranType."' and LedgerID='".$LedgerID."'  Group By  AdvID,LedgerID;";
+		$result=DB::SELECT($sql); 
+		for($i=0;$i<count($result);$i++){
+			if($status){
+				$Min=Helper::getOTP(1);
+				if($TranType=="Payments"){
+					$status=DB::Table($CurrFYDB.'tbl_payments')->where('TranNo',$result[$i]->AdvID)->where('LedgerID',$result[$i]->LedgerID)->update(array("UsedAmount"=>$result[$i]->UsedAmount,"UpdatedOn"=>date("Y-m-d H:i:s",strtotime($Min." min")),"UpdatedBy"=>$this->UserID));
+				}elseif($TranType=="Receipts"){ 
+					$status=DB::Table($CurrFYDB.'tbl_receipts')->where('TranNo',$result[$i]->AdvID)->where('LedgerID',$result[$i]->LedgerID)->update(array("UsedAmount"=>$result[$i]->UsedAmount,"UpdatedOn"=>date("Y-m-d H:i:s",strtotime($Min." min")),"UpdatedBy"=>$this->UserID));
+				}
+			}
+		}
+		return $status;
+	}
+	public function ReceiptUpdates($LedgerID,$OrderID,$CurrFYDB){
+		$status=true;$PaidAmount=0;$LessFromAdvance=0;$TotalPaidAmount=0;
+			$sql="SELECT D.OrderID,SUM(IFNULL(D.LessFromAdvance,0)) as LessFromAdvance,Sum(IFNULL(D.PaidAmount,0)) as PaidAmount,SUM(IFNULL(D.Amount,0)) as Amount FROM ".$CurrFYDB."tbl_receipt_details as D LEFT JOIN ".$CurrFYDB."tbl_receipts as H ON H.TranNo=D.TranNo Where H.DFlag=0  and  H.LedgerID='".$LedgerID."'  and D.OrderID='".$OrderID."' Group By D.OrderID";
+			$result=DB::SELECT($sql); //echo $sql;
+			if(count($result)>0){
+				$LessFromAdvance=$result[0]->LessFromAdvance;
+				$PaidAmount=$result[0]->PaidAmount;
+				$TotalPaidAmount=$result[0]->Amount;
+			}
+			$t=DB::Table($CurrFYDB.'tbl_order')->where('OrderID',$OrderID)->where('CustomerID',$LedgerID)->get();
+			if(count($t)){
+				$BalanceAmount=floatval($t[0]->NetAmount)-floatval($PaidAmount)-floatval($LessFromAdvance); 
+				$PaymentStatus='Unpaid';
+				if($BalanceAmount>0){
+					$PaymentStatus='Partial Paid';
+				}elseif($BalanceAmount==0){
+					$PaymentStatus='Paid';
+				}
+				$tdata=array(
+					"LessFromAdvance"=>floatval($LessFromAdvance),
+					"TotalPaidAmount"=>floatval($TotalPaidAmount),
+					"PaidAmount"=>floatval($PaidAmount),
+					"BalanceAmount"=>floatval($BalanceAmount),
+					"PaymentStatus"=>$PaymentStatus,
+					"UpdatedOn"=>date("Y-m-d H:i:s")
+				);
+				$status=DB::Table($CurrFYDB.'tbl_order')->where('OrderID',$OrderID)->where('CustomerID',$LedgerID)->Update($tdata);
+			}
+			return $status;
+	}
+	public function PaymentUpdates($LedgerID,$OrderID,$CurrFYDB){
+		$status=true;$PaidAmount=0;$LessFromAdvance=0;$TotalPaidAmount=0;
+			$sql="SELECT D.OrderID,SUM(IFNULL(D.LessFromAdvance,0)) as LessFromAdvance,Sum(IFNULL(D.PaidAmount,0)) as PaidAmount,SUM(IFNULL(D.Amount,0)) as Amount FROM ".$CurrFYDB."tbl_payment_details as D LEFT JOIN ".$CurrFYDB."tbl_payments as H ON H.TranNo=D.TranNo Where H.DFlag=0  and  H.LedgerID='".$LedgerID."'  and D.OrderID='".$OrderID."' Group By D.OrderID";
+			$result=DB::SELECT($sql); //echo $sql;
+			if(count($result)>0){
+				$LessFromAdvance=$result[0]->LessFromAdvance;
+				$PaidAmount=$result[0]->PaidAmount;
+				$TotalPaidAmount=$result[0]->Amount;
+			}
+			$t=DB::Table($CurrFYDB.'tbl_vendor_orders')->where('VOrderID',$OrderID)->where('VendorID',$LedgerID)->get();
+			if(count($t)){
+				$BalanceAmount=floatval($t[0]->NetAmount)-floatval($PaidAmount)-floatval($LessFromAdvance); 
+				$PaymentStatus='Unpaid';
+				if($BalanceAmount>0){
+					$PaymentStatus='Partial Paid';
+				}elseif($BalanceAmount==0){
+					$PaymentStatus='Paid';
+				}
+				$tdata=array(
+					"LessFromAdvance"=>floatval($LessFromAdvance),
+					"TotalPaidAmount"=>floatval($TotalPaidAmount),
+					"PaidAmount"=>floatval($PaidAmount),
+					"BalanceAmount"=>floatval($BalanceAmount),
+					"PaymentStatus"=>$PaymentStatus,
+					"UpdatedOn"=>date("Y-m-d H:i:s")
+				);
+				$status=DB::Table($CurrFYDB.'tbl_vendor_orders')->where('VOrderID',$OrderID)->where('VendorID',$LedgerID)->Update($tdata);
+			}
+			return $status;
+	}
+	
+	public function UpdateAdvancePayment($AdvID,$LedgerID,$CurrFYDB){
+		//get advance amount Used  payment IDs
+		$AdvanceAmount=0;
+		$UsedLog=["Amount"=>0,"Payments"=>[]];
+		$result=DB::Table($CurrFYDB.'tbl_advance_amount_log')->where('AdvID',$AdvID)->Where('LedgerID',$LedgerID)->get();
+		foreach($result as $data){
+			$UsedLog['Amount']+=$data->Amount;
+			$UsedLog['Payments'][]=["PaymentID"=>$data->PaymentID,"TranType"=>$data->TranType,"DetailID"=>$data->DetailID];
+		}
+		$sql="SELECT LedgerID, TranNo, TotalAmount FROM ".$CurrFYDB."tbl_payments  Where LedgerID='".$LedgerID."' and TranNo='".$AdvID."'";
+		$result=DB::SELECT($sql);
+		if(count($result)>0){
+			$data=$result[0];
+			$AdvanceAmount+=$data->TotalAmount;
+		}
+		if(floatval($UsedLog['Amount'])>$AdvanceAmount){
+			$result=DB::Table($CurrFYDB.'tbl_advance_amount_log')->where('AdvID',$AdvID)->Where('LedgerID',$LedgerID)->Delete();
+			
+			DB::Table($CurrFYDB.'tbl_payments')->where('TranNo',$AdvID)->Where('LedgerID',$LedgerID)->update(array("UsedAmount"=>0,"UpdatedOn"=>date("Y-m-d H:i:s")));
+
+			foreach($UsedLog['Payments'] as $Payment){
+				if($Payment['TranType']=="Payments"){
+					$t=DB::Table($CurrFYDB.'tbl_payment_details')->where('TranNo',$Payment['PaymentID'])->Where('DetailID',$Payment['DetailID'])->get();
+					if(count($t)>0){
+						$result=DB::Table($CurrFYDB.'tbl_advance_amount_log')->where('PaymentID',$t[0]->TranNo)->where('DetailID',$t[0]->DetailID)->Where('LedgerID',$LedgerID)->Delete();
+						$tdata=array("TranType"=>"Payments","LedgerID"=>$LedgerID,"PaymentID"=>$t[0]->TranNo,"DetailID"=>$t[0]->DetailID,"Amount"=>$t[0]->LessFromAdvance);
+						$status=$this->AdvanceAmountUsedLog($tdata,$CurrFYDB);
+					}
+				}else{
+					$t=DB::Table($CurrFYDB.'tbl_receipt_details')->where('TranNo',$Payment['PaymentID'])->Where('DetailID',$Payment['DetailID'])->get();
+					if(count($t)>0){
+						$result=DB::Table($CurrFYDB.'tbl_advance_amount_log')->where('PaymentID',$t[0]->TranNo)->where('DetailID',$t[0]->DetailID)->Where('LedgerID',$LedgerID)->Delete();
+						$tdata=array("TranType"=>"Receipts","LedgerID"=>$LedgerID,"PaymentID"=>$t[0]->TranNo,"DetailID"=>$t[0]->DetailID,"Amount"=>$t[0]->LessFromAdvance);
+						$status=$this->AdvanceAmountUsedLog($tdata,$CurrFYDB);
+					}
+				}
+			}
+			foreach($UsedLog['Payments'] as $Payment){
+				$sql="SELECT TranType,LedgerID,PaymentID,DetailID,SUM(Amount) as Amount FROM ".$CurrFYDB."tbl_advance_amount_log Where PaymentID='".$Payment['PaymentID']."' and LedgerID='".$LedgerID."' Group By TranType,LedgerID,PaymentID,DetailID";
+				$result=DB::SELECT($sql);
+				for($i=0;$i<count($result);$i++){
+					if($result[$i]->TranType=="Payments"){
+						$sql="Update ".$CurrFYDB."tbl_payment_details SET LessFromAdvance=".floatval($result[$i]->Amount)." Where TranNo='".$result[$i]->PaymentID."' and DetailID='".$result[$i]->DetailID."'";
+						DB::Update($sql);
+						
+						$sql="Update ".$CurrFYDB."tbl_payment_details SET Amount=LessFromAdvance+PaidAmount Where TranNo='".$result[$i]->PaymentID."' and DetailID='".$result[$i]->DetailID."'";
+						DB::Update($sql);
+						
+						$sql="Update ".$CurrFYDB."tbl_payments SET TotalAmount= (SELECT SUM(IFNULL(Amount,0)) as Amount FROM ".$CurrFYDB."tbl_payment_details where TranNo='".$result[$i]->PaymentID."') Where TranNo='".$result[$i]->PaymentID."'";
+						DB::Update($sql);
+					
+					
+						$temp=DB::Table($CurrFYDB.'tbl_payment_details')->where('TranNo',$result[$i]->PaymentID)->get();
+						foreach($temp as $Item){
+							$this->PaymentUpdates($result[$i]->LedgerID,$Item->OrderID,$CurrFYDB);
+						}
+						$this->UpdateAdvanceAmount($result[$i]->TranType,$result[$i]->LedgerID,$CurrFYDB);
+					}else{
+						
+						$sql="Update ".$CurrFYDB."tbl_receipt_details SET LessFromAdvance=".floatval($result[$i]->Amount)." Where TranNo='".$result[$i]->PaymentID."' and DetailID='".$result[$i]->DetailID."'";
+						DB::Update($sql);
+						
+						$sql="Update ".$CurrFYDB."tbl_receipt_details SET Amount=LessFromAdvance+PaidAmount Where TranNo='".$result[$i]->PaymentID."' and DetailID='".$result[$i]->DetailID."'";
+						DB::Update($sql);
+						
+						$sql="Update ".$CurrFYDB."tbl_receipts SET TotalAmount= (SELECT SUM(IFNULL(Amount,0)) as Amount FROM ".$CurrFYDB."tbl_receipt_details where TranNo='".$result[$i]->PaymentID."') Where TranNo='".$result[$i]->PaymentID."'";
+						DB::Update($sql);
+					
+					
+						$temp=DB::Table($CurrFYDB.'tbl_receipt_details')->where('TranNo',$result[$i]->PaymentID)->get();
+						foreach($temp as $Item){
+							$this->ReceiptUpdates($result[$i]->LedgerID,$Item->OrderID,$CurrFYDB);
+						}
+						$this->UpdateAdvanceAmount($result[$i]->TranType,$result[$i]->LedgerID,$CurrFYDB);
+					}
+				}
+			}
+		}
+	}
 }

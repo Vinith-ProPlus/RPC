@@ -33,8 +33,7 @@ class helper{
         $AddressData = DB::table('tbl_customer_address')->where('AID',$AID)->first();
 		$AllVendors = DB::table('tbl_vendors as V')
 			->join('tbl_vendors_service_locations as VSL', 'V.VendorID', 'VSL.VendorID')
-			->where('V.ActiveStatus', "Active")
-			->where('V.DFlag', 0)
+			->where('V.ActiveStatus', "Active")->where('V.DFlag', 0)->where('V.isApproved', '1')
 			->where('VSL.DFlag', 0)
 			->where('VSL.PostalCodeID', $AddressData->PostalCodeID)->groupBy('V.VendorID')->pluck('V.VendorID')->toArray();
 			
@@ -42,7 +41,7 @@ class helper{
 			->join('tbl_vendors as V','V.VendorID','VSP.VendorID')
 			->where('VSP.ServiceBy','Radius')
 			->where('V.ActiveStatus', "Active")->where('V.DFlag',0)
-			->where('VSP.DFlag',0)
+			->where('VSP.DFlag',0)->where('V.isApproved', '1')
 			->select('V.VendorID','Latitude','Longitude','Range')->get();
 		foreach ($RadiusVendors as $Vendor) {
 			$vendorID = self::findVendorsInRange($AddressData, $Vendor);
@@ -106,6 +105,11 @@ class helper{
 		$formattedAddress = array_merge($formattedAddress, array_slice($splittedAddress, -3));
 		return $formattedAddress;
 	}
+	public static function trimAddress($CompleteAddress){
+		$parts = explode(',', $CompleteAddress);
+		return trim($parts[0]) .", ". trim($parts[1]);
+	}
+	
 	public static function getVendorDB($VendorID,$UserID){
 		$VendorDB = DB::table('tbl_vendors_database')->where('VendorID', $VendorID)->value('DBName');
 		if (!$VendorDB) {
@@ -303,6 +307,14 @@ class helper{
 		}
 		return self::getFinancialYearDetails($FYID);
 	}
+	public static function getCurrentFYDBName(){
+		$sql="Select SLNo,DBName,FromDate,ToDate,FYName,isCurrent From  tbl_financial_year Where isCurrent='Yes'";
+		$result=DB::SELECT($sql);
+		if(count($result)>0){
+			return $result[0]->DBName.".";
+		}
+		return "";
+	}
 	public static function GDEnabled(){
 		if (extension_loaded('gd')) {
 			return true;
@@ -422,6 +434,15 @@ class helper{
 		$DBName=str_replace(".","",$DBName);
         $sql="SELECT * FROM information_schema.tables WHERE table_schema = '".$DBName."' AND table_name = '".$TableName."' LIMIT 1;";
         $result=DB::SELECT($sql);
+        if(count($result)>0){
+            return true;
+        }
+        return false;
+	}
+	public static function checkDBExists($DBName){
+		$DBName=str_replace(".","",$DBName);
+		$sql="SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '".$DBName."'";
+		$result=DB::SELECT($sql);
         if(count($result)>0){
             return true;
         }
@@ -804,27 +825,27 @@ class helper{
 		}
 	}
 
-    public static function sendNotification($UserID,$Title,$Messase){
+    public static function sendNotification($UserID,$Title,$Message){
         $firebaseToken=array();
-        $sql="Select  IFNULL(fcmToken,'') as fcmToken,IFNULL(WebFcmToken,'') as WebFcmToken From users where ActiveStatus=1 and DFlag=0  and UserID='".$UserID."'";
+        $sql="Select IFNULL(fcmToken,'') as fcmToken,IFNULL(WebFcmToken,'') as WebFcmToken From users where ActiveStatus=1 and DFlag=0  and UserID='".$UserID."'";
         $result = DB::SELECT($sql);
         for($i=0;$i<count($result);$i++){
             if($result[$i]->fcmToken!=""){
                 $firebaseToken[]=$result[$i]->fcmToken;    
             }
             if($result[$i]->WebFcmToken!=""){
-                $firebaseToken[]=$result[$i]->WebFcmToken;    
+                $firebaseToken[]=$result[$i]->WebFcmToken;
             }
-            
+
         }
         if(count($firebaseToken)>0){
-           $SERVER_API_KEY = '';// firebase server key
+           $SERVER_API_KEY = 'AAAA4UOQJO0:APA91bHMI_Zrb_rqUJmDVkK0cizFtwnhaMVk-OcfFv7sZ8SR-oxGhkB8u2fLl-9RzWPbB65DVnENJmStK2zx3_GJA2gqOBMMt-WNxDld7GnXaebM4OKvgkH7FBn3my5U8sIFBZEfwyU-';// firebase server key
       
             $data = [
                 "registration_ids" => $firebaseToken,
                 "notification" => [
                     "title" => $Title,
-                    "body" => $Messase,  
+                    "body" => $Message,  
                 ]
             ];
             $dataString = json_encode($data);
@@ -846,6 +867,42 @@ class helper{
             $response = curl_exec($ch);
             return $response;
         }
+    }
+
+	public static function getFYDBInfo($data=null){
+		if($data==null){
+			$data=['FYDBName' => null,"Year"=>null,"FromYear"=>null,"ToYear"=>null,"isLedgerView"=>false];
+        	$data=json_decode(json_encode($data));
+		}
+        $return=array();$tmp=array();
+        if($data->Year!=null && $data->Year!=""){
+            $sql="SELECT * FROM tbl_financial_year where (year(Fromdate)='".$data->Year."' OR Year(ToDate)='".$data->Year."')";
+            $result=DB::SELECT($sql);
+            foreach($result as $item){
+                $tmp[]=$item->DBName.".";
+            }
+		}else if(($data->FromYear!=null && $data->FromYear!="") && ($data->ToYear!=null && $data->ToYear!="")){
+            $sql="SELECT * FROM tbl_financial_year where (year(Fromdate)>='".date("Y",strtotime($data->FromYear))."' OR Year(ToDate)<='".date("Y",strtotime($data->ToYear))."')";
+            $result=DB::SELECT($sql); 
+            foreach($result as $item){
+                $tmp[]=$item->DBName.".";
+            }
+        }else if($data->FYDBName!=null && $data->FYDBName!=""){
+            $data->FYDBName=str_replace(".","",$data->FYDBName);
+            $sql="SELECT * FROM tbl_financial_year where DBName='".$data->FYDBName."' ";
+            $result=DB::SELECT($sql);
+            foreach($result as $item){
+                $tmp[]=$item->DBName.".";
+            }
+        }else{
+            $tmp[]=self::getCurrentFYDBName();
+        }
+        foreach($tmp as $item){
+            if(self::checkDBExists($item)){   
+                $return[]= $item;
+            }
+        }
+        return $return;
     }
 
 }
