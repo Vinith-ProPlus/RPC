@@ -31,7 +31,7 @@
         <div class="form-group">
             <label class="txtRstar">Rating <span class="required">*</span></label>
             <div class="stars w-25">
-                <i class="fa-solid fa-star" data-value="1"></i>
+                <i class="fa-solid fa-star sactive" data-value="1"></i>
                 <i class="fa-solid fa-star" data-value="2"></i>
                 <i class="fa-solid fa-star" data-value="3"></i>
                 <i class="fa-solid fa-star" data-value="4"></i>

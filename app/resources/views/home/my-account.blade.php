@@ -1717,7 +1717,6 @@
             }
 
             $('#profile-tab').click(function (){
-                console.log("pascdbckjdsbcnjk kjdbcnkjd");
                 LoadProfile();
             });
 
