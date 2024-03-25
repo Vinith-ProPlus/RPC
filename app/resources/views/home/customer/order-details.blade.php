@@ -355,32 +355,7 @@
                     <div class="row">
                         <div class="col-sm-12">
                             <div class="row justify-content-center">
-                                <div class="col-sm-4">
-                                    <div class="card">
-                                        <div class="card-header p-6">
-                                            <p class="text-center fs-16 fw-500">Contact Info</p>
-                                        </div>
-                                        <div class="card-body">
-                                            @foreach([
-                                                'Customer Name' => $OData->CustomerName,
-
-                                                'Email' => $OData->Email,
-                                                'Contact Number' => $OData->MobileNo1 ,
-                                                'Expected Delivery' => date('d-M-Y', strtotime($OData->ExpectedDelivery)),
-                                                'Contact Person' => ($OData->ReceiverName!="")? $OData->ReceiverName." <span> (".$OData->ReceiverMobNo.")</span>":"",
-                                            ] as $label => $value)
-                                                @if($value!="")
-                                                    <div class="row my-1">
-                                                        <div class="col-sm-5 fw-600">{{ $label }}</div>
-                                                        <div class="col-sm-1 fw-600 text-center">:</div>
-                                                        <div class="col-sm-6"><?php echo $value ?></div>
-                                                    </div>
-                                                @endif
-                                            @endforeach
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-sm-4">
+                                <div class="col-sm-6">
                                     <div class="card">
                                         <div class="card-header p-6">
                                             <p class="text-center fs-16 fw-500">Billing Address</p>
@@ -402,7 +377,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-sm-4">
+                                <div class="col-sm-6">
                                     <div class="card">
                                         <div class="card-header p-6">
                                             <p class="text-center fs-16 fw-500">Shipping Address</p>
@@ -441,16 +416,16 @@
                                                 <th class="text-center align-middle">Tax Type</th>
                                                 <th class="text-center align-middle">Taxable<br> (₹)</th>
                                                 <!---->
-                                                @if(count($OData->Details)>0)
-                                                    @if(floatval($OData->Details[0]->IGSTAmt)<=0)
-                                                        <th class="text-center align-middle">CGST<br> (₹)</th>
-                                                        <th class="text-center align-middle">SGST<br> (₹)</th>
-                                                    @else
-                                                        <th class="text-center align-middle">IGST<br> (₹)</th>
-                                                    @endif
-                                                @else
+{{--                                                @if(count($OData->Details)>0)--}}
+{{--                                                    @if(floatval($OData->Details[0]->IGSTAmt)<=0)--}}
+{{--                                                        <th class="text-center align-middle">CGST<br> (₹)</th>--}}
+{{--                                                        <th class="text-center align-middle">SGST<br> (₹)</th>--}}
+{{--                                                    @else--}}
+{{--                                                        <th class="text-center align-middle">IGST<br> (₹)</th>--}}
+{{--                                                    @endif--}}
+{{--                                                @else--}}
                                                     <th class="text-center align-middle">Tax Amount<br> (₹)</th>
-                                                @endif
+{{--                                                @endif--}}
                                                 <th class="text-center align-middle">Total Amount<br> (₹)</th>
 {{--                                                <th class="text-center align-middle">Allocated To</th>--}}
                                                 <th class="text-center align-middle">Status</th>
@@ -472,27 +447,27 @@
                                                     <td class="text-right">{{NumberFormat($item->Price, 2)}}</td>
                                                     <td>{{$item->TaxType}}</td>
                                                     <td class="text-right">{{ $item->Status == 'Cancelled' ? '--' : NumberFormat($item->Taxable, 2) }}</td>
-                                                    @if(count($OData->Details)>0)
-                                                        @if(floatval($item->IGSTAmt)<=0)
-                                                            <td class="text-right">
-                                                                <div>{{ $item->Status == 'Cancelled' ? '--' : NumberFormat($item->CGSTAmt, 2) }} </div>
-                                                                <div class="fs-11">{{ $item->Status == 'Cancelled' ? '' : "(".NumberFormat($item->CGSTPer, 2)." %)" }}</div>
-                                                            </td>
-                                                            <td class="text-right">
-                                                                <div>{{ $item->Status == 'Cancelled' ? '--' : NumberFormat($item->SGSTAmt, 2) }} </div>
-                                                                <div class="fs-11">{{ $item->Status == 'Cancelled' ? '' : "(".NumberFormat($item->SGSTPer, 2)." %)" }}</div>
-                                                            </td>
-                                                        @else
-                                                            <td class="text-right">
-                                                                <div>{{ $item->Status == 'Cancelled' ? '--' : NumberFormat($item->IGSTAmt, 2) }} </div>
-                                                                <div class="fs-11">{{ $item->Status == 'Cancelled' ? '' : "(".NumberFormat($item->IGSTPer, 2)." %)" }}</div>
-                                                            </td>
-                                                        @endif
-                                                    @else
-                                                        <td class="text-right">{{ $item->Status == 'Cancelled' ? '--' : NumberFormat(0, 2) }}</td>
-                                                    @endif
+                                                    {{--                                                    @if(count($OData->Details)>0)--}}
+                                                    {{--                                                        @if(floatval($item->IGSTAmt)<=0)--}}
+                                                    {{--                                                            <td class="text-right">--}}
+                                                    {{--                                                                <div>{{ $item->Status == 'Cancelled' ? '--' : NumberFormat($item->CGSTAmt, 2) }} </div>--}}
+                                                    {{--                                                                <div class="fs-11">{{ $item->Status == 'Cancelled' ? '' : "(".NumberFormat($item->CGSTPer, 2)." %)" }}</div>--}}
+                                                    {{--                                                            </td>--}}
+                                                    {{--                                                            <td class="text-right">--}}
+                                                    {{--                                                                <div>{{ $item->Status == 'Cancelled' ? '--' : NumberFormat($item->SGSTAmt, 2) }} </div>--}}
+                                                    {{--                                                                <div class="fs-11">{{ $item->Status == 'Cancelled' ? '' : "(".NumberFormat($item->SGSTPer, 2)." %)" }}</div>--}}
+                                                    {{--                                                            </td>--}}
+                                                    {{--                                                        @else--}}
+                                                    {{--                                                            <td class="text-right">--}}
+                                                    {{--                                                                <div>{{ $item->Status == 'Cancelled' ? '--' : NumberFormat($item->IGSTAmt, 2) }} </div>--}}
+                                                    {{--                                                                <div class="fs-11">{{ $item->Status == 'Cancelled' ? '' : "(".NumberFormat($item->IGSTPer, 2)." %)" }}</div>--}}
+                                                    {{--                                                            </td>--}}
+                                                    {{--                                                        @endif--}}
+                                                    {{--                                                    @else--}}
+                                                    <td class="text-right">{{ $item->Status == 'Cancelled' ? '--' : NumberFormat(($item->TaxAmt ?? 0), 2) }}</td>
+                                                    {{--                                                    @endif--}}
                                                     <td class="text-right">{{ $item->Status == 'Cancelled' ? '--' : NumberFormat($item->TotalAmt, 2) }} </td>
-{{--                                                    <td><span class=" fw-600 text-info text-center">{{$item->VendorName}}</span></td>--}}
+                                                    {{--                                                    <td><span class=" fw-600 text-info text-center">{{$item->VendorName}}</span></td>--}}
                                                     <td>
                                                         @if($item->Status=="Cancelled")
                                                             <span class="badge badge-danger">Cancelled</span>
@@ -556,33 +531,33 @@
                                                 <div class="col-1">:</div>
                                                 <div class="col-3 text-right" id="divSubTotal">{{NumberFormat($OData->SubTotal,2)}}</div>
                                             </div>
-                                            @if(count($OData->Details)>0)
-                                                @if(floatval($OData->IGSTAmount)<=0)
-                                                    <div class="row mt-1 fw-500 fs-13 mr-10 justify-content-end">
-                                                        <div class="col-4">CGST</div>
-                                                        <div class="col-1">:</div>
-                                                        <div class="col-3 text-right" id="divCGSTAmount">{{NumberFormat($OData->CGSTAmount,2)}}</div>
-                                                    </div>
-                                                    <div class="row mt-1 fw-500 fs-13 mr-10 justify-content-end">
-                                                        <div class="col-4">SGST</div>
-                                                        <div class="col-1">:</div>
-                                                        <div class="col-3 text-right" id="divSGSTAmount">{{NumberFormat($OData->SGSTAmount,2)}}</div>
-                                                    </div>
-                                                @else
-                                                    <div class="row mt-1 fw-500 fs-13 mr-10 justify-content-end">
-                                                        <div class="col-4">IGST</div>
-                                                        <div class="col-1">:</div>
-                                                        <div class="col-3 text-right" id="divIGSTAmount">{{NumberFormat($OData->IGSTAmount,2)}}</div>
-                                                    </div>
-                                                @endif
-                                            @else
+{{--                                            @if(count($OData->Details)>0)--}}
+{{--                                                @if(floatval($OData->IGSTAmount)<=0)--}}
+{{--                                                    <div class="row mt-1 fw-500 fs-13 mr-10 justify-content-end">--}}
+{{--                                                        <div class="col-4">CGST</div>--}}
+{{--                                                        <div class="col-1">:</div>--}}
+{{--                                                        <div class="col-3 text-right" id="divCGSTAmount">{{NumberFormat($OData->CGSTAmount,2)}}</div>--}}
+{{--                                                    </div>--}}
+{{--                                                    <div class="row mt-1 fw-500 fs-13 mr-10 justify-content-end">--}}
+{{--                                                        <div class="col-4">SGST</div>--}}
+{{--                                                        <div class="col-1">:</div>--}}
+{{--                                                        <div class="col-3 text-right" id="divSGSTAmount">{{NumberFormat($OData->SGSTAmount,2)}}</div>--}}
+{{--                                                    </div>--}}
+{{--                                                @else--}}
+{{--                                                    <div class="row mt-1 fw-500 fs-13 mr-10 justify-content-end">--}}
+{{--                                                        <div class="col-4">IGST</div>--}}
+{{--                                                        <div class="col-1">:</div>--}}
+{{--                                                        <div class="col-3 text-right" id="divIGSTAmount">{{NumberFormat($OData->IGSTAmount,2)}}</div>--}}
+{{--                                                    </div>--}}
+{{--                                                @endif--}}
+{{--                                            @else--}}
 
                                                 <div class="row mt-1 fw-500 fs-13 mr-10 justify-content-end">
                                                     <div class="col-4">Tax Amount</div>
                                                     <div class="col-1">:</div>
                                                     <div class="col-3 text-right" id="divTaxAmount">{{NumberFormat($OData->TaxAmount,2)}}</div>
                                                 </div>
-                                            @endif
+{{--                                            @endif--}}
                                             <div class="row mt-1 fw-600 fs-14 mr-10 justify-content-end">
                                                 <div class="col-4">Total Amount</div>
                                                 <div class="col-1">:</div>

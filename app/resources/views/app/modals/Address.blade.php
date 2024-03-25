@@ -73,13 +73,13 @@
         <button class="btn btn-sm btn-outline-success m-5 " data-edit-id="<?php if(array_key_exists("EditID",$data)){ echo $data['EditID']; } ?>" data-aid="<?php if(array_key_exists("AID",$data)){ echo $data['AID']; } ?>" id="btnSaveAddress">@if(array_key_exists("EditID",$data) && $data['EditID']>0) Update @else Save @endif </button>
     </div>
 </div>
-<div class="display-none">
+<div class="d-none" style="display: none !important;">
     <button id="btnModalInit"></button>
 </div>
 <script>
 $(document).ready(function(){
     $('#btnModalInit').trigger('click');
-    
+
     $(document).on('click','#btnMClose',function(){
         bootbox.hideAll();
     });

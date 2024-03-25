@@ -69,7 +69,7 @@
                     </button>
                     <button class="btn btn-dark product-type-simple {{ ($orderDetail->Status == "Delivered" && $orderDetail->isRated == "0") ? 'btnOrderReview' : 'disabled' }}"
                             data-id="{{ $orderDetail->OrderID }}"
-{{--                            title="Product not delivered fully"--}}
+                            title="{{ ($orderDetail->Status == "Delivered" && $orderDetail->isRated == "0") ? 'Rate Order' : (($orderDetail->Status != "Delivered") ? 'Product not delivered fully' : 'Already Rated') }}"
                     >
                         Review
                     </button>

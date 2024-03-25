@@ -302,12 +302,9 @@
                             </div><!-- End .megamenu -->
                         </li>
                         @if(auth()->check())
-                            <li>
-                                <a href="{{ route('requested-quotations') }}">Quotations</a>
-                            </li>
-                            <li>
-                                <a href="{{ route('customer-orders') }}">Orders</a>
-                            </li>
+{{--                            <li>--}}
+{{--                                <a href="{{ route('requested-quotations') }}">Quotations</a>--}}
+{{--                            </li>--}}
                             <li>
                                 <a href="{{ route('my-account') }}">My Account</a>
                             </li>

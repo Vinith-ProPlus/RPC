@@ -59,7 +59,7 @@ class generalController extends Controller{
 	}
 	public function getGender(request $req){
         return Helper::getGender();
-	}	
+	}
 	public function getNewGender(Request $req){
 		$Theme=$this->getThemesOption();
 		return view("app.modals.gender",array("Theme"=>$Theme));
@@ -102,7 +102,7 @@ class generalController extends Controller{
 		$PostalCode=Helper::getPostalCode(["CountryID"=>$req->CountryID,"StateID"=>$req->StateID,"DistrictID"=>$req->DistrictID]);
 		return view("app.modals.city",array("Theme"=>$Theme,"Country"=>$Country,"State"=>$State,"District"=>$District,"Taluk"=>$Taluk,"PostalCode"=>$PostalCode,"CountryID"=>$req->CountryID,"StateID"=>$req->StateID,"DistrictID"=>$req->DistrictID,"TalukID"=>$req->TalukID,"PID"=>$req->PID));
 	}
-	
+
 	public function getTax(request $req){
 		return DB::Table('tbl_tax')->where('DFlag',0)->where('ActiveStatus','Active')->get();
 	}
@@ -120,12 +120,12 @@ class generalController extends Controller{
 		$message=array(
 		);
 		$validator = Validator::make($req->all(), $rules,$message);
-			
+
 		if ($validator->fails()) {
-			return array('status'=>false,'message'=>"Country Create Failed",'errors'=>$validator->errors());			
+			return array('status'=>false,'message'=>"Country Create Failed",'errors'=>$validator->errors());
 		}
 		DB::beginTransaction();
-			
+
 		$status=false;
 		$UserID=Auth::check()?auth()->user()->UserID:"";
 		try{
@@ -169,12 +169,12 @@ class generalController extends Controller{
 		$message=array(
 		);
 		$validator = Validator::make($req->all(), $rules,$message);
-			
+
 		if ($validator->fails()) {
 			return array('status'=>false,'message'=>"State Create Failed",'errors'=>$validator->errors());
 		}
 		DB::beginTransaction();
-			
+
 		$status=false;
 		try{
 			$UserID=Auth::check()?auth()->user()->UserID:"";
@@ -208,7 +208,7 @@ class generalController extends Controller{
 		$ValidDB['Country']['WHERE'][]=array("COLUMN"=>"CountryID","CONDITION"=>"=","VALUE"=>$req->CountryID);
 		$ValidDB['Country']['WHERE'][]=array("COLUMN"=>"ActiveStatus","CONDITION"=>"=","VALUE"=>1);
 		$ValidDB['Country']['WHERE'][]=array("COLUMN"=>"DFlag","CONDITION"=>"=","VALUE"=>0);
-	
+
 		$ValidDB['State']['TABLE']=$this->generalDB."tbl_states";
 		$ValidDB['State']['ErrMsg']="State name  does not exist";
 		$ValidDB['State']['WHERE'][]=array("COLUMN"=>"CountryID","CONDITION"=>"=","VALUE"=>$req->CountryID);
@@ -223,12 +223,12 @@ class generalController extends Controller{
 		$message=array(
 		);
 		$validator = Validator::make($req->all(), $rules,$message);
-			
+
 		if ($validator->fails()) {
-			return array('status'=>false,'message'=>"District Create Failed",'errors'=>$validator->errors());			
+			return array('status'=>false,'message'=>"District Create Failed",'errors'=>$validator->errors());
 		}
 		DB::beginTransaction();
-			
+
 		$status=false;
 		try{
 			$UserID=Auth::check()?auth()->user()->UserID:"";
@@ -262,7 +262,7 @@ class generalController extends Controller{
 		$ValidDB['Country']['WHERE'][]=array("COLUMN"=>"CountryID","CONDITION"=>"=","VALUE"=>$req->CountryID);
 		$ValidDB['Country']['WHERE'][]=array("COLUMN"=>"ActiveStatus","CONDITION"=>"=","VALUE"=>1);
 		$ValidDB['Country']['WHERE'][]=array("COLUMN"=>"DFlag","CONDITION"=>"=","VALUE"=>0);
-		
+
 		$ValidDB['State']['TABLE']=$this->generalDB."tbl_states";
 		$ValidDB['State']['ErrMsg']="State name  does not exist";
 		$ValidDB['State']['WHERE'][]=array("COLUMN"=>"CountryID","CONDITION"=>"=","VALUE"=>$req->CountryID);
@@ -286,12 +286,12 @@ class generalController extends Controller{
 		$message=array(
 		);
 		$validator = Validator::make($req->all(), $rules,$message);
-			
+
 		if ($validator->fails()) {
-			return array('status'=>false,'message'=>"Taluk Create Failed",'errors'=>$validator->errors());			
+			return array('status'=>false,'message'=>"Taluk Create Failed",'errors'=>$validator->errors());
 		}
 		DB::beginTransaction();
-			
+
 		$status=false;
 		try{
 			$UserID=Auth::check()?auth()->user()->UserID:"";
@@ -370,12 +370,12 @@ class generalController extends Controller{
 		);
 		$message=array();
 		$validator = Validator::make($req->all(), $rules,$message);
-			
+
 		if ($validator->fails()) {
-			return array('status'=>false,'message'=>"City Create Failed",'errors'=>$validator->errors());			
+			return array('status'=>false,'message'=>"City Create Failed",'errors'=>$validator->errors());
 		}
 		DB::beginTransaction();
-			
+
 		$status=false;
 		try{
 			$UserID=Auth::check()?auth()->user()->UserID:"";
@@ -412,7 +412,7 @@ class generalController extends Controller{
 		$ValidDB['Country']['WHERE'][]=array("COLUMN"=>"CountryID","CONDITION"=>"=","VALUE"=>$req->CountryID);
 		$ValidDB['Country']['WHERE'][]=array("COLUMN"=>"ActiveStatus","CONDITION"=>"=","VALUE"=>1);
 		$ValidDB['Country']['WHERE'][]=array("COLUMN"=>"DFlag","CONDITION"=>"=","VALUE"=>0);
-	
+
 		$ValidDB['State']['TABLE']=$this->generalDB."tbl_states";
 		$ValidDB['State']['ErrMsg']="State name  does not exist";
 		$ValidDB['State']['WHERE'][]=array("COLUMN"=>"CountryID","CONDITION"=>"=","VALUE"=>$req->CountryID);
@@ -436,12 +436,12 @@ class generalController extends Controller{
 		$message=array(
 		);
 		$validator = Validator::make($req->all(), $rules,$message);
-			
+
 		if ($validator->fails()) {
 			return array('status'=>false,'message'=>"PostalCode Create Failed",'errors'=>$validator->errors());
 		}
 		DB::beginTransaction();
-			
+
 		$status=false;
 		try{
 			$UserID=Auth::check()?auth()->user()->UserID:"";
@@ -476,12 +476,12 @@ class generalController extends Controller{
 		$message=array(
 		);
 		$validator = Validator::make($req->all(), $rules,$message);
-			
+
 		if ($validator->fails()) {
-			return array('status'=>false,'message'=>"Gender Create Failed",'errors'=>$validator->errors());			
+			return array('status'=>false,'message'=>"Gender Create Failed",'errors'=>$validator->errors());
 		}
 		DB::beginTransaction();
-			
+
 		$status=false;
 		$UserID=Auth::check()?auth()->user()->UserID:"";
 		try{
@@ -569,9 +569,9 @@ class generalController extends Controller{
 					}
 				}
 			}
-			
+
 		} catch (Exception $e) {
-			
+
 		}
 	}
 	public function getFinancialYear(Request $req){
@@ -581,7 +581,7 @@ class generalController extends Controller{
 		$FYID=$req->FYID;
 		return Helper::ActivateFinancialYear($FYID);
 	}
-	
+
 	public function getVehicleType(request $req){
         return Helper::getVehicleType();
 	}
@@ -591,7 +591,7 @@ class generalController extends Controller{
 	public function getVehicleModel(request $req){
         return Helper::getVehicleModel(array("VehicleTypeID"=>$req->VehicleTypeID,"VehicleBrandID"=>$req->VehicleBrandID));
 	}
-	
+
 	public function getNewVehicleType(Request $req){
 		$Theme=$this->getThemesOption();
 		return view("app.modals.vehicle-type",array("Theme"=>$Theme));
@@ -616,10 +616,10 @@ class generalController extends Controller{
 		$message=array();
 		$validator = Validator::make($req->all(), $rules,$message);
 		if ($validator->fails()) {
-			return array('status'=>false,'message'=>"Vehicle Type Create Failed",'errors'=>$validator->errors());			
+			return array('status'=>false,'message'=>"Vehicle Type Create Failed",'errors'=>$validator->errors());
 		}
 		DB::beginTransaction();
-			
+
 		$status=false;
 		$UserID=Auth::check()?auth()->user()->UserID:"";
 		try{
@@ -658,12 +658,12 @@ class generalController extends Controller{
 		);
 		$message=array();
 		$validator = Validator::make($req->all(), $rules,$message);
-			
+
 		if ($validator->fails()) {
 			return array('status'=>false,'message'=>"Vehicle Brand Create Failed",'errors'=>$validator->errors());
 		}
 		DB::beginTransaction();
-			
+
 		$status=false;
 		try{
 			$UserID=Auth::check()?auth()->user()->UserID:"";
@@ -696,7 +696,7 @@ class generalController extends Controller{
 		$ValidDB['VehicleType']['WHERE'][]=array("COLUMN"=>"VehicleTypeID","CONDITION"=>"=","VALUE"=>$req->VehicleTypeID);
 		$ValidDB['VehicleType']['WHERE'][]=array("COLUMN"=>"ActiveStatus","CONDITION"=>"=","VALUE"=>1);
 		$ValidDB['VehicleType']['WHERE'][]=array("COLUMN"=>"DFlag","CONDITION"=>"=","VALUE"=>0);
-		
+
 		$ValidDB['VehicleBrand']['TABLE']=$this->generalDB."tbl_vehicle_brand";
 		$ValidDB['VehicleBrand']['ErrMsg']="Vehicle Brand does not exist";
 		$ValidDB['VehicleBrand']['WHERE'][]=array("COLUMN"=>"VehicleBrandID","CONDITION"=>"=","VALUE"=>$req->VehicleBrandID);
@@ -711,12 +711,12 @@ class generalController extends Controller{
 		);
 		$message=array();
 		$validator = Validator::make($req->all(), $rules,$message);
-			
+
 		if ($validator->fails()) {
 			return array('status'=>false,'message'=>"Vehicle Model Create Failed",'errors'=>$validator->errors());
 		}
 		DB::beginTransaction();
-			
+
 		$status=false;
 		try{
 			$UserID=Auth::check()?auth()->user()->UserID:"";
@@ -764,7 +764,7 @@ class generalController extends Controller{
 	public function getNewBank(Request $req){
 		$Theme=$this->getThemesOption();
 		$BankType=Helper::getBankType();
-		return view("app.modals.Bank",array("Theme"=>$Theme,"BankType"=>$BankType,"BankTypeID"=>$req->BankTypeID));	
+		return view("app.modals.Bank",array("Theme"=>$Theme,"BankType"=>$BankType,"BankTypeID"=>$req->BankTypeID));
 	}
 	public function getNewBankBranch(Request $req){
 		$Theme=$this->getThemesOption();
@@ -785,7 +785,7 @@ class generalController extends Controller{
 			return array('status'=>false,'message'=>"Bank Type Create Failed",'errors'=>$validator->errors());
 		}
 		DB::beginTransaction();
-			
+
 		$status=false;
 		$UserID=Auth::check()?auth()->user()->UserID:"";
 		try{
@@ -817,19 +817,19 @@ class generalController extends Controller{
 		$ValidDB['BankType']['WHERE'][]=array("COLUMN"=>"SLNO","CONDITION"=>"=","VALUE"=>$req->BankTypeID);
 		$ValidDB['BankType']['WHERE'][]=array("COLUMN"=>"ActiveStatus","CONDITION"=>"=","VALUE"=>"Active");
 		$ValidDB['BankType']['WHERE'][]=array("COLUMN"=>"DFlag","CONDITION"=>"=","VALUE"=>0);
-	
+
 		$rules=array(
 			'BankTypeID' =>['required',$ValidDB['BankType']],
 			'BankName' =>['required','min:3','max:100',new ValidUnique(array("TABLE"=>$this->generalDB."tbl_banklist","WHERE"=>" NameOfBanks='".$req->BankName."' and TypeOfBank='".$req->BankTypeID."' "),"This Bank Name is already taken.")],
 		);
 		$message=array();
 		$validator = Validator::make($req->all(), $rules,$message);
-			
+
 		if ($validator->fails()) {
 			return array('status'=>false,'message'=>"Bank Create Failed",'errors'=>$validator->errors());
 		}
 		DB::beginTransaction();
-			
+
 		$status=false;
 		try{
 			$UserID=Auth::check()?auth()->user()->UserID:"";
@@ -841,7 +841,7 @@ class generalController extends Controller{
 				"CreatedBy"=>$UserID,
 				"CreatedOn"=>date("Y-m-d H:i:s")
 			);
-			$status=DB::table($this->generalDB.'tbl_banklist')->insert($data);	
+			$status=DB::table($this->generalDB.'tbl_banklist')->insert($data);
 		}catch(Exception $e) {
 			$status=false;
 		}
@@ -857,25 +857,25 @@ class generalController extends Controller{
 	public function createBankBranch(Request $req){
 		$OldData=$NewData=array();$BankBranchID="";
 		$ValidDB=array();
-		
+
 		$ValidDB['Bank']['TABLE']=$this->generalDB."tbl_banklist";
 		$ValidDB['Bank']['ErrMsg']="Bank Name does not exist";
 		$ValidDB['Bank']['WHERE'][]=array("COLUMN"=>"BankID","CONDITION"=>"=","VALUE"=>$req->BankID);
 		$ValidDB['Bank']['WHERE'][]=array("COLUMN"=>"ActiveStatus","CONDITION"=>"=","VALUE"=>1);
 		$ValidDB['Bank']['WHERE'][]=array("COLUMN"=>"DFlag","CONDITION"=>"=","VALUE"=>0);
-	
+
 		$rules=array(
 			'BankID' =>['required',$ValidDB['Bank']],
 			'BankBranch' =>['required','min:3','max:100',new ValidUnique(array("TABLE"=>$this->generalDB."tbl_bank_branches","WHERE"=>" BranchName='".$req->BankBranch."' and BankID='".$req->BankID."'"),"This Bank Branch is already taken.")],
 		);
 		$message=array();
 		$validator = Validator::make($req->all(), $rules,$message);
-			
+
 		if ($validator->fails()) {
 			return array('status'=>false,'message'=>"Bank Branch Create Failed",'errors'=>$validator->errors());
 		}
 		DB::beginTransaction();
-			
+
 		$status=false;
 		try{
 			$UserID=Auth::check()?auth()->user()->UserID:"";
@@ -911,4 +911,11 @@ class generalController extends Controller{
 		$FormData=json_decode($req->data,true);
 		return view("app.modals.Address",array("Theme"=>$Theme,"data"=>$FormData));
 	}
+
+    public function getNewReview(Request $req){
+        // return $req;
+        $Theme=$this->getThemesOption();
+        $FormData=json_decode($req->data,true);
+        return view("app.modals.Review",array("Theme"=>$Theme,"data"=>$FormData));
+    }
 }

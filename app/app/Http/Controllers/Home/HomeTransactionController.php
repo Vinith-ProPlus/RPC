@@ -211,13 +211,6 @@ class HomeTransactionController extends Controller{
             }
     }
 
-    public function orders(Request $request)
-    {
-        logger("orders");
-        logger($request);
-        logger($request->ip());
-    }
-
     public function myAccount(Request $request)
     {
         $FormData['Company'] = $this->Company;

@@ -3,6 +3,7 @@ namespace App\Http\Controllers\Home;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\web\Transaction\OrderController;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Input;
@@ -1158,7 +1159,6 @@ class HomeAuthController extends Controller{
         $orderBy = ($request->has('orderBy') && in_array($request->orderBy, ['asc', 'desc'])) ? $request->orderBy : 'desc';
 
         $supportDetails = $this->getSupportDetails($request);
-        logger($supportDetails);
         $totalSupportCount = $supportDetails['totalSupportCount'];
         $supportDetails = $supportDetails['supportDetails'];
 
@@ -1170,9 +1170,6 @@ class HomeAuthController extends Controller{
             $supportDetails = $supportDetails['supportDetails'];
         }
 
-        logger("supportDetails");
-        logger($supportDetails);
-
         return view('home.customer.support-html', compact('supportDetails', 'productCount', 'pageNo', 'viewType', 'orderBy', 'range', 'totalPages'))->render();
     }
 
@@ -1181,8 +1178,6 @@ class HomeAuthController extends Controller{
         $customerID = $this->UserID;
         $productCount = ((int)($request->productCount) != 0) ? $request->productCount : 12;
         $pageNo = $request->pageNo ?? 1;
-        logger($request);
-        logger(in_array($request->orderBy, ['new', 'popularity']));
         $orderBy = ($request->has('orderBy') && in_array($request->orderBy, ['asc', 'desc'])) ? $request->orderBy : 'desc';
         $supportCount = DB::table($this->supportDB.'tbl_support as S')
             ->leftJoin('tbl_support_type as ST', 'ST.SLNO', 'S.SupportType')
@@ -1225,9 +1220,6 @@ class HomeAuthController extends Controller{
             $quotationDetails = $quotationDetails['quotationDetails'];
         }
 
-        logger("quotationDetails");
-        logger($quotationDetails);
-
         return view('home.customer.quotations-html', compact('quotationDetails', 'productCount', 'pageNo', 'viewType', 'orderBy', 'range', 'totalPages'))->render();
     }
 
@@ -1266,8 +1258,6 @@ class HomeAuthController extends Controller{
         $orderBy = ($request->has('orderBy') && in_array($request->orderBy, ['asc', 'desc'])) ? $request->orderBy : 'desc';
 
         $orderDetails = $this->getOrderDetails($request);
-        logger("svsdv orderDetails");
-        logger($orderDetails);
         $totalOrderCount = $orderDetails['totalOrderCount'];
         $orderDetails = $orderDetails['orderDetails'];
 
@@ -1362,7 +1352,6 @@ class HomeAuthController extends Controller{
         $sql.=" LEFT JOIN ".$this->generalDB."tbl_taluks as T ON T.TalukID=O.DTalukID LEFT JOIN ".$this->generalDB."tbl_cities as CI ON CI.CityID=O.DCityID ";
         $sql.=" LEFT JOIN ".$this->generalDB."tbl_postalcodes as PC ON PC.PID=O.DPostalCodeID LEFT JOIN tbl_reject_reason as RR ON RR.RReasonID=O.ReasonID ";
         $sql.=" Where 1=1 ";
-        logger($sql);
         if(is_array($data)){
             if(array_key_exists("OrderID",$data)){$sql.=" AND O.OrderID='".$data['OrderID']."'";}
         }
@@ -1409,6 +1398,27 @@ class HomeAuthController extends Controller{
             return view('home.customer.profile-html', $FormData)->render();
         } else {
             return "<p> Profile not found!</p>";
+        }
+    }
+
+    public function customerReviewSave(Request $req){
+        DB::beginTransaction();
+        try {
+            $isOrderCompleted = DB::Table($this->currFyDB.'tbl_order')->where('OrderID',$req->OrderID)
+                ->where('Status','Delivered')->exists();
+            if(!$isOrderCompleted){
+                return response()->json(['status' => false,'message' => "Order is not Delivered!"]);
+            }else{
+                DB::Table($this->currFyDB.'tbl_order')->where('OrderID',$req->OrderID)
+                    ->update(['Ratings'=>$req->Ratings,'Review'=>$req->Review,'isRated'=>1,'RatedOn'=>date('Y-m-d'),
+                        'UpdatedOn'=>date('Y-m-d H:i:s')]);
+                DB::commit();
+                return response()->json(['status' => true ,'message' => "Order Rated Successfully!"]);
+            }
+        }catch(Exception $e) {
+            logger($e);
+            DB::rollback();
+            return response()->json(['status' => false,'message' => "Order Rating Failed!"]);
         }
     }
 }

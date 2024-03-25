@@ -102,6 +102,7 @@ Route::controller(generalController::class)->group(function () {
     Route::POST('/bank-account-type/create','createBankAccountType');
 
     Route::POST('address-form','getNewAddress');
+    Route::POST('review-form','getNewReview');
 
     Route::middleware('auth')->group(function () {
         Route::post('/theme/update','themeUpdate');
@@ -156,6 +157,7 @@ Route::get('customer/products/products-list', [HomeAuthController::class, 'custo
 Route::post('customer/products/category-list-html', [HomeAuthController::class, 'customerCategoryListHtml'])->name('products.customer.categoriesListHtml');
 Route::post('customer/products/sub-category-list-html', [HomeAuthController::class, 'customerSubCategoryListHtml'])->name('products.customer.subCategoriesListHtml');
 Route::post('customer/products/products-list-html', [HomeAuthController::class, 'customerProductsListHtml'])->name('products.customer.productsListHtml');
+Route::post('customer/order/review/save', [HomeAuthController::class, 'customerReviewSave'])->name('customer.order.review.save');
 
 
 
@@ -168,7 +170,6 @@ Route::post('products/wishlist/remove', [WishlistController::class, 'removeWishl
 Route::get('requested-quotations', [HomeTransactionController::class, 'quotations'])->name('requested-quotations');
 Route::post('requested-quotations/data', [HomeTransactionController::class, 'quotationData'])->name('requested-quotations.data');
 Route::get('requested-quotations/view/{EnqID}', [HomeTransactionController::class, 'QuoteView'])->name('requested-quotations.QuoteView');
-Route::get('customer-orders', [HomeTransactionController::class, 'orders'])->name('customer-orders');
 Route::get('my-account', [HomeTransactionController::class, 'myAccount'])->name('my-account');
 Route::post('profileHtml', [HomeAuthController::class, 'profileHtml'])->name('profileHtml');
 Route::get('wishlist', [HomeTransactionController::class, 'wishlist'])->name('wishlist');
