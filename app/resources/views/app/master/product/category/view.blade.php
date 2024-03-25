@@ -34,7 +34,6 @@
 				<div class="card-body " >
 					<div class="row">
 						<div class="col-12 col-sm-12">
-                            <h1>{{$Theme['table-size']}}</h1>
 							<table class="table {{$Theme['table-size']}}" id="tblCategory">
 								<thead>
 									<tr>
