@@ -12925,9 +12925,11 @@
 
                         </div><!-- End .header-menu -->
                     </div><!-- End .header-dropown -->
-                    <ul class="top-links mega-menu d-none d-xl-flex mb-0 pr-2">
-                        <li class="menu-item menu-item-type-post_type menu-item-object-page narrow">
-                            <a href="#"><i class="icon-help-circle"></i>Help</a></li>
+<ul class="d-none d-xl-flex mb-0 pr-2 align-items-center">
+                        <li>
+                            <a href="{{url('/')}}/social/auth/google" style="font-size: 12px;"><i
+                                    class="icon-help-circle" style="font-size: 18px;"></i>&nbsp;Help</a>
+                        </li>
                     </ul>
 
 
@@ -13020,9 +13022,8 @@
                                 <span>Your Cart is Empty!</span>
 
                                 <div class="dropdown-cart-action">
-                                    <a href="cart.html" class="btn btn-gray btn-block view-cart">Add to Cart</a>
-                                    <a href="checkout.html" class="btn btn-dark btn-block">Checkout</a>
-                                </div><!-- End .dropdown-cart-total -->
+                                        <a href="{{ route('products.guest.productsList') }}" class="btn btn-dark btn-block">Add to Cart</a>
+                                    </div><!-- End .dropdown-cart-total -->
                             </div><!-- End .dropdownmenu-wrapper -->
                         </div><!-- End .dropdown-menu -->
                     </div><!-- End .dropdown -->
