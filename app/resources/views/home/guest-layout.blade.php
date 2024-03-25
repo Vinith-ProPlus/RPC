@@ -12,8 +12,6 @@
     <meta name="keywords" content="HTML5 Template" />
     <meta name="description" content="RPC Construction">
     <meta name="author" content="SW-THEMES">
-    <meta name="_token" content="{{ csrf_token() }}"/>
-
 
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="{{url('/')}}/{{$Company['Logo']}}">
@@ -24,7 +22,6 @@
     <link rel="stylesheet" href="{{url('/')}}/home/assets/css/slider.css">
     <link rel="stylesheet" href="{{url('/')}}/home/assets/css/demo42.min.css">
     <link rel="stylesheet" href="{{url('/')}}/home/assets/css/toastr.css">
-    <link rel="stylesheet" href="{{url('/')}}/assets/home/vendor/simple-line-icons/css/simple-line-icons.min.css">
     {{-- <link rel="stylesheet" href="{{url('/')}}/home/assets/css/style.min.css"> --}}
     <link rel="stylesheet" type="text/css" href="{{url('/')}}/home/assets/vendor/fontawesome-free/css/all.min.css">
     <link rel="stylesheet" type="text/css" href="{{url('/')}}/assets/plugins/image-cropper/cropper.css?r={{date('YmdHis')}}">
@@ -54,21 +51,20 @@
 
 <body>
 <input type="hidden" style="display:none!important" id="txtRootUrl" value="{{url('/')}}/">
-
 <div class="page-wrapper">
     <div class="top-notice bg-dark text-white pt-3">
         <div class="container text-center d-flex align-items-center justify-content-center flex-wrap">
             <h4 class="text-uppercase font-weight-bold mr-2">Deal of the week</h4>
-            <h6>- 15% OFF in All Construction Materials -</h6>
+            <h6>- 15% OFF in All Construction Materials, -</h6>
 
-            <a href="{{ route('products') }}" class="ml-2">Shop Now</a>
-        </div>
-    </div>
+            <a href="#" class="ml-2">Shop Now</a>
+        </div><!-- End .container -->
+    </div><!-- End .top-notice -->
 
     <header class="header">
         <div class="header-top">
             <div class="container">
-                @if(!$isRegister)
+                @if(auth()->check())
                     <div class="header-left d-md-block">
                         <div class="align-middle" style="display: inline-block;">
                             <div class="info-box info-box-icon-left justify-content-start">
@@ -102,7 +98,6 @@
                         </div>
                     </div>
                 @endif
-
                 <div class="header-right header-dropdowns ml-0 ml-md-auto w-md-100">
                     <div class="header-dropdown mr-auto mr-md-0">
                         <div class="header-menu">
@@ -118,9 +113,12 @@
                     <span class="separator d-none d-md-block mr-0 ml-4"></span>
 
                     <div class="social-icons">
-                        <a href="{{$Company['facebook']}}" class="social-icon social-facebook icon-facebook" target="_blank" title="facebook"></a>
-                        <a href="{{$Company['twitter']}}" class="social-icon social-twitter icon-twitter" target="_blank" title="twitter"></a>
-                        <a href="{{$Company['instagram']}}" class="social-icon social-instagram icon-instagram mr-0" target="_blank" title="instagram"></a>
+                        <a href="{{$Company['facebook']}}" class="social-icon social-facebook icon-facebook" target="_blank"
+                           title="facebook"></a>
+                        <a href="{{$Company['twitter']}}" class="social-icon social-twitter icon-twitter" target="_blank"
+                           title="twitter"></a>
+                        <a href="{{$Company['instagram']}}" class="social-icon social-instagram icon-instagram mr-0" target="_blank"
+                           title="instagram"></a>
                     </div><!-- End .social-icons -->
                 </div><!-- End .header-right -->
             </div><!-- End .container -->
@@ -132,10 +130,10 @@
                     <button class="mobile-menu-toggler text-dark mr-2" type="button">
                         <i class="fas fa-bars"></i>
                     </button>
-                    <a href="@if($isRegister && !$isEdit) # @else {{url('/')}}/customer-home @endif" class="logo">
+                    <a href="demo42.html" class="logo">
                         <img src="{{url('/')}}/{{$Company['Logo']}}" width="50" height="50" alt="RPC">
                     </a>
-                    <span class="ml-3 font-weight-bold" style="color:rgb(7, 54, 163)">RPC Construction</span>
+                    <span class="ml-3 font-weight-bold">RPC Construction</span>
                 </div><!-- End .header-left -->
 
                 <div class="header-right w-lg-max">
@@ -165,28 +163,30 @@
                     </div>
 
                     <span class="separator d-none d-lg-block mr-4"></span>
-                    {{-- <a href="{{url('/')}}/social/auth/google" class="d-lg-block d-none">
-                        <div class="header-user">
-                            <div class="header-userinfo">
-                                <span>Welcome</span>
-                                <h4>Sign In / Register</h4>
+                    @if(auth()->check())
+                        <a href="{{url('/')}}/customer-profile" class="d-lg-block d-none">
+                            <div class="header-user">
+                                <i class="icon-user-2"></i>
                             </div>
-                        </div>
-                    </a> --}}
-
-                    <a href="@if($isRegister && !$isEdit) # @else {{url('/')}}/customer-profile @endif" class="d-lg-block d-none">
-                        <div class="header-user">
-                            <i class="icon-user-2"></i>
-                        </div>
-                    </a>
+                        </a>
+                    @else
+                        <a href="{{url('/')}}/social/auth/google" class="d-lg-block d-none" id="loginBtn">
+                            <div class="header-user">
+                                <div class="header-userinfo">
+                                    <span>Welcome</span>
+                                    <h4>Sign In / Register</h4>
+                                </div>
+                            </div>
+                        </a>
+                    @endif
 
                     <span class="separator d-block"></span>
 
                     <div class="dropdown cart-dropdown">
                         <a href="#" title="Cart" class="dropdown-toggle dropdown-arrow cart-toggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-display="static">
                             <i class="icon-cart-thick"></i>
-                            <i class="fa-regular fa-cart-shopping"></i>
-                            <span class="cart-count badge-circle" id="divCartItemCount">@if(count($Cart) > 0){{count($Cart)}}@endif</span>
+                            {{-- <i class="fa-regular fa-cart-shopping"></i> --}}
+                            {{-- <span class="cart-count badge-circle">3</span> --}}
                         </a>
 
                         <div class="cart-overlay"></div>
@@ -196,46 +196,12 @@
 
                             <div class="dropdownmenu-wrapper custom-scrollbar">
                                 <div class="dropdown-cart-header">Shopping Cart</div>
-                                <div class="dropdown-cart-products" id="divCart">
-                                    @if(count($Cart) > 0)
-                                        @foreach($Cart as $item)
-                                            <div class="product">
-                                                <div class="product-details">
-                                                    <h4 class="product-title">
-                                                        <a href="#">{{$item->ProductName}}</a>
-                                                    </h4>
 
-                                                    <span class="cart-product-info">
-                                                            <span class="cart-product-qty">
-                                                                <div class="input-group" style="width: 80%;">
-                                                                    <input class="form-control txtUpdateQty" type="number" value="{{$item->Qty}}" id="{{$item->ProductID}}">
-                                                                    <div class="input-group-append">
-                                                                        <span class="input-group-text">{{$item->UName}} ({{$item->UName}})</span>
-                                                                    </div>
-                                                                </div>
-                                                            </span>
-                                                        </span>
-                                                </div>
+                                <span>Your Cart is Empty!</span>
 
-                                                <figure class="product-image-container">
-                                                    <a href="demo42-product.html" class="product-image">
-                                                        <img src="{{$item->ProductImage}}" alt="product" width="80" height="80">
-                                                    </a>
-                                                    <a href="#" class="btn-remove btnRemoveCart" title="Remove Product" id="{{$item->ProductID}}"><span>×</span></a>
-                                                </figure>
-                                            </div>
-                                        @endforeach
-                                    @else
-                                        <span>Your Cart is Empty!</span>
-                                    @endif
-                                </div>
-
-                                <div class="dropdown-cart-action" id="divCartAction">
-                                    @if(count($Cart) > 0)
-                                        <a href="{{url('/')}}/checkout" class="btn btn-secondary btn-block">Request Quote</a>
-                                    @else
-                                        <a href="#" class="btn btn-dark btn-block">Add to Cart</a>
-                                    @endif
+                                <div class="dropdown-cart-action">
+                                    <a href="cart.html" class="btn btn-gray btn-block view-cart">Add to Cart</a>
+                                    <a href="checkout.html" class="btn btn-dark btn-block">Checkout</a>
                                 </div><!-- End .dropdown-cart-total -->
                             </div><!-- End .dropdownmenu-wrapper -->
                         </div><!-- End .dropdown-menu -->
@@ -247,31 +213,30 @@
         <div class="header-bottom sticky-header d-none d-lg-flex" data-sticky-options="{'mobile': false}">
             <div class="container">
                 <nav class="main-nav w-100">
-                    <ul class="menu w-100" id="customerNavigationBar">
+                    <ul class="menu w-100">
                         <li class="menu-item d-flex align-items-center">
                             <a href="#" class="d-inline-flex align-items-center sf-with-ul">
                                 <i class="custom-icon-toggle-menu d-inline-table"></i><span>All
                                         Categories</span></a>
                             <div class="menu-depart">
                                 @foreach ($PCategories->take(5) as $row)
-                                    <a href="{{ route('products.customer.subCategoryList', [ 'CID' => $row->PCID ]) }}">{{$row->PCName}}</a>
+                                    <a href="{{ route('products.guest.subCategoryList', [ 'CID' => $row->PCID ]) }}">{{$row->PCName}}</a>
                                 @endforeach
                                     <div style="text-align: center; display: flex; justify-content: center; align-items: center;">
-                                        <a href="{{ route('products.customer.categoriesList') }}" class="text-center">More</a>
+                                        <a href="{{ route('products.guest.categoriesList') }}" class="text-center">More</a>
                                     </div>
                             </div>
                         </li>
-                        <li class="{{ (Route::currentRouteName() == "homepage") ? 'active' : '' }}">
+                        <li class="active">
                             <a href="{{ route('homepage') }}">Home</a>
                         </li>
                         <li>
-                            <a href="{{ route('products') }}">Products</a>
+                            <a href="#">Products</a>
                             <div class="megamenu megamenu-fixed-width">
                                 <div class="row">
                                     <div class="col-lg-12">
                                         <a href="#" class="nolink">PRODUCT CATEGORIES</a>
                                     </div>
-
                                     @php
                                         $PCategories = $PCategories->take(9);
                                         $chunks = $PCategories->chunk(3);
@@ -281,33 +246,21 @@
                                         <div class="col-lg-4">
                                             <ul class="submenu">
                                                 @foreach ($chunk as $category)
-                                                    <li><a href="{{ route('products.customer.subCategoryList', ['CID' => $category->PCID]) }}">{{ $category->PCName }}</a></li>
+                                                    <li><a href="{{ route('products.guest.subCategoryList', ['CID' => $category->PCID]) }}">{{ $category->PCName }}</a></li>
                                                 @endforeach
                                             </ul>
                                         </div>
                                     @endforeach
-
                                     <div class="col-lg-12 p-1">
                                         <div class="row justify-content-end">
                                             <div class="col-lg-4">
-                                                <a href="{{ route('products') }}" class="btn btn-sm btn-dark mr-0">View More</a>
+                                                <a href="{{ route('guest.products') }}" class="btn btn-sm btn-dark mr-0">View More</a>
                                             </div>
                                         </div>
                                     </div>
                                 </div><!-- End .row -->
                             </div><!-- End .megamenu -->
                         </li>
-                        @if(auth()->check())
-                            <li>
-                                <a href="{{ route('requested-quotations') }}">Quotations</a>
-                            </li>
-                            <li>
-                                <a href="{{ route('customer-orders') }}">Orders</a>
-                            </li>
-                            <li>
-                                <a href="{{ route('my-account') }}">My Account</a>
-                            </li>
-                        @endif
                     </ul>
                 </nav>
             </div><!-- End .container -->
@@ -382,6 +335,7 @@
                             <form action="#" class="d-flex mb-0 w-100">
                                 <input type="email" class="form-control mb-0" placeholder="Email address"
                                        required="">
+
                                 <input type="submit" class="btn shadow-none" value="OK">
                             </form>
                         </div><!-- End .widget -->
@@ -421,8 +375,7 @@
     </div>
 </div>
 
-<div class="mobile-menu-overlay"></div><!-- End .mobil-menu-overlay -->
-
+<div class="mobile-menu-overlay"></div>
 <div class="sticky-navbar">
     <div class="sticky-info">
         <a href="{{ route('homepage') }}">
@@ -430,7 +383,7 @@
         </a>
     </div>
     <div class="sticky-info">
-        <a href="{{ route('products.guest.categoriesList') }}" class="">
+        <a href="demo42-shop.html" class="">
             <i class="icon-bars"></i>Categories
         </a>
     </div>
@@ -452,57 +405,52 @@
         </a>
     </div>
 </div>
-<div class="modal  medium" tabindex="-1" role="dialog" id="ImgCrop">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header pt-10 pb-10">
-                <h5 class="modal-title">Image Crop</h5>
-                <button type="button" class="close display-none" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="row">
-                    <div class="col-sm-12">
-                        <img style="width:100%" src="" id="ImageCrop" data-id="">
-                    </div>
-                </div>
-                <div class="row mt-10 d-flex justify-content-center">
-                    <div class="col-sm-12 docs-buttons d-flex justify-content-center">
-                        <div class="btn-group">
-                            <button class="btn btn-outline-primary" type="button" data-method="rotate" data-option="-45" title="Rotate Left"><span class="docs-tooltip" data-bs-toggle="tooltip" data-animation="false" title="$().cropper(&quot;rotate&quot;, -45)"><span class="fa fa-rotate-left"></span></span></button>
-                            <button class="btn btn-outline-primary" type="button" data-method="rotate" data-option="45" title="Rotate Right"><span class="docs-tooltip" data-bs-toggle="tooltip" data-animation="false" title="$().cropper(&quot;rotate&quot;, 45)"><span class="fa fa-rotate-right"></span></span></button>
-                            <button class="btn btn-outline-primary" type="button" data-method="scaleX" data-option="-1" title="Flip Horizontal"><span class="docs-tooltip" data-bs-toggle="tooltip" data-animation="false" title="$().cropper(&quot;scaleX&quot;, -1)"><span class="fa fa-arrows-h"></span></span></button>
-                            <button class="btn btn-outline-primary" type="button" data-method="scaleY" data-option="-1" title="Flip Vertical"><span class="docs-tooltip" data-bs-toggle="tooltip" data-animation="false" title="$().cropper(&quot;scaleY&quot;, -1)"><span class="fa fa-arrows-v"></span></span></button>
-                            <button class="btn btn-outline-primary" type="button" data-method="reset" title="Reset"><span class="docs-tooltip" data-bs-toggle="tooltip" data-animation="false" title="$().cropper(&quot;reset&quot;)"><span class="fa fa-refresh"></span></span></button>
-                            <button class="btn btn-outline-primary btn-upload" id="btnUploadImage" title="Upload image file"><span class="docs-tooltip" data-bs-toggle="tooltip" data-animation="false" title="Import image with Blob URLs"><span class="fa fa-upload"></span></span></button>
-                            <?php
-                            $Images=array("jpg","jpeg","png","gif","bmp","tiff");
-                            if(isset($FileTypes)){
-                                if(array_key_exists("category",$FileTypes)){
-                                    if(array_key_exists("Images",$FileTypes['category'])){
-                                        $Images=$FileTypes['category']['Images'];
-                                    }
-                                }
-                            }
-                            $Images=".".implode(",.",$Images);
-                            ?>
-                            <input class="sr-only display-none" id="inputImage" type="file" name="file" accept="{{$Images}}">
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-outline-dark"  id="btnCropModelClose">Close</button>
-                <button type="button" class="btn btn-outline-info" id="btnCropApply">Apply</button>
-            </div>
-        </div>
-    </div>
-</div>
+{{--<div class="newsletter-popup mfp-hide bg-img p-0 h-auto" id="newsletter-popup-form" style="background: #f1f1f1 no-repeat center/cover">--}}
+{{--    <div class="row">--}}
+{{--        <div class="col-sm-7">--}}
+{{--            <div class="row justify-content-center mt-3">--}}
+{{--                <div class="col-6">--}}
+{{--                    <img src="{{url('/')}}/{{$Company['Logo']}}" alt="Logo" class="logo-newsletter" width="50" height="50">--}}
+{{--                    <span class="ml-3 font-weight-bold text-dark">RPC Construction</span>--}}
+{{--                </div>--}}
+{{--            </div>--}}
+{{--            <div class="row justify-content-center my-3">--}}
+{{--                <div class="col-8">--}}
+{{--                    <h2>Select a location </h2>--}}
+{{--                    <p>to see product availability and delivery options</p>--}}
+{{--                </div>--}}
+{{--            </div>--}}
+{{--            <div class="row justify-content-center">--}}
+{{--                <div class="col-6 justify-content-center">--}}
+{{--                    <a href="{{url('/')}}/social/auth/google"><button type="button" class="btn btn-info btn-block rounded">Sign in to select address</button></a>--}}
+
+{{--                    --}}{{-- <input type="button" class="btn btn-warning" value="Submit" id="btnCurrentPincode"> --}}
+{{--                </div>--}}
+{{--            </div>--}}
+{{--            <div class="row justify-content-center">--}}
+{{--                <div class="col-4">--}}
+{{--                    <h5 class="text-center my-3">or</h5>--}}
+{{--                </div>--}}
+{{--            </div>--}}
+{{--            <div class="row justify-content-center">--}}
+{{--                <div class="col-8 newsletter-popup-content" id="divLocationInputs">--}}
+{{--                    <div class="input-group">--}}
+{{--                        <input type="text" class="form-control" id="txtCurrentPincode" placeholder="Enter your pincode" required>--}}
+{{--                        <input type="button" class="btn btn-warning" value="Submit" id="btnCurrentPincode">--}}
+{{--                    </div>--}}
+{{--                </div>--}}
+{{--            </div>--}}
+{{--        </div>--}}
+{{--        <div class="col-sm-5">--}}
+{{--            <img src="{{url('/')}}/home/assets/images/location-pop-up/MapAnime.gif" alt="">--}}
+{{--        </div>--}}
+{{--    </div>--}}
+{{--    <button title="Close (Esc)" type="button" class="mfp-close" id="modal-close-btn">×</button>--}}
+{{--</div>--}}
+
 
 <a id="scroll-top" href="#top" title="Top" role="button"><i class="icon-angle-up"></i></a>
 
-<script data-cfasync="false" src="../../cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
 <script src="{{url('/')}}/home/assets/js/jquery.min.js"></script>
 <script src="{{url('/')}}/assets/js/jquery-3.7.1.min.js?r={{date('YmdHis')}}"></script>
 <script src="{{url('/')}}/home/assets/js/bootstrap.bundle.min.js"></script>
@@ -533,10 +481,12 @@
 <script src="{{url('/')}}/assets/plugins/dataTable/js/dataTables.bootstrap5.min.js?r={{date('YmdHis')}}"></script>
 
 <script src="{{url('/')}}/assets/plugins/dataTable/js/dataTableExport.js?r={{date('YmdHis')}}"></script>
-
-
 <script>
-    $(document).ready(function () {
+    $(document).ready(function() {
+        $('.redirectLogin').on('click', function(){
+            window.location.replace($('#loginBtn').attr('href'));
+        });
+
         const UpdateItemQtyCount = (count) => {
             const itemCountSpan = $('#divCartItemCount');
             if (count > 0) {
@@ -584,7 +534,6 @@
 
         $(document).on('click', '.btnAddCart', function () {
 
-            let thiss = $(this);
             let FormData = {
                 'ProductID': $(this).attr('id'),
             }
@@ -601,18 +550,8 @@
                 },
                 success: function (response) {
                     if (response.status) {
-                        if (thiss.hasClass('wishlistCartBtn')) {
-                            thiss.text("Added in cart");
-                        }
-                        if ($('#wishlistTableHtml').length){
-                            var $wishlistButton = $('#wishlistTableHtml').find('.btnAddCart#' + thiss.attr('id'));
-                            thiss.removeClass('wishlistCartBtn btnAddCart btn-add-cart add-cart');
-                            thiss.addClass('added-in-cart');
-                            $wishlistButton.attr('class', thiss.attr('class'));
-                            $wishlistButton.html(thiss.html());
-                        }
-                        thiss.addClass('added-in-cart');
-                        thiss.removeClass('wishlistCartBtn btnAddCart btn-add-cart add-cart');
+                        thiss.text("Added in cart");
+                        thiss.removeClass('btnAddCart btn-add-cart');
                         LoadCart(response.data);
                         UpdateItemQtyCount(response.data.length);
                     }
@@ -679,10 +618,11 @@
             selectedAddress.html($(this).html());
         });
     });
+
+
 </script>
 
 @yield('scripts')
-
 </body>
 
 </html>

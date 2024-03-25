@@ -18170,7 +18170,7 @@ aside .widget-info i {
 
 .menu-depart.opened {
 	visibility: visible;
-	height: 22rem
+	height: 28rem !important;
 }
 
 .menu-banner.menu-banner-2 {
@@ -19573,4 +19573,9 @@ svg .appear-animate {
 	background-color: #b8b4b7;
 	border-radius: 0px;
 	border: 3px outset #ffffff;
+}
+
+.product-category .category-title {
+	white-space: normal;
+	word-wrap: break-word;
 }
