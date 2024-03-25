@@ -1058,7 +1058,7 @@
                         <div class="download-content">
                             <div class="row align-items-center">
                                 <div class="col-md-6">
-                                    <h3 class="account-sub-title d-none d-md-block"><i class="sicon-cloud-download align-middle mr-3"></i>Quotations</h3>
+                                    <h3 class="account-sub-title d-none d-md-block"><i class="sicon-notebook align-middle mr-3"></i>Quotations</h3>
                                 </div>
                             </div>
                             <div class="download-table-container" style="margin-top: 20px !important;">
@@ -1072,7 +1072,7 @@
                         <div class="download-content">
                             <div class="row align-items-center">
                                 <div class="col-md-6">
-                                    <h3 class="account-sub-title d-none d-md-block"><i class="sicon-cloud-download align-middle mr-3"></i>Orders</h3>
+                                    <h3 class="account-sub-title d-none d-md-block"><i class="sicon-social-dropbox align-middle mr-3"></i>Orders</h3>
                                 </div>
                             </div>
                             <div class="download-table-container" style="margin-top: 20px !important;">
@@ -1112,7 +1112,7 @@
 
                     <div class="tab-pane fade" id="wishlist" role="tabpanel">
                         <div class="download-content">
-                            <h3 class="account-sub-title d-none d-md-block"><i class="sicon-cloud-download align-middle mr-3"></i>Wishlist</h3>
+                            <h3 class="account-sub-title d-none d-md-block"><i class="sicon-heart align-middle mr-3"></i>Wishlist</h3>
                             <div class="download-table-container" style="margin-top: 20px !important;">
                                 <div class="wishlist-table-container" id="wishlistTableHtml">
                                 </div>
@@ -1123,7 +1123,7 @@
                         <div class="download-content">
                             <div class="row align-items-center">
                                 <div class="col-md-6">
-                                    <h3 class="account-sub-title d-none d-md-block"><i class="sicon-cloud-download align-middle mr-3"></i>Support</h3>
+                                    <h3 class="account-sub-title d-none d-md-block"><i class="sicon-support align-middle mr-3"></i>Support</h3>
                                 </div>
                                 <div class="col-md-6 text-md-right">
                                     <button type="button" id="btnNewTicket" class="btn btn-dark btn-min-width box-shadow-2 round">New Ticket</button>

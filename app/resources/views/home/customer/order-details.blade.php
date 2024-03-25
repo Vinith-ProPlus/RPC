@@ -341,7 +341,7 @@
 <?php
     $vendorAdditionalCharges=[];
 ?>
-<div class="container">
+<div class="container mt-2">
 	<div class="row d-flex justify-content-center">
 		<div class="col-12 col-sm-12 col-lg-12">
 			<div class="card">
@@ -351,7 +351,7 @@
                     </li>
                 </ul>
 {{--				<div class="card-header text-center"><h5 class="mt-10"> Order - ( {{$OData->OrderNo}} )</h5></div>--}}
-				<div class="card-body">
+				<div class="card-body mb-0 pb-0">
                     <div class="row">
                         <div class="col-sm-12">
                             <div class="row justify-content-center">
@@ -579,19 +579,15 @@
                             </div>
                         </div>
                     </div>
-				</div>
-                <div class="card-footer">
-                    <div class="row">
-                        <div class="col-sm-12 text-right">
-                                <a href="{{ route('my-account', ['tab' => 'orders']) }}" class="btn btn-sm btn-outline-dark m-5" >Back</a>
-                            @if($OData->Status!="Cancelled" && $OData->Status!="Delivered")
-{{--                                    <button class="btn btn-sm btn-outline-danger m-5 btnCancelOrder" data-id="{{$OrderID}}">Cancel Order</button>--}}
-                            @endif
-                        </div>
-                    </div>
                 </div>
-			</div>
-		</div>
+                <div class="col-sm-12 text-center">
+                    <a href="{{ route('my-account', ['tab' => 'orders']) }}" class="btn btn-sm btn-outline-dark mb-2">Back</a>
+                    {{--                            @if($OData->Status!="Cancelled" && $OData->Status!="Delivered")--}}
+                    {{--                                    <button class="btn btn-sm btn-outline-danger m-5 btnCancelOrder" data-id="{{$OrderID}}">Cancel Order</button>--}}
+                    {{--                            @endif--}}
+                </div>
+            </div>
+        </div>
 	</div>
 </div>
 

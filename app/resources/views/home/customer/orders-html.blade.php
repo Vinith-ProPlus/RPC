@@ -50,7 +50,7 @@
         <th class="status-col">Order Date</th>
         <th class="action-col">Expected Delivery Date</th>
         <th class="action-col">Status</th>
-        <th class="action-col">PaymentStatus</th>
+{{--        <th class="action-col">PaymentStatus</th>--}}
         <th class="action-col">Action</th>
     </tr>
     </thead>
@@ -62,7 +62,7 @@
                 <td>{{ $orderDetail->OrderDate }}</td>
                 <td>{{ $orderDetail->ExpectedDelivery }}</td>
                 <td>{{ $orderDetail->Status }}</td>
-                <td>{{ $orderDetail->PaymentStatus }}</td>
+{{--                <td>{{ $orderDetail->PaymentStatus }}</td>--}}
                 <td class="d-flex">
                     <button class="btn btn-dark product-type-simple btnOrderView mr-2" data-id="{{ $orderDetail->OrderID }}" title="View order">
                         VIEW

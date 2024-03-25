@@ -301,32 +301,32 @@
                         <a href="#">Quote Enquiry - ( {{$EnqData->EnqNo}} )</a>
                     </li>
                 </ul>
-				<div class="card-body">
+				<div class="card-body pb-0">
                     <div class="row">
                         <div class="col-sm-12">
                             <div class="row justify-content-center">
-                                <div class="col-sm-4">
-                                    <div class="card">
-                                        <div class="card-header p-6">
-                                            <p class="text-center fs-16 fw-500">Contact Info</p>
-                                        </div>
-                                        <div class="card-body">
-                                            @foreach([
-                                                'Customer Name' => $EnqData->ReceiverName,
-                                                'Email' => $EnqData->Email,
-                                                'Contact Number' => $EnqData->ReceiverMobNo ,
-                                                'Quote Enquiry Date' => date($Settings['date-format'], strtotime($EnqData->EnqDate)),
-                                            ] as $label => $value)
-                                                <div class="row my-1">
-                                                    <div class="col-sm-5 fw-600">{{ $label }}</div>
-                                                    <div class="col-sm-1 fw-600 text-center">:</div>
-                                                    <div class="col-sm-6">{{ $value }}</div>
-                                                </div>
-                                            @endforeach
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-sm-4">
+{{--                                <div class="col-sm-4">--}}
+{{--                                    <div class="card">--}}
+{{--                                        <div class="card-header p-6">--}}
+{{--                                            <p class="text-center fs-16 fw-500">Contact Info</p>--}}
+{{--                                        </div>--}}
+{{--                                        <div class="card-body">--}}
+{{--                                            @foreach([--}}
+{{--                                                'Customer Name' => $EnqData->ReceiverName,--}}
+{{--                                                'Email' => $EnqData->Email,--}}
+{{--                                                'Contact Number' => $EnqData->ReceiverMobNo ,--}}
+{{--                                                'Quote Enquiry Date' => date($Settings['date-format'], strtotime($EnqData->EnqDate)),--}}
+{{--                                            ] as $label => $value)--}}
+{{--                                                <div class="row my-1">--}}
+{{--                                                    <div class="col-sm-5 fw-600">{{ $label }}</div>--}}
+{{--                                                    <div class="col-sm-1 fw-600 text-center">:</div>--}}
+{{--                                                    <div class="col-sm-6">{{ $value }}</div>--}}
+{{--                                                </div>--}}
+{{--                                            @endforeach--}}
+{{--                                        </div>--}}
+{{--                                    </div>--}}
+{{--                                </div>--}}
+                                <div class="col-sm-6">
                                     <div class="card">
                                         <div class="card-header p-6">
                                             <p class="text-center fs-16 fw-500">Billing Address</p>
@@ -348,7 +348,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-sm-4">
+                                <div class="col-sm-6">
                                     <div class="card">
                                         <div class="card-header p-6">
                                             <p class="text-center fs-16 fw-500">Shipping Address</p>
@@ -645,23 +645,19 @@
                             </div>
                         @endif
                     </div>
-				</div>
-                <div class="card-footer">
-                    <div class="row">
-                        <div class="col-sm-12 text-right">
-                            <a href="{{ route('my-account', ['tab'=> 'quotations']) }}" class="btn btn-sm btn-outline-dark mr-10" id="btnCancel">Back</a>
-
-{{--                            @if(count($VendorQuote)==0 && count($FinalQuoteData) == 0)--}}
-{{--                                <button class="btn btn-sm btn-outline-success" id="btnRequestQuote">Request Quote</button>--}}
-{{--                            @elseif(count($VendorQuote)>0 && count($FinalQuoteData) == 0)--}}
-{{--                                <button class="btn btn-sm btn-outline-info" id="btnQuoteConvert">Convert to Quotation</button>--}}
-{{--                            @elseif(count($FinalQuoteData)>0)--}}
-{{--                                --}}{{-- <button class="btn btn-sm btn-outline-primary" id="btnOrderConvert">Convert to Order</button> --}}
-{{--                            @endif--}}
-                        </div>
-                    </div>
                 </div>
-			</div>
+                <div class="col-sm-12 text-center">
+                    <a href="{{ route('my-account', ['tab'=> 'quotations']) }}"
+                       class="btn btn-sm btn-outline-dark mb-1" id="btnCancel">Back</a>
+                    {{--                            @if(count($VendorQuote)==0 && count($FinalQuoteData) == 0)--}}
+                    {{--                                <button class="btn btn-sm btn-outline-success" id="btnRequestQuote">Request Quote</button>--}}
+                    {{--                            @elseif(count($VendorQuote)>0 && count($FinalQuoteData) == 0)--}}
+                    {{--                                <button class="btn btn-sm btn-outline-info" id="btnQuoteConvert">Convert to Quotation</button>--}}
+                    {{--                            @elseif(count($FinalQuoteData)>0)--}}
+                    {{--                                --}}{{-- <button class="btn btn-sm btn-outline-primary" id="btnOrderConvert">Convert to Order</button> --}}
+                    {{--                            @endif--}}
+                </div>
+            </div>
 		</div>
 	</div>
 </div>

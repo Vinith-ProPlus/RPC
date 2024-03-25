@@ -238,7 +238,7 @@
                                     @if(count($Cart) > 0)
                                         <a href="{{url('/')}}/checkout" class="btn btn-secondary btn-block">Request Quote</a>
                                     @else
-                                        <a href="#" class="btn btn-dark btn-block">Add to Cart</a>
+                                        <a href="{{ auth()->check() ? route('products.customer.productsList') : route('products.guest.productsList') }}" class="btn btn-dark btn-block">Add to Cart</a>
                                     @endif
                                 </div><!-- End .dropdown-cart-total -->
                             </div><!-- End .dropdownmenu-wrapper -->
