@@ -830,4 +830,40 @@ class CustomerAuthController extends Controller{
             return response()->json(['status' => false,'message' => "Shipping Address is required!"]);
         }
 	}
+    
+    public function getNotifications(Request $req){
+
+        $pageNo = $req->PageNo ?? 1;
+        $perPage = 10;
+
+        $Notifications = DB::table($this->currfyDB.'tbl_notifications')
+            // ->where('UserID', $this->UserID)
+            ->orderBy('CreatedOn','desc')
+            ->paginate($perPage, ['*'], 'page', $pageNo);
+        
+        return response()->json([
+            'status' => true,
+            'data' => $Notifications->items(),
+            'CurrentPage' => $Notifications->currentPage(),
+            'LastPage' => $Notifications->lastPage(),
+        ]);
+    }
+    
+    public function NotificationRead(Request $req){
+		DB::beginTransaction();
+        try {
+            $status = DB::Table($this->currfyDB.'tbl_notifications')
+            // ->where('UserID',$this->UserID)
+            ->where('NID',$req->NID)->update(['ReadStatus' => 1,'ReadOn'=>date('Y-m-d H:i:s')]);
+        }catch(Exception $e) {
+            $status=false;
+        }
+        if($status==true){
+            DB::commit();
+            return response()->json(['status' => true ,'message' => "Notification Read Successfully!"]);
+        }else{
+            DB::rollback();
+            return response()->json(['status' => false,'message' => "Notification Read Failed!"]);
+        }
+	}
 }

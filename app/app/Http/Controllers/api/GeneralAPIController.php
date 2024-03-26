@@ -306,7 +306,8 @@ class GeneralAPIController extends Controller{
 		];
         return $return;
 	}
-	public function getCoordinates(Request $req){  return 1;
+	
+	public function getCoordinates(Request $req){
 		$address = $req->Address;
         $response = Http::get('https://maps.googleapis.com/maps/api/geocode/json', [
             'address' => $address,

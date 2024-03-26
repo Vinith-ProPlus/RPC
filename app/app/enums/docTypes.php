@@ -77,5 +77,6 @@ enum docTypes:string{
     case SupportAttachments="Support-Attachments";
     
     case Withdraw="Withdraw";
+    case Notification="Notification";
 
 }

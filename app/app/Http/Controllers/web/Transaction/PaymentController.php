@@ -79,7 +79,7 @@ class PaymentController extends Controller{
     }
 	
     public function advancePaymentView(Request $req){
-        if($this->general->isCrudAllow($this->CRUD,"add")==true){
+        if($this->general->isCrudAllow($this->CRUD,"add")==true && $this->Settings['enable-advance-payments']){
             $FormData=$this->general->UserInfo;
             $FormData['menus']=$this->Menus;
             $FormData['crud']=$this->CRUD;

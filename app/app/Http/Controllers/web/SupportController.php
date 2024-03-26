@@ -129,7 +129,7 @@ class SupportController extends Controller{
 			return view('errors.403');
 		}
     }
-    public function SaveTicket(Request $req){
+    public function SaveTicket(Request $req){        
 		if($this->general->isCrudAllow($this->CRUD,"add")==true){
             $UInfo=$this->general->UserInfo;
             $OldData=$NewData=array();$SupportID="";
@@ -231,9 +231,10 @@ class SupportController extends Controller{
                 
             }
             if($status){
-                $status=DB::Table($this->supportDB."tbl_support")->update(array('status'=>1,"UpdatedOn"=>date("Y-m-d H:i:s")));
+                $ReferID = DB::table($this->supportDB.'tbl_support as S')->leftJoin('users as U','U.UserID','S.UserID')->where('S.SupportID',$SupportID)->value('U.ReferID');
+                $this->sendNotification($SupportID,$ReferID);
             }
-            if($status==true){
+            /* if($status==true){
                 $status1=$this->sendMail($req->SupportType,$SupportID);
                 if($status1==false){
                     DB::rollback();
@@ -242,7 +243,7 @@ class SupportController extends Controller{
                 }else{
                     $status=true;
                 }
-            }
+            } */
 		}catch(Exception $e) {
         }
         return $status;
@@ -358,6 +359,7 @@ class SupportController extends Controller{
     }
     public function SupportDetailsSave(Request $req){
         $SupportID=$req->SID;
+        
         DB::beginTransaction();
         $status=$this->SaveSupportDetail($req,$SupportID);
 
@@ -480,6 +482,14 @@ class SupportController extends Controller{
             $data['WHEREALL']=$Where;
 			return $ServerSideProcess->SSP( $data);
 	}
+    public function sendNotification($SupportID,$UserID){
+        $Title = "Admin Respond your Ticket";
+        $Message = "Admin has responded to your ticket. Check now for updates and further instructions.";
+        $status = Helper::saveNotification($UserID,$Title,$Message,'Support',$SupportID);
+        if($status){
+            Helper::sendNotification($UserID,$Title,$Message);
+        }
+    }
     private function sendMail($SupportID){
         try{
             $tdata=$this->getSupportDetails(array("SupportID"=>$SupportID));
@@ -497,4 +507,5 @@ class SupportController extends Controller{
         }
         return array('status'=>true,'message'=>'');
     }
+
 }

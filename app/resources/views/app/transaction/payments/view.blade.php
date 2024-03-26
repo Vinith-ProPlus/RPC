@@ -30,7 +30,9 @@
 										{{-- <a href="{{route('admin.transaction.payments.trash')}}" class="btn  btn-outline-light btn-sm m-r-10" type="button" > Trash view </a> --}}
 									@endif
 									@if($crud['add']==1)
-										<a href="{{route('admin.transaction.payments.advance.create')}}" class="btn  btn-outline-primary mr-10  btn-sm" type="button" title="Advance Payment" >Advance Payment</a>
+										@if($Settings['enable-advance-payments'])
+											<a href="{{route('admin.transaction.payments.advance.create')}}" class="btn  btn-outline-primary mr-10  btn-sm" type="button" title="Advance Payment" >Advance Payment</a>
+										@endif
 										<a href="{{route('admin.transaction.payments.payment.create')}}" class="btn  btn-outline-success btn-air-success btn-sm" type="button" title="Payment  For Invoice" >Payment</a>
 									@endif
 								</div>

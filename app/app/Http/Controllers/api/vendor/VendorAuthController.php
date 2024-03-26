@@ -25,11 +25,13 @@ class VendorAuthController extends Controller{
     private $ActiveMenuName;
     private $FileTypes;
 	private $UserID;
+    private $currfyDB;
 	private $ReferID;
 
     public function __construct(){
 		$this->generalDB=Helper::getGeneralDB();
 		$this->tmpDB=Helper::getTmpDB();
+        $this->currfyDB=Helper::getCurrFYDB();
         $this->ActiveMenuName=activeMenuNames::Vendors->value;
 		$this->FileTypes=Helper::getFileTypes(array("category"=>array("Images","Documents")));
         $this->middleware('auth:api');
@@ -54,7 +56,6 @@ class VendorAuthController extends Controller{
 	}
 
     public function Register(Request $req){ 
-        // return $req;
         $reqData = $req->all();
 
         $NewData=$OldData=[];
@@ -1056,7 +1057,7 @@ class VendorAuthController extends Controller{
             'message' => 'VENDOR UPDATE FAILED',
         ]);
     }
-    
+
     public function getVendorData(request $req){
         $VendorID = $this->ReferID;
 		$VendorData = DB::table('tbl_vendors')->whereNot('VendorType',Null)->where('VendorID',$VendorID)->first();
@@ -1755,10 +1756,8 @@ class VendorAuthController extends Controller{
     public function getVendorHome(Request $req){
         $VendorID = $this->ReferID;
         $VendorHome = [];
-
         $StockTableName = Helper::getStockTable($VendorID);
-
-        $VendorStockPoints= DB::table('tbl_vendors_stock_point')->where('DFlag',0)->where('VendorID',$VendorID)->select('StockPointID','PointName')->get();
+        $VendorStockPoints= DB::table('tbl_vendors_stock_point')->where('DFlag',0)->where('VendorID',$VendorID)->select('StockPointID','PointName')->take(3)->get();
         foreach ($VendorStockPoints as $point) {
             $point->LastUpdatedDate = DB::table($StockTableName)
                 ->where('StockPointID', $point->StockPointID)
@@ -1777,11 +1776,49 @@ class VendorAuthController extends Controller{
                 ->where('VPM.VendorID', $VendorID)
                 ->where('VPM.Status', 1)
                 ->select('P.ProductID', 'P.ProductName', 'PC.PCName', 'PC.PCID', 'PSC.PSCID', 'PSC.PSCName', 'U.UName', 'U.UCode')
-                ->addSelect(DB::raw('IFNULL(SP.Qty, 0) AS Qty'))
+                ->addSelect(DB::raw('IFNULL(SP.Qty, 0) AS Qty'))->take(1)
                 ->get();
         }
-        $VendorHome['CurrentOrders'] = [];
-        $VendorHome['CompletedOrders'] = [];
+        $VendorHome['CurrentOrders'] = DB::table($this->currfyDB.'tbl_vendor_orders as VO')->leftJoin($this->currfyDB.'tbl_order as O','O.OrderID','VO.OrderID')
+        ->where('VO.VendorID',$VendorID)->whereIn('VO.Status',['New','Partially Delivered'])
+        ->orderBy('VO.CreatedOn','desc')
+        ->select('VO.VOrderID','O.OrderID','O.OrderNo','O.OrderDate','O.ExpectedDelivery','O.ReceiverName','O.ReceiverMobNo','VO.TotalAmount','VO.SubTotal','VO.TaxAmount','VO.NetAmount','VO.AdditionalCost','VO.Status')
+        ->take(3)->get();
+        foreach($VendorHome['CurrentOrders'] as $row){
+            $row->TotalUnit = DB::table($this->currfyDB.'tbl_order_details')->whereNot('Status','Cancelled')->where('OrderID',$row->OrderID)->sum('Qty');
+            $row->ProductData = DB::table($this->currfyDB.'tbl_order_details as OD')
+            ->leftJoin('tbl_products as P','P.ProductID','OD.ProductID')
+            ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'P.CID')
+            ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')
+            ->leftJoin('tbl_uom as U', 'U.UID', 'P.UID')
+            ->where('P.ActiveStatus', 'Active')->where('P.DFlag', 0)
+            ->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)
+            ->where('PSC.ActiveStatus', 'Active')->where('PSC.DFlag', 0)
+            ->where('OD.OrderID',$row->OrderID)
+            ->whereNot('Status','Cancelled')
+            ->select('OD.DetailID','OD.Taxable','OD.TaxAmt','OD.TotalAmt','P.ProductName','P.ProductID','OD.Qty', 'PC.PCName', 'PC.PCID', 'PSC.PSCName','U.UName','U.UCode','U.UID', 'PSC.PSCID','OD.Price','OD.Status')
+            ->get();
+        }
+        $VendorHome['CompletedOrders'] = DB::table($this->currfyDB.'tbl_vendor_orders as VO')->leftJoin($this->currfyDB.'tbl_order as O','O.OrderID','VO.OrderID')
+        ->where('VO.VendorID',$VendorID)/* ->where('VO.Status','Delivered') */
+        ->orderBy('VO.CreatedOn','desc')
+        ->select('VO.VOrderID','O.OrderID','O.OrderNo','O.OrderDate','O.ExpectedDelivery','O.ReceiverName','O.ReceiverMobNo','VO.TotalAmount','VO.SubTotal','VO.TaxAmount','VO.NetAmount','VO.AdditionalCost','VO.Status')
+        ->take(3)->get();
+        foreach($VendorHome['CompletedOrders'] as $row){
+            $row->TotalUnit = DB::table($this->currfyDB.'tbl_order_details')->whereNot('Status','Cancelled')->where('OrderID',$row->OrderID)->sum('Qty');
+            $row->ProductData = DB::table($this->currfyDB.'tbl_order_details as OD')
+            ->leftJoin('tbl_products as P','P.ProductID','OD.ProductID')
+            ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'P.CID')
+            ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')
+            ->leftJoin('tbl_uom as U', 'U.UID', 'P.UID')
+            ->where('P.ActiveStatus', 'Active')->where('P.DFlag', 0)
+            ->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)
+            ->where('PSC.ActiveStatus', 'Active')->where('PSC.DFlag', 0)
+            ->where('OD.OrderID',$row->OrderID)
+            ->whereNot('Status','Cancelled')
+            ->select('OD.DetailID','OD.Taxable','OD.TaxAmt','OD.TotalAmt','P.ProductName','P.ProductID','OD.Qty', 'PC.PCName', 'PC.PCID', 'PSC.PSCName','U.UName','U.UCode','U.UID', 'PSC.PSCID','OD.Price','OD.Status')
+            ->get();
+        }
         $VendorHome['VendorStockData'] = $VendorStockPoints;
         $VendorHome['VendorStockPoints'] = DB::table('tbl_vendors_stock_point as VSP')
         ->leftJoin($this->generalDB.'tbl_countries as C','C.CountryID','VSP.CountryID')
@@ -1795,6 +1832,56 @@ class VendorAuthController extends Controller{
         ->get();
         
 		return response()->json(['status' => true, 'data' => $VendorHome ]);
+	}
+    public function getNotifications(Request $req){
+
+        $pageNo = $req->PageNo ?? 1;
+        $perPage = 10;
+
+        $Notifications = DB::table($this->currfyDB.'tbl_notifications')
+            ->where('UserID', $this->UserID)
+            ->orderBy('CreatedOn','desc')
+            ->paginate($perPage, ['*'], 'page', $pageNo);
+        
+        return response()->json([
+            'status' => true,
+            'data' => $Notifications->items(),
+            'CurrentPage' => $Notifications->currentPage(),
+            'LastPage' => $Notifications->lastPage(),
+        ]);
+    }
+    public function NotificationRead(Request $req){
+		DB::beginTransaction();
+        try {
+            $status = DB::Table($this->currfyDB.'tbl_notifications')
+            // ->where('UserID',$this->UserID)
+            ->where('NID',$req->NID)->update(['ReadStatus' => 1,'ReadOn'=>date('Y-m-d H:i:s')]);
+        }catch(Exception $e) {
+            $status=false;
+        }
+        if($status==true){
+            DB::commit();
+            return response()->json(['status' => true ,'message' => "Notification Read Successfully!"]);
+        }else{
+            DB::rollback();
+            return response()->json(['status' => false,'message' => "Notification Read Failed!"]);
+        }
+	}
+    public function getVendorProductSearch(Request $req){
+        $VendorID = $this->ReferID;
+
+        $Products = DB::table('tbl_products as P')
+        ->leftJoin('tbl_product_subcategory as PSC', 'P.SCID', 'PSC.PSCID')
+        ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'PSC.PCID')
+        ->leftJoin('tbl_tax as T', 'T.TaxID', 'P.TaxID')
+        ->rightJoin('tbl_vendors_product_mapping as VPM', 'P.ProductID', 'VPM.ProductID')
+        ->where('VPM.Status', 1)
+        ->where('VPM.VendorID', $VendorID)
+        ->where('P.ProductName', 'like', '%' . $req->SearchText . '%')
+        // ->groupBy('P.ProductID', 'P.ProductName', 'PC.PCID', 'PC.PCName', 'PSC.PSCID', 'PSC.PSCName','T.TaxPercentage','P.TaxType','VPM.VendorPrice')
+        ->select('P.ProductID', 'P.ProductName', 'PC.PCID', 'PC.PCName', 'PSC.PSCID', 'PSC.PSCName','T.TaxPercentage','P.TaxType','VPM.VendorPrice')->get();
+
+        return response()->json(['status' => true, 'data' => $Products ]);
 	}
     
 }

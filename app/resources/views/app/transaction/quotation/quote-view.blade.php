@@ -17,13 +17,13 @@
 				<ol class="breadcrumb">
 					<li class="breadcrumb-item"><a href="{{ url('/') }}" data-original-title="" title=""><i class="f-16 fa fa-home"></i></a></li>
 					<li class="breadcrumb-item">Transaction</li>
-					<li class="breadcrumb-item"><a href="{{ url('/') }}/admin/transaction/quotation/" data-original-title="" title="">{{$PageTitle}}</a></li>
+					<li class="breadcrumb-item"><a href="{{route('admin.transaction.quotes')}}" data-original-title="" title="">{{$PageTitle}}</a></li>
                     <li class="breadcrumb-item">Quote View</li>
 				</ol>
 			</div>
             <div class="col-sm-6 text-right">
                 @if($crud['view']==true)
-                    <a href="{{url('/')}}/admin/transaction/quotation" class="btn {{$Theme['button-size']}} btn-outline-dark m-5" >Back</a>
+                    <a href="{{route('admin.transaction.quotes')}}" class="btn {{$Theme['button-size']}} btn-outline-dark m-5" >Back</a>
                 @endif
                 @if($QData->Status=="New")
                     <button class="btn {{$Theme['button-size']}} btn-outline-danger m-5 btnCancelQuote" data-id="{{$QID}}">Cancel Quote</button>
@@ -277,7 +277,7 @@
                     <div class="row">
                         <div class="col-sm-12 text-right">
                             @if($crud['view']==true)
-                                <a href="{{url('/')}}/admin/transaction/quotation" class="btn {{$Theme['button-size']}} btn-outline-dark m-5" >Back</a>
+                                <a href="{{route('admin.transaction.quotes')}}" class="btn {{$Theme['button-size']}} btn-outline-dark m-5" >Back</a>
                             @endif
                             @if($QData->Status=="New")
                                 @if($crud['delete'])

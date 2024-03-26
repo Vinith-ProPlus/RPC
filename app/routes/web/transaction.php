@@ -33,6 +33,7 @@ Route::group(['prefix'=>'quote-enquiry'],function (){
         Route::get('/edit/{ID}', 'Edit');
         Route::get('/view/{ID}', 'QuoteView');
         Route::post('/save', 'Save');
+        Route::post('/image-quote/save', 'ImageQuoteSave');
 
         Route::get('/image-quote/create', 'ImageQuoteCreate');
 
@@ -152,7 +153,8 @@ Route::group(['prefix'=>'order'],function (){
         Route::POST('/get/filters/order-dates', 'getSearchOrderDates')->name('admin.transaction.orders.filter.order-dates');
         Route::POST('/get/filters/delivery-dates', 'getSearchDeliveryDates')->name('admin.transaction.orders.filter.delivery-dates');
     });
-});Route::group(['prefix'=>'payment-request'],function (){
+});
+Route::group(['prefix'=>'payment-request'],function (){
     Route::controller(PaymentRequestController::class)->group(function () {
         Route::get('/', 'view')->name('admin.transaction.payment-requests');
 

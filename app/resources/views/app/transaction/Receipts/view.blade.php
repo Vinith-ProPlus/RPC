@@ -27,7 +27,9 @@
 								</div>
 								<div class="col-md-4 my-2 text-right text-md-right">
 									@if($crud['add']==1)
-										<a href="{{route('admin.transaction.receipts.advance.create')}}" class="btn  btn-outline-primary mr-10  btn-sm" type="button" title="Advance entry from customers" >Advance</a>
+										@if($Settings['enable-advance-receipts'])
+											<a href="{{route('admin.transaction.receipts.advance.create')}}" class="btn  btn-outline-primary mr-10  btn-sm" type="button" title="Advance entry from customers" >Advance</a>
+										@endif
 										<a href="{{route('admin.transaction.receipts.order.create')}}" class="btn  btn-outline-success btn-air-success btn-sm" type="button" title="Receipt entry for order" >Receipt</a>
 									@endif
 								</div>

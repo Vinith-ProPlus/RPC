@@ -43,7 +43,7 @@
                                 <div class="errors text-sm" id="lstLedger-err"></div>
                             </div>
                         </div>
-                        <div class="col-sm-2 mt-15">
+                        <div class="col-sm-2 mt-15 @if($Settings['enable-advance-payments']==false)  d-none @endif ">
                             <div class="form-group">
                                 <label for="dtpTranDate">Advance Available </label>
                                 <input type="number" class="form-control" id="txtAdvanceAmt" value="" disabled>
@@ -92,9 +92,10 @@
                                         <th class="text-center">Order Amount</th>
                                         <th class="text-center  display-none">Paid Amount</th>
                                         <th class="text-center">Balance</th>
-                                        <th class="text-center">Less From Advance</th>
+                                        
+                                        <th class="text-center @if($Settings['enable-advance-payments']==false)  d-none @endif " >Less From Advance</th>
                                         <th class="text-center">Pay Amount</th>
-                                        <th class="text-center">Total Paid</th>
+                                        <th class="text-center @if($Settings['enable-advance-payments']==false)  d-none @endif ">Total Paid</th>
                                         <th class="text-center">New Balance</th>
                                     </tr>
                                 </thead>
@@ -117,11 +118,11 @@
                                 <div class="col-sm-5">Total Balance Amount <span class="cright">:</span></div>
                                 <div class="col-sm-4 text-right" id="divTotalBalanceAmount"> {{NumberFormat(0,$Settings['price-decimals'])}}</div>
                             </div>
-                            <div class="row justify-content-end mt-20 fw-600 fs-14 mr-10">
+                            <div class="row justify-content-end mt-20 fw-600 fs-14 mr-10  @if($Settings['enable-advance-payments']==false)  d-none @endif ">
                                 <div class="col-sm-5">Total Pay Amount <span class="cright">:</span></div>
                                 <div class="col-sm-4 text-right" id="divTotalPayAmount"> {{NumberFormat(0,$Settings['price-decimals'])}}</div>
                             </div>
-                            <div class="row justify-content-end mt-20 fw-600 fs-14 mr-10">
+                            <div class="row justify-content-end mt-20 fw-600 fs-14 mr-10  @if($Settings['enable-advance-payments']==false)  d-none @endif ">
                                 <div class="col-sm-5">Total Less from Advance <span class="cright">:</span></div>
                                 <div class="col-sm-4 text-right" id="divTotalAdvancePaidAmount"> {{NumberFormat(0,$Settings['price-decimals'])}}</div>
                             </div>
@@ -212,10 +213,10 @@
                                 html+='<td class="text-right">'+NumberFormat(Item.NetAmount,"price")+'</td>';
                                 html+='<td class="text-right display-none">'+NumberFormat(Item.PaidAmount,"price")+'</td>';
                                 html+='<td class="text-right">'+NumberFormat(Item.BalanceAmount,"price")+'</td>';
-                                html+='<td><div class="input-group"><input type="number" steps="{{NumberSteps($Settings["price-decimals"])}}" data-balance-amount="'+NumberFormat(Item.BalanceAmount,"price")+'" data-id="'+Item.OrderID+'"  class="form-control txtAdvanceAmount" id="txtAdvanceAmount-'+Item.OrderID+'" value="'+NumberFormat(Item.PayLessFromAdvance,'price')+'"></div><div class="errors err-sm '+Item.OrderID+' text-sm" id="txtAdvanceAmount-'+Item.OrderID+'-err">&nbsp;</div></td>';
+                                html+='<td class=" @if($Settings['enable-advance-payments']==false)  d-none @endif "><div class="input-group"><input type="number" steps="{{NumberSteps($Settings["price-decimals"])}}" data-balance-amount="'+NumberFormat(Item.BalanceAmount,"price")+'" data-id="'+Item.OrderID+'"  class="form-control txtAdvanceAmount" id="txtAdvanceAmount-'+Item.OrderID+'" value="'+NumberFormat(Item.PayLessFromAdvance,'price')+'"></div><div class="errors err-sm '+Item.OrderID+' text-sm" id="txtAdvanceAmount-'+Item.OrderID+'-err">&nbsp;</div></td>';
                                 html+='<td><input type="number" steps="{{NumberSteps($Settings["price-decimals"])}}" class="form-control txtPayAmount" data-balance-amount="'+NumberFormat(Item.BalanceAmount,"price")+'" id="txtPA-'+Item.OrderID+'" data-id="'+Item.OrderID+'"  value="'+NumberFormat(Item.PayPaidAmount,'price')+'"><div class="errors err-sm  '+Item.OrderID+' text-sm" id="txtPA-'+Item.OrderID+'-err">&nbsp;</div></td>';
                                 
-                                html+='<td><input class="form-control txtTotalAmount" steps="{{NumberSteps($Settings["price-decimals"])}}" data-balance-amount="'+NumberFormat(Item.BalanceAmount,"price")+'" type="number" data-id="'+Item.OrderID+'" id="txtTP-'+Item.OrderID+'"    disabled value="'+NumberFormat(0,'price')+'"><div class="errors err-sm  '+Item.OrderID+' text-sm" id="txtTP-'+Item.OrderID+'-err">&nbsp;</div></td>';
+                                html+='<td class=" @if($Settings['enable-advance-payments']==false)  d-none @endif "><input class="form-control txtTotalAmount" steps="{{NumberSteps($Settings["price-decimals"])}}" data-balance-amount="'+NumberFormat(Item.BalanceAmount,"price")+'" type="number" data-id="'+Item.OrderID+'" id="txtTP-'+Item.OrderID+'"    disabled value="'+NumberFormat(0,'price')+'"><div class="errors err-sm  '+Item.OrderID+' text-sm" id="txtTP-'+Item.OrderID+'-err">&nbsp;</div></td>';
                                 html+='<td><input class="form-control txtNewBalAmount" steps="{{NumberSteps($Settings["price-decimals"])}}" data-balance-amount="'+NumberFormat(Item.BalanceAmount,"price")+'" type="number" data-id="'+Item.OrderID+'" id="txtNB-'+Item.OrderID+'"   value="'+NumberFormat(Item.BalanceAmount,"price")+'" disabled "><div class="errors err-sm  '+Item.OrderID+' text-sm" id="txtNB-'+Item.OrderID+'-err">&nbsp;</div></td>';
                                 html+='</tr>'
                                 $('#tblDetails tbody').append(html);

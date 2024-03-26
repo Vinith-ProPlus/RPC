@@ -1,6 +1,7 @@
 <?php
 namespace App\helper;
 use DB;
+use DocNum;
 use Illuminate\Support\Facades\Config;
 use Session;
 class helper{
@@ -825,9 +826,29 @@ class helper{
 		}
 	}
 
-    public static function sendNotification($UserID,$Title,$Message){
+	public static function saveNotification($ReferID,$Title,$Message,$Route,$RouteID){
+		$UserID = DB::table('users')->where('ReferID',$ReferID)->value('UserID');
+		$NID = DocNum::getDocNum("Notification",self::getCurrFYDB(),self::getCurrentFY());
+		$Ndata = [
+			'NID'=> $NID,
+			'UserID'=> $UserID,
+			'ReferID'=> $ReferID,
+			'Title'=> $Title,
+			'Message'=> $Message,
+			'Route'=> $Route,
+			'RouteID'=> $RouteID
+		];
+		$status = DB::table(self::getCurrFYDB().'tbl_notifications')->insert($Ndata);
+		if($status){
+			DocNum::updateDocNum("Notification",self::getCurrFYDB());
+		}
+		return $status;
+	}
+
+    public static function sendNotification($ReferID,$Title,$Message){
+		$UserID = DB::table('users')->where('ReferID',$ReferID)->value('UserID');
         $firebaseToken=array();
-        $sql="Select IFNULL(fcmToken,'') as fcmToken,IFNULL(WebFcmToken,'') as WebFcmToken From users where ActiveStatus=1 and DFlag=0  and UserID='".$UserID."'";
+        $sql="Select IFNULL(fcmToken,'') as fcmToken,IFNULL(WebFcmToken,'') as WebFcmToken From users where ActiveStatus=1 and DFlag=0 and UserID='".$UserID."'";
         $result = DB::SELECT($sql);
         for($i=0;$i<count($result);$i++){
             if($result[$i]->fcmToken!=""){
@@ -904,5 +925,16 @@ class helper{
         }
         return $return;
     }
+	public static function shortenValue($value) {
+		$abbreviations = ["", "K", "M", "B", "T"]; // Add more if needed
+	
+		$abbrevIndex = 0;
+		while ($value >= 1000 && $abbrevIndex < count($abbreviations) - 1) {
+			$value /= 1000;
+			$abbrevIndex++;
+		}
+	
+		return round($value, 1) . $abbreviations[$abbrevIndex];
+	}
 
 }

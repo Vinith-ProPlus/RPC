@@ -28,6 +28,10 @@ Route::controller(VendorAuthController::class)->group(function () {
     Route::post('/update-stock-data','UpdateStockData');
     
     Route::post('/get/vendor-home','getVendorHome');
+    Route::post('/get/notifications','getNotifications');
+    Route::post('/notification-read','NotificationRead');
+
+    Route::post('/get/vendor-products-search','getVendorProductSearch');
 });
 
 Route::controller(VendorStockPointController::class)->group(function () {
