@@ -3,6 +3,7 @@ namespace App\Http\Controllers\Home;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\web\Transaction\OrderController;
+use App\Http\Controllers\web\Transaction\QuotationController;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -33,14 +34,15 @@ class HomeAuthController extends Controller{
 	private $UserData;
 	private $logDB;
 	private $supportDB;
-    private $currFyDB;
+    private $CurrFyDB;
+    private $shippingAddress;
 
 	public function __construct(){
 		$this->generalDB=Helper::getGeneralDB();
 		$this->tmpDB=Helper::getTmpDB();
 		$this->logDB=Helper::getLogDB();
 		$this->supportDB=Helper::getSupportDB();
-        $this->currFyDB=Helper::getcurrFyDB();
+        $this->CurrFyDB=Helper::getcurrFyDB();
         $this->PCategories = DB::Table('tbl_product_category')->where('ActiveStatus','Active')->where('DFlag',0)
             ->select('PCName','PCID',
                 DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PCImage, ""), "assets/images/no-image-b.png")) AS PCImage'))
@@ -57,6 +59,15 @@ class HomeAuthController extends Controller{
 			$this->UserData = Helper::getUserInfo(Auth()->user()->UserID);
 			$this->UserID=auth()->user()->UserID;
 			$this->ReferID=auth()->user()->ReferID;
+            $this->shippingAddress = DB::table('tbl_customer_address as CA')->where('CustomerID',$this->ReferID)
+                ->join($this->generalDB.'tbl_countries as C','C.CountryID','CA.CountryID')
+                ->join($this->generalDB.'tbl_states as S', 'S.StateID', 'CA.StateID')
+                ->join($this->generalDB.'tbl_districts as D', 'D.DistrictID', 'CA.DistrictID')
+                ->join($this->generalDB.'tbl_taluks as T', 'T.TalukID', 'CA.TalukID')
+                ->join($this->generalDB.'tbl_cities as CI', 'CI.CityID', 'CA.CityID')
+                ->join($this->generalDB.'tbl_postalcodes as PC', 'PC.PID', 'CA.PostalCodeID')
+                ->select('CA.AID', 'CA.Address', 'CA.isDefault', 'CA.CountryID', 'C.CountryName', 'CA.StateID', 'S.StateName', 'CA.DistrictID', 'D.DistrictName', 'CA.TalukID', 'T.TalukName', 'CA.CityID', 'CI.CityName', 'CA.PostalCodeID', 'PC.PostalCode')
+                ->get();
 			return $next($request);
 		});
     }
@@ -1230,13 +1241,13 @@ class HomeAuthController extends Controller{
         $pageNo = $request->pageNo ?? 1;
 
         $orderBy = ($request->has('orderBy') && in_array($request->orderBy, ['asc', 'desc'])) ? $request->orderBy : 'desc';
-        $quotationCount = DB::table($this->currFyDB.'tbl_enquiry as E')
+        $quotationCount = DB::table($this->CurrFyDB.'tbl_enquiry as E')
             ->leftJoin('users as U', 'U.UserID', 'E.CustomerID')
             ->where('U.UserID',$customerID)
             ->select('E.EnqNo')
             ->count();
 
-        $quotationDetails = DB::table($this->currFyDB.'tbl_enquiry as E')
+        $quotationDetails = DB::table($this->CurrFyDB.'tbl_enquiry as E')
             ->leftJoin('users as U', 'U.UserID', 'E.CustomerID')
             ->where('E.CustomerID',$customerID)
             ->orderBy('U.CreatedOn', $orderBy)
@@ -1279,13 +1290,13 @@ class HomeAuthController extends Controller{
         $pageNo = $request->pageNo ?? 1;
 
         $orderBy = ($request->has('orderBy') && in_array($request->orderBy, ['asc', 'desc'])) ? $request->orderBy : 'desc';
-        $orderCount = DB::table($this->currFyDB.'tbl_order as O')
+        $orderCount = DB::table($this->CurrFyDB.'tbl_order as O')
             ->leftJoin('users as U', 'U.UserID', 'O.CustomerID')
             ->where('O.CustomerID',$customerID)
             ->select('O.OrderNo')
             ->count();
 
-        $orderDetails = DB::table($this->currFyDB.'tbl_order as O')
+        $orderDetails = DB::table($this->CurrFyDB.'tbl_order as O')
             ->leftJoin('users as U', 'U.UserID', 'O.CustomerID')
             ->where('O.CustomerID',$customerID)
             ->orderBy('O.CreatedOn', $orderBy)
@@ -1338,13 +1349,219 @@ class HomeAuthController extends Controller{
             }
     }
 
+//    public function CustomerQuoteView(Request $req, $EnqID)
+//    {
+//        $CustomerID = $this->ReferID;
+//        $FormData['isEdit'] = false;
+//        $FormData['Company'] = $this->Company;
+//        $FormData['QData'] = [];
+//        $FormData['QID'] = $EnqID;
+//        $PCatagories = DB::Table('tbl_product_category')->where('ActiveStatus', 'Active')->where('DFlag', 0)
+//            ->select('PCName', 'PCID',
+//                DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PCImage, ""), "assets/images/no-image-b.png")) AS PCImage'))
+//            ->inRandomOrder()->take(10)->get();
+//        $FormData['PCategories'] = $PCatagories;
+//        $FormData['isRegister'] = false;
+//        $FormData['Cart'] = $this->getCart();
+//        $FormData['ShippingAddress'] = DB::table('tbl_customer_address as CA')->where('CustomerID', $CustomerID)
+//            ->join($this->generalDB . 'tbl_countries as C', 'C.CountryID', 'CA.CountryID')
+//            ->join($this->generalDB . 'tbl_states as S', 'S.StateID', 'CA.StateID')
+//            ->join($this->generalDB . 'tbl_districts as D', 'D.DistrictID', 'CA.DistrictID')
+//            ->join($this->generalDB . 'tbl_taluks as T', 'T.TalukID', 'CA.TalukID')
+//            ->join($this->generalDB . 'tbl_cities as CI', 'CI.CityID', 'CA.CityID')
+//            ->join($this->generalDB . 'tbl_postalcodes as PC', 'PC.PID', 'CA.PostalCodeID')
+//            ->select('CA.AID', 'CA.Address', 'CA.isDefault', 'CA.CountryID', 'C.CountryName', 'CA.StateID', 'S.StateName', 'CA.DistrictID', 'D.DistrictName', 'CA.TalukID', 'T.TalukName', 'CA.CityID', 'CI.CityName', 'CA.PostalCodeID', 'PC.PostalCode')
+//            ->get();
+//        $quotation = DB::Table($this->CurrFyDB.'tbl_quotation')->where("CustomerID", $CustomerID)->where("EnqID", $EnqID)->first();
+//        $enquiry = DB::Table($this->CurrFyDB.'tbl_enquiry')->where("CustomerID", $CustomerID)->where("EnqID", $EnqID)->first();
+//        if ($quotation){
+//            logger("Quotation present");
+//            $FormData['QID'] = $quotation->QID;
+//            $FormData['QData'] = $this->getQuotes(["QID" => $quotation->QID]);
+//            if (count($FormData['QData']) > 0) {
+//                $FormData['QData'] = $FormData['QData'][0];
+//            }
+//            return view('home.customer.quote-view', $FormData);
+//        } elseif ($enquiry) {
+//            logger("Enquiry present");
+//            $FormData = $this->EnquiryDetails($EnqID);
+//            $FormData['Company'] = $this->Company;
+//            $PCatagories = DB::Table('tbl_product_category')->where('ActiveStatus', 'Active')->where('DFlag', 0)
+//                ->select('PCName', 'PCID',
+//                    DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PCImage, ""), "assets/images/no-image-b.png")) AS PCImage'))
+//                ->inRandomOrder()->take(10)->get();
+//            $FormData['PCategories'] = $PCatagories;
+//            $FormData['isRegister'] = false;
+//            $FormData['Cart'] = $this->getCart();
+//            return view('home.customer.enquiry-view', $FormData);
+//        } else {
+//            return view('errors.403');
+//        }
+//    }
+
+
+    public function CustomerQuoteView(Request $req, $EnqID)
+    {
+        $CustomerID = $this->ReferID;
+        $quotation = DB::table($this->CurrFyDB . 'tbl_quotation')->where("CustomerID", $CustomerID)->where("EnqID", $EnqID)->first();
+        $enquiry = DB::table($this->CurrFyDB . 'tbl_enquiry')->where("CustomerID", $CustomerID)->where("EnqID", $EnqID)->first();
+
+        if ($quotation) {
+            logger("Quotation present");
+            return $this->renderQuotationView($quotation);
+        } elseif ($enquiry) {
+            logger("Enquiry present");
+            return $this->renderEnquiryView($EnqID);
+        } else {
+            return view('errors.403');
+        }
+    }
+
+    private function renderQuotationView($quotation)
+    {
+        $FormData = $this->prepareQuoteFormData($quotation->QID);
+        return view('home.customer.quote-view', $FormData);
+    }
+
+    private function renderEnquiryView($EnqID)
+    {
+        $FormData = $this->EnquiryDetails($EnqID);
+        $FormData['Company'] = $this->Company;
+        $PCategories = $this->getRandomProductCategories();
+        $FormData['PCategories'] = $PCategories;
+        $FormData['isRegister'] = false;
+        $FormData['Cart'] = $this->getCart();
+        $FormData['ShippingAddress'] = $this->shippingAddress;
+        return view('home.customer.enquiry-view', $FormData);
+    }
+
+    private function prepareQuoteFormData($QID)
+    {
+        $FormData['isEdit'] = false;
+        $FormData['Company'] = $this->Company;
+        $FormData['QData'] = $this->getQuotes(["QID" => $QID]);
+        $FormData['QID'] = $QID;
+        $FormData['isRegister'] = false;
+        $FormData['Cart'] = $this->getCart();
+        $PCategories = $this->getRandomProductCategories();
+        $FormData['PCategories'] = $PCategories;
+        $FormData['ShippingAddress'] = $this->shippingAddress;
+        if (count($FormData['QData']) > 0) {
+            $FormData['QData'] = $FormData['QData'][0];
+        }
+        return $FormData;
+    }
+
+    private function getRandomProductCategories()
+    {
+        return DB::table('tbl_product_category')->where('ActiveStatus', 'Active')->where('DFlag', 0)
+            ->select('PCName', 'PCID', DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PCImage, ""), "assets/images/no-image-b.png")) AS PCImage'))
+            ->inRandomOrder()->take(10)->get();
+    }
+    public function getQuotes($data=array()){
+        $sql ="SELECT Q.QID, Q.EnqID, Q.QNo, Q.QDate, Q.QExpiryDate, Q.CustomerID, C.CustomerName, C.MobileNo1, C.MobileNo2, C.Email, C.Address as BAddress, C.CountryID as BCountryID, BC.CountryName as BCountryName, ";
+        $sql.=" C.StateID as BStateID, BS.StateName as BStateName, C.DistrictID as BDistrictID, BD.DistrictName as BDistrictName, C.TalukID, BT.TalukName as BTalukName, C.CityID as BCityID, BCI.CityName as BCityName, C.PostalCodeID as BPostalCodeID, ";
+        $sql.=" BPC.PostalCode as BPostalCode, BC.PhoneCode, Q.ReceiverName, Q.ReceiverMobNo, Q.DAddress, Q.DCountryID, CO.CountryName as DCountryName, Q.DStateID, S.StateName as DStateName, Q.DDistrictID, D.DistrictName as DDistrictName, Q.DTalukID, ";
+        $sql.=" T.TalukName as DTalukName, Q.DCityID, CI.CityName as DCityName, Q.DPostalCodeID, PC.PostalCode as DPostalCode, Q.TaxAmount, Q.SubTotal, Q.DiscountType, Q.DiscountPercent as DiscountPercentage, Q.DiscountAmount, Q.CGSTAmount, ";
+        $sql.=" Q.SGSTAmount, Q.IGSTAmount, Q.TotalAmount, Q.AdditionalCost, Q.OverAllAmount as NetAmount, Q.AdditionalCostData, Q.Status, Q.AcceptedOn, Q.RejectedOn, Q.ApprovedBy, Q.RejectedBy, Q.RReasonID, RR.RReason, Q.RRDescription ";
+        $sql.=" FROM ".$this->CurrFyDB."tbl_quotation as Q LEFT JOIN tbl_customer as C ON C.CustomerID=Q.CustomerID LEFT JOIN ".$this->generalDB."tbl_countries as BC ON BC.CountryID=C.CountryID  ";
+        $sql.=" LEFT JOIN ".$this->generalDB."tbl_states as BS ON BS.StateID=C.StateID LEFT JOIN ".$this->generalDB."tbl_districts as BD ON BD.DistrictID=C.DistrictID  ";
+        $sql.=" LEFT JOIN ".$this->generalDB."tbl_taluks as BT ON BT.TalukID=C.TalukID LEFT JOIN ".$this->generalDB."tbl_cities as BCI ON BCI.CityID=C.CityID ";
+        $sql.=" LEFT JOIN ".$this->generalDB."tbl_postalcodes as BPC ON BPC.PID=C.PostalCodeID LEFT JOIN ".$this->generalDB."tbl_countries as CO ON CO.CountryID=Q.DCountryID  ";
+        $sql.=" LEFT JOIN ".$this->generalDB."tbl_states as S ON S.StateID=Q.DStateID LEFT JOIN ".$this->generalDB."tbl_districts as D ON D.DistrictID=Q.DDistrictID ";
+        $sql.=" LEFT JOIN ".$this->generalDB."tbl_taluks as T ON T.TalukID=Q.DTalukID LEFT JOIN ".$this->generalDB."tbl_cities as CI ON CI.CityID=Q.DCityID ";
+        $sql.=" LEFT JOIN ".$this->generalDB."tbl_postalcodes as PC ON PC.PID=Q.DPostalCodeID LEFT JOIN tbl_reject_reason as RR ON RR.RReasonID=Q.RReasonID ";
+        $sql.=" Where 1=1 ";
+        if(is_array($data)){
+            if(array_key_exists("QID",$data)){$sql.=" AND Q.QID='".$data['QID']."'";}
+        }
+        $result=DB::SELECT($sql);
+        for($i=0;$i<count($result);$i++){
+            $result[$i]->AdditionalCostData=unserialize($result[$i]->AdditionalCostData);
+            $sql="SELECT QD.DetailID, QD.QID, QD.VQDetailID, QD.ProductID, P.ProductName, P.HSNSAC, P.UID, U.UCode, U.UName, QD.Qty, QD.Price, QD.TaxType, QD.TaxPer, QD.Taxable, QD.DiscountType, QD.DiscountPer, QD.DiscountAmt, QD.TaxAmt, QD.CGSTPer, QD.SGSTPer, QD.IGSTPer, QD.CGSTAmt, QD.SGSTAmt, QD.IGSTAmt, QD.TotalAmt, QD.VendorID, V.VendorName, QD.isCancelled, QD.CancelledBy, QD.CancelledOn, QD.ReasonID, RR.RReason, QD.RDescription  ";
+            $sql.=" FROM ".$this->CurrFyDB."tbl_quotation_details as QD LEFT JOIN tbl_products as P ON P.ProductID=QD.ProductID LEFT JOIN tbl_uom as U ON U.UID=P.UID LEFT JOIN tbl_reject_reason as RR ON RR.RReasonID=QD.ReasonID LEFT JOIN tbl_vendors as V ON V.VendorID=QD.VendorID ";
+            $sql.=" Where QD.QID='".$result[$i]->QID."' and QD.isCancelled=0 ";
+            $result[$i]->Details=DB::SELECT($sql);
+            $addCharges=[];
+            $result1=DB::Table($this->CurrFyDB.'tbl_vendor_quotation')->Where('EnqID',$result[$i]->EnqID)->get();
+            foreach($result1 as $tmp){
+                $addCharges[$tmp->VendorID]=Helper::NumberFormat($tmp->AdditionalCost, 2);
+            }
+            $result[$i]->AdditionalCharges=$addCharges;
+        }
+        return $result;
+    }
+
+    public function EnquiryDetails($EnqID){
+        $EnqData = DB::Table($this->CurrFyDB . 'tbl_enquiry as E')
+            ->leftJoin('tbl_customer as CU', 'CU.CustomerID', 'E.CustomerID')
+            ->leftJoin($this->generalDB.'tbl_countries as C','C.CountryID','CU.CountryID')
+            ->leftJoin($this->generalDB.'tbl_states as S', 'S.StateID', 'CU.StateID')
+            ->leftJoin($this->generalDB.'tbl_districts as D', 'D.DistrictID', 'CU.DistrictID')
+            ->leftJoin($this->generalDB.'tbl_taluks as T', 'T.TalukID', 'CU.TalukID')
+            ->leftJoin($this->generalDB.'tbl_cities as CI', 'CI.CityID', 'CU.CityID')
+            ->leftJoin($this->generalDB.'tbl_postalcodes as PC', 'PC.PID', 'CU.PostalCodeID')
+            ->leftJoin($this->generalDB.'tbl_countries as DC','DC.CountryID','E.DCountryID')
+            ->leftJoin($this->generalDB.'tbl_states as DS', 'DS.StateID', 'E.DStateID')
+            ->leftJoin($this->generalDB.'tbl_districts as DD', 'DD.DistrictID', 'E.DDistrictID')
+            ->leftJoin($this->generalDB.'tbl_taluks as DT', 'DT.TalukID', 'E.DTalukID')
+            ->leftJoin($this->generalDB.'tbl_cities as DCI', 'DCI.CityID', 'E.DCityID')
+            ->leftJoin($this->generalDB.'tbl_postalcodes as DPC', 'DPC.PID', 'E.DPostalCodeID')
+            ->Where('E.EnqID',$EnqID)
+            ->select('EnqID','EnqNo','EnqDate','VendorIDs','Status','ReceiverName','ReceiverMobNo','ExpectedDeliveryDate','CU.Email','DPostalCodeID','E.PostalCodeID','E.Address','C.CountryName','S.StateName','D.DistrictName','T.TalukName','CI.CityName','PC.PostalCode','DAddress','DC.CountryName as DCountryName','DS.StateName as DStateName','DD.DistrictName as DDistrictName','DT.TalukName as DTalukName','DCI.CityName as DCityName','DPC.PostalCode as DPostalCode')
+            ->first();
+        $FormData['EnqData']=$EnqData;
+        if($EnqData){
+            $VendorQuote = [];
+            $FinalQuoteData = [];
+            $PData=DB::table($this->CurrFyDB.'tbl_enquiry_details as ED')->leftJoin('tbl_products as P','P.ProductID','ED.ProductID')->leftJoin('tbl_uom as UOM','UOM.UID','ED.UOMID')->where('ED.EnqID',$EnqID)->select('ED.ProductID','ED.CID','ED.SCID','ED.Qty','P.ProductName','UOM.UID','UOM.UName','UOM.UCode')->get();
+            if(count($PData) > 0){
+                foreach($PData as $row){
+                    $row->AvailableVendors=[];
+                    $AllVendors = DB::table('tbl_vendors as V')->join('tbl_vendors_service_locations as VSL','V.VendorID','VSL.VendorID')->leftJoin('tbl_vendor_ratings as VR','VR.VendorID','V.VendorID')->where('V.ActiveStatus',"Active")->where('V.isApproved',1)->where('V.DFlag',0)->where('VSL.PostalCodeID',$FormData['EnqData']->DPostalCodeID)->select('V.VendorID','V.VendorName','VR.OverAll')->get();
+                    if(count($AllVendors)>0){
+                        foreach($AllVendors as $item){
+                            $isProductAvailable= DB::Table('tbl_vendors_product_mapping')->where('Status',1)->Where('VendorID',$item->VendorID)->where('ProductID',$row->ProductID)->first();
+                            if($isProductAvailable){
+                                $row->AvailableVendors[] = [
+                                    "VendorID" => $item->VendorID,
+                                    "VendorName" => $item->VendorName,
+                                    "OverAll" => $item->OverAll,
+                                    "ProductID" => $isProductAvailable->ProductID,
+                                ];
+                            }
+                        }
+                    }
+                }
+            }
+            if($EnqData->Status == "Quote Requested" && $EnqData->VendorIDs && count(unserialize($EnqData->VendorIDs)) > 0){
+                $VendorQuote = DB::Table($this->CurrFyDB.'tbl_vendor_quotation as VQ')->join('tbl_vendors as V','V.VendorID','VQ.VendorID')/* ->where('VQ.Status','Sent') */->where('VQ.EnqID',$EnqID)->select('VQ.VendorID','V.VendorName','VQ.VQuoteID','VQ.Status','VQ.AdditionalCost')->get();
+                foreach($VendorQuote as $row){
+                    $row->ProductData = DB::table($this->CurrFyDB.'tbl_vendor_quotation_details as VQD')->where('VQuoteID',$row->VQuoteID)
+                        ->select('DetailID','ProductID','Price','VQuoteID')
+                        ->get();
+                }
+            }elseif($EnqData->Status == "Converted to Quotation"){
+                $FinalQuoteData = DB::Table($this->CurrFyDB.'tbl_quotation_details as QD')->join($this->CurrFyDB.'tbl_quotation as Q','Q.QID','QD.QID')->join('tbl_vendors as V','V.VendorID','QD.VendorID')->join('tbl_products as P','P.ProductID','QD.ProductID')->join('tbl_uom as UOM','UOM.UID','P.UID')->where('Q.EnqID',$EnqID)->get();
+            }
+
+            $FormData['PData'] = $PData;
+            $FormData['VendorQuote'] = $VendorQuote;
+            $FormData['FinalQuoteData'] = $FinalQuoteData;
+            return $FormData;
+
+        }else{
+            return '';
+        }
+    }
+
     public function getCustomerOrder($data=array()){
         $sql ="SELECT O.OrderID, O.OrderNo, O.OrderDate, O.QID, O.EnqID, O.ExpectedDelivery, O.CustomerID, C.CustomerName, C.MobileNo1, C.MobileNo2, C.Email, C.Address as BAddress, C.CountryID as BCountryID, BC.CountryName as BCountryName, ";
         $sql.=" C.StateID as BStateID, BS.StateName as BStateName, C.DistrictID as BDistrictID, BD.DistrictName as BDistrictName, C.TalukID, BT.TalukName as BTalukName, C.CityID as BCityID, BCI.CityName as BCityName, C.PostalCodeID as BPostalCodeID, ";
         $sql.=" BPC.PostalCode as BPostalCode, BC.PhoneCode, O.ReceiverName, O.ReceiverMobNo, O.DAddress, O.DCountryID, CO.CountryName as DCountryName, O.DStateID, S.StateName as DStateName, O.DDistrictID, D.DistrictName as DDistrictName, O.DTalukID, ";
         $sql.=" T.TalukName as DTalukName, O.DCityID, CI.CityName as DCityName, O.DPostalCodeID, PC.PostalCode as DPostalCode, O.TaxAmount, O.SubTotal, O.DiscountType, O.DiscountPercentage, O.DiscountAmount, O.CGSTAmount, ";
         $sql.=" O.SGSTAmount, O.IGSTAmount, O.TotalAmount, O.AdditionalCost, O.NetAmount, O.PaidAmount, O.BalanceAmount, O.PaymentStatus,  O.AdditionalCostData, O.Status,  O.RejectedOn,  O.RejectedBy, O.ReasonID, RR.RReason, O.RDescription ";
-        $sql.=" FROM ".$this->currFyDB."tbl_order as O LEFT JOIN tbl_customer as C ON C.CustomerID=O.CustomerID LEFT JOIN ".$this->generalDB."tbl_countries as BC ON BC.CountryID=C.CountryID  ";
+        $sql.=" FROM ".$this->CurrFyDB."tbl_order as O LEFT JOIN tbl_customer as C ON C.CustomerID=O.CustomerID LEFT JOIN ".$this->generalDB."tbl_countries as BC ON BC.CountryID=C.CountryID  ";
         $sql.=" LEFT JOIN ".$this->generalDB."tbl_states as BS ON BS.StateID=C.StateID LEFT JOIN ".$this->generalDB."tbl_districts as BD ON BD.DistrictID=C.DistrictID  ";
         $sql.=" LEFT JOIN ".$this->generalDB."tbl_taluks as BT ON BT.TalukID=C.TalukID LEFT JOIN ".$this->generalDB."tbl_cities as BCI ON BCI.CityID=C.CityID ";
         $sql.=" LEFT JOIN ".$this->generalDB."tbl_postalcodes as BPC ON BPC.PID=C.PostalCodeID LEFT JOIN ".$this->generalDB."tbl_countries as CO ON CO.CountryID=O.DCountryID  ";
@@ -1359,11 +1576,11 @@ class HomeAuthController extends Controller{
         for($i=0;$i<count($result);$i++){
             $result[$i]->AdditionalCostData=unserialize($result[$i]->AdditionalCostData);
             $sql="SELECT OD.DetailID, OD.OrderID, OD.QID, OD.QDID, OD.VOrderID, OD.ProductID, P.ProductName, P.HSNSAC, P.UID, U.UCode, U.UName, OD.Qty, OD.Price, OD.TaxType, OD.TaxPer, OD.Taxable, OD.DiscountType, OD.DiscountPer, OD.DiscountAmt, OD.TaxAmt, OD.CGSTPer, OD.SGSTPer, OD.IGSTPer, OD.CGSTAmt, OD.SGSTAmt, OD.IGSTAmt, OD.TotalAmt, OD.VendorID, V.VendorName, OD.Status, OD.RejectedBy, OD.RejectedOn, OD.ReasonID, RR.RReason, OD.RDescription, OD.DeliveredOn, OD.DeliveredBy  ";
-            $sql.=" FROM ".$this->currFyDB."tbl_order_details as OD LEFT JOIN tbl_products as P ON P.ProductID=OD.ProductID LEFT JOIN tbl_uom as U ON U.UID=P.UID LEFT JOIN tbl_reject_reason as RR ON RR.RReasonID=OD.ReasonID LEFT JOIN tbl_vendors as V ON V.VendorID=OD.VendorID ";
+            $sql.=" FROM ".$this->CurrFyDB."tbl_order_details as OD LEFT JOIN tbl_products as P ON P.ProductID=OD.ProductID LEFT JOIN tbl_uom as U ON U.UID=P.UID LEFT JOIN tbl_reject_reason as RR ON RR.RReasonID=OD.ReasonID LEFT JOIN tbl_vendors as V ON V.VendorID=OD.VendorID ";
             $sql.=" Where OD.OrderID='".$result[$i]->OrderID."' Order By OD.DetailID ";
             $result[$i]->Details=DB::SELECT($sql);
             $addCharges=[];
-            $result1=DB::Table($this->currFyDB.'tbl_vendor_quotation')->Where('EnqID',$result[$i]->EnqID)->get();
+            $result1=DB::Table($this->CurrFyDB.'tbl_vendor_quotation')->Where('EnqID',$result[$i]->EnqID)->get();
             foreach($result1 as $tmp){
                 $addCharges[$tmp->VendorID]=Helper::NumberFormat($tmp->AdditionalCost,2);
             }
@@ -1404,12 +1621,12 @@ class HomeAuthController extends Controller{
     public function customerReviewSave(Request $req){
         DB::beginTransaction();
         try {
-            $isOrderCompleted = DB::Table($this->currFyDB.'tbl_order')->where('OrderID',$req->OrderID)
+            $isOrderCompleted = DB::Table($this->CurrFyDB.'tbl_order')->where('OrderID',$req->OrderID)
                 ->where('Status','Delivered')->exists();
             if(!$isOrderCompleted){
                 return response()->json(['status' => false,'message' => "Order is not Delivered!"]);
             }else{
-                DB::Table($this->currFyDB.'tbl_order')->where('OrderID',$req->OrderID)
+                DB::Table($this->CurrFyDB.'tbl_order')->where('OrderID',$req->OrderID)
                     ->update(['Ratings'=>$req->Ratings,'Review'=>$req->Review,'isRated'=>1,'RatedOn'=>date('Y-m-d'),
                         'UpdatedOn'=>date('Y-m-d H:i:s')]);
                 DB::commit();

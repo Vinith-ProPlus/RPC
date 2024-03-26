@@ -33,7 +33,7 @@
 		</div>
 	</div>
 </div>
-<?php 
+<?php
     $vendorAdditionalCharges=[];
 ?>
 <div class="container-fluid">
@@ -53,7 +53,7 @@
                                         <div class="card-body">
                                             @foreach([
                                                 'Customer Name' => $QData->CustomerName,
-                                                
+
                                                 'Email' => $QData->Email,
                                                 'Contact Number' => $QData->MobileNo1 ,
                                                 'Quote Expiry Date' => date($Settings['date-format'], strtotime($QData->QExpiryDate)),
@@ -76,7 +76,7 @@
                                             <p class="text-center fs-16 fw-500">Billing Address</p>
                                         </div>
                                         <div class="card-body">
-                                            <?php 
+                                            <?php
                                                 $Address="";
                                                 // if($QData->CustomerName!=""){$Address.="<b>".$QData->CustomerName."</b>";}
                                                 if($QData->BAddress!=""){if($Address!=""){$Address.=",<br> ";}$Address.=$QData->BAddress;}
@@ -98,7 +98,7 @@
                                             <p class="text-center fs-16 fw-500">Shipping Address</p>
                                         </div>
                                         <div class="card-body">
-                                            <?php 
+                                            <?php
                                                 $DAddress="";
                                                 if($QData->DAddress!=""){if($DAddress!=""){$DAddress.=",<br> ";}$DAddress.=$QData->DAddress;}
                                                 if($QData->DCityName!=""){if($DAddress!=""){$DAddress.=",<br> ";}$DAddress.=$QData->DCityName;}
@@ -188,7 +188,7 @@
                                                             @endif
                                                         </td>
                                                     @endif
-                                                    <?php 
+                                                    <?php
                                                         $tmpAmount=0;
                                                         if(array_key_exists($item->VendorID,$QData->AdditionalCharges)){ $tmpAmount=$QData->AdditionalCharges[$item->VendorID];}
                                                         $vendorAdditionalCharges[$item->VendorID]=["name"=>$item->VendorName,"amount"=>$tmpAmount]
@@ -244,7 +244,7 @@
                                                     </div>
                                                 @endif
                                             @else
-                                            
+
                                                 <div class="row mt-10 fw-500 fs-13 mr-10 justify-content-end">
                                                     <div class="col-4">Tax Amount</div>
                                                     <div class="col-1">:</div>
@@ -651,7 +651,7 @@
                     complete: function(e, x, settings, exception){
                         ajaxIndicatorStop ()
                     },
-                    success:function(response){ 
+                    success:function(response){
                         if(response.status){
                             $('#QuoteCancelModel').modal('hide');
                             toastr.success(response.message, "", {positionClass: "toast-top-right",containerId: "toast-top-right",showMethod: "slideDown",hideMethod: "slideUp",progressBar: !0})

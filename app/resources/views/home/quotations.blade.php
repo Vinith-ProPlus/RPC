@@ -76,7 +76,7 @@
                 });
             }
             $(document).on('click','.btnView',function(){
-                window.location.replace("{{url('/')}}/requested-quotations/view/"+ $(this).attr('data-id'));
+                window.location.replace("{{url('/')}}/quotations/view/"+ $(this).attr('data-id'));
             });
             {{--$(document).on('click','.btnVendorQuoteView',function(){--}}
             {{--    window.location.replace("{{url('/')}}/admin/transaction/quote-enquiry/view/vendor-quote/"+ $(this).attr('data-id'));--}}

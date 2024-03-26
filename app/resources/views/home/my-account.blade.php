@@ -1549,7 +1549,7 @@
             });
 
             $(document).on('click','.btnQuoteView',function(){
-                window.location.replace("{{url('/')}}/requested-quotations/view/"+ $(this).attr('data-id'));
+                window.location.replace("{{url('/')}}/quotations/view/"+ $(this).attr('data-id'));
             });
 
             $('#btnNewTicket').click(function(e){
