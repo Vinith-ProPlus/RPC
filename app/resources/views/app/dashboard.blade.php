@@ -33,7 +33,7 @@
     <div class="container-fluid fs-13">
         
         <div class="row">
-            <div class="col-sm-12 col-md-6 box-col-12 fs-13">
+            <div class="col-sm-12 col-12 col-md-6 col-lg-6 box-col-12 fs-13">
                 <div class="card card-with-border">
                     <div class="card-header p-10">
                         <div class="row">
@@ -43,14 +43,14 @@
                     </div>
                     <div class="card-body p-0 m-0">
                         <div class="row project-details m-0 social-row py-4 d-flex justify-content-center">
-                            <div class="col-sm-12 col-12 col-md-4">
+                            <div class="col-sm-12 col-12 col-md-4 col-lg-4">
                                 <div class="project-incomes text-center">
                                     <i class="fa fa-shopping-cart fs-24 txt-warning"></i>
                                     <h6 class="mb-0 mt-20">Orders Values</h6>
                                     <p class="mb-0 mt-10 fw-600 ldsEllipsis" id="divCustomerOrderValues">0</p>
                                 </div>
                             </div>
-                            <div class="col-sm-12 col-12 col-md-4">
+                            <div class="col-sm-12 col-12 col-md-4 col-lg-4">
                                 <div class="project-incomes text-center">
                                     
                                     <i class="fa fa-check-circle fs-24 txt-success"></i>
@@ -58,7 +58,7 @@
                                     <p class="mb-0 mt-10 fw-600 ldsEllipsis" id="divCustomerReceived">0</p>
                                 </div>
                             </div>
-                            <div class="col-sm-12 col-12 col-md-4">
+                            <div class="col-sm-12 col-12 col-md-4 col-lg-4">
                                 <div class="project-incomes text-center">
                                     <i class="fa fa-exclamation-circle fs-24 txt-danger"></i>
                                     <h6 class="mb-0 mt-20">Outstanding</h6>
@@ -69,7 +69,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-sm-12 col-md-6 box-col-12 fs-13">
+            <div class="col-sm-12 col-12 col-md-6 col-lg-6 box-col-12 fs-13">
                 <div class="card card-with-border">
                     <div class="card-header p-10">
                         <div class="row">
@@ -79,14 +79,14 @@
                     </div>
                     <div class="card-body p-0 m-0">
                         <div class="row project-details m-0 social-row py-4 d-flex justify-content-center">
-                            <div class="col-sm-12 col-12 col-md-4">
+                            <div class="col-sm-12 col-12 col-md-4 col-lg-4">
                                 <div class="project-incomes text-center">
                                     <i class="fa fa-shopping-cart fs-24 txt-warning"></i>
                                     <h6 class="mb-0 mt-20">Orders Values</h6>
                                     <p class="mb-0 mt-10 fw-600 ldsEllipsis"  id="divVendorOrderValues">0</p>
                                 </div>
                             </div>
-                            <div class="col-sm-12 col-12 col-md-4">
+                            <div class="col-sm-12 col-12 col-md-4 col-lg-4">
                                 <div class="project-incomes text-center">
                                     
                                     <i class="fa fa-check-circle fs-24 txt-success"></i>
@@ -94,7 +94,7 @@
                                     <p class="mb-0 mt-10 fw-600 ldsEllipsis" id="divVendorPaid">0</p>
                                 </div>
                             </div>
-                            <div class="col-sm-12 col-12 col-md-4">
+                            <div class="col-sm-12 col-12 col-md-4 col-lg-4">
                                 <div class="project-incomes text-center">
                                     <i class="fa fa-exclamation-circle fs-24 txt-danger"></i>
                                     <h6 class="mb-0 mt-20">Outstanding</h6>
@@ -108,7 +108,7 @@
         </div>
 
         <div class="row">
-            <div class="col-sm-4">
+            <div class="col-sm-12 col-12 col-md-4 col-lg-4">
                 <div class="card investments">
                     <div class="card-header p-10">
                         <div class="row">
@@ -118,7 +118,7 @@
                     </div>
                     <div class="card-body p-0">
                         <div class="row">
-                            <div class="col-sm-12 pb-20 d-flex justify-content-center align-items-center mh-350" id="divEnquiryCircleChart">
+                            <div class="col-sm-12 col-12 col-md-12 col-lg-12 pb-20 d-flex justify-content-center align-items-center mh-350" id="divEnquiryCircleChart">
                                 <div id="EnquiryCircleChart"></div>
                             </div>
                         </div>
@@ -141,7 +141,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-sm-4">
+            <div class="col-sm-12 col-12 col-md-4 col-lg-4">
                 <div class="card investments">
                     <div class="card-header p-10">
                         <div class="row">
@@ -151,7 +151,7 @@
                     </div>
                     <div class="card-body p-0">
                         <div class="row">
-                            <div class="col-sm-12 pb-20 d-flex justify-content-center align-items-center mh-350"  id="divOrdersCircleChart">
+                            <div class="col-sm-12 col-12 col-md-12 col-lg-12 pb-20 d-flex justify-content-center align-items-center mh-350"  id="divOrdersCircleChart">
                                 <div id="OrderCircleChart"></div>
                             </div>
                         </div>
@@ -174,7 +174,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-sm-4">
+            <div class="col-sm-12 col-12 col-md-4 col-lg-4">
                 <div class="card investments">
                     <div class="card-header p-10">
                         <div class="row">
@@ -184,7 +184,7 @@
                     </div>
                     <div class="card-body p-0">
                         <div class="row">
-                            <div class="col-sm-12 pb-20 d-flex justify-content-center align-items-center mh-350"  id="divDeliveryCircleChart">
+                            <div class="col-sm-12 col-12 col-md-12 col-lg-12 pb-20 d-flex justify-content-center align-items-center mh-350"  id="divDeliveryCircleChart">
                                 <div id="DeliveryCircleChart"></div>
                             </div>
                         </div>
@@ -213,7 +213,7 @@
         </div>
         
         <div class="row">
-            <div class="col-sm-4">
+            <div class="col-sm-12 col-12 col-md-4 col-lg-4">
                 <div class="card investments">
                     <div class="card-header p-10">
                         <div class="row">
@@ -223,7 +223,7 @@
                     </div>
                     <div class="card-body p-0">
                         <div class="row">
-                            <div class="col-sm-12 pb-20 d-flex justify-content-center align-items-center mh-350" id="divCustomerPieChart">
+                            <div class="col-sm-12 col-12 col-md-12 col-lg-12 pb-20 d-flex justify-content-center align-items-center mh-350" id="divCustomerPieChart">
                                <canvas id="CustomerPieChart"></canvas>
                             </div>
                         </div>
@@ -243,7 +243,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-sm-4">
+            <div class="col-sm-12 col-12 col-md-4 col-lg-4">
                 <div class="card investments">
                     <div class="card-header p-10">
                         <div class="row">
@@ -253,7 +253,7 @@
                     </div>
                     <div class="card-body p-0">
                         <div class="row">
-                            <div class="col-sm-12 pb-20 d-flex justify-content-center align-items-center mh-350"  id="divVendorPieChart">
+                            <div class="col-sm-12 col-12 col-md-12 col-lg-12 pb-20 d-flex justify-content-center align-items-center mh-350"  id="divVendorPieChart">
                                 <canvas id="VendorPieChart"></canvas>
                             </div>
                         </div>
@@ -273,7 +273,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-sm-4">
+            <div class="col-sm-12 col-12 col-md-4 col-lg-4">
                 <div class="card investments">
                     <div class="card-header p-10">
                         <div class="row">
@@ -283,7 +283,7 @@
                     </div>
                     <div class="card-body p-0">
                         <div class="row">
-                            <div class="col-sm-12 pb-20 d-flex justify-content-center align-items-center mh-350" id="divEmployeePieChart">
+                            <div class="col-sm-12 col-12 col-md-12 col-lg-12 pb-20 d-flex justify-content-center align-items-center mh-350" id="divEmployeePieChart">
                                 <canvas id="EmployeePieChart"></canvas>
                             </div>
                         </div>
@@ -305,7 +305,7 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-sm-12">
+            <div class="col-sm-12 col-12 col-md-12 col-lg-12">
                 <div class="card">
                     <div class="card-header p-10">
                         <div class="row">
@@ -315,7 +315,7 @@
                     </div>
                     <div class="card-body">
                         <div class="row">
-                            <div class="col-sm-12">
+                            <div class="col-sm-12 col-12 col-md-12 col-lg-12">
                                 <table class="table" id="tblQuoteEnquiry">
                                     <thead>
                                         <tr>
@@ -339,7 +339,7 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-sm-12">
+            <div class="col-sm-12 col-12 col-md-12 col-lg-12">
                 <div class="card">
                     <div class="card-header p-10">
                         <div class="row">
@@ -349,7 +349,7 @@
                     </div>
                     <div class="card-body">
                         <div class="row">
-                            <div class="col-sm-12">
+                            <div class="col-sm-12 col-12 col-md-12 col-lg-12">
                                 <table class="table table-sm" id="tblOrders">
                                     <thead>
                                         <tr class="valign-top">
@@ -376,13 +376,13 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-sm-12">
+            <div class="col-sm-12 col-12 col-md-12 col-lg-12">
                 <div class="card">
                     <div class="card-header"><h5 class="card-title"> Order Stats <span class="fs-13">({{date($Settings['date-format'],strtotime($FY->FromDate))}} - {{date($Settings['date-format'],strtotime($FY->ToDate))}})</span></h5> </div>
                     <div class="card-body  pt-10 pb-10">
                         <div class="row">
-                            <div class="col-sm-12 pb-20">
-                                <div class="chart-overflow" id="QuoteEnquiryBar"></div>
+                            <div class="col-sm-12 col-12 col-md-12 col-lg-12 pb-20 ">
+                                <div class="chart-overflow " id="QuoteEnquiryBar"></div>
                             </div>
                         </div>
                     </div>
@@ -391,12 +391,12 @@
         </div>
         
         <div class="row">
-            <div class="col-sm-12">
+            <div class="col-sm-12 col-12 col-md-12 col-lg-12">
                 <div class="card">
                     <div class="card-header"><h5 class="card-title"> Payments & Receipts Stats <span class="fs-13">({{date($Settings['date-format'],strtotime($FY->FromDate))}} - {{date($Settings['date-format'],strtotime($FY->ToDate))}})</span></h5></div>
                     <div class="card-body  pt-10 pb-10">
                         <div class="row">
-                            <div class="col-sm-12 pb-20">
+                            <div class="col-sm-12 col-12 col-md-12 col-lg-12 pb-20">
                                 <div class="chart-overflow" id="PaymentsBar"></div>
                             </div>
                         </div>
@@ -406,12 +406,12 @@
         </div>
         
         <div class="row">
-            <div class="col-sm-12">
+            <div class="col-sm-12 col-12 col-md-12 col-lg-12">
                 <div class="card">
-                    <div class="card-header"><h5 class="card-title"> Upcoming Payment & Receipts </h5></div>
+                    <div class="card-header"><h5 class="card-title"> Upcoming Payments & Receipts </h5></div>
                     <div class="card-body  pt-10 pb-10">
                         <div class="row">
-                            <div class="col-sm-12 pb-20">
+                            <div class="col-sm-12 col-12 col-md-12 col-lg-12 pb-20">
                                 <div id='calendar'></div>
                             </div>
                         </div>

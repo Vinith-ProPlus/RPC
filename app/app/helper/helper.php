@@ -860,7 +860,7 @@ class helper{
 
         }
         if(count($firebaseToken)>0){
-           $SERVER_API_KEY = 'AAAA4UOQJO0:APA91bHMI_Zrb_rqUJmDVkK0cizFtwnhaMVk-OcfFv7sZ8SR-oxGhkB8u2fLl-9RzWPbB65DVnENJmStK2zx3_GJA2gqOBMMt-WNxDld7GnXaebM4OKvgkH7FBn3my5U8sIFBZEfwyU-';// firebase server key
+           $SERVER_API_KEY = config('app.firebase_server_key');// firebase server key
       
             $data = [
                 "registration_ids" => $firebaseToken,

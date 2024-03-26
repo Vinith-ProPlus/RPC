@@ -38,6 +38,7 @@ return [
 
     'env' => env('APP_ENV', 'production'),
     'map_api_key' => env('GOOGLE_MAPS_API_KEY', ''),
+    'firebase_server_key' => env('FIREBASE_SERVER_KEY', ''),
 
     /*
     |--------------------------------------------------------------------------

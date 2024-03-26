@@ -624,7 +624,7 @@ class QuoteEnquiryController extends Controller{
 						$status=DB::table($this->currfyDB.'tbl_quotation')->insert($data);
 					}
 				}
-				$status = DB::table($this->currfyDB.'tbl_enquiry')->where('EnqID',$EnqID)->update(['Status'=>'Converted to Quotation','UpdatedOn'=>date('Y-m-d'),'UpdatedBy'=>$this->UserID]);
+				$status = DB::table($this->currfyDB.'tbl_enquiry')->where('EnqID',$EnqID)->update(['Status'=>'Converted to Quotation','UpdatedOn'=>date('Y-m-d H:i:s'),'UpdatedBy'=>$this->UserID]);
 
 			}catch(Exception $e) {
 				$status=false;
