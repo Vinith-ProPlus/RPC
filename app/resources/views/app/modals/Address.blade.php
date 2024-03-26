@@ -1,9 +1,14 @@
 <div class="row">
+
     {{-- <div class="col-sm-12 mt-20">
         <label for="txtADTitle">Address Title <span class="required"> * </span></label>
         <input type="text" class="form-control" name="txtADTitle" id="txtADTitle" value="">
         <span class="errors Address err-sm" id="txtADTitle-err"></span>
     </div> --}}
+    <div class="col-sm-12 mt-20">
+        <label for="txtADMap">Select Location <span class="required"> * </span></label>
+        <div id="map" style="height: 400px;"></div>
+    </div>
     <div class="col-sm-12 mt-20">
         <div class="form-group">
             <label for="txtADAddress">Address <span class="required"> * </span></label>
@@ -85,3 +90,90 @@ $(document).ready(function(){
     });
 });
 </script>
+<script>
+    var map, marker;
+
+    function initMap() {
+        map = new google.maps.Map(document.getElementById('map'), {
+            center: {lat: 10.490, lng: 79.83},
+            zoom: 7
+        });
+
+        map.addListener('click', function(event) {
+            var geocoder = new google.maps.Geocoder();
+            geocoder.geocode({'location': event.latLng}, function(results, status) {
+                if (status === 'OK') {
+                    if (results[0]) {
+                        var formattedAddress = results[0].formatted_address;
+                        $('#txtADAddress').val(formattedAddress);
+
+                        // Extract postal code from address components
+                        var postalCode = extractPostalCodeFromAddressComponents(results[0]);
+                        if (!postalCode) {
+                            // If postal code is not available in address components, try reverse geocoding with place ID
+                            reverseGeocodeWithPlaceId(results[0].place_id);
+                        } else {
+                            $('#txtADPostalCode').val(postalCode);
+                        }
+
+                        $('#googleAddress').html('<strong>Address:</strong> ' + formattedAddress);
+                    } else {
+                        window.alert('No results found');
+                    }
+                } else {
+                    window.alert('Location fetch failed due to: ' + status);
+                }
+            });
+            if (marker) {
+                marker.setMap(null);
+            }
+
+            marker = new google.maps.Marker({
+                position: event.latLng,
+                map: map,
+            });
+
+            marker.setMap(map);
+        });
+    }
+
+    function reverseGeocodeWithPlaceId(placeId) {
+        var geocoder = new google.maps.Geocoder();
+        geocoder.geocode({ 'placeId': placeId }, function(results, status) {
+            if (status === 'OK') {
+                if (results[0]) {
+                    var postalCode = extractPostalCodeFromAddressComponents(results[0]);
+                    if (postalCode) {
+                        $('#txtADPostalCode').val(postalCode);
+                    } else {
+                        // Log latitude and longitude
+                        console.log('Latitude:', results[0].geometry.location.lat());
+                        console.log('Longitude:', results[0].geometry.location.lng());
+                        window.alert('Postal code not found for this location.');
+                    }
+                } else {
+                    window.alert('No results found for the given place ID.');
+                }
+            } else {
+                window.alert('Reverse geocoding with place ID failed due to: ' + status);
+            }
+        });
+    }
+
+    function extractPostalCodeFromAddressComponents(result) {
+        // Iterate through address components to find postal code
+        for (var i = 0; i < result.address_components.length; i++) {
+            var addressComponent = result.address_components[i];
+            if (addressComponent.types.includes('postal_code')) {
+                return addressComponent.long_name;
+            }
+        }
+        return null; // Return null if postal code not found
+    }
+
+
+
+
+</script>
+<script async defer
+        src="https://maps.googleapis.com/maps/api/js?key={{ config('app.map_api_key') }}&callback=initMap"></script>
