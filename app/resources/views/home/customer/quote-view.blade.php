@@ -364,7 +364,29 @@
                         <div class="row">
                             <div class="col-sm-12">
                                 <div class="row justify-content-center">
-                                    <div class="col-sm-6">
+                                    <div class="col-sm-4">
+                                        <div class="card">
+                                            <div class="card-header p-6">
+                                                <p class="text-center fs-16 fw-500">Contact Info</p>
+                                            </div>
+                                            <div class="card-body">
+                                                @foreach([
+                                                    'Contact Person' => ($QData->ReceiverName!="")? $QData->ReceiverName." <span> (".$QData->ReceiverMobNo.")</span>":"",
+                                                    'Contact Number' => $QData->MobileNo1 ,
+                                                    'Quote Expiry Date' => date('d-M-Y', strtotime($QData->QExpiryDate)),
+                                                ] as $label => $value)
+                                                    @if($value!="")
+                                                        <div class="row my-1">
+                                                            <div class="col-sm-5 fw-600">{{ $label }}</div>
+                                                            <div class="col-sm-1 fw-600 text-center">:</div>
+                                                            <div class="col-sm-6"><?php echo $value ?></div>
+                                                        </div>
+                                                    @endif
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-4">
                                         <div class="card">
                                             <div class="card-header p-6">
                                                 <p class="text-center fs-16 fw-500">Billing Address</p>
@@ -423,7 +445,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-sm-6">
+                                    <div class="col-sm-4">
                                         <div class="card">
                                             <div class="card-header p-6">
                                                 <p class="text-center fs-16 fw-500">Shipping Address</p>
