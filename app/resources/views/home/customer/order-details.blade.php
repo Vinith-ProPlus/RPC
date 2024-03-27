@@ -355,7 +355,30 @@
                     <div class="row">
                         <div class="col-sm-12">
                             <div class="row justify-content-center">
-                                <div class="col-sm-6">
+
+                                <div class="col-sm-4">
+                                    <div class="card">
+                                        <div class="card-header p-6">
+                                            <p class="text-center fs-16 fw-500">Contact Info</p>
+                                        </div>
+                                        <div class="card-body">
+                                            @foreach([
+                                                'Contact Person' => ($OData->ReceiverName!="") ? $OData->ReceiverName." <span> (".$OData->ReceiverMobNo.")</span>":"",
+                                                'Contact Number' => $OData->MobileNo1 ,
+                                                'Expected Delivery' => date('d-M-Y', strtotime($OData->ExpectedDelivery)),
+                                            ] as $label => $value)
+                                                @if($value!="")
+                                                    <div class="row my-1">
+                                                        <div class="col-sm-5 fw-600">{{ $label }}</div>
+                                                        <div class="col-sm-1 fw-600 text-center">:</div>
+                                                        <div class="col-sm-6"><?php echo $value ?></div>
+                                                    </div>
+                                                @endif
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
                                     <div class="card">
                                         <div class="card-header p-6">
                                             <p class="text-center fs-16 fw-500">Billing Address</p>
@@ -377,7 +400,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-sm-6">
+                                <div class="col-sm-4">
                                     <div class="card">
                                         <div class="card-header p-6">
                                             <p class="text-center fs-16 fw-500">Shipping Address</p>
@@ -580,7 +603,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-sm-12 text-center">
+                <div class="col-sm-12 text-right">
                     <a href="{{ route('my-account', ['tab' => 'orders']) }}" class="btn btn-sm btn-outline-dark mb-2">Back</a>
                     {{--                            @if($OData->Status!="Cancelled" && $OData->Status!="Delivered")--}}
                     {{--                                    <button class="btn btn-sm btn-outline-danger m-5 btnCancelOrder" data-id="{{$OrderID}}">Cancel Order</button>--}}
