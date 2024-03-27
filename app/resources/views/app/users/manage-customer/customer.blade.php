@@ -61,11 +61,72 @@
                                         </div>
                                         <div class="col-sm-6 mt-20">
                                             <div class="form-group">
+                                                <label for="lstGender">Gender <span class="required">*</span></label>
+                                                <select class="form-control {{$Theme['input-size']}} select2" id="lstGender" data-selected="{{ $isEdit ? $EditData->GenderID : '' }}">
+                                                    <option value="">Select Gender</option>
+                                                </select>
+                                                <span class="errors Customer err-sm" id="lstGender-err"></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6 mt-20">
+                                            <div class="form-group">
+                                                <label for="txtDOB">DOB <span class="required">*</span></label>
+                                                <input type="date" id="txtDOB" class="form-control " placeholder="Select DOB" value="{{ $isEdit ? ($EditData->DOB ?? '') : '' }}">
+                                                <span class="errors Customer err-sm" id="txtDOB-err"></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6 mt-20">
+                                            <div class="form-group">
+                                                <label for="lstConTypeIDs">Construction Type <span class="required">*</span></label>
+                                                <select class="form-control {{$Theme['input-size']}} select2" id="lstConTypeIDs" data-selected="{{ $isEdit ? ($EditData->ConTypeIDs ?? '') : '' }}">
+                                                    <option value="">Select a Construction Type</option>
+                                                </select>
+                                                <span class="errors Customer err-sm" id="lstConTypeIDs-err"></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6 mt-20">
+                                            <div class="form-group">
                                                 <label for="lstCusType">Customer Type <span class="required">*</span></label>
                                                 <select class="form-control {{$Theme['input-size']}} select2" id="lstCusType" data-selected="<?php if($isEdit){ echo $EditData->CusTypeID;} ?>">
                                                     <option value="">Select a Customer Type</option>
                                                 </select>
                                                 <span class="errors Customer err-sm" id="lstCusType-err"></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6 mt-20">
+                                            <div class="form-group">
+                                                <label for="lstCreditLimitStatus">Credit Limit Status <span class="required"></span></label>
+                                                <select class="form-control " id="lstCreditLimitStatus">
+                                                    <option value="1" {{ $isEdit ? (($EditData->isEnableCreditLimit == "Enabled") ? 'selected' : '') : '' }}>Enabled</option>
+                                                    <option {{ $isEdit ? (($EditData->isEnableCreditLimit != "Enabled") ? 'selected' : '') : 'selected' }} value="0">Disabled</option>
+                                                </select>
+                                                <span class="errors" id="lstCreditLimitStatus-err"></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6 mt-20">
+                                            <div class="form-group">
+                                                <label for="txtCreditLimit">Credit Limit <span class="required">*</span></label>
+                                                <input type="number" id="txtCreditLimit" class="form-control" disabled placeholder="Credit Limit"
+                                                       value="{{ NumberFormat(($isEdit ? $EditData->CreditLimit : $SETTINGS['customer-default-credit-limit']),$Settings['price-decimals']) }}">
+                                                <span class="errors Customer" id="txtCreditLimit-err"></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6 mt-20">
+                                            <div class="form-group">
+                                                <label for="lstCreditOverDraft">Credit Over Draft <span class="required"></span></label>
+                                                <select class="form-control " id="lstCreditOverDraft">
+                                                    <option value="1" {{ $EditData ? (($EditData->CreditDays > 0) ? 'selected' : '') : '' }}>Enabled</option>
+                                                    <option value="0" {{ $EditData ? (($EditData->CreditDays == 0) ? 'selected' : '') : 'selected' }}>Disabled</option>
+                                                </select>
+                                                <span class="errors" id="lstCreditOverDraft-err"></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6 mt-20">
+                                            <div class="form-group">
+                                                <label for="txtCreditDays">Credit Days <span class="required">*</span></label>
+                                                <input type="number" id="txtCreditDays" class="form-control " placeholder="Credit Days"
+                                                       value="{{ $EditData ? $EditData->CreditDays : $SETTINGS['default-customers-credit-days'] }}">
+                                                <span class="errors Customer" id="txtCreditDays-err"></span>
                                             </div>
                                         </div>
                                         <div class="col-sm-6 mt-20">
@@ -82,7 +143,7 @@
                                     <div class="row">
                                         <div class="col-sm-12 mt-20">
                                             <label for="txtAddress">Billing Address <span class="required">*</span></label>
-                                            <textarea  id="txtAddress"  rows="3" class="form-control"><?php if($isEdit){ echo $EditData->Address;} ?></textarea>
+                                            <textarea  id="txtAddress" rows="3" class="form-control"><?php if($isEdit){ echo $EditData->Address;} ?></textarea>
                                             <span class="errors BA err-sm" id="txtAddress-err"></span>
                                         </div>
                                         <div class="col-sm-6 mt-20">
@@ -357,6 +418,10 @@
 <!-- Image Crop Script End -->
 <script>
     $(document).ready(function(){
+        $('#lstConTypeIDs').select2({
+            multiple: true,
+            placeholder: 'Select a Construction Type'
+        });
         let EditRow=null;
 		var currentTab = 0;
 		showTab(currentTab);
@@ -401,7 +466,12 @@
                 let MobileNo1=$('#txtMobileNo1').val();
                 let MobileNo2=$('#txtMobileNo2').val();
                 let Email=$('#txtEmail').val();
+                let Gender=$('#lstGender').val();
+                let DOB=$('#txtDOB').val();
+                let ConType=$('#lstConTypeIDs').val();
                 let CusTypeID=$('#lstCusType').val();
+                let CreditDays=$('#txtCreditDays').val();
+                let CreditLimit=$('#txtCreditLimit').val();
                 if(!CustomerName){
                     $('#txtCustomerName-err').html('Customer Name is required');status=false;
                 }else if(CustomerName.length<2){
@@ -427,6 +497,27 @@
                 }
                 if(!CusTypeID){
                     $('#lstCusType-err').html('Customer Type is required.');status=false;
+                }
+                if(Gender === ""){
+                    $('#lstGender-err').html('Gender is required.');status=false;
+                }
+                if(DOB === ""){
+                    $('#txtDOB-err').html('DOB is required.');status=false;
+                }
+                if(ConType.length === 0){
+                    $('#lstConTypeIDs-err').html('Construction type is required.');status=false;
+                }
+                if($('#lstCreditOverDraft').val()==1){
+                    if(CreditDays==""){
+                        $('#txtCreditDays-err').html('Credit Days is required');status=false;
+                    }else if(parseInt(CreditDays)<0){
+                        $('#txtCreditDays-err').html('The Credit Days must be  equal or greater than 0.');status=false;
+                    }
+                }
+                if($('#lstCreditLimitStatus').val()==1){
+                    if(CreditLimit==""){
+                        $('#txtCreditLimit-err').html('Credit Limit is required');status=false;
+                    }
                 }
                 if(status==false){$("html, body").animate({ scrollTop: 0 }, "slow");}
             }else if(page=="Billing Address"){
@@ -502,6 +593,69 @@
 			}
 			x[n].className += " active";
 		}
+
+
+        const getGender=async(data,id)=>{
+            $('#'+id+' option').remove();
+            $('#'+id).append('<option value="">Select a Gender</option>');
+            $.ajax({
+                type:"post",
+                url:"{{ route('getGender') }}",
+                headers: { 'X-CSRF-Token' : '{{ csrf_token() }}' },
+                data:data,
+                dataType:"json",
+                async:true,
+                error:function(e, x, settings, exception){ajaxErrors(e, x, settings, exception);},
+                complete: function(e, x, settings, exception){},
+                success:function(response){
+                    for (let Item of response) {
+                        let selected = "";
+                        if (Item.GID  === $('#' + id).attr('data-selected')) {
+                            selected = "selected";
+                        }
+                        $('#' + id).append('<option ' + selected + ' value="' + Item.GID + '">' + Item.Gender + ' </option>');
+                    }
+                    if ($('#' + id).val() != "") {
+                        $('#' + id).trigger('change');
+                    }
+                }
+            });
+        }
+        const getConType = async (data, id) => {
+            $('#'+id).select2('destroy');
+            $('#' + id + ' option').remove();
+            $.ajax({
+                type: "post",
+                url: "{{ route('getConstructionType') }}",
+                headers: {'X-CSRF-Token': '{{ csrf_token() }}'},
+                data: data,
+                dataType: "json",
+                async: true,
+                error: function (e, x, settings, exception) {
+                    ajaxErrors(e, x, settings, exception);
+                },
+                complete: function (e, x, settings, exception) {
+                },
+                success: function (response) {
+                    for (let Item of response.data) {
+                        var selectedValues = $('#' + id).attr('data-selected');
+                        var selectedValuesArray = selectedValues.split(',');
+                        if (selectedValuesArray.includes(Item.ConTypeID)) {
+                            $('#' + id).append('<option selected value="' + Item.ConTypeID + '">' + Item.ConTypeName + ' </option>');
+                        } else {
+                            $('#' + id).append('<option value="' + Item.ConTypeID + '">' + Item.ConTypeName + ' </option>');
+                        }
+                    }
+                    if ($('#' + id).val() != "") {
+                        $('#' + id).trigger('change');
+                    }
+                    $('#' + id).select2({
+                        multiple: true,
+                        placeholder: 'Select a Construction Type'
+                    });
+                }
+            });
+        }
         const getCustomerType=async()=>{
             $('#lstCusType').select2('destroy');
             $('#lstCusType option').remove();
@@ -710,7 +864,13 @@
             formData.append('MobileNo1',$('#txtMobileNo1').val());
             formData.append('MobileNo2',$('#txtMobileNo2').val());
             formData.append('Email',$('#txtEmail').val());
+            formData.append('GenderID', $('#lstGender').val());
+            formData.append('DOB', $('#txtDOB').val());
             formData.append('CusTypeID',$('#lstCusType').val());
+            formData.append('ConTypeIDs', $('#lstConTypeIDs').val());
+            formData.append('isEnableCreditLimit',$('#lstCreditLimitStatus').val());
+            formData.append('CreditLimit',$('#txtCreditLimit').val());
+            formData.append('CreditDays',$('#txtCreditDays').val());
             formData.append('ActiveStatus',$('#lstActiveStatus').val());
             formData.append('Address',$('#txtAddress').val());
             formData.append('PostalCodeID',$('#lstCity option:selected').attr('data-postal'));
@@ -952,8 +1112,33 @@
             $('#'+id).select2();
         }
         getCountry({},'lstCountry');
+        getConType({},'lstConTypeIDs');
+        getGender({},'lstGender');
         getCustomerType();
+
+        $('#lstCreditLimitStatus').change(function(){
+            if($(this).val() == 0){
+                $('#txtCreditLimit').prop('disabled',true);
+                $('#txtCreditLimit').val('');
+            }else{
+                $('#txtCreditLimit').prop('disabled',false);
+{{--                $('#txtCreditLimit').val('{{NumberFormat($SETTINGS['customer-default-credit-limit'],$Settings['price-decimals'])}}');--}}
+                $('#txtCreditLimit').val('{{ NumberFormat(($isEdit ? $EditData->CreditLimit : $SETTINGS['customer-default-credit-limit']),$Settings['price-decimals']) }}');
+            }
+        });
+        $('#lstCreditOverDraft').change(function(){
+            if($(this).val() == 0){
+                $('#txtCreditDays').prop('disabled',true);
+                $('#txtCreditDays').val('');
+            }else{
+                $('#txtCreditDays').prop('disabled',false);
+                {{--$('#txtCreditDays').val('{{$SETTINGS['default-customers-credit-days']}}');--}}
+                $('#txtCreditDays').val('{{ $EditData ? $EditData->CreditDays : $SETTINGS['default-customers-credit-days'] }}');
+            }
+        });
         @if($isEdit)
+        $('#lstCreditLimitStatus').trigger('change');
+        $('#lstCreditOverDraft').trigger('change');
         $('#btnGSearchPostalCode').trigger('click');
         @endif
 

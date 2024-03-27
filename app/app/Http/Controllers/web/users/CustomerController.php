@@ -142,7 +142,7 @@ class CustomerController extends Controller{
 		if($this->general->isCrudAllow($this->CRUD,"add")==true){
 			$OldData=array();$NewData=array();$CustomerID="";
 			$ValidDB=array();
-			
+
 			$rules=array(
 				'MobileNo1' =>['required','max:10',new ValidUnique(array("TABLE"=>"tbl_customer","WHERE"=>" MobileNo1='".$req->MobileNo1."'  "),"This Mobile Number is already taken.")],
 				'Email' =>['required','max:50',new ValidUnique(array("TABLE"=>"tbl_customer","WHERE"=>" Email='".$req->Email."'  "),"This Email is already taken.")],
@@ -171,7 +171,7 @@ class CustomerController extends Controller{
 					$file = $req->file('CustomerImage');
 					$fileName=md5($file->getClientOriginalName() . time());
 					$fileName1 =  $fileName. "." . $file->getClientOriginalExtension();
-					$file->move($dir, $fileName1);  
+					$file->move($dir, $fileName1);
 					$CustomerImage=$dir.$fileName1;
 				}else if(Helper::isJSON($req->CustomerImage)==true){
 					$Img=json_decode($req->CustomerImage);
@@ -193,7 +193,13 @@ class CustomerController extends Controller{
 					"MobileNo1"=>$req->MobileNo1,
 					"MobileNo2"=>$req->MobileNo2,
 					"Email"=>$req->Email,
-					"CusTypeID"=>$req->CusTypeID,
+                    "GenderID"=>$req->GenderID,
+                    "DOB"=>$req->DOB,
+                    "CusTypeID"=>$req->CusTypeID,
+                    "ConTypeIDs"=>$req->ConTypeIDs,
+                    "isEnableCreditLimit"=>$req->isEnableCreditLimit,
+                    "CreditLimit"=>$req->CreditLimit ?? 0,
+                    "CreditDays"=>$req->CreditDays ?? 0,
 					"CompleteAddress"=>$CompleteAddress,
 					"Address"=>$req->Address,
 					"PostalCodeID"=>$req->PostalCodeID,
@@ -246,10 +252,10 @@ class CustomerController extends Controller{
 				return array('status'=>false,'message'=>"Customer Create Failed");
 			}
 		}else{
-			return array('status'=>false,'message'=>'Access denined');
+			return array('status'=>false,'message'=>'Access denied');
 		}
 	}
-	public function Update(Request $req,$CustomerID){ 
+	public function Update(Request $req,$CustomerID){
 		if($this->general->isCrudAllow($this->CRUD,"edit")==true){
 			$OldData=DB::table('tbl_customer_address as CA')->join('tbl_customer as C','C.CustomerID','CA.CustomerID')->where('CA.CustomerID',$CustomerID)->get();
 			$NewData=array();
@@ -278,7 +284,7 @@ class CustomerController extends Controller{
 					$file = $req->file('CustomerImage');
 					$fileName=md5($file->getClientOriginalName() . time());
 					$fileName1 =  $fileName. "." . $file->getClientOriginalExtension();
-					$file->move($dir, $fileName1);  
+					$file->move($dir, $fileName1);
 					$CustomerImage=$dir.$fileName1;
 				}else if(Helper::isJSON($req->CustomerImage)==true){
 					$Img=json_decode($req->CustomerImage);
@@ -292,7 +298,7 @@ class CustomerController extends Controller{
 				if(file_exists($CustomerImage)){
 					$images=Helper::ImageResize($CustomerImage,$dir);
 				}
-				if(($CustomerImage!="" || intval($req->removeCustomerImage)==1) && Count($OldData)>0){ 
+				if(($CustomerImage!="" || intval($req->removeCustomerImage)==1) && Count($OldData)>0){
 					$currCustomerImage=$OldData[0]->Images!=""?unserialize($OldData[0]->Images):array();
 				}
 				$CompleteAddress = Helper::formAddress($req->Address,$req->CityID);
@@ -302,7 +308,13 @@ class CustomerController extends Controller{
 					"MobileNo1"=>$req->MobileNo1,
 					"MobileNo2"=>$req->MobileNo2,
 					"Email"=>$req->Email,
-					"CusTypeID"=>$req->CusTypeID,
+                    "GenderID"=>$req->GenderID,
+                    "DOB"=>$req->DOB,
+                    "CusTypeID"=>$req->CusTypeID,
+                    "ConTypeIDs"=>$req->ConTypeIDs,
+                    "isEnableCreditLimit"=>$req->isEnableCreditLimit,
+                    "CreditLimit"=>$req->CreditLimit ?? 0,
+                    "CreditDays"=>$req->CreditDays ?? 0,
 					"Address"=>$req->Address,
 					"CompleteAddress"=>$CompleteAddress,
 					"PostalCodeID"=>$req->PostalCodeID,
@@ -409,7 +421,7 @@ class CustomerController extends Controller{
             return ['status' => false,'message' => "Default Address Set Failed!"];
         }
     }
-	
+
 	public function Delete(Request $req,$CID){
 		$OldData=$NewData=array();
 		if($this->general->isCrudAllow($this->CRUD,"delete")==true){
