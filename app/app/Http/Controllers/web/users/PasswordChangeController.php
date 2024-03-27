@@ -53,7 +53,7 @@ class PasswordChangeController extends Controller{
 		$FormData['PageTitle']=$this->PageTitle;
 		$FormData['menus']=$this->Menus;
 		$FormData['crud']=$this->CRUD;	
-		return view('users.password-change.password-change',$FormData);
+		return view('app.users.password-change.password-change',$FormData);
 	}
 	public function PasswordUpdate(Request $req){
 		$user = DB::Table('users')->where('UserID',$this->UserID)->get();

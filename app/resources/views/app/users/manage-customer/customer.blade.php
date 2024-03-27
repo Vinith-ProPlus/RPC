@@ -549,8 +549,8 @@
                 }
                 if(Address==""){
                     $('#txtAddress-err').html('Address is required.');status=false;
-                }else if(Address.length<10){
-                    $('#txtAddress-err').html('Address must be greater than 10 characters');status=false;isAddress=true;
+                }else if(Address.length<5){
+                    $('#txtAddress-err').html('Address must be greater than 5 characters');status=false;isAddress=true;
                 }
                 if(status==false){$("html, body").animate({ scrollTop: 0 }, "slow");}
             }else if(page=="Shipping Address"){
@@ -996,7 +996,7 @@
                     data:data,
                     dataType:"json",
                     async:true,
-                    error:function(e, x, settings, exception){ajaxErrors(e, x, settings, exception);resolve([])},
+                    error:function(e, x, settings, exception){ajaxErrors(e, x, settings, exception);},
                     complete: function(e, x, settings, exception){},
                     success:function(response){
                         resolve(response)
@@ -1015,7 +1015,7 @@
                 data:data,
                 dataType:"json",
                 async:true,
-                error:function(e, x, settings, exception){ajaxErrors(e, x, settings, exception);resolve([])},
+                error:function(e, x, settings, exception){ajaxErrors(e, x, settings, exception);},
                 complete: function(e, x, settings, exception){},
                 success:function(response){
                     for(let Item of response){
@@ -1042,7 +1042,7 @@
                 data:data,
                 dataType:"json",
                 async:true,
-                error:function(e, x, settings, exception){ajaxErrors(e, x, settings, exception);resolve([])},
+                error:function(e, x, settings, exception){ajaxErrors(e, x, settings, exception);},
                 complete: function(e, x, settings, exception){},
                 success:function(response){
                     for(let Item of response){
@@ -1070,7 +1070,7 @@
                 data:data,
                 dataType:"json",
                 async:true,
-                error:function(e, x, settings, exception){ajaxErrors(e, x, settings, exception);resolve([])},
+                error:function(e, x, settings, exception){ajaxErrors(e, x, settings, exception);},
                 complete: function(e, x, settings, exception){},
                 success:function(response){
                     for(let Item of response){
@@ -1096,7 +1096,7 @@
                 data:data,
                 dataType:"json",
                 async:true,
-                error:function(e, x, settings, exception){ajaxErrors(e, x, settings, exception);resolve([])},
+                error:function(e, x, settings, exception){ajaxErrors(e, x, settings, exception);},
                 complete: function(e, x, settings, exception){},
                 success:function(response){
                     for(let Item of response){

@@ -435,7 +435,7 @@ class QuotationController extends Controller{
 	}
 	public function TableView(Request $request){
 		if($this->general->isCrudAllow($this->CRUD,"view")==true){
-			
+
 			$columns = array(
 				array( 'db' => 'Q.QNo', 'dt' => '0' ),
 				array( 'db' => 'Q.QDate', 'dt' => '1' ),

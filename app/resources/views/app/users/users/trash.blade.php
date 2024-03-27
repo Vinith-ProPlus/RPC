@@ -7,7 +7,7 @@
 				<ol class="breadcrumb">
 					<li class="breadcrumb-item"><a href="{{ url('/') }}/"><i class="f-16 fa fa-home"></i></a></li>
 					<li class="breadcrumb-item">Users & Permissions</li>
-					<li class="breadcrumb-item"><a href="{{ url('/') }}/users-and-permissions/users">{{$PageTitle}}</a></li>
+					<li class="breadcrumb-item"><a href="{{ url('/') }}/admin/users-and-permissions/users">{{$PageTitle}}</a></li>
 					<li class="breadcrumb-item">Restore</li>
 				</ol>
 			</div>
@@ -28,9 +28,9 @@
 								</div>
 								<div class="col-sm-4 my-2 text-right text-md-right">
 									@if($crud['view']==1)
-										<a href="{{ url('/') }}/users-and-permissions/users/" class="btn  btn-outline-dark {{$Theme['button-size']}}  mr-10" type="button" >Back</a>
+										<a href="{{ url('/') }}/admin/users-and-permissions/users/" class="btn  btn-outline-dark {{$Theme['button-size']}}  mr-10" type="button" >Back</a>
 									@elseif($crud['add']==1)
-										<a href="{{ url('/') }}/users-and-permissions/users/create" class="btn  btn-outline-success {{$Theme['button-size']}} btn-air-success " type="button" >Back</a>
+										<a href="{{ url('/') }}/admin/users-and-permissions/users/create" class="btn  btn-outline-success {{$Theme['button-size']}} btn-air-success " type="button" >Back</a>
 									@endif
 								</div>
 							</div>
@@ -68,7 +68,7 @@
 			$('#tblUsers').dataTable( {
 				"bProcessing": true,
 				"bServerSide": true,
-                "ajax": {"url": "{{url('/')}}/users-and-permissions/users/restore-data?_token="+$('meta[name=_token]').attr('content'),"headers":{ 'X-CSRF-Token' : $('meta[name=_token]').attr('content') } ,"type": "POST"},
+                "ajax": {"url": "{{url('/')}}/admin/users-and-permissions/users/restore-data?_token="+$('meta[name=_token]').attr('content'),"headers":{ 'X-CSRF-Token' : $('meta[name=_token]').attr('content') } ,"type": "POST"},
 				deferRender: true,
 				responsive: true,
 				dom: 'Bfrtip',
@@ -105,7 +105,7 @@
                 $.ajax({
                     type: "post",
                 	headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
-                    url: "{{url('/')}}/users-and-permissions/users/restore/"+ id,
+                    url: "{{url('/')}}/admin/users-and-permissions/users/restore/"+ id,
                     success: function (response) {
                         if(response.status==true){
                             toastr.success(response.message, "Success", {positionClass: "toast-top-right",containerId: "toast-top-right",showMethod: "slideDown",hideMethod: "slideUp",})

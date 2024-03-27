@@ -148,6 +148,7 @@ Route::group(['prefix'=>'products'],function (){
         Route::post('/get/uom', 'getUOM');
         Route::post('/get/attributes', 'getAttributes');
         Route::post('/get/attribute-details', 'getAttributeDetails');
+        Route::post('/get/product-search', 'getProductSearch');
 
     });
 });

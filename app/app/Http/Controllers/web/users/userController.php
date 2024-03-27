@@ -48,9 +48,9 @@ class userController extends Controller{
 			$FormData['PageTitle']=$this->PageTitle;
 			$FormData['menus']=$this->Menus;
 			$FormData['crud']=$this->CRUD;
-			return view('users.users.view',$FormData);
+			return view('app.users.users.view',$FormData);
 		}elseif($this->general->isCrudAllow($this->CRUD,"Add")==true){
-			return Redirect::to('/users-and-permissions/users/create');
+			return Redirect::to('/admin/users-and-permissions/users/create');
 		}else{
 			return view('errors.403');
 		}
@@ -63,11 +63,11 @@ class userController extends Controller{
 			$FormData['PageTitle']=$this->PageTitle;
 			$FormData['menus']=$this->Menus;
 			$FormData['crud']=$this->CRUD;
-			return view('users.users.trash',$FormData);
+			return view('app.users.users.trash',$FormData);
 		}elseif($this->general->isCrudAllow($this->CRUD,"view")==true){
-			return Redirect::to('/users-and-permissions/users');
+			return Redirect::to('/admin/users-and-permissions/users');
 		}elseif($this->general->isCrudAllow($this->CRUD,"Add")==true){
-			return Redirect::to('/users-and-permissions/users/create');
+			return Redirect::to('/admin/users-and-permissions/users/create');
 		}else{
 			return view('errors.403');
 		}
@@ -81,9 +81,9 @@ class userController extends Controller{
 			$FormData['crud']=$this->CRUD;
 			$FormData['URCrud']=$this->general->getCrudOperations(activeMenuNames::UserRoles->value);
 			$FormData['isEdit']=false;
-			return view('users.users.user',$FormData);
+			return view('app.users.users.user',$FormData);
 		}elseif($this->general->isCrudAllow($this->CRUD,"view")==true){
-			return Redirect::to('/users-and-permissions/users');
+			return Redirect::to('/admin/users-and-permissions/users');
 		}else{
 			return view('errors.403');
 		}
@@ -104,7 +104,7 @@ class userController extends Controller{
 			$FormData['UserID']=$UserID;
 			$FormData['EditData']=DB::SELECT($sql);
 			if(count($FormData['EditData'])>0){
-				return view('users.users.user',$FormData);
+				return view('app.users.users.user',$FormData);
 			}else{
 				return view('errors.400');
 			}
@@ -608,7 +608,7 @@ class userController extends Controller{
 			$data['COLUMNS1']=$columns1;
 			$data['GROUPBY']=null;
 			$data['WHERERESULT']=null;
-			$data['WHEREALL']=" U.DFlag=0 and U.isShow=1 ";
+			$data['WHEREALL']=" U.DFlag=0 and LoginType <> 'Vendor' and LoginType <> 'Customer' ";
 			return SSP::SSP( $data);
 		}else{
 			return response(array('status'=>false,'message'=>"Access Denied"), 403);

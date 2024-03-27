@@ -100,7 +100,7 @@
 			let status=await FormValidation();
 			if(status==true){
 				btnLoading($('#btnChangePassword'));
-				var submiturl="{{url('/')}}/users-and-permissions/change-password";
+				var submiturl="{{url('/')}}/admin/users-and-permissions/change-password";
 				$.ajax({
 					type:"post",
 					url:submiturl,

@@ -147,7 +147,7 @@ class ProductsController extends Controller{
 		Product::getSaveProcessStatus($this->UserID);
 	}
 	private function getProduct($ProductID){
-        $sql="SELECT P.ProductID, P.Slug, P.ProductName, P.ProductType, P.Stages, P.HSNSAC, P.ProductCode, P.VideoURL, P.CID, C.PCName, P.SCID, SC.PSCName, P.UID, U.UName, U.UCode, P.TaxType, P.TaxID, P.PRate, P.SRate, P.Decimals, P.Description, ";
+        $sql="SELECT P.ProductID, P.Slug, P.ProductName, P.ProductType, P.Stages, P.RelatedProducts, P.MinQty, P.MaxQty, P.HSNSAC, P.ProductCode, P.VideoURL, P.CID, C.PCName, P.SCID, SC.PSCName, P.UID, U.UName, U.UCode, P.TaxType, P.TaxID, P.PRate, P.SRate, P.Decimals, P.Description, ";
         $sql.=" P.ShortDescription, P.Attributes, P.ProductImage, P.ProductBrochure, P.Images, P.ActiveStatus, P.DFlag FROM tbl_products as P LEFT JOIN tbl_product_category as C ON C.PCID=P.CID ";
         $sql.=" LEFT JOIN tbl_product_subcategory as SC ON SC.PSCID=P.SCID LEFT JOIn tbl_uom as U ON U.UID=P.UID LEFT JOIN tbl_tax as T ON T.TaxID=P.TaxID Where P.ProductID='".$ProductID."'";
 		
@@ -199,11 +199,13 @@ class ProductsController extends Controller{
 				}
 				$tmpAttributes[$AID]['AName']=$AName;
 			}
+			$RelatedProductIDs = $result[$i]->RelatedProducts ? unserialize($result[$i]->RelatedProducts) : [];
 			$result[$i]->Attributes=$tmpAttributes;
 			$result[$i]->Images=unserialize($result[$i]->Images);
 			$result[$i]->variation=$variaton;
 			$result[$i]->gallery=$pGallery;
 			$result[$i]->ProductImage=Helper::checkProductImageExists($result[$i]->ProductImage);
+			$result[$i]->RelatedProducts = DB::table('tbl_products')->where('DFlag',0)->where('ActiveStatus','Active')->whereIn('ProductID',$RelatedProductIDs)->select('ProductID','ProductName')->get();
 		}
 		return $result;
 	}
@@ -416,5 +418,8 @@ class ProductsController extends Controller{
 	public function getAttributeDetails(Request $req){
 		$sql="Select * From tbl_attributes_details Where DFlag=0 and AttrID='".$req->AID."' AND ValueID In(Select ValueID From tbl_attributes_category_mapping Where PCID='".$req->PCID."' and PSCID='".$req->PSCID."' And DFlag=0)";
 		return DB::SELECT($sql);
+	}
+	public function getProductSearch(Request $req){
+		return DB::table('tbl_products')->where('DFlag',0)->where('ActiveStatus','Active')->where('ProductName', 'like', '%' . $req->SearchText . '%')->take(10)->select('ProductID','ProductName')->get();
 	}
 }

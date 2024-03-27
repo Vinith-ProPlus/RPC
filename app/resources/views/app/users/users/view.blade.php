@@ -27,10 +27,10 @@
 								</div>
 								<div class="col-sm-4 my-2 text-right text-md-right">
 									@if($crud['restore']==1)
-										<a href="{{ url('/') }}/users-and-permissions/users/restore" class="btn  btn-outline-dark {{$Theme['button-size']}}  mr-10" type="button" >Restore</a>
+										<a href="{{ url('/') }}/admin/users-and-permissions/users/restore" class="btn  btn-outline-dark {{$Theme['button-size']}}  mr-10" type="button" >Restore</a>
 									@endif
 									@if($crud['add']==1)
-										<a href="{{ url('/') }}/users-and-permissions/users/create" class="btn  btn-outline-success {{$Theme['button-size']}} btn-air-success " type="button" >Create</a>
+										<a href="{{ url('/') }}/admin/users-and-permissions/users/create" class="btn  btn-outline-success {{$Theme['button-size']}} btn-air-success " type="button" >Create</a>
 									@endif
 								</div>
 							</div>
@@ -68,7 +68,7 @@
 			$('#tblUsers').dataTable( {
 				"bProcessing": true,
 				"bServerSide": true,
-                "ajax": {"url": "{{url('/')}}/users-and-permissions/users/data?_token="+$('meta[name=_token]').attr('content'),"headers":{ 'X-CSRF-Token' : $('meta[name=_token]').attr('content') } ,"type": "POST"},
+                "ajax": {"url": "{{url('/')}}/admin/users-and-permissions/users/data?_token="+$('meta[name=_token]').attr('content'),"headers":{ 'X-CSRF-Token' : $('meta[name=_token]').attr('content') } ,"type": "POST"},
 				deferRender: true,
 				responsive: true,
 				dom: 'Bfrtip',
@@ -91,13 +91,13 @@
 			@endif
         }
 		$(document).on('click','.btnEdit',function(){
-			window.location.replace("{{url('/')}}/users-and-permissions/users/edit/"+ $(this).attr('data-id'));
+			window.location.replace("{{url('/')}}/admin/users-and-permissions/users/edit/"+ $(this).attr('data-id'));
 		});
 		$(document).on('click','.btnPassword',function(){
 			let ID=$(this).attr('data-id');
 			$.ajax({
             	type:"post",
-                url:"{{url('/')}}/users-and-permissions/users/get/password",
+                url:"{{url('/')}}/admin/users-and-permissions/users/get/password",
                 headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
 				data:{UserID:ID},
                 dataType:"json",
@@ -122,7 +122,7 @@
                 $.ajax({
                     type: "post",
                 	headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
-                    url: "{{url('/')}}/users-and-permissions/users/delete/"+ id,
+                    url: "{{url('/')}}/admin/users-and-permissions/users/delete/"+ id,
                     success: function (response) {
                         if(response.status==true){
                             toastr.success(response.message, "Success", {positionClass: "toast-top-right",containerId: "toast-top-right",showMethod: "slideDown",hideMethod: "slideUp",})

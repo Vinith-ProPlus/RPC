@@ -12,7 +12,7 @@
 				<ol class="breadcrumb">
 					<li class="breadcrumb-item"><a href="{{ url('/') }}"><i class="f-16 fa fa-home"></i></a></li>
 					<li class="breadcrumb-item">Users & Permissions</li>
-					<li class="breadcrumb-item"><a href="{{ url('/') }}/users-and-permissions/users">{{$PageTitle}}</a></li>
+					<li class="breadcrumb-item"><a href="{{ url('/') }}/admin/users-and-permissions/users">{{$PageTitle}}</a></li>
 					<li class="breadcrumb-item">@if($isEdit) Update @else Create @endif</li>
 				</ol>
 			</div>
@@ -200,7 +200,7 @@
                             <div class="row">
                                 <div class="col-sm-12 text-right">
                                     @if($crud['view']==1)
-                                        <a href="{{ url('/') }}/users-and-permissions/users" class="btn {{$Theme['button-size']}} btn-outline-dark mr-10">Cancel</a>
+                                        <a href="{{ url('/') }}/admin/users-and-permissions/users" class="btn {{$Theme['button-size']}} btn-outline-dark mr-10">Cancel</a>
                                     @endif
                                     @if($crud['edit']==1 || $crud['add']==1)
                                         <button class="btn {{$Theme['button-size']}} btn-outline-success btn-air-success" id="btnSave">@if($isEdit) Update @else Create @endif </button>
@@ -379,7 +379,7 @@
         const getUserRoles=async()=>{
             $.ajax({
                 type:"post",
-                url:"{{url('/')}}/users-and-permissions/users/get/user-roles",
+                url:"{{url('/')}}/admin/users-and-permissions/users/get/user-roles",
                 headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
                 dataType:"json",
                 async:true,
@@ -716,7 +716,7 @@
             let response=await new Promise((resolve,reject)=>{
                 $.ajax({
                     type:"post",
-                    url:"{{url('/')}}/users-and-permissions/users/validate/"+Type,
+                    url:"{{url('/')}}/admin/users-and-permissions/users/validate/"+Type,
                     headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
                     dataType:"json",
                     data:formData,
@@ -784,7 +784,7 @@
                     swal.close();
                     btnLoading($('#btnSave'));
                     const formData=await getData();
-                    @if($isEdit) let posturl="{{url('/')}}/users-and-permissions/users/edit/{{$UserID}}"; @else let posturl="{{url('/')}}/users-and-permissions/users/create"; @endif
+                    @if($isEdit) let posturl="{{url('/')}}/admin/users-and-permissions/users/edit/{{$UserID}}"; @else let posturl="{{url('/')}}/admin/users-and-permissions/users/create"; @endif
                     $.ajax({
                         type:"post",
                         url:posturl,
@@ -827,7 +827,7 @@
                                     closeOnConfirm: false
                                 },function(){
                                     @if($isEdit==true)
-                                        window.location.replace("{{url('/')}}/users-and-permissions/users/");
+                                        window.location.replace("{{url('/')}}/admin/users-and-permissions/users/");
                                     @else
                                         window.location.reload();
                                     @endif
