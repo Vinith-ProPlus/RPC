@@ -50,15 +50,40 @@
                                         <span class="errors Customer err-sm" id="txtMobileNo2-err"></span>
                                     </div>
                                 </div>
-                                {{-- <div class="col-sm-6 mt-20">
+                                 <div class="col-sm-6 mt-20">
+                                    <div class="form-group">
+                                        <label for="lstGender">Gender <span class="required">*</span></label>
+                                        <select class="form-control" id="lstGender" data-selected="{{ $isEdit ? $EditData->GenderID : '' }}">
+                                            <option value="">Select Gender</option>
+                                        </select>
+                                        <span class="errors Customer err-sm" id="lstGender-err"></span>
+                                    </div>
+                                </div>
+                                 <div class="col-sm-6 mt-20">
+                                    <div class="form-group">
+                                        <label for="txtDOB">DOB <span class="required">*</span></label>
+                                        <input type="date" id="txtDOB" class="form-control " placeholder="Select DOB" value="{{ $isEdit ? ($EditData->DOB ?? '') : '' }}">
+                                        <span class="errors Customer err-sm" id="txtDOB-err"></span>
+                                    </div>
+                                </div>
+                                 <div class="col-sm-6 mt-20">
                                     <div class="form-group">
                                         <label for="lstCusType">Customer Type <span class="required">*</span></label>
-                                        <select class="form-control" id="lstCusType" data-selected="">
+                                        <select class="form-control" id="lstCusType" data-selected="{{ $isEdit ? ($EditData->CusTypeID ?? '') : '' }}">
                                             <option value="">Select a Customer Type</option>
                                         </select>
                                         <span class="errors Customer err-sm" id="lstCusType-err"></span>
                                     </div>
-                                </div> --}}
+                                </div>
+                                 <div class="col-sm-6 mt-20">
+                                    <div class="form-group">
+                                        <label for="lstConTypeIDs">Construction Type <span class="required">*</span></label>
+                                        <select class="form-control" id="lstConTypeIDs" data-selected="{{ $isEdit ? ($EditData->ConTypeIDs ?? '') : '' }}">
+                                            <option value="">Select a Construction Type</option>
+                                        </select>
+                                        <span class="errors Customer err-sm" id="lstConTypeIDs-err"></span>
+                                    </div>
+                                </div>
                                 <div class="col-sm-12 mt-20">
                                     <label for="txtAddress">Billing Address <span class="required">*</span></label>
                                     <textarea  id="txtAddress" class="form-control">@if($isEdit){{$EditData->Address}}@endif</textarea>
@@ -179,6 +204,10 @@
 </div>
 <script>
     $(document).ready(function() {
+        $('#lstConTypeIDs').select2({
+            multiple: true,
+            placeholder: 'Select a Construction Type'
+        });
         const getCountry=async(data,id)=>{
             $('#'+id+' option').remove();
             $('#'+id).append('<option value="">Select a Country</option>');
@@ -189,7 +218,7 @@
                 data:data,
                 dataType:"json",
                 async:true,
-                error:function(e, x, settings, exception){ajaxErrors(e, x, settings, exception);resolve([])},
+                error:function(e, x, settings, exception){ajaxErrors(e, x, settings, exception);},
                 complete: function(e, x, settings, exception){},
                 success:function(response){
                     for (let Item of response) {
@@ -206,10 +235,103 @@
             });
         }
 
+        const getGender=async(data,id)=>{
+            $('#'+id+' option').remove();
+            $('#'+id).append('<option value="">Select a Gender</option>');
+            $.ajax({
+                type:"post",
+                url:"{{ route('getGender') }}",
+                headers: { 'X-CSRF-Token' : '{{ csrf_token() }}' },
+                data:data,
+                dataType:"json",
+                async:true,
+                error:function(e, x, settings, exception){ajaxErrors(e, x, settings, exception);},
+                complete: function(e, x, settings, exception){},
+                success:function(response){
+                    for (let Item of response) {
+                        let selected = "";
+                        if (Item.GID  === $('#' + id).attr('data-selected')) {
+                            selected = "selected";
+                        }
+                        $('#' + id).append('<option ' + selected + ' value="' + Item.GID + '">' + Item.Gender + ' </option>');
+                    }
+                    if ($('#' + id).val() != "") {
+                        $('#' + id).trigger('change');
+                    }
+                }
+            });
+        }
+
+        const getCusType = async (data, id) => {
+            $('#' + id + ' option').remove();
+            $('#' + id).append('<option value="">Select a Customer Type</option>');
+            $.ajax({
+                type: "post",
+                url: "{{ route('getCustomerType') }}",
+                headers: {'X-CSRF-Token': '{{ csrf_token() }}'},
+                data: data,
+                dataType: "json",
+                async: true,
+                error: function (e, x, settings, exception) {
+                    ajaxErrors(e, x, settings, exception);
+                },
+                complete: function (e, x, settings, exception) {
+                },
+                success: function (response) {
+                    for (let Item of response) {
+                        let selected = "";
+                        if (Item.CusTypeID === $('#' + id).attr('data-selected')) {
+                            selected = "selected";
+                        }
+                        $('#' + id).append('<option ' + selected + ' value="' + Item.CusTypeID + '">' + Item.CusTypeName + ' </option>');
+                    }
+                    if ($('#' + id).val() != "") {
+                        $('#' + id).trigger('change');
+                    }
+                }
+            });
+        }
+
+        const getConType = async (data, id) => {
+            $('#'+id).select2('destroy');
+            $('#' + id + ' option').remove();
+            $.ajax({
+                type: "post",
+                url: "{{ route('getConstructionType') }}",
+                headers: {'X-CSRF-Token': '{{ csrf_token() }}'},
+                data: data,
+                dataType: "json",
+                async: true,
+                error: function (e, x, settings, exception) {
+                    ajaxErrors(e, x, settings, exception);
+                },
+                complete: function (e, x, settings, exception) {
+                },
+                success: function (response) {
+                    for (let Item of response.data) {
+                        var selectedValues = $('#' + id).attr('data-selected');
+                        var selectedValuesArray = selectedValues.split(',');
+                        if (selectedValuesArray.includes(Item.ConTypeID)) {
+                            $('#' + id).append('<option selected value="' + Item.ConTypeID + '">' + Item.ConTypeName + ' </option>');
+                        } else {
+                            $('#' + id).append('<option value="' + Item.ConTypeID + '">' + Item.ConTypeName + ' </option>');
+                        }
+                    }
+                    if ($('#' + id).val() != "") {
+                        $('#' + id).trigger('change');
+                    }
+                    $('#' + id).select2({
+                        multiple: true,
+                        placeholder: 'Select a Construction Type'
+                    });
+                }
+            });
+        }
+
         $('#btnGSearchPostalCode').trigger('click');
         getCountry({},'lstCountry');
-
-
-
+        getGender({},'lstGender');
+        getCusType({},'lstCusType');
+        getConType({},'lstConTypeIDs');
     });
 </script>

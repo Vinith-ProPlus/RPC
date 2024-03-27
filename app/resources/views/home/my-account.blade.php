@@ -1901,8 +1901,6 @@
     <!-- Image Crop Script End -->
     <script>
         $(document).ready(function(){
-
-
             const ajaxErrors=async(e, x, settings, exception)=> {
                 let isSwal=false;let isToastr=false;
                 try {
@@ -2494,6 +2492,10 @@
                     formData.append('MobileNo1',$('#txtMobileNo1').val());
                     formData.append('MobileNo2',$('#txtMobileNo2').val());
                     formData.append('Email',$('#txtEmail').val());
+                    formData.append('GenderID', $('#lstGender').val());
+                    formData.append('DOB', $('#txtDOB').val());
+                    formData.append('CusTypeID', $('#lstCusType').val());
+                    formData.append('ConTypeIDs', $('#lstConTypeIDs').val());
                     formData.append('Address',$('#txtAddress').val());
                     formData.append('PostalCodeID',$('#lstCity option:selected').attr('data-postal'));
                     formData.append('CityID',$('#lstCity').val());
@@ -2522,6 +2524,10 @@
                 let MobileNo1=$('#txtMobileNo1').val();
                 let MobileNo2=$('#txtMobileNo2').val();
                 let Email=$('#txtEmail').val();
+                let Gender=$('#lstGender').val();
+                let DOB=$('#txtDOB').val();
+                let CusType=$('#lstCusType').val();
+                let ConType=$('#lstConTypeIDs').val();
                 let Address=$('#txtAddress').val();
                 let PostalCode=$('#lstCity option:selected').attr('data-postal');
                 let CityID=$('#lstCity').val();
@@ -2545,7 +2551,18 @@
                 if (MobileNo2.length > 0 && !mobilePattern.test(MobileNo2)){
                     $("#txtMobileNo2-err").html("Alternate Mobile Number must be 10 digit");status=false;
                 }
-
+                if(Gender === ""){
+                    $('#lstGender-err').html('Gender is required.');status=false;
+                }
+                if(DOB === ""){
+                    $('#txtDOB-err').html('DOB is required.');status=false;
+                }
+                if(CusType === ""){
+                    $('#lstCusType-err').html('Customer type is required.');status=false;
+                }
+                if(ConType.length === 0){
+                    $('#lstConTypeIDs-err').html('Construction type is required.');status=false;
+                }
                 if(!PostalCode){
                     $('#txtPostalCode-err').html('Postal Code is required.');status=false;isAddress=true;
                 }
@@ -2653,14 +2670,6 @@
             $(document).on('click', '#btnMCancel', function () {
                 $.magnificPopup.close();
             });
-            // $('#btnMConfirm').on('click',async function () {
-            //
-            // });
-
-
-            // $('#btnMCancel').on('click', function () {
-            //
-            // });
         });
     </script>
 @endsection

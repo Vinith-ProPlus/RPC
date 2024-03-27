@@ -5,7 +5,7 @@ use App\Http\Controllers\api\customer\CustomerAPIController;
 use App\Http\Controllers\api\customer\CustomerTransactionAPIController;
 
 Route::controller(CustomerAuthController::class)->group(function () {
-    
+
     Route::post('/get/user-info','getUserInfo');
     Route::post('/register','Register');
     Route::post('/get/customer-data','CustomerData');
@@ -46,14 +46,14 @@ Route::controller(CustomerTransactionAPIController::class)->group(function () {
     Route::post('/cancel-quote-enquiry','CancelQuoteEnquiry');
     Route::post('/get/quote-enquiry','getQuoteEnquiry');
     Route::post('/get/quotation','getQuotation');
-    
+
     Route::post('/accept-quote','AcceptQuote');
     Route::post('/reject-quote','RejectQuote');
     Route::post('/reject-quote-item','RejectQuoteItem');
 
     Route::post('/get/order','getOrder');
     Route::post('/review-order','ReviewOrder');
-    
+
     Route::post('/order-ratings','OrderRatings');
 });
 

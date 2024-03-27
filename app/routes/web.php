@@ -37,7 +37,7 @@ Route::controller(generalController::class)->group(function () {
     Route::post('/get/taluks','getTaluk');
     Route::post('/get/city','getCity');
     Route::post('/get/postal-code','getPostalCode');
-    Route::post('/get/gender','getGender');
+    Route::post('/get/gender','getGender')->name('getGender');
     Route::POST('/get/tax', 'getTax');
     Route::POST('/get/uom', 'getUOM');
     Route::post('/get/bank-type','getBankType');
@@ -48,6 +48,7 @@ Route::controller(generalController::class)->group(function () {
     Route::POST('/get/product-grades', 'getProductGrades');
     Route::POST('/get/products', 'getProducts');
     Route::POST('/get/financial-years', 'getFinancialYear');
+    Route::post('/get/construction-type','getConstructionType')->name('getConstructionType');
 
     Route::post('/tmp/upload-image','tmpUploadImage');
 

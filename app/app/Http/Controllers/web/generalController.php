@@ -7,13 +7,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Redirect;
-use Helper;
-use DB;
-use DocNum;
-use docTypes;
-use ValidDB;
-use ValidUnique;
-use Auth;
+use App\helper\helper;
+use Illuminate\Support\Facades\DB;
+use App\Models\DocNum;
+use App\enums\docTypes;
+use App\Rules\ValidDB;
+use App\Rules\ValidUnique;
+use Illuminate\Support\Facades\Auth;
 class generalController extends Controller{
 	private $FileTypes;
 	private $generalDB;
@@ -925,5 +925,15 @@ class generalController extends Controller{
         $Theme=$this->getThemesOption();
         $FormData=json_decode($req->data,true);
         return view("app.modals.Review",array("Theme"=>$Theme,"data"=>$FormData));
+    }
+
+    public function getConstructionType(request $req){
+        $return = [
+            'status' => true,
+            'data' => DB::Table('tbl_construction_type')->where('ActiveStatus','Active')->where('DFlag',0)
+                ->select('ConTypeID', 'ConTypeName', DB::raw('IF(ConTypeLogo IS NOT NULL AND ConTypeLogo != "", CONCAT("' . url('/') . '/", ConTypeLogo), "") AS ConTypeLogo'))
+                ->get(),
+        ];
+        return $return;
     }
 }
