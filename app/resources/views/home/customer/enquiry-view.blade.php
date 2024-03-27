@@ -305,28 +305,27 @@
                     <div class="row">
                         <div class="col-sm-12">
                             <div class="row justify-content-center">
-{{--                                <div class="col-sm-4">--}}
-{{--                                    <div class="card">--}}
-{{--                                        <div class="card-header p-6">--}}
-{{--                                            <p class="text-center fs-16 fw-500">Contact Info</p>--}}
-{{--                                        </div>--}}
-{{--                                        <div class="card-body">--}}
-{{--                                            @foreach([--}}
-{{--                                                'Customer Name' => $EnqData->ReceiverName,--}}
-{{--                                                'Email' => $EnqData->Email,--}}
-{{--                                                'Contact Number' => $EnqData->ReceiverMobNo ,--}}
-{{--                                                'Quote Enquiry Date' => date($Settings['date-format'], strtotime($EnqData->EnqDate)),--}}
-{{--                                            ] as $label => $value)--}}
-{{--                                                <div class="row my-1">--}}
-{{--                                                    <div class="col-sm-5 fw-600">{{ $label }}</div>--}}
-{{--                                                    <div class="col-sm-1 fw-600 text-center">:</div>--}}
-{{--                                                    <div class="col-sm-6">{{ $value }}</div>--}}
-{{--                                                </div>--}}
-{{--                                            @endforeach--}}
-{{--                                        </div>--}}
-{{--                                    </div>--}}
-{{--                                </div>--}}
-                                <div class="col-sm-6">
+                                <div class="col-sm-4">
+                                    <div class="card">
+                                        <div class="card-header p-6">
+                                            <p class="text-center fs-16 fw-500">Contact Info</p>
+                                        </div>
+                                        <div class="card-body">
+                                            @foreach([
+                                                'Receiver Name' => $EnqData->ReceiverName,
+                                                'Contact Number' => $EnqData->ReceiverMobNo ,
+                                                'Quote Enquiry Date' => date('d-M-Y', strtotime($EnqData->EnqDate)),
+                                            ] as $label => $value)
+                                                <div class="row my-1">
+                                                    <div class="col-sm-5 fw-600">{{ $label }}</div>
+                                                    <div class="col-sm-1 fw-600 text-center">:</div>
+                                                    <div class="col-sm-6">{{ $value }}</div>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
                                     <div class="card">
                                         <div class="card-header p-6">
                                             <p class="text-center fs-16 fw-500">Billing Address</p>
@@ -334,7 +333,6 @@
                                         <div class="card-body">
                                             <?php
                                                 $Address="";
-                                                // if($EnqData->CustomerName!=""){$Address.="<b>".$EnqData->CustomerName."</b>";}
                                                 if($EnqData->Address!=""){if($Address!=""){$Address.=",<br> ";}$Address.=$EnqData->Address;}
                                                 if($EnqData->CityName!=""){if($Address!=""){$Address.=",<br> ";}$Address.=$EnqData->CityName;}
                                                 if($EnqData->TalukName!=""){if($Address!=""){$Address.=",<br> ";}$Address.=$EnqData->TalukName;}
@@ -348,7 +346,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-sm-6">
+                                <div class="col-sm-4">
                                     <div class="card">
                                         <div class="card-header p-6">
                                             <p class="text-center fs-16 fw-500">Shipping Address</p>
