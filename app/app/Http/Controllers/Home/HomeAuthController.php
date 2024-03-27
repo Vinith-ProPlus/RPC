@@ -209,10 +209,11 @@ class HomeAuthController extends Controller{
 		$FormData['isRegister']=true;
 		$FormData['Cart']=$this->getCart();
 		$FormData['EditData'] = DB::table('tbl_customer')->where('DFlag',0)->Where('CustomerID',$CustomerID)->first();
+		$FormData['defaultAddressAID'] = DB::table('tbl_customer_address')->where('DFlag',0)->Where('CustomerID',$CustomerID)->where('isDefault', 1)->pluck('AID')->first();
 		if($FormData['EditData']){
 			$FormData['EditData']->CustomerImage = $FormData['EditData']->CustomerImage ? url('/').'/'.$FormData['EditData']->CustomerImage : url('/') . '/'.'assets/images/no-image-b.png';
 			$FormData['EditData']->PostalCode = DB::table($this->generalDB.'tbl_postalcodes as P')->where('PID',$FormData['EditData']->PostalCodeID)->value('PostalCode');
-			$FormData['EditData']->SAddress = DB::table('tbl_customer_address as CA')->where('CustomerID',$CustomerID)
+			$FormData['EditData']->SAddress = DB::table('tbl_customer_address as CA')->where('CustomerID',$CustomerID)->where('CA.DFlag', 0)
 			->join($this->generalDB.'tbl_countries as C','C.CountryID','CA.CountryID')
 			->join($this->generalDB.'tbl_states as S', 'S.StateID', 'CA.StateID')
 			->join($this->generalDB.'tbl_districts as D', 'D.DistrictID', 'CA.DistrictID')
@@ -286,29 +287,29 @@ class HomeAuthController extends Controller{
 				"CreatedOn"=>date("Y-m-d H:i:s")
 			);
 			$status=DB::Table('tbl_customer')->insert($data);
-			if($status){
-				$SAddress=json_decode($req->SAddress,true);
-				foreach($SAddress as $row){
-					$AID=DocNum::getDocNum(docTypes::CustomerAddress->value,"",Helper::getCurrentFY());
-					$tmp=array(
-						"AID"=>$AID,
-						"CustomerID"=>$CustomerID,
-						"Address"=>$row['Address'],
-						"PostalCodeID"=>$row['PostalCodeID'],
-						"CityID"=>$row['CityID'],
-						"TalukID"=>$row['TalukID'],
-						"DistrictID"=>$row['DistrictID'],
-						"StateID"=>$row['StateID'],
-						"CountryID"=>$row['CountryID'],
-						"isDefault"=>$row['isDefault'],
-						"CreatedOn"=>date("Y-m-d H:i:s")
-					);
-					$status=DB::Table('tbl_customer_address')->insert($tmp);
-					if($status==true){
-						DocNum::updateDocNum(docTypes::CustomerAddress->value);
-					}
-				}
-			}
+//			if($status){
+//				$SAddress=json_decode($req->SAddress,true);
+//				foreach($SAddress as $row){
+//					$AID=DocNum::getDocNum(docTypes::CustomerAddress->value,"",Helper::getCurrentFY());
+//					$tmp=array(
+//						"AID"=>$AID,
+//						"CustomerID"=>$CustomerID,
+//						"Address"=>$row['Address'],
+//						"PostalCodeID"=>$row['PostalCodeID'],
+//						"CityID"=>$row['CityID'],
+//						"TalukID"=>$row['TalukID'],
+//						"DistrictID"=>$row['DistrictID'],
+//						"StateID"=>$row['StateID'],
+//						"CountryID"=>$row['CountryID'],
+//						"isDefault"=>$row['isDefault'],
+//						"CreatedOn"=>date("Y-m-d H:i:s")
+//					);
+//					$status=DB::Table('tbl_customer_address')->insert($tmp);
+//					if($status==true){
+//						DocNum::updateDocNum(docTypes::CustomerAddress->value);
+//					}
+//				}
+//			}
 			if($status){
                 $CustomerName = $req->CustomerName;
                 $nameParts = explode(' ', $CustomerName, 2);
@@ -422,49 +423,49 @@ class HomeAuthController extends Controller{
 				$data['Images']=serialize(array());
 			}
 			$status=DB::Table('tbl_customer')->where('CustomerID',$CustomerID)->update($data);
-			if($status){
-				$AIDs=[];
-				foreach($SAddress as $row){
-					if($row['AID']){
-						$AIDs[] = $row['AID'];
-						$data=array(
-							"Address"=>$row['Address'],
-							"PostalCodeID"=>$row['PostalCodeID'],
-							"CityID"=>$row['CityID'],
-							"TalukID"=>$row['TalukID'],
-							"DistrictID"=>$row['DistrictID'],
-							"StateID"=>$row['StateID'],
-							"CountryID"=>$row['CountryID'],
-							"isDefault"=>$row['isDefault'],
-							"UpdatedOn"=>date("Y-m-d H:i:s")
-						);
-						$status=DB::Table('tbl_customer_address')->where('CustomerID',$CustomerID)->where('AID',$row['AID'])->update($data);
-					}else{
-						$AID=DocNum::getDocNum(docTypes::CustomerAddress->value,"",Helper::getCurrentFY());
-						$AIDs[] = $AID;
-						$tmp=array(
-							"AID"=>$AID,
-							"CustomerID"=>$CustomerID,
-							"Address"=>$row['Address'],
-							"PostalCodeID"=>$row['PostalCodeID'],
-							"CityID"=>$row['CityID'],
-							"TalukID"=>$row['TalukID'],
-							"DistrictID"=>$row['DistrictID'],
-							"StateID"=>$row['StateID'],
-							"CountryID"=>$row['CountryID'],
-							"isDefault"=>$row['isDefault'],
-							"CreatedOn"=>date("Y-m-d H:i:s")
-						);
-						$status=DB::Table('tbl_customer_address')->insert($tmp);
-						if($status==true){
-							DocNum::updateDocNum(docTypes::CustomerAddress->value);
-						}
-					}
-				}
-			}
-			if(count($AIDs)>0){
-				DB::table('tbl_customer_address')->where('CustomerID',$CustomerID)->whereNotIn('AID',$AIDs)->delete();
-			}
+//			if($status){
+//				$AIDs=[];
+//				foreach($SAddress as $row){
+//					if($row['AID']){
+//						$AIDs[] = $row['AID'];
+//						$data=array(
+//							"Address"=>$row['Address'],
+//							"PostalCodeID"=>$row['PostalCodeID'],
+//							"CityID"=>$row['CityID'],
+//							"TalukID"=>$row['TalukID'],
+//							"DistrictID"=>$row['DistrictID'],
+//							"StateID"=>$row['StateID'],
+//							"CountryID"=>$row['CountryID'],
+//							"isDefault"=>$row['isDefault'],
+//							"UpdatedOn"=>date("Y-m-d H:i:s")
+//						);
+//						$status=DB::Table('tbl_customer_address')->where('CustomerID',$CustomerID)->where('AID',$row['AID'])->update($data);
+//					}else{
+//						$AID=DocNum::getDocNum(docTypes::CustomerAddress->value,"",Helper::getCurrentFY());
+//						$AIDs[] = $AID;
+//						$tmp=array(
+//							"AID"=>$AID,
+//							"CustomerID"=>$CustomerID,
+//							"Address"=>$row['Address'],
+//							"PostalCodeID"=>$row['PostalCodeID'],
+//							"CityID"=>$row['CityID'],
+//							"TalukID"=>$row['TalukID'],
+//							"DistrictID"=>$row['DistrictID'],
+//							"StateID"=>$row['StateID'],
+//							"CountryID"=>$row['CountryID'],
+//							"isDefault"=>$row['isDefault'],
+//							"CreatedOn"=>date("Y-m-d H:i:s")
+//						);
+//						$status=DB::Table('tbl_customer_address')->insert($tmp);
+//						if($status==true){
+//							DocNum::updateDocNum(docTypes::CustomerAddress->value);
+//						}
+//					}
+//				}
+//			}
+//			if(count($AIDs)>0){
+//				DB::table('tbl_customer_address')->where('CustomerID',$CustomerID)->whereNotIn('AID',$AIDs)->delete();
+//			}
 			if($status){
                 $CustomerName = $req->CustomerName;
                 $nameParts = explode(' ', $CustomerName, 2);
@@ -1798,6 +1799,128 @@ class HomeAuthController extends Controller{
             logger($e);
             DB::rollback();
             return response()->json(['status' => false,'message' => "Order Rating Failed!"]);
+        }
+    }
+    public function UpdateShippingAddress(Request $req){
+        $CustomerID = $this->ReferID;
+        $OldData=$NewData=[];
+        $OldData=DB::table('tbl_customer_address')->where('CustomerID',$CustomerID)->get();
+        $status=false;
+        try {
+            $CityData = DB::table($this->generalDB.'tbl_postalcodes as P')
+                ->join($this->generalDB.'tbl_cities as CI', 'CI.PostalID', 'P.PID')
+                ->join($this->generalDB.'tbl_taluks as T', 'T.TalukID', 'CI.TalukID')
+                ->join($this->generalDB.'tbl_districts as D', 'D.DistrictID', 'P.DistrictID')
+                ->join($this->generalDB.'tbl_states as S', 'S.StateID', 'D.StateID')
+                ->join($this->generalDB.'tbl_countries as C','C.CountryID','S.CountryID')
+                ->where('P.PostalCode',$req->PostalCode)
+                ->where('CI.CityID',$req->CityID)
+                ->where('P.ActiveStatus','Active')->where('P.DFlag',0)
+                ->where('CI.ActiveStatus','Active')->where('CI.DFlag',0)
+                ->where('T.ActiveStatus','Active')->where('T.DFlag',0)
+                ->where('D.ActiveStatus','Active')->where('D.DFlag',0)
+                ->where('S.ActiveStatus','Active')->where('S.DFlag',0)
+                ->where('C.ActiveStatus','Active')->where('C.DFlag',0)
+                ->select('P.PID as PostalCodeID','CI.CityID','T.TalukID','D.DistrictID','S.StateID','C.CountryID')->first();
+
+            if(!$CityData){
+                $data = [
+                    'UserID'=>$this->UserID,
+                    'CityID'=>$req->CityID,
+                    'PostalCode'=>$req->PostalCode,
+                    'Latitude'=>$req->Latitude,
+                    'Longitude'=>$req->Longitude,
+                    'MapData'=>serialize(json_decode($req->MapData))
+                ];
+                $status = DB::table($this->currfyDB.'tbl_not_serving_locations')->insert($data);
+                if($status){
+                    return response()->json(['status' => false,'message' => "Postal Code does not exist!"]);
+                }
+            }else{
+                DB::beginTransaction();
+                $MapData = serialize(json_decode($req->MapData));
+                $AID=DocNum::getDocNum(docTypes::CustomerAddress->value,"",Helper::getCurrentFY());
+                $data=array(
+                    "AID"=>$AID,
+                    "CustomerID"=>$CustomerID,
+                    "CompleteAddress"=>$req->CompleteAddress,
+                    "Address"=>$req->CompleteAddress,
+                    "AddressType"=>$req->AddressType,
+                    "PostalCodeID"=>$CityData->PostalCodeID,
+                    "CityID"=>$CityData->CityID,
+                    "TalukID"=>$CityData->TalukID,
+                    "DistrictID"=>$CityData->DistrictID,
+                    "StateID"=>$CityData->StateID,
+                    "CountryID"=>$CityData->CountryID,
+                    "Latitude"=>$req->Latitude,
+                    "Longitude"=>$req->Longitude,
+                    "MapData"=>$MapData,
+                    "isDefault"=>1,
+                    "CreatedOn"=>date("Y-m-d H:i:s")
+                );
+                $status=DB::Table('tbl_customer_address')->insert($data);
+                if($status==true){
+                    DB::Table('tbl_customer_address')->where('CustomerID',$CustomerID)->whereNot('AID',$AID)->update(['isDefault' =>0]);
+                    DocNum::updateDocNum(docTypes::CustomerAddress->value);
+                }
+            }
+        }catch(Exception $e) {
+            logger($e);
+            $status=false;
+        }
+        if($status==true){
+            DB::commit();
+            DB::Table('tbl_customer_cart')->where('CustomerID',$CustomerID)->delete();
+            $NewData=DB::table('tbl_customer_address')->where('CustomerID',$CustomerID)->get();
+            $logData=array("Description"=>"Shipping Address Updated","ModuleName"=>"Customer","Action"=>"Update","ReferID"=>$AID,"OldData"=>$OldData,"NewData"=>$NewData,"UserID"=>$this->UserID,"IP"=>$req->ip());
+            logs::Store($logData);
+            return response()->json(['status' => true,'message' => "Shipping Address Updated Successfully", 'AID' => $AID]);
+        }else{
+            DB::rollback();
+            return response()->json(['status' => false,'message' => "Shipping Address Update Failed"]);
+        }
+    }
+    public function SetAddressDefault(Request $req){
+        $CustomerID = $this->ReferID;
+        DB::beginTransaction();
+        $status=false;
+        try {
+            $status=DB::Table('tbl_customer_address')->where('CustomerID',$CustomerID)->whereNot('AID',$req->AID)->update(['isDefault' =>0]);
+            $status=DB::Table('tbl_customer_address')->where('CustomerID',$CustomerID)->where('AID',$req->AID)->update(['isDefault' =>1,'UpdatedBy'=>$CustomerID,'UpdatedOn'=>date("Y-m-d H:i:s")]);
+        }catch(Exception $e) {
+            $status=false;
+        }
+        if($status==true){
+            DB::commit();
+            DB::Table('tbl_customer_cart')->where('CustomerID',$CustomerID)->delete();
+            return response()->json(['status' => true,'message' => "Default Address Set Successfully"]);
+        }else{
+            DB::rollback();
+            return response()->json(['status' => false,'message' => "Default Address Set Failed!"]);
+        }
+    }
+
+    public function DeleteShippingAddress(Request $req){
+        $CustomerID = $this->ReferID;
+        DB::beginTransaction();
+        $status=false;
+        try {
+            $isDefault=DB::Table('tbl_customer_address')->where('CustomerID',$CustomerID)->where('AID',$req->AID)->where('isDefault',1)->exists();
+            if($isDefault){
+                return response()->json(['status' => false,'message' => "Default Address cannot be deleted!"]);
+            }else{
+                $status=DB::Table('tbl_customer_address')->where('CustomerID',$CustomerID)->where('AID',$req->AID)->update(['DFlag'=>1,'UpdatedBy'=>$CustomerID,'UpdatedOn'=>date('Y-m-d H:i:s')]);
+            }
+        }catch(Exception $e) {
+            logger($e);
+            $status=false;
+        }
+        if($status==true){
+            DB::commit();
+            return response()->json(['status' => true,'message' => "Shipping Address Deleted Successfully"]);
+        }else{
+            DB::rollback();
+            return response()->json(['status' => false,'message' => "Shipping Address Deleted Failed!"]);
         }
     }
 }

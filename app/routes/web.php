@@ -182,6 +182,9 @@ Route::post('orderTableHtml', [HomeAuthController::class, 'orderTableHtml'])->na
 Route::get('order/view/{OrderID}', [HomeAuthController::class, 'CustomerOrderView'])->name('CustomerOrderView');
 Route::post('customerHomeSearch', [HomeAuthController::class, 'customerHomeSearch'])->name('customerHomeSearch');
 Route::post('guestHomeSearch', [HomeController::class, 'guestHomeSearch'])->name('guestHomeSearch');
+Route::post('UpdateShippingAddress', [HomeAuthController::class, 'UpdateShippingAddress'])->name('UpdateShippingAddress');
+Route::post('SetAddressDefault', [HomeAuthController::class, 'SetAddressDefault'])->name('SetAddressDefault');
+Route::post('DeleteShippingAddress', [HomeAuthController::class, 'DeleteShippingAddress'])->name('DeleteShippingAddress');
 
 //Customer Support details
 Route::post('customer/support/get/details', [CustomerSupportController::class, 'getDetails'])->name('customer.support.getDetails');

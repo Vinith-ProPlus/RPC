@@ -2425,7 +2425,7 @@
             const ValidateGetAddress = async () => {
                 $(".errors.Address").html("");
                 let status = true;
-                let formData={};
+                var formData={};
                 formData.EditID=$("#btnSaveAddress").attr('data-edit-id');
                 formData.AID=$("#btnSaveAddress").attr('data-aid');
                 formData.Address=$('#txtADAddress').val();
