@@ -171,9 +171,11 @@
                             <div class="row mt-20 mb-20 row justify-content-center">
                                 <div class="col-sm-6">
                                     <div class="row justify-content-center">
-                                        <label>Quote Image </label>
-                                        <input type="file" class="dropify imageScrop custom-height" id="txtQImage" data-default-file="@if($isEdit && $EditData[0]->BannerType == "Web") {{url('/')."/".$EditData[0]->BannerImage}} @endif" data-is-cover-image="1" data-allowed-file-extensions="jpeg jpg png gif">
-                                        <div class="errors err-sm" id="txtQImage-err"></div>
+                                        <div class="col-sm-12">
+                                            <label>Quote Image </label>
+                                            <input type="file" class="dropify imageScrop custom-height" id="txtQImage" data-default-file="@if($isEdit && $EditData[0]->BannerType == "Web") {{url('/')."/".$EditData[0]->BannerImage}} @endif" data-is-cover-image="1" data-allowed-file-extensions="jpeg jpg png gif">
+                                            <div class="errors err-sm" id="txtQImage-err"></div>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="col-sm-6">
@@ -195,6 +197,10 @@
                                                     @endforeach
                                                 </select>
                                                 <div class="errors err-sm" id="lstVendor-err"></div>
+                                                <div class="mt-20">
+                                                    <div class="text-warning text-center">Verify availability of products in the above quotation image and connect with vendors offering them</div>
+                                                </div>
+                                                
                                             </div>
                                         </div>
                                     </div>

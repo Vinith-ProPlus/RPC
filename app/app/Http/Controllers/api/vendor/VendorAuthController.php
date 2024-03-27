@@ -1524,6 +1524,7 @@ class VendorAuthController extends Controller{
             }
         }
     }
+    
     /* public function getVendorProductsWithoutPagination(Request $req){
         $VendorID = $this->ReferID;
         $pageNo = $req->PageNo ?? null;

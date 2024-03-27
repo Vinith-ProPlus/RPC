@@ -4,6 +4,7 @@ use DB;
 use DocNum;
 use Illuminate\Support\Facades\Config;
 use Session;
+use GuzzleHttp\Client;
 class helper{
 	public static function getMainDB(){
 		return config('app.db_main').".";
@@ -72,6 +73,79 @@ class helper{
             return false;
         }
     }
+	public static function findNearestStockPointsss($Customer, $VendorStockPoints) {
+		$customerLat = $Customer->Latitude;
+		$customerLng = $Customer->Longitude;
+		$earthRadius = 6371;
+	
+		$nearestStockPoints = [];
+	
+		foreach ($VendorStockPoints as $point) {
+			$vendorLat = $point->Latitude;
+			$vendorLng = $point->Longitude;
+	
+			$dLat = deg2rad($vendorLat - $customerLat);
+			$dLon = deg2rad($vendorLng - $customerLng);
+			$a = sin($dLat / 2) * sin($dLat / 2) + cos(deg2rad($customerLat)) * cos(deg2rad($vendorLat)) * sin($dLon / 2) * sin($dLon / 2);
+			$c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+			$distance = $earthRadius * $c;
+	
+			$nearestStockPoints[] = [
+				'StockPointID' => $point->StockPointID,
+				'Distance' => $distance,
+			];
+		}
+	
+		return $nearestStockPoints;
+	}
+	public static function findNearestStockPoint($Customer, $VendorStockPoints) {
+		$customerLat = $Customer->Latitude;
+		$customerLng = $Customer->Longitude;
+		$minDistance = PHP_INT_MAX;
+		$nearestStockPoint = null;
+	
+		foreach ($VendorStockPoints as $point) {
+			$vendorLat = $point->Latitude;
+			$vendorLng = $point->Longitude;
+	
+			$earthRadius = 6371;
+			$dLat = deg2rad($vendorLat - $customerLat);
+			$dLon = deg2rad($vendorLng - $customerLng);
+			$a = sin($dLat / 2) * sin($dLat / 2) + cos(deg2rad($customerLat)) * cos(deg2rad($vendorLat)) * sin($dLon / 2) * sin($dLon / 2);
+			$c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+			$distance = $earthRadius * $c;
+	
+			if ($distance < $minDistance) {
+				$minDistance = $distance;
+				$nearestStockPoint = $point;
+			}
+		}
+		$RouteDistance = self::calculateDistance($Customer,$nearestStockPoint);
+		return $RouteDistance;
+	}
+	
+	public static function calculateDistance($Customer, $Vendor){
+		$client = new Client();
+
+		$customerLat = $Customer->Latitude;
+        $customerLng = $Customer->Longitude;
+        $vendorLat = $Vendor->Latitude;
+        $vendorLng = $Vendor->Longitude;
+
+		$response = $client->get('https://maps.googleapis.com/maps/api/distancematrix/json', [
+			'query' => [
+				'origins' => "$customerLat,$customerLng",
+            	'destinations' => "$vendorLat,$vendorLng",
+				'key' => config('app.map_api_key'),
+				'units' => 'metric',
+			]
+		]);
+		$data = json_decode($response->getBody(), true);
+		$distance = $data['rows'][0]['elements'][0]['distance']['value'];
+		$distanceInKm = $distance / 1000;
+		// return response()->json(['distance_km' => $distanceInKm]);
+		return $distanceInKm;
+	}
 	public static function formAddress($Address,$CityID){
 		$addressParts = DB::table(self::getGeneralDB().'tbl_cities as CI')
 			->leftJoin(self::getGeneralDB().'tbl_postalcodes as PC', 'PC.PID', 'CI.PostalID')

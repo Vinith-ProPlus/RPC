@@ -63,7 +63,7 @@ class VendorTransactionAPIController extends Controller{
             ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')
             ->leftJoin('tbl_uom as U', 'U.UID', 'P.UID')
             ->where('P.ActiveStatus', 'Active')->where('P.DFlag', 0)->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)->where('PSC.ActiveStatus', 'Active')->where('PSC.DFlag', 0)
-            ->where('VQD.VQuoteID',$row->VQuoteID)->where('VQD.Status',NULL)
+            ->where('VQD.VQuoteID',$row->VQuoteID)
             ->where('VPM.VendorID',$VendorID)
             ->select('VQD.DetailID','P.ProductName','P.ProductID','VQD.Qty', 'PC.PCName', 'PC.PCID', 'PSC.PSCName','U.UName','U.UCode','U.UID', 'PSC.PSCID','VPM.VendorPrice','P.TaxType','P.TaxID','T.TaxPercentage','T.TaxName')
             ->get();
@@ -84,67 +84,100 @@ class VendorTransactionAPIController extends Controller{
             $OldData=$NewData=[];
             $ProductData = json_decode($req->ProductData);
             if($req->isImageQuote){
-                $data=[
-                    'SubTotal'=>$req->SubTotal,
-                    'TaxAmount'=>$req->TaxAmount,
-                    'TotalAmount'=>$req->TotalAmount,
-                    'LabourCost'=>$req->LabourCost,
-                    'TransportCost'=>$req->TransportCost,
-                    'AdditionalCost'=>$req->AdditionalCost,
-                    'Status' => 'Sent',
-                    'QSentOn'=>date('Y-m-d'),
-                    'UpdatedBy'=>$VendorID,
-                    'UpdatedOn'=>date('Y-m-d H:i:s')
-                ];
-                $status = DB::Table($this->currfyDB.'tbl_vendor_quotation')->where('VendorID',$VendorID)->where('VQuoteID',$req->VQuoteID)->update($data);
-                if($status){
-                    foreach($ProductData as $item){
-                        $PDetails= DB::table('tbl_products as P')->leftJoin('tbl_tax as T', 'T.TaxID', 'P.TaxID')->where('ProductID',$item->ProductID)->first();
-                        $data=[
-                            'Taxable'=>$item->Taxable,
-                            'TaxAmt'=>$item->TaxAmt,
-                            'TaxID'=>$PDetails->TaxID,
-                            'TaxPer'=>$PDetails->TaxPercentage,
-                            'TaxType'=>$PDetails->TaxType,
-                            'TotalAmt'=>$item->TotalAmt,
-                            'Price'=>$item->Price,
-                            'Status'=>'Price Sent',
-                            'UpdatedBy'=>$VendorID,
-                            'UpdatedOn'=>date('Y-m-d H:i:s')
+                foreach($ProductData as $item){
+                    $PDetails= DB::table('tbl_products as P')->leftJoin('tbl_tax as T', 'T.TaxID', 'P.TaxID')->leftJoin('tbl_uom as U', 'U.UID', 'P.UID')->where('ProductID',$item->ProductID)->first();
+                    $isProductExists = DB::table($this->currfyDB.'tbl_enquiry_details')->where('EnqID',$req->EnqID)->where('ProductID',$item->ProductID)->first();
+                    if(!$isProductExists){
+                        $EnquiryDetailID = DocNum::getDocNum(docTypes::EnquiryDetails->value,$this->currfyDB,Helper::getCurrentFY());
+                        $data1=[
+                            'DetailID' => $EnquiryDetailID,
+                            'EnqID'=>$req->EnqID,
+                            'CID'=>$PDetails->CID,
+                            'SCID'=>$PDetails->SCID,
+                            'ProductID'=>$item->ProductID,
+                            'Qty'=>$item->Qty,
+                            'UOMID'=>$PDetails->UID,
+                            'CreatedBy'=>$VendorID,
                         ];
-                        $status = DB::Table($this->currfyDB.'tbl_vendor_quotation_details')->where('VQuoteID',$req->VQuoteID)->where('ProductID',$item->ProductID)->update($data);
+                        $status = DB::table($this->currfyDB.'tbl_enquiry_details')->insert($data1);
+                        if($status){
+                            DocNum::updateDocNum(docTypes::EnquiryDetails->value,$this->currfyDB);
+                        }
+                        $isProductMapped = DB::table('tbl_vendors_product_mapping')->where('ProductID', $item->ProductID)->where('VendorID', $VendorID)->where('Status', 1)->exists();
+                        if ($isProductMapped) {
+                            $DetailID = DocNum::getDocNum(docTypes::VendorQuotationDetails->value, $this->currfyDB, Helper::getCurrentFy());
+                            $data1 = [
+                                "DetailID" => $DetailID,
+                                "VQuoteID" => $req->VQuoteID,
+                                "ProductID" => $item->ProductID,
+                                "Qty" => $item->Qty
+                            ];
+                            $status = DB::table($this->currfyDB . 'tbl_vendor_quotation_details')->insert($data1);
+                            if ($status) {
+                                DocNum::updateDocNum(docTypes::VendorQuotationDetails->value, $this->currfyDB);
+                            }
+                        }
                     }
+                    $data=[
+                        'Taxable'=>$item->Taxable ?? 0,
+                        'TaxAmt'=>$item->TaxAmt ?? 0,
+                        'TaxID'=>$PDetails->TaxID ?? 0,
+                        'TaxPer'=>$PDetails->TaxPercentage ?? 0,
+                        'TaxType'=>$PDetails->TaxType ?? 0,
+                        'TotalAmt'=>$item->TotalAmt ?? 0,
+                        'Price'=>$item->Price ?? 0,
+                        'Status'=>'Price Sent',
+                        'UpdatedOn'=>date('Y-m-d H:i:s')
+                    ];
+                    $status = DB::Table($this->currfyDB.'tbl_vendor_quotation_details')->where('VQuoteID',$req->VQuoteID)->where('ProductID',$item->ProductID)->update($data);
+                }
+                if($status){
+                    $VQData=[
+                        'SubTotal'=>$req->SubTotal ?? 0,
+                        'TaxAmount'=>$req->TaxAmount ?? 0,
+                        'TotalAmount'=>$req->TotalAmount ?? 0,
+                        'LabourCost'=>$req->LabourCost ?? 0,
+                        'TransportCost'=>$req->TransportCost ?? 0,
+                        'AdditionalCost'=>$req->TransportCost + $req->LabourCost ?? 0,
+                        'isImageQuote' => 0,
+                        'Status' => 'Sent',
+                        'QSentOn'=>date('Y-m-d'),
+                        'UpdatedBy'=>$this->UserID,
+                        'UpdatedOn'=>date('Y-m-d H:i:s')
+                    ];
+                    $status = DB::Table($this->currfyDB.'tbl_vendor_quotation')->where('VendorID',$VendorID)->where('VQuoteID',$req->VQuoteID)->update($VQData);
+
+                    $status = DB::Table($this->currfyDB.'tbl_enquiry')->where('EnqID',$req->EnqID)->update(['isImageQuote' => 0,'Status'=>'Quote Requested']);
                 }
             }else{
-                $data=[
-                    'SubTotal'=>$req->SubTotal,
-                    'TaxAmount'=>$req->TaxAmount,
-                    'TotalAmount'=>$req->TotalAmount,
-                    'LabourCost'=>$req->LabourCost,
-                    'TransportCost'=>$req->TransportCost,
-                    'AdditionalCost'=>$req->AdditionalCost,
+                $VQdata=[
+                    'SubTotal'=>$req->SubTotal ?? 0,
+                    'TaxAmount'=>$req->TaxAmount ?? 0,
+                    'TotalAmount'=>$req->TotalAmount ?? 0,
+                    'LabourCost'=>$req->LabourCost ?? 0,
+                    'TransportCost'=>$req->TransportCost ?? 0,
+                    'AdditionalCost'=>$req->TransportCost + $req->LabourCost ?? 0,
                     'Status' => 'Sent',
                     'QSentOn'=>date('Y-m-d'),
-                    'UpdatedBy'=>$VendorID,
+                    'UpdatedBy'=>$this->UserID,
                     'UpdatedOn'=>date('Y-m-d H:i:s')
                 ];
-                $status = DB::Table($this->currfyDB.'tbl_vendor_quotation')->where('VendorID',$VendorID)->where('VQuoteID',$req->VQuoteID)->update($data);
+                $status = DB::Table($this->currfyDB.'tbl_vendor_quotation')->where('VendorID',$VendorID)->where('VQuoteID',$req->VQuoteID)->update($VQdata);
                 if($status){
                     foreach($ProductData as $item){
                         $PDetails= DB::table('tbl_products as P')->leftJoin('tbl_tax as T', 'T.TaxID', 'P.TaxID')->where('ProductID',$item->ProductID)->first();
-                        $data=[
-                            'Taxable'=>$item->Taxable,
-                            'TaxAmt'=>$item->TaxAmt,
-                            'TaxID'=>$PDetails->TaxID,
-                            'TaxPer'=>$PDetails->TaxPercentage,
-                            'TaxType'=>$PDetails->TaxType,
-                            'TotalAmt'=>$item->TotalAmt,
-                            'Price'=>$item->Price,
+                        $PData=[
+                            'Taxable'=>$item->Taxable ?? 0,
+                            'TaxAmt'=>$item->TaxAmt ?? 0,
+                            'TaxID'=>$PDetails->TaxID ?? 0,
+                            'TaxPer'=>$PDetails->TaxPercentage ?? 0,
+                            'TaxType'=>$PDetails->TaxType ?? 0,
+                            'TotalAmt'=>$item->TotalAmt ?? 0,
+                            'Price'=>$item->Price ?? 0,
                             'Status'=>'Price Sent',
-                            'UpdatedBy'=>$VendorID,
                             'UpdatedOn'=>date('Y-m-d H:i:s')
                         ];
-                        $status = DB::Table($this->currfyDB.'tbl_vendor_quotation_details')->where('VQuoteID',$req->VQuoteID)->where('ProductID',$item->ProductID)->update($data);
+                        $status = DB::Table($this->currfyDB.'tbl_vendor_quotation_details')->where('VQuoteID',$req->VQuoteID)->where('ProductID',$item->ProductID)->update($PData);
                     }
                 }
             }
@@ -230,18 +263,22 @@ class VendorTransactionAPIController extends Controller{
             return response()->json(['status' => false,'message' => "Quote Reject Failed!"]);
         }
 	}
+
     public function getAllQuotations(Request $req){
         $VendorID = $this->ReferID;
         $Status = json_decode($req->Status) ?? [];
         $pageNo = $req->PageNo ?? 1;
         $perPage = 10;
 
-        $query = DB::table($this->currfyDB.'tbl_vendor_quotation as VQ')->leftJoin($this->currfyDB.'tbl_enquiry as E','E.EnqID','VQ.EnqID')
+        $query = DB::table($this->currfyDB.'tbl_vendor_quotation as VQ')
+        ->leftJoin($this->currfyDB.'tbl_enquiry as E','E.EnqID','VQ.EnqID')
+        ->leftJoin('tbl_vendors as V','V.VendorID','VQ.VendorID')
+
         ->where('VQ.VendorID',$VendorID);
         if(count($Status)>0){
             $query->whereIn('VQ.Status',$Status);
         }
-        $QuoteReqData = $query->select('VQ.VQuoteID','E.EnqNo','VQ.QReqOn','VQ.TotalAmount','VQ.SubTotal','VQ.TaxAmount','VQ.LabourCost','VQ.TransportCost','VQ.AdditionalCost','VQ.QSentOn','VQ.Status','VQ.isImageQuote',DB::raw('CONCAT("' . url('/') . '/", VQ.QuoteImage) AS QuoteImage'))
+        $QuoteReqData = $query->select('VQ.VQuoteID','E.EnqID','E.EnqNo','VQ.QReqOn','VQ.TotalAmount','VQ.SubTotal','VQ.TaxAmount','VQ.LabourCost','VQ.TransportCost','VQ.AdditionalCost','VQ.QSentOn','VQ.Status','VQ.isImageQuote',DB::raw('CONCAT("' . url('/') . '/", VQ.QuoteImage) AS QuoteImage'),'V.CommissionPercentage','VQ.Distance')
         ->paginate($perPage, ['*'], 'page', $pageNo);
 
         foreach($QuoteReqData as $row){
@@ -271,12 +308,12 @@ class VendorTransactionAPIController extends Controller{
         $pageNo = $req->PageNo ?? 1;
         $perPage = 10;
 
-        $query = DB::table($this->currfyDB.'tbl_vendor_orders as VO')->leftJoin($this->currfyDB.'tbl_order as O','O.OrderID','VO.OrderID');
-        // ->where('VO.VendorID',$VendorID);
+        $query = DB::table($this->currfyDB.'tbl_vendor_orders as VO')->leftJoin($this->currfyDB.'tbl_order as O','O.OrderID','VO.OrderID')->leftJoin('tbl_customer_address as CA','CA.AID','O.AID')
+        ->where('VO.VendorID',$VendorID);
         if(count($Status)>0){
             $query->whereIn('VO.Status',$Status);
         }
-        $OrderData = $query->select('VO.VOrderID','O.OrderID','O.OrderNo','O.OrderDate','O.ExpectedDelivery','O.ReceiverName','O.ReceiverMobNo','VO.TotalAmount','VO.SubTotal','VO.TaxAmount','VO.NetAmount','VO.AdditionalCost','VO.Status')->paginate($perPage, ['*'], 'page', $pageNo);
+        $OrderData = $query->select('VO.VOrderID','O.OrderID','O.OrderNo','O.OrderDate','O.ExpectedDelivery','VO.DeliveredOn','VO.AID','O.ReceiverName','O.ReceiverMobNo','VO.TotalAmount','VO.SubTotal','VO.TaxAmount','VO.NetAmount','VO.AdditionalCost','VO.Status','CA.CompleteAddress','CA.Latitude','CA.Longitude','VO.PaymentStatus')->paginate($perPage, ['*'], 'page', $pageNo);
 
         foreach($OrderData as $row){
             $row->TotalUnit = DB::table($this->currfyDB.'tbl_order_details')->whereNot('Status','Cancelled')->where('OrderID',$row->OrderID)->sum('Qty');
@@ -316,15 +353,15 @@ class VendorTransactionAPIController extends Controller{
             $OTP=Helper::getOTP(6);
             $status=DB::Table($this->currfyDB."tbl_order_details")->where('VOrderID',$req->VOrderID)->Where('Status','New')->update(['OTP'=>$OTP,"UpdatedOn"=>now(),"UpdatedBy"=>$VendorID]);
             if($status){
-                $Title = "Order No " . $OrderData[0]->OrderNo . " marked as delivered";
-                $Message = $OTP." is OTP for Delivered Products: ";
+                $Title = "OTP for Order Delivery for Order No " . $OrderData[0]->OrderNo;
+                $Message = "Your OTP for order delivery is ".$OTP.". Please use this code to confirm your delivery. Delivered Products: ";
                 foreach($OrderData as $index => $item) {
                     $Message .= $item->ProductName;
                     if ($index < count($OrderData) - 1) {
                         $Message .= ", ";
                     }
                 }
-                $Message .= ".";
+                $Message .= ". Thank you.";
                 Helper::saveNotification($OrderData[0]->CustomerID,$Title,$Message,'Order',$req->VOrderID);
                 Helper::sendNotification($OrderData[0]->CustomerID,$Title,$Message);
             }
@@ -349,12 +386,17 @@ class VendorTransactionAPIController extends Controller{
             }else{
                 $status = DB::table($this->currfyDB.'tbl_order_details')->where('VOrderID',$req->VOrderID)->where('Status','New')->where('OTP',$req->OTP)->update(['Status'=>'Delivered','DeliveredOn'=>now(),'DeliveredBy'=>$VendorID,'UpdatedOn'=>now(),'UpdatedBy'=>$VendorID]);
                 if($status){
-                    $status=DB::Table($this->currfyDB."tbl_vendor_orders")->where('VOrderID',$req->VOrderID)->update(['Status'=>'Delivered',"UpdatedOn"=>now(),"UpdatedBy"=>$VendorID]);
+                    $status=DB::Table($this->currfyDB."tbl_vendor_orders")->where('VOrderID',$req->VOrderID)->update(['Status'=>'Delivered','DeliveredOn'=>now(),"UpdatedOn"=>now(),"UpdatedBy"=>$VendorID]);
                 }
                 $AllProducts = DB::table($this->currfyDB.'tbl_order_details')->where('OrderID',$req->OrderID)->whereNot('Status','Cancelled')->count();
                 $DeliveredProducts = DB::table($this->currfyDB.'tbl_order_details')->where('OrderID',$req->OrderID)->where('Status','Delivered')->count();
                 if($AllProducts == $DeliveredProducts){
                     $status = DB::table($this->currfyDB.'tbl_order')->where('OrderID',$req->OrderID)->update(['Status'=>'Delivered','DeliveredOn'=>now(),'UpdatedOn'=>now(),'UpdatedBy'=>$VendorID]);
+                    $CustomerID = DB::table($this->currfyDB.'tbl_order')->where('OrderID',$req->OrderID)->value('CustomerID');
+                    $Title = "Your Order Completed";
+                    $Message = "Your order has been successfully completed. Thank you for choosing us";
+                    Helper::saveNotification($CustomerID,$Title,$Message,'Order',$req->OrderID);
+                    Helper::sendNotification($CustomerID,$Title,$Message);
                 }else{
                     $status = DB::table($this->currfyDB.'tbl_order')->where('OrderID',$req->OrderID)->update(['Status'=>'Partially Delivered','UpdatedOn'=>now(),'UpdatedBy'=>$VendorID]);
                 }

@@ -14,6 +14,7 @@ use general;
 use Laravel\Passport\RefreshToken;
 use Laravel\Passport\Token;
 use Illuminate\Support\Facades\Http;
+use GuzzleHttp\Client;
 class GeneralAPIController extends Controller{
 	private $generalDB;
     private $tmpDB;
@@ -307,7 +308,7 @@ class GeneralAPIController extends Controller{
         return $return;
 	}
 	
-	public function getCoordinates(Request $req){
+	public function getCoordinates(Request $req){ return 1;
 		$address = $req->Address;
         $response = Http::get('https://maps.googleapis.com/maps/api/geocode/json', [
             'address' => $address,
@@ -326,5 +327,27 @@ class GeneralAPIController extends Controller{
         return response()->json(['error' => 'Could not retrieve coordinates'], 500);
     }
 	
-	
+	public function calculateDistance(Request $request){ return 1;
+		$client = new Client();
+
+		$lat1 = $request->input('lat1');
+		$lon1 = $request->input('lon1');
+		$lat2 = $request->input('lat2');
+		$lon2 = $request->input('lon2');
+
+		$response = $client->get('https://maps.googleapis.com/maps/api/distancematrix/json', [
+			'query' => [
+				'origins' => "11.04836,76.9888101",
+				'destinations' => "11.0546892,76.9947768",
+				'key' => config('app.map_api_key'),
+				'units' => 'metric',
+			]
+		]);
+
+		$data = json_decode($response->getBody(), true);
+		$distance = $data['rows'][0]['elements'][0]['distance']['value'];
+		$distanceInKm = $distance / 1000; // convert to kilometers
+
+		return response()->json(['distance_km' => $distanceInKm]);
+	}
 }
