@@ -1975,40 +1975,40 @@
                     }
                 }
             @endif
-            if (!$('.chkServiceBy:checked').length && status) {
-                toastr.error("Please select any service location", "Failed", {positionClass: "toast-top-right",containerId: "toast-top-right",showMethod: "slideDown",hideMethod: "slideUp",progressBar: !0});
-                status = false;
-            } else if ($('.chkServiceBy:checked[data-value="District"]').length) { 
-                if ($('#ServiceLocationDAccordion .accordion-item').length == 0) {
-                    toastr.error("Please select any State in Service Location!", "Failed", {positionClass: "toast-top-right",containerId: "toast-top-right",showMethod: "slideDown",hideMethod: "slideUp",progressBar: !0});
-                    status = false;
-                } else {
-                    $('#ServiceLocationDAccordion .accordion-item').each(function () {
-                        if ($(this).find('.lstSLDDistricts').val().length == 0) {
-                            $(this).find('.accordion-button').hasClass('collapsed') ? $(this).find('.accordion-button').trigger('click') : null;
-                            $(this).find('.lstSLDDistricts').focus();
-                            $(this).find('.errors').html('Select a District!');
-                            status = false;
-                        }
-                    });
-                }
-            } else if ($('.chkServiceBy:checked[data-value="PostalCode"]').length) {
-                if ($('#ServiceLocationPAccordion .accordion-item').length == 0) {
-                    toastr.error("Please select any District in Service Location!", "Failed", {positionClass: "toast-top-right",containerId: "toast-top-right",showMethod: "slideDown",hideMethod: "slideUp",progressBar: !0});
-                    status = false;
-                } else {
-                    $('#ServiceLocationPAccordion .accordion-item').each(function () {
-                        if ($(this).find('.lstSLPPostalCodes').val().length == 0) {
-                            $(this).find('.accordion-button').hasClass('collapsed') ? $(this).find('.accordion-button').trigger('click') : null;
-                            $(this).find('.lstSLPPostalCodes').focus();
-                            $(this).find('.errors').html('Select a PostalCode!');
-                            status = false;
-                        }
-                    });
-                }
-            } else{
-                $status = false;
-            }
+            // if (!$('.chkServiceBy:checked').length && status) {
+            //     toastr.error("Please select any service location", "Failed", {positionClass: "toast-top-right",containerId: "toast-top-right",showMethod: "slideDown",hideMethod: "slideUp",progressBar: !0});
+            //     status = false;
+            // } else if ($('.chkServiceBy:checked[data-value="District"]').length) { 
+            //     if ($('#ServiceLocationDAccordion .accordion-item').length == 0) {
+            //         toastr.error("Please select any State in Service Location!", "Failed", {positionClass: "toast-top-right",containerId: "toast-top-right",showMethod: "slideDown",hideMethod: "slideUp",progressBar: !0});
+            //         status = false;
+            //     } else {
+            //         $('#ServiceLocationDAccordion .accordion-item').each(function () {
+            //             if ($(this).find('.lstSLDDistricts').val().length == 0) {
+            //                 $(this).find('.accordion-button').hasClass('collapsed') ? $(this).find('.accordion-button').trigger('click') : null;
+            //                 $(this).find('.lstSLDDistricts').focus();
+            //                 $(this).find('.errors').html('Select a District!');
+            //                 status = false;
+            //             }
+            //         });
+            //     }
+            // } else if ($('.chkServiceBy:checked[data-value="PostalCode"]').length) {
+            //     if ($('#ServiceLocationPAccordion .accordion-item').length == 0) {
+            //         toastr.error("Please select any District in Service Location!", "Failed", {positionClass: "toast-top-right",containerId: "toast-top-right",showMethod: "slideDown",hideMethod: "slideUp",progressBar: !0});
+            //         status = false;
+            //     } else {
+            //         $('#ServiceLocationPAccordion .accordion-item').each(function () {
+            //             if ($(this).find('.lstSLPPostalCodes').val().length == 0) {
+            //                 $(this).find('.accordion-button').hasClass('collapsed') ? $(this).find('.accordion-button').trigger('click') : null;
+            //                 $(this).find('.lstSLPPostalCodes').focus();
+            //                 $(this).find('.errors').html('Select a PostalCode!');
+            //                 status = false;
+            //             }
+            //         });
+            //     }
+            // } else{
+            //     $status = false;
+            // }
             return status;
         }
         const getData=async()=>{
@@ -2039,14 +2039,14 @@
                 t.Images=tmpImages;
                 Vehicles.push(t);
             });
-            $('#tblStockPoint tbody tr td.tdata').each(function(index){
-                try {
-                    let t=JSON.parse($(this).html());
-                    stockPoints.push(t);
-                } catch (error) {
-                    console.log(error);
-                }
-            });
+            // $('#tblStockPoint tbody tr td.tdata').each(function(index){
+            //     try {
+            //         let t=JSON.parse($(this).html());
+            //         stockPoints.push(t);
+            //     } catch (error) {
+            //         console.log(error);
+            //     }
+            // });
             $('#tblSupplyDetails tbody tr td.tdata').each(function(index){
                 try {
                     let t=JSON.parse($(this).html());
@@ -2056,35 +2056,35 @@
                 }
             });
 
-            if(ServiceLocations.ServiceBy == "District"){
-                $('#ServiceLocationDAccordion .accordion-item').each(function () {
-                    let serviceData = {
-                            CountryID: $(this).attr('data-country-id'),
-                            StateID: $(this).attr('data-state-id'),
-                            Districts: [],
-                        };
+            // if(ServiceLocations.ServiceBy == "District"){
+            //     $('#ServiceLocationDAccordion .accordion-item').each(function () {
+            //         let serviceData = {
+            //                 CountryID: $(this).attr('data-country-id'),
+            //                 StateID: $(this).attr('data-state-id'),
+            //                 Districts: [],
+            //             };
 
-                    let DistrictIDs = $(this).find('.lstSLDDistricts').val();
-                    DistrictIDs.forEach(function (districtID) {
-                        serviceData.Districts.push({DistrictID : districtID});
-                    });
-                    ServiceLocations.ServiceData.push(serviceData);
-                });
-            } else if(ServiceLocations.ServiceBy == "PostalCode"){
-                $('#ServiceLocationPAccordion .accordion-item').each(function () {
-                    let serviceData = {
-                            CountryID: $(this).attr('data-country-id'),
-                            StateID: $(this).attr('data-state-id'),
-                            Districts: [{
-                                DistrictID : $(this).attr('data-district-id'),
-                                PostalCodeIDs : $(this).find('.lstSLPPostalCodes').val(),
-                            }],
-                        };
-                    ServiceLocations.ServiceData.push(serviceData);
-                });
-            }else{
+            //         let DistrictIDs = $(this).find('.lstSLDDistricts').val();
+            //         DistrictIDs.forEach(function (districtID) {
+            //             serviceData.Districts.push({DistrictID : districtID});
+            //         });
+            //         ServiceLocations.ServiceData.push(serviceData);
+            //     });
+            // } else if(ServiceLocations.ServiceBy == "PostalCode"){
+            //     $('#ServiceLocationPAccordion .accordion-item').each(function () {
+            //         let serviceData = {
+            //                 CountryID: $(this).attr('data-country-id'),
+            //                 StateID: $(this).attr('data-state-id'),
+            //                 Districts: [{
+            //                     DistrictID : $(this).attr('data-district-id'),
+            //                     PostalCodeIDs : $(this).find('.lstSLPPostalCodes').val(),
+            //                 }],
+            //             };
+            //         ServiceLocations.ServiceData.push(serviceData);
+            //     });
+            // }else{
 
-            }
+            // }
             
             console.log(ServiceLocations);
             let formData=new FormData();
@@ -2111,7 +2111,7 @@
                 formData.append('Reference',$('#txtReference').val());
                 formData.append('VehicleData',JSON.stringify(Vehicles));
                 formData.append('SupplyDetails',JSON.stringify(supplyDetails));
-                formData.append('StockPoints',JSON.stringify(stockPoints));
+                // formData.append('StockPoints',JSON.stringify(stockPoints));
                 formData.append('Documents',JSON.stringify(Images.documents));
                 formData.append('deletedImages',JSON.stringify(deletedImages));
                 
@@ -2120,7 +2120,7 @@
                     formData.append('Logo', $('#txtVendorLogo')[0].files[0]);
                 }
             @endif
-                formData.append('ServiceLocations',JSON.stringify(ServiceLocations));
+                // formData.append('ServiceLocations',JSON.stringify(ServiceLocations));
             return formData;
         }
         init();

@@ -594,7 +594,6 @@
 			x[n].className += " active";
 		}
 
-
         const getGender=async(data,id)=>{
             $('#'+id+' option').remove();
             $('#'+id).append('<option value="">Select a Gender</option>');

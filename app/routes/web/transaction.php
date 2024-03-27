@@ -119,6 +119,7 @@ Route::group(['prefix'=>'quotation'],function (){
         Route::get('/details/{QID}', 'QuoteView')->name('admin.transaction.quotes.details');
 
         Route::post('/data', 'TableView')->name('admin.transaction.quotes.data');
+        Route::post('/update/item/{DetailID}', 'itemUpdate')->name('admin.transaction.quotes.item.update');
         Route::post('/update/vendor/cost/{QID}', 'updateVendorAdditionalCost')->name('admin.transaction.quotes.update.vendor-cost');
         Route::post('/update/customer/cost/{QID}', 'updateCustomerAdditionalCost')->name('admin.transaction.quotes.update.customer-cost');
         Route::post('/cancel/{QID}', 'QuoteCancel')->name('admin.transaction.quotes.cancel');
@@ -146,6 +147,9 @@ Route::group(['prefix'=>'order'],function (){
         Route::post('/cancel-item/{DetailID}', 'OrderItemCancel')->name('admin.transaction.orders.cancel-item');
         Route::post('/send-otp', 'sendOTP')->name('admin.transaction.orders.send-otp');
 
+
+        Route::post('/admin/rating/save', 'adminRatingSave')->name('admin.transaction.orders.vendor.rating.submit');
+        
         Route::post('/get/cancel-reasons', 'getCancelReasons')->name('admin.transaction.orders.get.cancel-reasons');
         Route::POST('/get/filters/order-status', 'getSearchOrderStatus')->name('admin.transaction.orders.filter.order-status');
         Route::POST('/get/filters/payment-status', 'getSearchPaymentStatus')->name('admin.transaction.orders.filter.payment-status');

@@ -573,7 +573,7 @@ class CustomerController extends Controller{
         $CustomerImageURL = file_exists($CustomerImagePath) ? url('/') . '/' . $CustomerData->CustomerImage : url('/') . '/assets/images/no-image-b.png';
         $CustomerData->CustomerImage = $CustomerImageURL;
         $CustomerData->ProfileCompletePercent = 0;
-        $CustomerData->ConTypeIDs = unserialize($CustomerData->ConTypeIDs);
+        $CustomerData->ConTypeIDs = $CustomerData->ConTypeIDs ?? unserialize($CustomerData->ConTypeIDs);
         $CustomerData->DefaultSAddress = DB::table('tbl_customer_address')->where('CustomerID',$CustomerID)->where('isDefault',1)->first();
         $CustomerData->SAddress = DB::table('tbl_customer_address as CA')->where('CustomerID',$CustomerID)
         ->leftJoin($this->generalDB.'tbl_postalcodes as PC', 'PC.PID', 'CA.PostalCodeID')
@@ -602,5 +602,6 @@ class CustomerController extends Controller{
         ->first();
         return view('app.transaction.quote-enquiry.address',$FormData);
     }
+	
 }
 

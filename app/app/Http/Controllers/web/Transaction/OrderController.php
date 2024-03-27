@@ -33,7 +33,7 @@ class OrderController extends Controller{
     public function __construct(){
 		$this->ActiveMenuName=activeMenuNames::Order->value;
 		$this->PageTitle="Order";
-        $this->middleware('auth');
+        $this->middleware('auth');    
 		$this->middleware(function ($request, $next) {
 			$this->UserID=auth()->user()->UserID;
 			$this->general=new general($this->UserID,$this->ActiveMenuName);
@@ -80,6 +80,28 @@ class OrderController extends Controller{
         }else{
             return view('errors.403');
         }
+	}
+	public function adminRatingSave(Request $req){
+		
+		DB::beginTransaction();
+		$status=false;
+		$tdata=array(
+			"isRated"=>1,
+			"Ratings"=>floatval($req->Rating),
+			"Review"=>$req->Review,
+			"RatedOn"=>now(),
+			"RatedBy"=>$this->UserID
+		);
+		//Update Quotation table amount totals
+		$status=DB::Table($this->CurrFYDB."tbl_vendor_orders")->where('OrderID',$req->OrderID)->where('VendorID',$req->VendorID)->update($tdata);
+
+		if($status==true){
+			DB::commit();
+			return array('status'=>true,'message'=>"Rating saved successfully");
+		}else{
+			DB::rollback();
+			return array('status'=>false,'message'=>"Rating save failed");
+		}
 	}
 	public function sendOTP(Request $req){
 		$OTP=Helper::getOTP(6);
@@ -139,7 +161,7 @@ class OrderController extends Controller{
 			return response(array('status'=>false,'message'=>"Access Denied"), 403);
 		}
 	}
-
+	
 	public function MarkAsDelivered(request $req){
 		if($this->general->isCrudAllow($this->CRUD,"edit")==true){
 			DB::beginTransaction();
@@ -173,7 +195,7 @@ class OrderController extends Controller{
 		}
 	}
 	public function updateVendorAdditionalCost(Request $req,$OrderID){
-
+		
 		if($this->general->isCrudAllow($this->CRUD,"edit")==true){
 			DB::beginTransaction();
 			$status=true;
@@ -195,7 +217,7 @@ class OrderController extends Controller{
 		}
 	}
 	public function updateCustomerAdditionalCost(Request $req,$OrderID){
-
+		
 		if($this->general->isCrudAllow($this->CRUD,"edit")==true){
 			DB::beginTransaction();
 			$sql="Update ".$this->CurrFYDB."tbl_order Set AdditionalCost='".$req->AdditionalCharges."',NetAmount=(TotalAmount+'".$req->AdditionalCharges."'),UpdatedOn='".date("Y-m-d H:i:s")."',UpdatedBy='".$this->UserID."'  where OrderID='".$OrderID."'";
@@ -224,7 +246,7 @@ class OrderController extends Controller{
 			);
 			//item cancel
 			$status=DB::Table($this->CurrFYDB."tbl_order_details")->where('OrderID',$req->OrderID)->where('DetailID',$DetailID)->update($tdata);
-
+			
 			//Update Vendor's Additional Cost in Quotation Table
 			if($status){
 				$status=DB::Table($this->CurrFYDB."tbl_vendor_quotation")->where('EnqID',$req->EnqID)->where('VendorID',$req->VendorID)->update(["AdditionalCost"=>$req->VACharges,"UpdatedOn"=>now(),"UpdatedBy"=>$this->UserID]);
@@ -235,7 +257,7 @@ class OrderController extends Controller{
 				$status=DB::Update($sql);
 			}
 			// Verify if all items have been cancelled. If all items are cancelled, update the status in the main quotation table.
-			if($status){
+			if($status){ 
 				$t=DB::Table($this->CurrFYDB."tbl_order_details")->where('OrderID',$req->OrderID)->where('status','<>','Cancelled')->count();
 				if(intval($t)<=0){
 					$tdata=array(
@@ -248,7 +270,7 @@ class OrderController extends Controller{
 					$status=DB::Table($this->CurrFYDB."tbl_order")->where('OrderID',$req->OrderID)->update($tdata);
 				}
 			}
-
+			
 			// Update Tax Amount, Total Amount, Subtotal, and Net Amount for non-cancelled items in the quotation table.
 			if($status){
 				$tdata=["TaxAmount"=>0,"CGSTAmount"=>0,"IGSTAmount"=>0,"SGSTAmount"=>0,"TotalAmount"=>0,"SubTotal"=>0,"DiscountAmount"=>0,"AdditionalCost"=>0,"NetAmount"=>0];
@@ -291,14 +313,15 @@ class OrderController extends Controller{
 		$sql.=" C.StateID as BStateID, BS.StateName as BStateName, C.DistrictID as BDistrictID, BD.DistrictName as BDistrictName, C.TalukID, BT.TalukName as BTalukName, C.CityID as BCityID, BCI.CityName as BCityName, C.PostalCodeID as BPostalCodeID, ";
 		$sql.=" BPC.PostalCode as BPostalCode, BC.PhoneCode, O.ReceiverName, O.ReceiverMobNo, O.DAddress, O.DCountryID, CO.CountryName as DCountryName, O.DStateID, S.StateName as DStateName, O.DDistrictID, D.DistrictName as DDistrictName, O.DTalukID, ";
 		$sql.=" T.TalukName as DTalukName, O.DCityID, CI.CityName as DCityName, O.DPostalCodeID, PC.PostalCode as DPostalCode, O.TaxAmount, O.SubTotal, O.DiscountType, O.DiscountPercentage, O.DiscountAmount, O.CGSTAmount, ";
-		$sql.=" O.SGSTAmount, O.IGSTAmount, O.TotalAmount, O.AdditionalCost, O.NetAmount, O.PaidAmount,O.LessFromAdvance,O.TotalPaidAmount, O.BalanceAmount, O.PaymentStatus,  O.AdditionalCostData, O.Status,  O.RejectedOn,  O.RejectedBy, O.ReasonID, RR.RReason, O.RDescription ";
+		$sql.=" O.SGSTAmount, O.IGSTAmount, O.TotalAmount, O.AdditionalCost, O.NetAmount, O.PaidAmount,O.LessFromAdvance,O.TotalPaidAmount, O.BalanceAmount, O.PaymentStatus,  O.AdditionalCostData, O.Status,  O.RejectedOn,  O.RejectedBy, O.ReasonID, RR.RReason, O.RDescription, ";
+		$sql.=" O.isRated, O.Ratings, O.Review, O.RatedOn ";
 		$sql.=" FROM ".$this->CurrFYDB."tbl_order as O LEFT JOIN tbl_customer as C ON C.CustomerID=O.CustomerID LEFT JOIN ".$this->generalDB."tbl_countries as BC ON BC.CountryID=C.CountryID  ";
 		$sql.=" LEFT JOIN ".$this->generalDB."tbl_states as BS ON BS.StateID=C.StateID LEFT JOIN ".$this->generalDB."tbl_districts as BD ON BD.DistrictID=C.DistrictID  ";
 		$sql.=" LEFT JOIN ".$this->generalDB."tbl_taluks as BT ON BT.TalukID=C.TalukID LEFT JOIN ".$this->generalDB."tbl_cities as BCI ON BCI.CityID=C.CityID ";
 		$sql.=" LEFT JOIN ".$this->generalDB."tbl_postalcodes as BPC ON BPC.PID=C.PostalCodeID LEFT JOIN ".$this->generalDB."tbl_countries as CO ON CO.CountryID=O.DCountryID  ";
 		$sql.=" LEFT JOIN ".$this->generalDB."tbl_states as S ON S.StateID=O.DStateID LEFT JOIN ".$this->generalDB."tbl_districts as D ON D.DistrictID=O.DDistrictID ";
 		$sql.=" LEFT JOIN ".$this->generalDB."tbl_taluks as T ON T.TalukID=O.DTalukID LEFT JOIN ".$this->generalDB."tbl_cities as CI ON CI.CityID=O.DCityID ";
-		$sql.=" LEFT JOIN ".$this->generalDB."tbl_postalcodes as PC ON PC.PID=O.DPostalCodeID LEFT JOIN tbl_reject_reason as RR ON RR.RReasonID=O.ReasonID ";
+		$sql.=" LEFT JOIN ".$this->generalDB."tbl_postalcodes as PC ON PC.PID=O.DPostalCodeID LEFT JOIN tbl_reject_reason as RR ON RR.RReasonID=O.ReasonID "; 
 		$sql.=" Where 1=1 ";
 		if(is_array($data)){
 			if(array_key_exists("OrderID",$data)){$sql.=" AND O.OrderID='".$data['OrderID']."'";}
@@ -311,11 +334,23 @@ class OrderController extends Controller{
 			$sql.=" Where OD.OrderID='".$result[$i]->OrderID."' Order By OD.DetailID ";
 			$result[$i]->Details=DB::SELECT($sql);
 			$addCharges=[];
+			$orderStatus=[];
 			$result1=DB::Table($this->CurrFYDB.'tbl_vendor_quotation')->Where('EnqID',$result[$i]->EnqID)->get();
 			foreach($result1 as $tmp){
 				$addCharges[$tmp->VendorID]=Helper::NumberFormat($tmp->AdditionalCost,$this->Settings['price-decimals']);
 			}
+			$result1=DB::Table($this->CurrFYDB.'tbl_vendor_orders')->Where('OrderID',$result[$i]->OrderID)->get();
+			foreach($result1 as $tmp){
+				$orderStatus[$tmp->VendorID]=[
+					"isRated"=>$tmp->isRated,
+					"Ratings"=>$tmp->Ratings,
+					"Review"=>$tmp->Review,
+					"RatedOn"=>$tmp->RatedOn,
+					"Status"=>$tmp->Status
+				];
+			}
 			$result[$i]->AdditionalCharges=$addCharges;
+			$result[$i]->orderStatus=$orderStatus;
 
 		}
 		return $result;
@@ -369,10 +404,10 @@ class OrderController extends Controller{
 				array( 'db' => 'OrderNo', 'dt' => '0' ),
 				array( 'db' => 'OrderDate', 'dt' => '1','formatter' => function( $d, $row ) { return date($this->Settings['date-format'],strtotime($d));} ),
 				array( 'db' => 'CustomerName', 'dt' => '2' ),
-				array(
-					'db' => 'MobileNo1',
+				array( 
+					'db' => 'MobileNo1', 
 					'dt' => '3' ,
-					'formatter' => function( $d, $row ) {
+					'formatter' => function( $d, $row ) { 
 						$phoneCode=$row['PhoneCode']!=""?"+".$row['PhoneCode']:"";
 						return $phoneCode." ".$d;
 					}
@@ -381,8 +416,8 @@ class OrderController extends Controller{
 				array( 'db' => 'NetAmount', 'dt' => '5', 'formatter' => function( $d, $row ) { return Helper::NumberFormat($d,$this->Settings['price-decimals']);} ),
 				array( 'db' => 'TotalPaidAmount', 'dt' => '6' , 'formatter' => function( $d, $row ) { return Helper::NumberFormat($d,$this->Settings['price-decimals']);} ),
 				array( 'db' => 'BalanceAmount', 'dt' => '7' , 'formatter' => function( $d, $row ) { return Helper::NumberFormat($d,$this->Settings['price-decimals']);} ),
-				array(
-					'db' => 'Status',
+				array( 
+					'db' => 'Status', 
 					'dt' => '8' ,
 					'formatter' => function( $d, $row ) {
 						if($d=="Cancelled"){
@@ -396,8 +431,8 @@ class OrderController extends Controller{
 						}
 					}
 				),
-				array(
-					'db' => 'PaymentStatus',
+				array( 
+					'db' => 'PaymentStatus', 
 					'dt' => '9' ,
 					'formatter' => function( $d, $row ) {
 						if($d=="Partial Paid"){
@@ -409,8 +444,8 @@ class OrderController extends Controller{
 						}
 					}
 				),
-				array(
-					'db' => 'OrderID',
+				array( 
+					'db' => 'OrderID', 
 					'dt' => '10',
 					'formatter' => function( $d, $row ) {
 						$phoneCode=$row['PhoneCode']!=""?"+".$row['PhoneCode']:"";

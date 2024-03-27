@@ -461,7 +461,7 @@ class VendorsController extends Controller{
 					}
 				}
 				//stock points details
-				$StockPoints=json_decode($req->StockPoints);
+				/* $StockPoints=json_decode($req->StockPoints);
 				foreach($StockPoints as $RowIndex=>$data){
 					if($status){
 						$StockPointID = DocNum::getDocNum(docTypes::VendorStockPoint->value,"",Helper::getCurrentFY());
@@ -485,9 +485,9 @@ class VendorsController extends Controller{
 							DocNum::updateDocNum(docTypes::VendorStockPoint->value);
 						}
 					}
-				}
+				} */
 				//service location details
-				$ServiceLocations=json_decode($req->ServiceLocations);
+				/* $ServiceLocations=json_decode($req->ServiceLocations);
 				$ServiceBy = $ServiceLocations->ServiceBy;
 				$ServiceData = $ServiceLocations->ServiceData;
 				if($ServiceBy == "District"){
@@ -575,7 +575,7 @@ class VendorsController extends Controller{
 				}else{
 					$status = false;
 				}
-				DB::table('tbl_vendors')->where('VendorID',$VendorID)->update(['ServiceBy'=>$ServiceBy]);
+				DB::table('tbl_vendors')->where('VendorID',$VendorID)->update(['ServiceBy'=>$ServiceBy]); */
 				//Documents
 				$Documents=json_decode($req->Documents);
 				foreach($Documents as $ImgID=>$Document){
@@ -915,7 +915,7 @@ class VendorsController extends Controller{
 					}
 				}
 				//service location details
-				$ServiceLocations=json_decode($req->ServiceLocations);
+				/* $ServiceLocations=json_decode($req->ServiceLocations);
 				$ServiceBy = $ServiceLocations->ServiceBy;
 				$ServiceData = $ServiceLocations->ServiceData;
 				if($ServiceBy == "District"){
@@ -1004,9 +1004,9 @@ class VendorsController extends Controller{
 					$status = false;
 				}
 				DB::table('tbl_vendors')->where('VendorID',$VendorID)->update(['ServiceBy'=>$ServiceBy]);
-				DB::Table('tbl_vendors_service_locations')->where('VendorID',$VendorID)->whereNot('ServiceBy',$ServiceBy)->update(['DFlag'=>1,'UpdatedOn'=>date('Y-m-d H:i:s'),'UpdatedBy'=>$this->UserID]);
+				DB::Table('tbl_vendors_service_locations')->where('VendorID',$VendorID)->whereNot('ServiceBy',$ServiceBy)->update(['DFlag'=>1,'UpdatedOn'=>date('Y-m-d H:i:s'),'UpdatedBy'=>$this->UserID]); */
 				//stock points details
-				$StockPoints=json_decode($req->StockPoints);
+				/* $StockPoints=json_decode($req->StockPoints);
 				$tStockPoints=array();
 				foreach($StockPoints as $RowIndex=>$data){
 					if($status){
@@ -1058,7 +1058,7 @@ class VendorsController extends Controller{
 							$status=DB::Table('tbl_vendors_stock_point')->where('VendorID',$VendorID)->where('UUID',$result[$m]->UUID)->update(array("DFlag"=>1,"DeletedBy"=>$this->UserID,"DeletedOn"=>date("Y-m-d H:i:s")));
 						}
 					}
-				}
+				} */
 				//Documents
 				$Documents=json_decode($req->Documents);
 				$tDocuments=array();

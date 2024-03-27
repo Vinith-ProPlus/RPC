@@ -109,6 +109,61 @@ class QuotationController extends Controller{
 			return response(array('status'=>false,'message'=>"Access Denied"), 403);
 		}
 	}
+	public function itemUpdate(Request $req,$DetailID){
+		if($this->general->isCrudAllow($this->CRUD,"edit")==true){
+			
+			DB::beginTransaction();
+			$status=false;
+			$tdata=array(
+				"Qty"=>$req->Qty,
+				"Price"=>$req->Price,
+				"Taxable"=>$req->Taxable,
+				"TaxAmt"=>$req->TaxAmt,
+				"CGSTAmt"=>$req->CGSTAmt,
+				"SGSTAmt"=>$req->SGSTAmt,
+				"IGSTAmt"=>$req->IGSTAmt,
+				"TotalAmt"=>$req->TotalAmt,
+				"UpdatedOn"=>now(),
+				"CancelledBy"=>$this->UserID
+			);
+			//Update Quotation table amount totals
+			$status=DB::Table($this->CurrFYDB."tbl_quotation_details")->where('QID',$req->QID)->where('DetailID',$DetailID)->update($tdata);
+			if($status){
+				$tdata=["TaxAmount"=>0,"CGSTAmount"=>0,"IGSTAmount"=>0,"SGSTAmount"=>0,"TotalAmount"=>0,"SubTotal"=>0,"DiscountAmount"=>0,"AdditionalCost"=>0,"OverAllAmount"=>0];
+				$sql="SELECT IFNULL(SUM(TaxAmt),0) as TaxAmount, IFNULL(SUM(CGSTAmt),0) as CGSTAmount, IFNULL(SUM(IGSTAmt),0) as IGSTAmount, IFNULL(SUM(SGSTAmt),0) as SGSTAmount, SUM(TotalAmt) as TotalAmount, IFNULL(SUM(Taxable),0) as SubTotal FROM ".$this->CurrFYDB."tbl_quotation_details where QID='".$req->QID."' and isCancelled=0";
+				$result=DB::SELECT($sql);
+				foreach($result as $tmp){
+					$tdata['TaxAmount']+=floatval($tmp->TaxAmount);
+					$tdata['CGSTAmount']+=floatval($tmp->CGSTAmount);
+					$tdata['IGSTAmount']+=floatval($tmp->IGSTAmount);
+					$tdata['SGSTAmount']+=floatval($tmp->SGSTAmount);
+					$tdata['TotalAmount']+=floatval($tmp->TotalAmount);
+					$tdata['SubTotal']+=floatval($tmp->SubTotal);
+				}
+				$result=DB::Table($this->CurrFYDB."tbl_quotation")->where('QID',$req->QID)->get();
+				foreach($result as $tmp){
+					$tdata['DiscountAmount']+=floatval($tmp->DiscountAmount);
+					$tdata['AdditionalCost']+=floatval($tmp->AdditionalCost);
+				}
+				$tdata['TotalAmount']=floatval($tdata['SubTotal'])+floatval($tdata['CGSTAmount'])+floatval($tdata['IGSTAmount'])+floatval($tdata['SGSTAmount']);
+				$tdata['TotalAmount']-=floatval($tdata['DiscountAmount']);
+
+				$tdata['OverAllAmount']=floatval($tdata['TotalAmount'])+floatval($tdata['AdditionalCost']);
+				$tdata['UpdatedOn']=date("Y-m-d H:i:s",strtotime("1 minutes"));
+				$tdata['UpdatedBy']=$this->UserID;
+				$status=DB::Table($this->CurrFYDB."tbl_quotation")->where('QID',$req->QID)->update($tdata);
+			}
+			if($status==true){
+				DB::commit();
+				return array('status'=>true,'message'=>"Quote updated Successfully ");
+			}else{
+				DB::rollback();
+				return array('status'=>false,'message'=>"Quote updated failed");
+			}
+		}else{
+			return response(array('status'=>false,'message'=>"Access Denied"), 403);
+		}
+	}
 	public function QuoteItemCancel(request $req,$DetailID){
 		if($this->general->isCrudAllow($this->CRUD,"delete")==true){
 			DB::beginTransaction();
@@ -420,7 +475,7 @@ class QuotationController extends Controller{
 		$result=DB::SELECT($sql);
 		for($i=0;$i<count($result);$i++){
 			$result[$i]->AdditionalCostData=unserialize($result[$i]->AdditionalCostData);
-			$sql="SELECT QD.DetailID, QD.QID, QD.VQDetailID, QD.ProductID, P.ProductName, P.HSNSAC, P.UID, U.UCode, U.UName, QD.Qty, QD.Price, QD.TaxType, QD.TaxPer, QD.Taxable, QD.DiscountType, QD.DiscountPer, QD.DiscountAmt, QD.TaxAmt, QD.CGSTPer, QD.SGSTPer, QD.IGSTPer, QD.CGSTAmt, QD.SGSTAmt, QD.IGSTAmt, QD.TotalAmt, QD.VendorID, V.VendorName, QD.isCancelled, QD.CancelledBy, QD.CancelledOn, QD.ReasonID, RR.RReason, QD.RDescription  ";
+			$sql="SELECT QD.DetailID, QD.QID, QD.VQDetailID, QD.ProductID, P.ProductName, P.Decimals, P.HSNSAC, P.UID, U.UCode, U.UName, QD.Qty, QD.Price, QD.TaxType, QD.TaxPer, QD.Taxable, QD.DiscountType, QD.DiscountPer, QD.DiscountAmt, QD.TaxAmt, QD.CGSTPer, QD.SGSTPer, QD.IGSTPer, QD.CGSTAmt, QD.SGSTAmt, QD.IGSTAmt, QD.TotalAmt, QD.VendorID, V.VendorName, QD.isCancelled, QD.CancelledBy, QD.CancelledOn, QD.ReasonID, RR.RReason, QD.RDescription  ";
 			$sql.=" FROM ".$this->CurrFYDB."tbl_quotation_details as QD LEFT JOIN tbl_products as P ON P.ProductID=QD.ProductID LEFT JOIN tbl_uom as U ON U.UID=P.UID LEFT JOIN tbl_reject_reason as RR ON RR.RReasonID=QD.ReasonID LEFT JOIN tbl_vendors as V ON V.VendorID=QD.VendorID ";
 			$sql.=" Where QD.QID='".$result[$i]->QID."' and QD.isCancelled=0 ";
 			$result[$i]->Details=DB::SELECT($sql);

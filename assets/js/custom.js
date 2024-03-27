@@ -38,6 +38,19 @@ const NumberFormat=(value,type)=>{
     }
 
 }
+
+const numberSteps=(Decimal)=> {
+    var Value = "1";
+    if (Decimal !== "auto") {
+        if (Decimal == 0) {
+            return 1;
+        } else {
+            return parseFloat("0." + Value.padStart(Decimal, "0"));
+        }
+    } else {
+        return Value;
+    }
+}
 const QtyFormat=(value,Decimal)=>{
     try {
         if((value=="")||(value==undefined)||(isNaN(parseFloat(value)))){

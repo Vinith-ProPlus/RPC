@@ -762,16 +762,22 @@ class QuoteEnquiryController extends Controller{
 	public function TableView(Request $request){
 		if($this->general->isCrudAllow($this->CRUD,"view")==true){
 			$columns = array(
+				array( 'db' => 'E.EnqNo', 'dt' => '0' ),
+				array( 'db' => 'E.EnqDate', 'dt' => '1' ),
+				array( 'db' => 'C.CustomerName', 'dt' => '2' ),
+				array( 'db' => 'C.MobileNo1', 'dt' => '3' ),
+				array( 'db' => 'C.Email', 'dt' => '4' ),
+				array( 'db' => 'E.ExpectedDeliveryDate', 'dt' => '5' ),
+				array( 'db' => 'E.Status', 'dt' => '6' ),
+				array( 'db' => 'E.EnqID', 'dt' => '7' ),
+			);
+			$columns1 = array(
 				array( 'db' => 'EnqNo', 'dt' => '0' ),
 				array( 'db' => 'EnqDate', 'dt' => '1','formatter' => function( $d, $row ) {return date($this->Settings['date-format'],strtotime($d));}),
-				array( 'db' => 'ReceiverName', 'dt' => '2' ),
-				array( 'db' => 'ReceiverMobNo', 'dt' => '3' ),
-				array( 'db' => 'ExpectedDeliveryDate', 'dt' => '4','formatter' => function( $d, $row ) {return date($this->Settings['date-format'],strtotime($d));}),
-				array( 'db' => 'CustomerID', 'dt' => '5',
-					'formatter' => function( $d, $row ) {
-						return DB::table('tbl_customer')->where('CustomerID',$d)->value('Email');
-					}
-				),
+				array( 'db' => 'CustomerName', 'dt' => '2' ),
+				array( 'db' => 'MobileNo1', 'dt' => '3' ),
+				array( 'db' => 'Email', 'dt' => '4'),
+				array( 'db' => 'ExpectedDeliveryDate', 'dt' => '5','formatter' => function( $d, $row ) {return date($this->Settings['date-format'],strtotime($d));}),
 				array( 'db' => 'Status','dt' => '6',
 					'formatter' => function( $d, $row ) {
 						$html = "";
@@ -808,10 +814,10 @@ class QuoteEnquiryController extends Controller{
 			);
 			$data=array();
 			$data['POSTDATA']=$request;
-			$data['TABLE']=$this->currfyDB . 'tbl_enquiry';
-			$data['PRIMARYKEY']='EnqID';
+			$data['TABLE']=$this->currfyDB . 'tbl_enquiry as E LEFT JOIN tbl_customer as C ON C.CustomerID = E.CustomerID LEFT JOIN '.$this->generalDB.'tbl_countries as CO On CO.CountryID=C.CountryID';
+			$data['PRIMARYKEY']='E.EnqID';
 			$data['COLUMNS']=$columns;
-			$data['COLUMNS1']=$columns;
+			$data['COLUMNS1']=$columns1;
 			$data['GROUPBY']=null;
 			$data['WHERERESULT']=null;
 			$data['WHEREALL']="Status != 'Cancelled'";
@@ -824,64 +830,7 @@ class QuoteEnquiryController extends Controller{
 
 	public function TrashTableView(Request $request){
 		if($this->general->isCrudAllow($this->CRUD,"view")==true){
-			$columns = array(
-				array( 'db' => 'Q.QNo', 'dt' => '0' ),
-				array( 'db' => 'Q.QDate', 'dt' => '1' ),
-				array( 'db' => 'C.CustomerName', 'dt' => '2' ),
-				array( 'db' => 'C.MobileNo1', 'dt' => '3' ),
-				array( 'db' => 'C.Email', 'dt' => '4' ),
-				array( 'db' => 'Q.QExpiryDate', 'dt' => '5' ),
-				array( 'db' => 'Q.Status', 'dt' => '6' ),
-				array( 'db' => 'Q.QID', 'dt' => '7' ),
-				array( 'db' => 'CO.PhoneCode', 'dt' => '8' ),
-			);
-			$columns1 = array(
-				array( 'db' => 'QNo', 'dt' => '0' ),
-				array( 'db' => 'QDate', 'dt' => '1','formatter' => function( $d, $row ) { return date($this->Settings['date-format'],strtotime($d));} ),
-				array( 'db' => 'CustomerName', 'dt' => '2' ),
-				array( 
-					'db' => 'MobileNo1', 
-					'dt' => '3' ,
-					'formatter' => function( $d, $row ) { 
-						$phoneCode=$row['PhoneCode']!=""?"+".$row['PhoneCode']:"";
-						return $phoneCode." ".$d;
-					}
-				),
-				array( 'db' => 'Email', 'dt' => '4' ),
-				array( 'db' => 'QExpiryDate', 'dt' => '5' ,'formatter' => function( $d, $row ) {return date($this->Settings['date-format'],strtotime($d));}),
-				array( 'db' => 'Status','dt' => '6',
-					'formatter' => function( $d, $row ) {
-						$html = "";
-						if($d=="New"){
-							$html="<span class='badge badge-info m-1'>".$d."</span>";
-						}elseif($d=="Rejected"){
-							$html="<span class='badge badge-danger m-1'>".$d."</span>";
-						}elseif($d=="Accepted"){
-							$html="<span class='badge badge-success m-1'>".$d."</span>";
-						}
-						return $html;
-					}
-				),
-				array(
-						'db' => 'QID',
-						'dt' => '7',
-						'formatter' => function( $d, $row ) {
-							$OrderCRUD=$this->general->getCrudOperations(activeMenuNames::Order->value);
-							$html='';
-							if($this->general->isCrudAllow($this->CRUD,"view")==true){
-								$html.='<a href="'.route('admin.transaction.quotes.details',$d).'" data-id="'.$d.'"  class="btn btn-outline-info  m-5 '.$this->general->UserInfo['Theme']['button-size'].'  btnView">View</a>';
-							}
-							/*
-							if($this->general->isCrudAllow($OrderCRUD,"add")==true && $row['Status']=="New" ){
-								$html.='<button type="button" data-id="'.$d.'"  class="btn btn-outline-success btnConfirm  m-5 '.$this->general->UserInfo['Theme']['button-size'].'" title="Confirm Order">Confirm</button>';
-							}*/
-							if($this->general->isCrudAllow($this->CRUD,"delete")==true && $row['Status']=="New" ){
-								$html.='<button type="button" data-id="'.$d.'"  data-qno="'.$row['QNo'].'" class="btn btn-outline-danger btnCancelQuote  m-5 '.$this->general->UserInfo['Theme']['button-size'].'" title="Cancel this Quote">Cancel</button>';
-							}
-							return $html;
-						}
-					),
-				array( 'db' => 'PhoneCode', 'dt' => '8' ),);
+			
 			$columns = array(
 				array( 'db' => 'EnqNo', 'dt' => '0' ),
 				array( 'db' => 'EnqDate', 'dt' => '1','formatter' => function( $d, $row ) {return date($this->Settings['date-format'],strtotime($d));}),

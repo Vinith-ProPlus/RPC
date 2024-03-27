@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\web\masters\vendor\DepartmentsController;
+use App\Http\Controllers\web\masters\vendor\StockPointsController;
 use App\Http\Controllers\web\masters\vendor\VendorCategoryController;
 use App\Http\Controllers\web\masters\vendor\VendorProductMappingController;
 use App\Http\Controllers\web\masters\vendor\VendorsController;
@@ -117,5 +118,23 @@ Route::group(['prefix'=>'vendor-stock-update'],function (){
 
         Route::post('/get/vendor-stock-data', 'getVendorStockData');
         Route::post('/get/vendor-products', 'getVendorProducts');
+    });
+});
+
+Route::group(['prefix'=>'stock-points'],function (){
+    Route::controller(StockPointsController::class)->group(function () {
+        Route::get('/', 'view');
+        Route::get('/trash', 'TrashView');
+        Route::get('/create', 'Create');
+        Route::get('/edit/{ID}', 'Edit');
+
+        Route::post('/data', 'TableView');
+        Route::post('/create', 'Save');
+        Route::POST('/edit/{ID}', 'Update');
+        Route::POST('/delete/{ID}', 'Delete');
+        Route::POST('/restore/{ID}', 'Restore');
+        Route::post('/trash-data', 'TrashTableView');
+
+        Route::post('/get/VendorType','getVendorType');
     });
 });

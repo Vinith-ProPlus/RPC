@@ -1,5 +1,6 @@
 @extends('layouts.app')
 @section('content')
+<link rel="stylesheet" type="text/css" href="{{url('/')}}/assets/plugins/ratings/star-rating-svg.css">
 <style>
     .stamp-badge {
         padding: 3px 6px;
@@ -179,10 +180,15 @@
                                                     @endif
                                                     <td class="text-right">{{!$item->isCancelled ? NumberFormat($item->TotalAmt, $Settings['price-decimals']) : '--'}}</td>
                                                     <td><span class=" fw-600 text-info text-center">{{$item->VendorName}}</span></td>
-                                                    @if($QData->Status=="New"  && $crud['delete']==true)
+                                                    @if($QData->Status=="New"  && ($crud['edit']==true || $crud['delete']==true))
                                                         <td class="text-center">
                                                             @if(!$item->isCancelled)
-                                                                <button type="button"  data-vendor-id="{{$item->VendorID}}" data-additional-charge="<?php if(array_key_exists($item->VendorID,$QData->AdditionalCharges)){ echo $QData->AdditionalCharges[$item->VendorID];}else{ echo 0;} ?>" data-detail-id="{{$item->DetailID}}" data-qno="{{$item->ProductName}}" data-id="{{$item->QID}}" class="btn btn-outline-danger btnQItemDelete" data-original-title="Delete"><i class="fa fa-trash" aria-hidden="true"></i></button>
+                                                                @if($crud['edit']==true)
+                                                                    <button type="button"  data-vendor-id="{{$item->VendorID}}" data-additional-charge="<?php if(array_key_exists($item->VendorID,$QData->AdditionalCharges)){ echo $QData->AdditionalCharges[$item->VendorID];}else{ echo 0;} ?>" data-detail-id="{{$item->DetailID}}" data-qno="{{$item->ProductName}}" data-id="{{$item->QID}}" class="btn btn-outline-primary m-2 btnQItemEdit" data-original-title="Edit"><i class="fa fa-pencil" aria-hidden="true"></i></button>
+                                                                @endif
+                                                                @if($crud['delete']==true)
+                                                                    <button type="button"  data-vendor-id="{{$item->VendorID}}" data-additional-charge="<?php if(array_key_exists($item->VendorID,$QData->AdditionalCharges)){ echo $QData->AdditionalCharges[$item->VendorID];}else{ echo 0;} ?>" data-detail-id="{{$item->DetailID}}" data-qno="{{$item->ProductName}}" data-id="{{$item->QID}}" class="btn btn-outline-danger  m-2 btnQItemDelete" data-original-title="Delete"><i class="fa fa-trash" aria-hidden="true"></i></button>
+                                                                @endif
                                                             @else
                                                                 <span class=" fw-600 text-danger text-center">Cancelled</span>
                                                             @endif
@@ -204,7 +210,7 @@
                                                 <div class="card-header">
                                                     <div class="row">
                                                         <div class="col-2"></div>
-                                                        <div class="col-8 text-center fw-600">Vendor Additional Charges</div>
+                                                        <div class="col-8 text-center fw-600">Vendor Charges & Ratings</div>
                                                         <div class="col-2 text-right"> @if($QData->Status=="New")<a href="#" id="btnEditVACharges" title="Update Vendor's Additional Costs"><i class="fa fa-pencil" ></i></a> @endif</div>
                                                     </div>
                                                 </div>
@@ -294,7 +300,85 @@
 		</div>
 	</div>
 </div>
-
+<div class="modal fade QuoteEditModel" id="QuoteEditModel" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+	<div class="modal-dialog modal-dialog-centered modal-fullscreen-md-down">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h1 class="modal-title fs-15 fw-600" >Update</h1>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<input type="hidden" id="txtMQEID" value="{{$QID}}">
+				<input type="hidden" id="txtMQEDID">
+				<div class="row">
+					<div class="col-12">
+						<div class="form-group">
+							<label for="txtMQEProductName">Product Name <span class="required">*</span></label>
+							<input type="text" class="form-control" id="txtMQEProductName" disabled>
+                            <div class="errors err-sm quote-edit-err" id="txtMQEProductName-err"></div>
+						</div>
+					</div>
+					<div class="col-6 mt-15">
+						<div class="form-group">
+							<label for="txtMQEQty">Qty <span class="required">*</span></label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="txtMQEQty" >
+                                <span class="input-group-text" id="spaUOM">Kg</span>
+                            </div>
+                            <div class="errors err-sm quote-edit-err" id="txtMQEQty-err"></div>
+						</div>
+					</div>
+					<div class="col-6 mt-15">
+						<div class="form-group">
+							<label for="txtMQEPrice">Price <span class="required">*</span></label>
+							<input type="number" steps="{{Helper::NumberSteps($Settings['price-decimals'])}}" class="form-control" id="txtMQEPrice"  disabled >
+                            <div class="errors err-sm quote-edit-err" id="txtMQEPrice-err"></div>
+						</div>
+					</div>
+					<div class="col-6 mt-15">
+						<div class="form-group">
+							<label for="txtMQETaxType">Tax Type <span class="required">*</span></label>
+							<input type="text" class="form-control" id="txtMQETaxType" disabled>
+                            <div class="errors err-sm quote-edit-err" id="txtMQETaxType-err"></div>
+						</div>
+					</div>
+					<div class="col-6 mt-15">
+						<div class="form-group">
+							<label for="txtMQETaxPercenatge">Tax Percentage <span class="required">*</span></label>
+							<input type="number"  steps="{{Helper::NumberSteps($Settings['percentage-decimals'])}}" class="form-control" id="txtMQETaxPercenatge" disabled>
+                            <div class="errors err-sm quote-edit-err" id="txtMQETaxPercenatge-err"></div>
+						</div>
+					</div>
+					<div class="col-6 mt-15">
+						<div class="form-group">
+							<label for="txtMQETaxable">Taxable<span class="required">*</span></label>
+							<input type="number" steps="{{Helper::NumberSteps($Settings['price-decimals'])}}" class="form-control" id="txtMQETaxable" disabled>
+                            <div class="errors err-sm quote-edit-err" id="txtMQETaxable-err"></div>
+						</div>
+					</div>
+					<div class="col-6 mt-15">
+						<div class="form-group">
+							<label for="txtMQETaxAmount">Tax Amount <span class="required">*</span></label>
+							<input type="number" steps="{{Helper::NumberSteps($Settings['price-decimals'])}}" class="form-control" id="txtMQETaxAmount" disabled>
+                            <div class="errors err-sm quote-edit-err" id="txtMQETaxAmount-err"></div>
+						</div>
+					</div>
+					<div class="col-12 mt-15">
+						<div class="form-group">
+							<label for="txtMQEAmount">Amount <span class="required">*</span></label>
+							<input type="number" steps="{{Helper::NumberSteps($Settings['price-decimals'])}}" class="form-control" id="txtMQEAmount" disabled>
+                            <div class="errors err-sm quote-edit-err" id="txtMQEAmount-err"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+				<button type="button" class="btn btn-outline-primary btn-sm" id="btnQuoteItemUpdate">Update</button>
+			</div>
+		</div>
+	</div>
+</div>
 <div class="modal fade QuoteCancelModel" id="QuoteCancelModel" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
 	<div class="modal-dialog modal-dialog-centered modal-fullscreen-md-down">
 		<div class="modal-content">
@@ -438,6 +522,7 @@
 </div>
 @endsection
 @section('scripts')
+<script src="{{url('/')}}/assets/plugins/ratings/jquery.star-rating-svg.js"></script>
 <script>
     $(document).ready(function(){
         let isItemCancel=false;
@@ -663,7 +748,7 @@
                 });
             }
 		});
-		$(document).on('change','#lstMCancelReason',function(){ console.log(cancelReasons)
+		$(document).on('change','#lstMCancelReason',function(){
 			try {
 				let ReasonID=$('#lstMCancelReason').val();
 				$('#txtMDescription').text(cancelReasons[ReasonID].Description);
@@ -701,6 +786,101 @@
                     success:function(response){
                         if(response.status){
                             $('#ApproveOrder').modal('hide');
+                            toastr.success(response.message, "", {positionClass: "toast-top-right",containerId: "toast-top-right",showMethod: "slideDown",hideMethod: "slideUp",progressBar: !0})
+                            window.location.reload();
+                        }else{
+                            toastr.error(response.message, "", {positionClass: "toast-top-right",containerId: "toast-top-right",showMethod: "slideDown",hideMethod: "slideUp",progressBar: !0})
+                        }
+                    }
+                });
+            });
+        });
+
+        //edit
+        let editData=null;
+        const itemCalculation=async()=>{
+            let qty=$('#txtMQEQty').val();
+            let price=$('#txtMQEPrice').val();
+                qty=isNaN(parseFloat(qty))==false?parseFloat(qty):0;
+                price=isNaN(parseFloat(price))==false?parseFloat(price):0;
+
+            let taxable=qty*price;
+            let taxPer=editData.TaxPer;
+            if(editData.TaxType=="Include"){
+                taxable= taxable/((taxPer/100)+1)
+            }
+            let taxAmount=(taxable*taxPer)/100
+            let Amount =taxable+taxAmount;
+            
+            editData.Qty=qty;
+            editData.Price=price;
+            editData.Taxable=taxable;
+            editData.TaxAmt=taxAmount;
+            editData.SGSTAmt=((taxable* editData.SGSTPer)/100);
+            editData.CGSTAmt=((taxable* editData.CGSTPer)/100);
+            editData.IGSTAmt=((taxable* editData.IGSTPer)/100);
+            editData.TotalAmt=Amount;
+            console.log(editData)
+            $('#txtMQETaxable').val(editData.Taxable);
+            $('#txtMQETaxAmount').val(editData.TaxAmt);
+            $('#txtMQEAmount').val(editData.TotalAmt);
+        }
+        $(document).on('click','.btnQItemEdit',function(){
+			let DID=$(this).attr('data-detail-id');
+            try {
+                let tdata=$('#tblQuoteDetails tbody tr[data-detail-id="'+DID+'"] .tdata').html();
+                tdata=JSON.parse(tdata);
+                $('#txtMQEProductName').val(tdata.ProductName)
+                $('#txtMQEQty').val(tdata.Qty)
+                $('#spaUOM').html(tdata.UCode)
+                $('#txtMQEPrice').val(tdata.Price)
+                $('#txtMQETaxType').val(tdata.TaxType)
+                $('#txtMQETaxPercenatge').val(tdata.TaxPer)
+                $('#txtMQETaxable').val(tdata.Taxable)
+                $('#txtMQETaxAmount').val(tdata.TaxAmt)
+                $('#txtMQEAmount').val(tdata.TotalAmt)
+
+                $('#txtMQEQty').attr('steps',numberSteps(tdata.Decimals))
+                editData=tdata;
+                console.log(tdata)
+            } catch (error) {
+                console.log(error)
+            }
+			$('#QuoteEditModel').modal('show');
+        });
+        $(document).on('keyup','#txtMQEQty',function(){
+            itemCalculation();
+        });
+        $(document).on('keyup','#txtMQEPrice',function(){
+            itemCalculation();
+        });
+        $(document).on('click','#btnQuoteItemUpdate',function(){
+            swal({
+                title: "Are you sure?",
+                text: "Would you like to update this quote item?",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonClass: "btn-outline-success",
+                confirmButtonText: "Update",
+                closeOnConfirm: false
+            },function(){
+                swal.close();
+                $.ajax({
+                    type:"post",
+                    url: "{{route('admin.transaction.quotes.item.update','__DetailID__')}}".replace("__DetailID__",editData.DetailID),
+                    headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
+                    data:editData,
+                    dataType:"json",
+                    async:true,
+                    beforeSend:function(){
+                        ajaxIndicatorStart ("The process of updating the quote product is currently in progress. Please wait a few seconds.")
+                    },
+                    complete: function(e, x, settings, exception){
+                        ajaxIndicatorStop ()
+                    },
+                    success:function(response){
+                        if(response.status){
+                            $('#QuoteEditModel').modal('hide');
                             toastr.success(response.message, "", {positionClass: "toast-top-right",containerId: "toast-top-right",showMethod: "slideDown",hideMethod: "slideUp",progressBar: !0})
                             window.location.reload();
                         }else{

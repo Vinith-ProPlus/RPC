@@ -236,6 +236,9 @@ Route::group(['prefix'=>'admin'],function (){
         Route::group(['prefix'=>'transaction'],function (){
             require __DIR__.'/web/transaction.php';
         });
+        Route::group(['prefix'=>'reports'],function (){
+            require __DIR__.'/web/reports.php';
+        });
         Route::group(['prefix'=>'home'],function (){
             require __DIR__.'/web/home.php';
         });

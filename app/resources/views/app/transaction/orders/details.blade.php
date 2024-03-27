@@ -1,5 +1,6 @@
 @extends('layouts.app')
 @section('content')
+<link rel="stylesheet" type="text/css" href="{{url('/')}}/assets/plugins/ratings/star-rating-svg.css">
 <style>
     .stamp-badge {
         padding: 3px 6px;
@@ -56,7 +57,7 @@
 		</div>
 	</div>
 </div>
-<?php
+<?php 
     $vendorAdditionalCharges=[];
 ?>
 <div class="container-fluid">
@@ -76,20 +77,31 @@
                                         <div class="card-body">
                                             @foreach([
                                                 'Customer Name' => $OData->CustomerName,
-
+                                                
                                                 'Email' => $OData->Email,
                                                 'Contact Number' => $OData->MobileNo1 ,
                                                 'Expected Delivery' => date($Settings['date-format'], strtotime($OData->ExpectedDelivery)),
                                                 'Contact Person' => ($OData->ReceiverName!="")? $OData->ReceiverName." <span> (".$OData->ReceiverMobNo.")</span>":"",
                                             ] as $label => $value)
                                                 @if($value!="")
-                                                    <div class="row my-1">
+                                                    <div class="row my-1 mt-5">
                                                         <div class="col-sm-5 fw-600">{{ $label }}</div>
                                                         <div class="col-sm-1 fw-600 text-center">:</div>
                                                         <div class="col-sm-6"><?php echo $value ?></div>
                                                     </div>
                                                 @endif
                                             @endforeach
+                                            <div class="row my-1">
+                                                <div class="col-sm-5 fw-600 d-flex align-items-center"><span class="mr-5">Ratings</span> @if($OData->isRated==1) <a href="#"  class="btnReadReview" title="Read Review" data-title="Customer Rating"  data-rating="{{$OData->Ratings}}" data-review="{{$OData->Review}}"><i class="fa fa-eye" ></i></a> @endif</div>
+                                                <div class="col-sm-1 fw-600 text-center d-flex align-items-center">:</div>
+                                                <div class="col-sm-6">
+                                                    @if($OData->isRated==1)
+                                                        <div id="CustomerRating" data-rating="{{$OData->Ratings}}" ></div>
+                                                    @else
+                                                        <span class="badge badge-danger">Not Rated</span> 
+                                                    @endif
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -99,7 +111,7 @@
                                             <p class="text-center fs-16 fw-500">Billing Address</p>
                                         </div>
                                         <div class="card-body">
-                                            <?php
+                                            <?php 
                                                 $Address="";
                                                 // if($OData->CustomerName!=""){$Address.="<b>".$OData->CustomerName."</b>";}
                                                 if($OData->BAddress!=""){if($Address!=""){$Address.=",<br> ";}$Address.=$OData->BAddress;}
@@ -121,7 +133,7 @@
                                             <p class="text-center fs-16 fw-500">Shipping Address</p>
                                         </div>
                                         <div class="card-body">
-                                            <?php
+                                            <?php 
                                                 $DAddress="";
                                                 if($OData->DAddress!=""){if($DAddress!=""){$DAddress.=",<br> ";}$DAddress.=$OData->DAddress;}
                                                 if($OData->DCityName!=""){if($DAddress!=""){$DAddress.=",<br> ";}$DAddress.=$OData->DCityName;}
@@ -175,7 +187,7 @@
                                         </thead>
                                         <tbody>
                                             @foreach ($OData->Details as $key=>$item)
-                                                <?php
+                                                <?php 
                                                 $item->Status =$OData->Status=="Cancelled"?$OData->Status:$item->Status;
                                                 ?>
                                                 <tr data-status="{{$item->Status}}" data-vendor-id="{{$item->VendorID}}" data-detail-id="{{$item->DetailID}}">
@@ -226,10 +238,10 @@
                                                         <td class="text-center">
                                                             <button type="button"  data-vendor-id="{{$item->VendorID}}" data-additional-charge="<?php if(array_key_exists($item->VendorID,$OData->AdditionalCharges)){ echo $OData->AdditionalCharges[$item->VendorID];}else{ echo 0;} ?>" data-detail-id="{{$item->DetailID}}" data-order-no="{{$item->ProductName}}" data-id="{{$item->OrderID}}" class="btn m-5 btn-outline-success btnItemMarkDelivered" title="Mark this item as Delivered"><i class="fa fa-check"></i></button>
                                                             <button type="button"  data-vendor-id="{{$item->VendorID}}" data-additional-charge="<?php if(array_key_exists($item->VendorID,$OData->AdditionalCharges)){ echo $OData->AdditionalCharges[$item->VendorID];}else{ echo 0;} ?>" data-detail-id="{{$item->DetailID}}" data-order-no="{{$item->ProductName}}" data-id="{{$item->OrderID}}" class="btn m-5 btn-outline-danger btnOItemDelete" -title="Item Cancel"><i class="fa fa-trash" aria-hidden="true"></i></button>
-
+                                                            
                                                         </td>
                                                     @endif
-                                                    <?php
+                                                    <?php 
                                                         if($item->Status!="Cancelled"){
                                                             $tmpAmount=0;
                                                             if(array_key_exists($item->VendorID,$OData->AdditionalCharges)){ $tmpAmount=$OData->AdditionalCharges[$item->VendorID];}
@@ -245,20 +257,57 @@
                                         @if(count($vendorAdditionalCharges)>0)
                                         <div class="col-sm-6 ">
                                             <div class="card shadow-sm">
-                                                <div class="card-header">
+                                                <div class="card-body p-5">
                                                     <div class="row">
-                                                        <div class="col-2"></div>
-                                                        <div class="col-8 text-center fw-600">Vendor Additional Charges</div>
-                                                        <div class="col-2 text-right"> @if($OData->Status=="New")<a href="#" id="btnEditVACharges" title="Update Vendor's Additional Costs"><i class="fa fa-pencil" ></i></a> @endif</div>
-                                                    </div>
-                                                </div>
-                                                <div class="card-body">
-                                                    @foreach ($vendorAdditionalCharges as $VendorID=>$VData)
-                                                        <div class="row mt-10">
-                                                            <div class="col-4">{{$VData['name']}}</div>
-                                                            <div class="col-8 d-flex align-items-center">: {{$VData['amount']}}</div>
+                                                        <div class="col-12">
+                                                            <table class="table">
+                                                                <thead>
+                                                                    <tr>
+                                                                        <th class="text-center">Vendor Name</th>
+                                                                        <th class="text-center">Additional Charges  @if($OData->Status=="New")<a href="#" id="btnEditVACharges" title="Update Vendor's Additional Costs"><i class="fa fa-pencil" ></i></a> @endif</th>
+                                                                        <th class="text-center">Admin Ratings</th>
+                                                                        <th class="text-center"></th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    @foreach ($vendorAdditionalCharges as $VendorID=>$VData)
+                                                                        <tr>
+                                                                            <td>{{$VData['name']}}</td>
+                                                                            <td class="text-right">{{Helper::NumberFormat($VData['amount'],$Settings['price-decimals'])}}</td>
+                                                                            <td class="text-center">
+                                                                                <?php
+                                                                                    $vIsRated="0";
+                                                                                    $vOrderStatus="New";
+                                                                                    $vReview="";
+                                                                                    $vRatings=0;
+                                                                                    if(array_key_exists($VendorID,$OData->orderStatus)){
+                                                                                        $vIsRated=$OData->orderStatus[$VendorID]['isRated'];
+                                                                                        $vOrderStatus=$OData->orderStatus[$VendorID]['Status'];
+                                                                                        $vReview=$OData->orderStatus[$VendorID]['Review'];
+                                                                                        $vRatings=$OData->orderStatus[$VendorID]['Ratings'];
+                                                                                    }
+                                                                                ?>
+                                                                                @if($vOrderStatus=="Delivered")
+                                                                                    <div class="vendor-rating" data-vendor-id="{{$VendorID}}" data-is-rated="{{$vIsRated}}" data-rating="{{$vRatings}}" data-status='{{$vOrderStatus}}' title="{{$vReview}}"></div>
+                                                                                @elseif($vOrderStatus=="New")
+                                                                                    
+                                                                                    <span class="badge badge-danger">Not Delivered</span> 
+                                                                                @else
+                                                                                    <span class="badge badge-danger">{{$vOrderStatus}}</span> 
+                                                                                    
+                                                                                @endif
+                                                                            </td>
+                                                                            <td class="text-center">
+                                                                                @if($vIsRated==1)
+                                                                                    <a href="#" class="btnReadReview" title="Read Review" data-title="Admin Vendor Rating"  data-rating="{{$vRatings}}" data-review="{{$vReview}}"><i class="fa fa-eye" ></i></a>
+                                                                                @endif
+                                                                            </td>
+                                                                        </tr>
+                                                                    @endforeach
+                                                                </tbody>
+                                                            </table>
                                                         </div>
-                                                    @endforeach
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -289,7 +338,7 @@
                                                     </div>
                                                 @endif
                                             @else
-
+                                            
                                                 <div class="row mt-10 fw-500 fs-13 mr-10 justify-content-end">
                                                     <div class="col-4">Tax Amount</div>
                                                     <div class="col-1">:</div>
@@ -473,13 +522,13 @@
 			<div class="modal-body text-center otp-form">
                 <h6>Please enter the one-time password <br> to confirm delivery </h6>
                 <div class="fs-12"> <span>The verification code has been sent to </span> <small><?php echo '*******' . substr($OData->MobileNo1, -4); ?></small> </div>
-                <div id="otp" class="inputs d-flex flex-row justify-content-center mt-20 w-100">
-                    <input class="m-2 text-center form-control rounded otp-input" type="text" id="txtFirst" maxlength="1" />
-                    <input class="m-2 text-center form-control rounded otp-input" type="text" id="txtSecond" maxlength="1" />
-                    <input class="m-2 text-center form-control rounded otp-input" type="text" id="txtThird" maxlength="1" />
-                    <input class="m-2 text-center form-control rounded otp-input" type="text" id="txtFourth" maxlength="1" />
-                    <input class="m-2 text-center form-control rounded otp-input" type="text" id="txtFifth" maxlength="1" />
-                    <input class="m-2 text-center form-control rounded otp-input" type="text" id="txtSixth" maxlength="1" />
+                <div id="otp" class="inputs d-flex flex-row justify-content-center mt-20 w-100"> 
+                    <input class="m-2 text-center form-control rounded otp-input" type="text" id="txtFirst" maxlength="1" /> 
+                    <input class="m-2 text-center form-control rounded otp-input" type="text" id="txtSecond" maxlength="1" /> 
+                    <input class="m-2 text-center form-control rounded otp-input" type="text" id="txtThird" maxlength="1" /> 
+                    <input class="m-2 text-center form-control rounded otp-input" type="text" id="txtFourth" maxlength="1" /> 
+                    <input class="m-2 text-center form-control rounded otp-input" type="text" id="txtFifth" maxlength="1" /> 
+                    <input class="m-2 text-center form-control rounded otp-input" type="text" id="txtSixth" maxlength="1" /> 
                 </div>
                 <p class="resend text-muted fs-13 mb-0 mt-20">Didn't receive code? <a href="#" id="btnResend">Resend again <span id="countdown"></span></a>
                 <input type="hidden" id="txtMDOrderID" value="{{$OrderID}}">
@@ -493,8 +542,48 @@
 		</div>
 	</div>
 </div>
+<div class="modal fade  ratingModal" id="ratingModal"  tabindex="-1">
+	<div class="modal-dialog medium modal-fullscreen-lg-down">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h1 class="modal-title fs-15 fw-600" id="ratingModalLabel">Admin Vendor Rating</h1>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body ">
+                <input type="hidden" id="txtMRVendorID">
+                <input type="hidden" id="txtMRRating">
+                <div class="row mb-10">
+                    <label class="fw-700" for="">Rating</label>
+                    <div class="col-12  mt-4" id="divRating">
+                    </div>
+                </div>
+                <div class="row txtMRReview">
+                    <div class="col-12">
+                        <div class="form-group">
+                            <label for="txtMRReview">Review</label>
+                            <textarea class="form-control" id="txtMRReview" rows="5"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="row divMRReview" style="display:none">
+                    <div class="col-12">
+                        <div class="form-group">
+                            <label class="fw-700 mb-1">Review</label>
+                            <div id="divMRReview" style="text-align:justify;"></div>
+                        </div>
+                    </div>
+                </div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+				<button type="button" class="btn btn-outline-primary btn-sm" id="btnRatingSubmit">Submit</button>
+			</div>
+		</div>
+	</div>
+</div>
 @endsection
 @section('scripts')
+<script src="{{url('/')}}/assets/plugins/ratings/jquery.star-rating-svg.js"></script>
 <script>
     $(document).ready(function(){
         let isItemCancel=false;
@@ -505,9 +594,73 @@
         const OTPResendDuration=parseInt("{{$Settings['otp-resend-duration']}}");
         var countdownValue =OTPResendDuration;
         const init=async()=>{
+            initRatings();
             getCancelReason();
             OTPInput();
         }
+        const initReviewRating=async(currentRating)=>{
+            $('#ReviewRating').starRating({
+                initialRating: currentRating,
+                ratedColor:'gold',
+                starShape: 'rounded',
+                strokeWidth: 10,
+                starSize: 30,
+                useFullStars:true,
+                disableAfterRate:false,
+                readOnly:0,
+                callback: function(currentRating1, el1){
+                    $('#txtMRRating').val(currentRating1);
+                    $('#divRating').html('<div id="ReviewRating"></div>');
+                    initReviewRating(currentRating1);
+                }
+            });
+        }
+        const initRatings=async()=>{
+            if($('#CustomerRating').length>0){
+                let rating="{{$OData->Ratings}}";
+                    rating=isNaN(parseFloat(rating))==false?parseFloat(rating):0;
+                $('#CustomerRating').starRating({
+                    initialRating: rating,
+                    ratedColor:'gold',
+                    starShape: 'rounded',
+                    strokeWidth: 10,
+                    starSize: 20,
+                    useFullStars:true,
+                    disableAfterRate:false,
+                    readOnly:1
+                });
+            }
+            $('.vendor-rating').each(function(){
+                let isRated=$(this).data('is-rated')
+                let rating=$(this).data('rating')
+                let status=$(this).data('status')
+                $(this).starRating({
+                    initialRating: isNaN(parseFloat(rating))==false?parseFloat(rating):0,
+                    ratedColor:'gold',
+                    starShape: 'rounded',
+                    strokeWidth: 10,
+                    starSize: 30,
+                    useFullStars:true,
+                    disableAfterRate:false,
+                    readOnly:parseInt(isRated)==1?1:0,
+                    callback: function(currentRating, el){
+                        let vID=$(el).data('vendor-id')
+                        $('#txtMRVendorID').val(vID);
+                        $('#txtMRRating').val(currentRating);
+                        $('#divRating').html('<div id="ReviewRating"></div>');
+                        setTimeout(() => {
+                            initReviewRating(currentRating);
+                            $('#btnRatingSubmit').show();
+                            $('.txtMRReview').show();
+                            $('.divMRReview').hide();
+                            $('#ratingModalLabel').html('Admin Vendor Rating')
+                            $('#ratingModal').modal('show');
+                        }, 100);
+                    }
+                });
+            });
+        }
+        
 		const getCancelReason=async()=>{
 			cancelReasons={};
 			$('#lstMCancelReason').select2('destroy');
@@ -530,10 +683,10 @@
 			$('#lstMCancelReason').select2({ dropdownParent: $('.OrderCancelModel')});
 		}
         const timerStart=async()=>{console.log(12);
-            const getTimerFormat=()=>{
+            const getTimerFormat=()=>{ 
                 var minutes = Math.floor(countdownValue / 60);
                 var remainingSeconds = countdownValue % 60;
-
+                        
                 // Add leading zeros for single-digit minutes and seconds
                 minutes = minutes < 10 ? "0" + minutes : minutes;
                 remainingSeconds = remainingSeconds < 10 ? "0" + remainingSeconds : remainingSeconds;
@@ -828,7 +981,7 @@
                     complete: function(e, x, settings, exception){
                         ajaxIndicatorStop ()
                     },
-                    success:function(response){
+                    success:function(response){ 
                         if(response.status){
                             $('#OrderCancelModel').modal('hide');
                             toastr.success(response.message, "", {positionClass: "toast-top-right",containerId: "toast-top-right",showMethod: "slideDown",hideMethod: "slideUp",progressBar: !0})
@@ -853,7 +1006,7 @@
             if(ResendOTP){
                 sendOTP();
             }
-
+                    
         });
         $(document).on('click','.btnItemMarkDelivered',function(){
             isItemDelivered=true;
@@ -906,6 +1059,59 @@
         });
         $(document).on('click','#btnMarkAsDelivered',function(){
             markAsDelivered();
+        });
+        //admin review
+        $(document).on('click','.btnReadReview',function(e){
+            e.preventDefault();
+            let rating=$(this).data('rating');
+            let review=$(this).data('review');
+            let title=$(this).data('title');
+
+            $('#btnRatingSubmit').hide();
+            $('.txtMRReview').hide();
+            $('.divMRReview').show();
+            $('#divMRReview').html(review);
+            
+            $('#divRating').html('<div id="ReviewRating"></div>'); console.log(rating)
+            $('#ReviewRating').starRating({
+                initialRating: rating,
+                ratedColor:'gold',
+                starShape: 'rounded',
+                strokeWidth: 10,
+                starSize: 30,
+                useFullStars:true,
+                readOnly:1
+            });
+            $('#ratingModalLabel').html(title);
+            $('#ratingModal').modal('show');
+        });
+        $(document).on('click','#btnRatingSubmit',function(){
+            let formData={}
+            formData.OrderID="{{$OrderID}}";
+            formData.VendorID=$('#txtMRVendorID').val();
+            formData.Rating=$('#txtMRRating').val();
+            formData.Review=$('#txtMRReview').val();
+            $.ajax({
+                type:"post",
+                url: "{{route('admin.transaction.orders.vendor.rating.submit')}}",
+                headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
+                data:formData,
+                dataType:"json",
+                async:true,
+                beforeSend:function(){
+                    ajaxIndicatorStart ("The process of submitting the admin's rating for the vendor is currently in progress. Please wait a few seconds.")
+                },
+                complete: function(e, x, settings, exception){ajaxIndicatorStop ()},
+                success:function(response){
+                    if(response.status){
+                        $('#ratingModal').modal('hide');
+                        toastr.success(response.message, "", {positionClass: "toast-top-right",containerId: "toast-top-right",showMethod: "slideDown",hideMethod: "slideUp",progressBar: !0})
+                        window.location.reload();
+                    }else{
+                        toastr.error(response.message, "", {positionClass: "toast-top-right",containerId: "toast-top-right",showMethod: "slideDown",hideMethod: "slideUp",progressBar: !0})
+                    }
+                }
+            });
         });
     });
 </script>

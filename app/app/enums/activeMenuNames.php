@@ -16,6 +16,7 @@ enum activeMenuNames:string{
     case Vendors="Manage-Vendors";
     case VendorProductMapping="Vendor-Product-Mapping";
     case VendorStockUpdate="Vendor-Stock-Update";
+    case StockPoints="Stock-Points";
 
     case Tax="Tax";
     case UOM="Unit-Of-Measurement";
@@ -35,6 +36,9 @@ enum activeMenuNames:string{
     case ManageCustomers="Manage-Customers";
     case Supplier="Manage-Suppliers";
     case PaymentRequest="Payment-Request";
+    
+    case rptLedger="Ledger";
+    case rptOutstandings="Outstandings";
     
     case UserRoles="User-and-Roles";
     case Users="Users";
