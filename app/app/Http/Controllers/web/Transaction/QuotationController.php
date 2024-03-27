@@ -60,7 +60,7 @@ class QuotationController extends Controller{
     }
     public function QuoteView(Request $req,$QID){
         if($this->general->isCrudAllow($this->CRUD,"edit")==true){
-			
+
 			$OtherCRUD=[
 				"order"=>$this->general->getCrudOperations(activeMenuNames::Order->value)
 			];
@@ -97,7 +97,7 @@ class QuotationController extends Controller{
 				"RejectedBy"=>$this->UserID
 			);
 			$status=DB::Table($this->CurrFYDB."tbl_quotation")->where('QID',$QID)->update($tdata);
-			
+
 			if($status==true){
 				DB::commit();
 				return array('status'=>true,'message'=>"Quote Successfully Canceled");
@@ -122,7 +122,7 @@ class QuotationController extends Controller{
 			);
 			//item cancel
 			$status=DB::Table($this->CurrFYDB."tbl_quotation_details")->where('QID',$req->QID)->where('DetailID',$DetailID)->update($tdata);
-			
+
 			//Update Vendor's Additional Cost in Quotation Table
 			if($status){
 				$status=DB::Table($this->CurrFYDB."tbl_vendor_quotation")->where('EnqID',$req->EnqID)->where('VendorID',$req->VendorID)->update(["AdditionalCost"=>$req->VACharges,"UpdatedOn"=>now(),"UpdatedBy"=>$this->UserID]);
@@ -133,7 +133,7 @@ class QuotationController extends Controller{
 				$status=DB::Update($sql);
 			}
 			// Verify if all items have been cancelled. If all items are cancelled, update the status in the main quotation table.
-			if($status){ 
+			if($status){
 				$t=DB::Table($this->CurrFYDB."tbl_quotation_details")->where('QID',$req->QID)->where('isCancelled',0)->count();
 				if(intval($t)<=0){
 					$tdata=array(
@@ -146,7 +146,7 @@ class QuotationController extends Controller{
 					$status=DB::Table($this->CurrFYDB."tbl_quotation")->where('QID',$req->QID)->update($tdata);
 				}
 			}
-			
+
 			// Update Tax Amount, Total Amount, Subtotal, and Net Amount for non-cancelled items in the quotation table.
 			if($status){
 				$tdata=["TaxAmount"=>0,"CGSTAmount"=>0,"IGSTAmount"=>0,"SGSTAmount"=>0,"TotalAmount"=>0,"SubTotal"=>0,"DiscountAmount"=>0,"AdditionalCost"=>0,"OverAllAmount"=>0];
@@ -352,7 +352,7 @@ class QuotationController extends Controller{
 		}
 	}
 	public function updateVendorAdditionalCost(Request $req,$QID){
-		
+
 		if($this->general->isCrudAllow($this->CRUD,"edit")==true){
 			DB::beginTransaction();
 			$status=true;
@@ -374,7 +374,7 @@ class QuotationController extends Controller{
 		}
 	}
 	public function updateCustomerAdditionalCost(Request $req,$QID){
-		
+
 		if($this->general->isCrudAllow($this->CRUD,"edit")==true){
 			DB::beginTransaction();
 			$sql="Update ".$this->CurrFYDB."tbl_quotation Set AdditionalCost='".$req->AdditionalCharges."',OverAllAmount=(TotalAmount+'".$req->AdditionalCharges."'),UpdatedOn='".date("Y-m-d H:i:s")."',UpdatedBy='".$this->UserID."'  where QID='".$QID."'";
@@ -425,7 +425,6 @@ class QuotationController extends Controller{
 				$addCharges[$tmp->VendorID]=Helper::NumberFormat($tmp->AdditionalCost,$this->Settings['price-decimals']);
 			}
 			$result[$i]->AdditionalCharges=$addCharges;
-
 		}
 		return $result;
 	}

@@ -118,9 +118,11 @@
 
                         </div><!-- End .header-menu -->
                     </div><!-- End .header-dropown -->
-                    <ul class="top-links mega-menu d-none d-xl-flex mb-0 pr-2">
-                        <li class="menu-item menu-item-type-post_type menu-item-object-page narrow">
-                            <a href="#"><i class="icon-help-circle"></i>Help</a></li>
+                    <ul class="d-none d-xl-flex mb-0 pr-2 align-items-center">
+                        <li>
+                            <a href="{{ route('my-account', ['tab' => 'support']) }}" style="font-size: 12px;"><i
+                                    class="icon-help-circle" style="font-size: 18px;"></i>&nbsp;Help</a>
+                        </li>
                     </ul>
 
 
@@ -206,7 +208,7 @@
                                             <div class="product">
                                                 <div class="product-details">
                                                     <h4 class="product-title">
-                                                        <a href="#">{{$item->ProductName}}</a>
+                                                        <a href="{{ route('products.quickView', $item->ProductID) }}" class="btn-quickview">{{$item->ProductName}}</a>
                                                     </h4>
 
                                                     <span class="cart-product-info">
@@ -222,10 +224,10 @@
                                                 </div>
 
                                                 <figure class="product-image-container">
-                                                    <a href="demo42-product.html" class="product-image">
-                                                        <img src="{{$item->ProductImage}}" alt="product" width="80" height="80">
+                                                    <a href="{{ route('products.quickView', $item->ProductID) }}" class="product-image btn-quickview">
+                                                        <img src="{{ $item->ProductImage }}" alt="product" width="80" height="80">
                                                     </a>
-                                                    <a href="#" class="btn-remove btnRemoveCart" title="Remove Product" id="{{$item->ProductID}}"><span>×</span></a>
+                                                    <a href="#" class="btn-remove btnRemoveCart" title="Remove Product" id="{{ $item->ProductID }}"><span>×</span></a>
                                                 </figure>
                                             </div>
                                         @endforeach
@@ -238,7 +240,7 @@
                                     @if(count($Cart) > 0)
                                         <a href="{{url('/')}}/checkout" class="btn btn-secondary btn-block">Request Quote</a>
                                     @else
-                                        <a href="#" class="btn btn-dark btn-block">Add to Cart</a>
+                                        <a href="{{ auth()->check() ? route('products.customer.productsList') : route('products.guest.productsList') }}" class="btn btn-dark btn-block">Add to Cart</a>
                                     @endif
                                 </div><!-- End .dropdown-cart-total -->
                             </div><!-- End .dropdownmenu-wrapper -->
@@ -302,12 +304,9 @@
                             </div><!-- End .megamenu -->
                         </li>
                         @if(auth()->check())
-                            <li>
-                                <a href="{{ route('requested-quotations') }}">Quotations</a>
-                            </li>
-                            <li>
-                                <a href="{{ route('customer-orders') }}">Orders</a>
-                            </li>
+{{--                            <li>--}}
+{{--                                <a href="{{ route('requested-quotations') }}">Quotations</a>--}}
+{{--                            </li>--}}
                             <li>
                                 <a href="{{ route('my-account') }}">My Account</a>
                             </li>
@@ -549,7 +548,7 @@
                 $('#divCartAction').html(`<a href="{{url('/')}}/checkout" class="btn btn-secondary btn-block">Quote Request</a>`);
             } else {
                 itemCountSpan.text('');
-                $('#divCartAction').html(`<a href="#" class="btn btn-dark btn-block">Add to Cart</a>`);
+                $('#divCartAction').html(`<a href="{{ auth()->check() ? route('products.customer.productsList') : route('products.guest.productsList') }}" class="btn btn-dark btn-block">Add to Cart</a>`);
             }
         };
 
@@ -558,10 +557,11 @@
             Parent.html('');
 
             data.forEach((item) => {
+                debugger
                 let Content = `<div class="product">
                                         <div class="product-details">
                                             <h4 class="product-title">
-                                                <a href="#">${item.ProductName}</a>
+                                                <a href="{{url('/').'/products/quickView/html/' }}${item.ProductID}" class="btn-quickview">${item.ProductName}</a>
                                             </h4>
 
                                             <span class="cart-product-info">
@@ -577,7 +577,7 @@
                                         </div>
 
                                         <figure class="product-image-container">
-                                            <a href="demo42-product.html" class="product-image">
+                                            <a href="{{url('/').'/products/quickView/html/' }}${item.ProductID}" class="product-image btn-quickview">
                                                 <img src="${item.ProductImage}" alt="product" width="80" height="80">
                                             </a>
                                             <a href="#" class="btn-remove btnRemoveCart" title="Remove Product" id="${item.ProductID}"><span>×</span></a>
@@ -750,6 +750,8 @@
         }
     });
 </script>
+
+
 
 @yield('scripts')
 

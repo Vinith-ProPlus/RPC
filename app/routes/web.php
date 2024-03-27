@@ -37,7 +37,7 @@ Route::controller(generalController::class)->group(function () {
     Route::post('/get/taluks','getTaluk');
     Route::post('/get/city','getCity');
     Route::post('/get/postal-code','getPostalCode');
-    Route::post('/get/gender','getGender');
+    Route::post('/get/gender','getGender')->name('getGender');
     Route::POST('/get/tax', 'getTax');
     Route::POST('/get/uom', 'getUOM');
     Route::post('/get/bank-type','getBankType');
@@ -48,6 +48,7 @@ Route::controller(generalController::class)->group(function () {
     Route::POST('/get/product-grades', 'getProductGrades');
     Route::POST('/get/products', 'getProducts');
     Route::POST('/get/financial-years', 'getFinancialYear');
+    Route::post('/get/construction-type','getConstructionType')->name('getConstructionType');
 
     Route::post('/tmp/upload-image','tmpUploadImage');
 
@@ -102,6 +103,8 @@ Route::controller(generalController::class)->group(function () {
     Route::POST('/bank-account-type/create','createBankAccountType');
 
     Route::POST('address-form','getNewAddress');
+    Route::POST('shipping-address-form','getNewShippingAddress');
+    Route::POST('review-form','getNewReview');
 
     Route::middleware('auth')->group(function () {
         Route::post('/theme/update','themeUpdate');
@@ -156,6 +159,7 @@ Route::get('customer/products/products-list', [HomeAuthController::class, 'custo
 Route::post('customer/products/category-list-html', [HomeAuthController::class, 'customerCategoryListHtml'])->name('products.customer.categoriesListHtml');
 Route::post('customer/products/sub-category-list-html', [HomeAuthController::class, 'customerSubCategoryListHtml'])->name('products.customer.subCategoriesListHtml');
 Route::post('customer/products/products-list-html', [HomeAuthController::class, 'customerProductsListHtml'])->name('products.customer.productsListHtml');
+Route::post('customer/order/review/save', [HomeAuthController::class, 'customerReviewSave'])->name('customer.order.review.save');
 
 
 
@@ -167,12 +171,15 @@ Route::post('products/wishlist/add', [WishlistController::class, 'addWishlist'])
 Route::post('products/wishlist/remove', [WishlistController::class, 'removeWishlist'])->name('products.removeWishlist');
 Route::get('requested-quotations', [HomeTransactionController::class, 'quotations'])->name('requested-quotations');
 Route::post('requested-quotations/data', [HomeTransactionController::class, 'quotationData'])->name('requested-quotations.data');
-Route::get('requested-quotations/view/{EnqID}', [HomeTransactionController::class, 'QuoteView'])->name('requested-quotations.QuoteView');
-Route::get('customer-orders', [HomeTransactionController::class, 'orders'])->name('customer-orders');
+Route::get('quotations/view/{EnqID}', [HomeAuthController::class, 'CustomerQuoteView'])->name('customer.quotations.QuoteView');
 Route::get('my-account', [HomeTransactionController::class, 'myAccount'])->name('my-account');
+Route::post('profileHtml', [HomeAuthController::class, 'profileHtml'])->name('profileHtml');
 Route::get('wishlist', [HomeTransactionController::class, 'wishlist'])->name('wishlist');
 Route::post('wishlistTableHtml', [HomeAuthController::class, 'wishlistTableHtml'])->name('wishlistTableHtml');
 Route::post('supportTableHtml', [HomeAuthController::class, 'supportTableHtml'])->name('supportTableHtml');
+Route::post('quotationTableHtml', [HomeAuthController::class, 'quotationTableHtml'])->name('quotationTableHtml');
+Route::post('orderTableHtml', [HomeAuthController::class, 'orderTableHtml'])->name('orderTableHtml');
+Route::get('order/view/{OrderID}', [HomeAuthController::class, 'CustomerOrderView'])->name('CustomerOrderView');
 Route::post('customerHomeSearch', [HomeAuthController::class, 'customerHomeSearch'])->name('customerHomeSearch');
 Route::post('guestHomeSearch', [HomeController::class, 'guestHomeSearch'])->name('guestHomeSearch');
 

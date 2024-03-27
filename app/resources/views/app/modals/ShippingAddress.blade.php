@@ -1,13 +1,7 @@
-<div class="row">
-
-    {{-- <div class="col-sm-12 mt-20">
-        <label for="txtADTitle">Address Title <span class="required"> * </span></label>
-        <input type="text" class="form-control" name="txtADTitle" id="txtADTitle" value="">
-        <span class="errors Address err-sm" id="txtADTitle-err"></span>
-    </div> --}}
+<div class="row" id="shippingModalMapDiv">
     <div class="col-sm-12 mt-20">
         <label for="txtADMap">Select Location <span class="required"> * </span></label>
-        <div id="map" style="height: 400px;"></div>
+        <div id="map" style="height: 350px;"></div>
     </div>
     <div class="col-sm-12 mt-20">
         <div class="form-group">
@@ -79,11 +73,13 @@
     </div>
 </div>
 <div class="d-none" style="display: none !important;">
+    <a id="btnShippingModalMap" href="#shippingModalMapDiv">.</a>
     <button id="btnModalInit"></button>
 </div>
 <script>
 $(document).ready(function(){
     $('#btnModalInit').trigger('click');
+    $('#btnShippingModalMap').click();
 
     $(document).on('click','#btnMClose',function(){
         bootbox.hideAll();
@@ -105,23 +101,21 @@ $(document).ready(function(){
                 if (status === 'OK') {
                     if (results[0]) {
                         var formattedAddress = results[0].formatted_address;
-                        $('#txtADAddress').val(formattedAddress);
-
-                        // Extract postal code from address components
+                        var addressComponents = formattedAddress.split(', ');
+                        var simplifiedAddress = addressComponents.slice(0, -2).join(', ');
+                        $('#txtADAddress').val(simplifiedAddress);
                         var postalCode = extractPostalCodeFromAddressComponents(results[0]);
                         if (!postalCode) {
-                            // If postal code is not available in address components, try reverse geocoding with place ID
                             reverseGeocodeWithPlaceId(results[0].place_id);
                         } else {
                             $('#txtADPostalCode').val(postalCode);
+                            $('#btnADPostalCode').click();
+                            $('#lstADTaluk').val('');
+                            $('#lstADDistrict').val('');
+                            $('#lstADState').val('');
+                            $('#lstADCountry').val('');
                         }
-
-                        $('#googleAddress').html('<strong>Address:</strong> ' + formattedAddress);
-                    } else {
-                        window.alert('No results found');
                     }
-                } else {
-                    window.alert('Location fetch failed due to: ' + status);
                 }
             });
             if (marker) {
@@ -145,35 +139,45 @@ $(document).ready(function(){
                     var postalCode = extractPostalCodeFromAddressComponents(results[0]);
                     if (postalCode) {
                         $('#txtADPostalCode').val(postalCode);
+                        $('#btnADPostalCode').click();
                     } else {
-                        // Log latitude and longitude
-                        console.log('Latitude:', results[0].geometry.location.lat());
-                        console.log('Longitude:', results[0].geometry.location.lng());
-                        window.alert('Postal code not found for this location.');
+                        var lat = results[0].geometry.location.lat();
+                        var lng = results[0].geometry.location.lng();
+                        $.ajax({
+                            url: "http://api.geonames.org/findNearbyPostalCodesJSON?lat="+lat+"&lng="+lng+"&username={{ config('app.geo_names_user_name') }}",
+                            method: 'GET',
+                            success: function(response) {
+                                if (response['postalCodes'] && response['postalCodes'].length > 0) {
+                                    var postalCode = response['postalCodes'][0]['postalCode'];
+                                    $('#txtADPostalCode').val(postalCode);
+                                    $('#btnADPostalCode').click();
+                                } else {
+                                    console.log('Postal code not found in response data.');
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                console.error('Error fetching postal code:', error);
+                            }
+                        });
                     }
                 } else {
-                    window.alert('No results found for the given place ID.');
+                    console.log('No results found for the given place ID.');
                 }
             } else {
-                window.alert('Reverse geocoding with place ID failed due to: ' + status);
+                console.log('Reverse geocoding with place ID failed due to: ' + status);
             }
         });
     }
 
     function extractPostalCodeFromAddressComponents(result) {
-        // Iterate through address components to find postal code
         for (var i = 0; i < result.address_components.length; i++) {
             var addressComponent = result.address_components[i];
             if (addressComponent.types.includes('postal_code')) {
                 return addressComponent.long_name;
             }
         }
-        return null; // Return null if postal code not found
+        return null;
     }
 
-
-
-
 </script>
-<script async defer
-        src="https://maps.googleapis.com/maps/api/js?key={{ config('app.map_api_key') }}&callback=initMap"></script>
+<script async src="https://maps.googleapis.com/maps/api/js?key={{ config('app.map_api_key') }}&callback=initMap"></script>

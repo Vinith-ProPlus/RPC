@@ -1,7 +1,5 @@
 @extends('home.home-layout')
 @section('content')
-
-
     <style>
         @charset "UTF-8";
 

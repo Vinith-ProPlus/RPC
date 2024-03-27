@@ -128,9 +128,11 @@
 
                         </div><!-- End .header-menu -->
                     </div><!-- End .header-dropown -->
-                    <ul class="top-links mega-menu d-none d-xl-flex mb-0 pr-2">
-                        <li class="menu-item menu-item-type-post_type menu-item-object-page narrow">
-                            <a href="#"><i class="icon-help-circle"></i>Help</a></li>
+<ul class="d-none d-xl-flex mb-0 pr-2 align-items-center">
+                        <li>
+                            <a href="{{url('/')}}/social/auth/google" style="font-size: 12px;"><i
+                                    class="icon-help-circle" style="font-size: 18px;"></i>&nbsp;Help</a>
+                        </li>
                     </ul>
 
 
@@ -252,7 +254,7 @@
                                     @if(count($Cart) > 0)
                                         <a href="{{url('/')}}/checkout" class="btn btn-secondary btn-block">Request Quote</a>
                                     @else
-                                        <a href="#" class="btn btn-dark btn-block">Add to Cart</a>
+                                        <a href="{{ auth()->check() ? route('products.customer.productsList') : route('products.guest.productsList') }}" class="btn btn-dark btn-block">Add to Cart</a>
                                     @endif
                                 </div><!-- End .dropdown-cart-total -->
                             </div><!-- End .dropdownmenu-wrapper -->
@@ -680,7 +682,7 @@
                 $('#divCartAction').html(`<a href="{{url('/')}}/checkout" class="btn btn-secondary btn-block">Quote Request</a>`);
             } else {
                 itemCountSpan.text('');
-                $('#divCartAction').html(`<a href="#" class="btn btn-dark btn-block">Add to Cart</a>`);
+                $('#divCartAction').html(`<a href="{{ auth()->check() ? route('products.customer.productsList') : route('products.guest.productsList') }}" class="btn btn-dark btn-block">Add to Cart</a>`);
             }
         };
 

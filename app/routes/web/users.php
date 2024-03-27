@@ -15,7 +15,7 @@ Route::group(['prefix'=>'user-roles'],function (){
         Route::POST('/json/{RoleID}', 'RoleData');
         Route::post('/create', 'Save');
         Route::POST('/edit/{RoleID}', 'Update');
-       
+
         Route::POST('get/menus-data', 'getMenuData');
     });
 });
@@ -62,7 +62,7 @@ Route::group(['prefix'=>'manage-customers'],function (){
         Route::post('/restore/{CID}', 'Restore');
 
         Route::post('/address-view','addressView');
-        Route::post('/get/customer-type','getCustomerType');
+        Route::post('/get/customer-type','getCustomerType')->name('getCustomerType');
 
         Route::post('/get/customer-data','getCustomerData');
 

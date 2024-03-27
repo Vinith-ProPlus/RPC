@@ -2,6 +2,7 @@
 namespace App\Http\Controllers\Home;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\web\masters\general\TaluksController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Redirect;
@@ -28,7 +29,7 @@ class HomeTransactionController extends Controller{
 	private $FileTypes;
 	private $UserData;
 	private $logDB;
-    private $currfyDB;
+    private $CurrFyDB;
     private $dateFormat;
 
     private $general;
@@ -46,8 +47,8 @@ class HomeTransactionController extends Controller{
         $this->generalDB = Helper::getGeneralDB();
         $this->tmpDB = Helper::getTmpDB();
         $this->logDB = Helper::getLogDB();
-        $this->currfyDB = Helper::getCurrFYDB();
-        $this->PCategories = DB::Table('tbl_product_category')->where('ActiveStatus', 'Active')->where('DFlag', 0)->select('PCName', 'PCID', 'PCImage')->get()->toArray();
+        $this->CurrFyDB = Helper::getCurrFYDB();
+        $this->PCategories = DB::Table('tbl_product_category')->where('ActiveStatus', 'Active')->where('DFlag', 0)->select('PCName', 'PCID', 'PCImage')->get();
         $this->FileTypes = Helper::getFileTypes(array("category" => array("Images", "Documents")));
         $CompanyData = DB::table('tbl_company_settings')->select('KeyName', 'KeyValue')->get();
         $Company = [];
@@ -128,7 +129,7 @@ class HomeTransactionController extends Controller{
 
         $data = [];
         $data['POSTDATA'] = $request;
-        $data['TABLE'] = $this->currfyDB . 'tbl_enquiry';
+        $data['TABLE'] = $this->CurrFyDB . 'tbl_enquiry';
         $data['PRIMARYKEY'] = 'EnqID';
         $data['COLUMNS'] = $columns;
         $data['COLUMNS1'] = $columns;
@@ -137,84 +138,6 @@ class HomeTransactionController extends Controller{
         $data['WHEREALL'] = "";
 //            $data['WHEREALL']=" CustomerID = '".$this->ReferID ."' and Status != 'Cancelled'";
         return SSP::SSP($data);
-    }
-
-    public function QuoteView(Request $req,$EnqID){
-        $FormData['PageTitle'] = $this->PageTitle;
-        $CustomerID = $this->ReferID;
-        $FormData['Company']=$this->Company;
-        $FormData['PCategories']=$this->PCategories;
-        $FormData['isEdit'] = false;
-        $FormData['isRegister']=false;
-        $FormData['Cart']=$this->getCart();
-        $FormData['ShippingAddress']= $this->shippingAddress;
-        $FormData['Settings'] = $this->Settings;
-        $EnqData = DB::Table($this->currfyDB . 'tbl_enquiry as E')
-                ->leftJoin('tbl_customer as CU', 'CU.CustomerID', 'E.CustomerID')
-                ->leftJoin($this->generalDB.'tbl_countries as C','C.CountryID','CU.CountryID')
-                ->leftJoin($this->generalDB.'tbl_states as S', 'S.StateID', 'CU.StateID')
-                ->leftJoin($this->generalDB.'tbl_districts as D', 'D.DistrictID', 'CU.DistrictID')
-                ->leftJoin($this->generalDB.'tbl_taluks as T', 'T.TalukID', 'CU.TalukID')
-                ->leftJoin($this->generalDB.'tbl_cities as CI', 'CI.CityID', 'CU.CityID')
-                ->leftJoin($this->generalDB.'tbl_postalcodes as PC', 'PC.PID', 'CU.PostalCodeID')
-                ->leftJoin($this->generalDB.'tbl_countries as DC','DC.CountryID','E.DCountryID')
-                ->leftJoin($this->generalDB.'tbl_states as DS', 'DS.StateID', 'E.DStateID')
-                ->leftJoin($this->generalDB.'tbl_districts as DD', 'DD.DistrictID', 'E.DDistrictID')
-                ->leftJoin($this->generalDB.'tbl_taluks as DT', 'DT.TalukID', 'E.DTalukID')
-                ->leftJoin($this->generalDB.'tbl_cities as DCI', 'DCI.CityID', 'E.DCityID')
-                ->leftJoin($this->generalDB.'tbl_postalcodes as DPC', 'DPC.PID', 'E.DPostalCodeID')
-                ->whereNot('E.Status','Cancelled')->Where('E.EnqID',$EnqID)
-                ->select('EnqID','EnqNo','EnqDate','VendorIDs','Status','ReceiverName','ReceiverMobNo','ExpectedDeliveryDate','CU.Email','DPostalCodeID','E.PostalCodeID','E.Address','C.CountryName','S.StateName','D.DistrictName','T.TalukName','CI.CityName','PC.PostalCode','DAddress','DC.CountryName as DCountryName','DS.StateName as DStateName','DD.DistrictName as DDistrictName','DT.TalukName as DTalukName','DCI.CityName as DCityName','DPC.PostalCode as DPostalCode')
-                ->first();
-            $FormData['EnqData']=$EnqData;
-            if($EnqData){
-                $VendorQuote = [];
-                $FinalQuoteData = [];
-                $PData=DB::table($this->currfyDB.'tbl_enquiry_details as ED')->leftJoin('tbl_products as P','P.ProductID','ED.ProductID')->leftJoin('tbl_uom as UOM','UOM.UID','ED.UOMID')->where('ED.EnqID',$EnqID)->select('ED.ProductID','ED.CID','ED.SCID','ED.Qty','P.ProductName','UOM.UID','UOM.UName','UOM.UCode')->get();
-                if(count($PData) > 0){
-                    foreach($PData as $row){
-                        $row->AvailableVendors=[];
-                        $AllVendors = DB::table('tbl_vendors as V')->join('tbl_vendors_service_locations as VSL','V.VendorID','VSL.VendorID')->leftJoin('tbl_vendor_ratings as VR','VR.VendorID','V.VendorID')->where('V.ActiveStatus',"Active")->where('V.isApproved',1)->where('V.DFlag',0)->where('VSL.PostalCodeID',$FormData['EnqData']->DPostalCodeID)->select('V.VendorID','V.VendorName','VR.OverAll')->get();
-                        if(count($AllVendors)>0){
-                            foreach($AllVendors as $item){
-                                $isProductAvailable= DB::Table('tbl_vendors_product_mapping')->where('Status',1)->Where('VendorID',$item->VendorID)->where('ProductID',$row->ProductID)->first();
-                                if($isProductAvailable){
-                                    $row->AvailableVendors[] = [
-                                        "VendorID" => $item->VendorID,
-                                        "VendorName" => $item->VendorName,
-                                        "OverAll" => $item->OverAll,
-                                        "ProductID" => $isProductAvailable->ProductID,
-                                    ];
-                                }
-                            }
-                        }
-                    }
-                }
-                if($EnqData->Status == "Quote Requested" && $EnqData->VendorIDs && count(unserialize($EnqData->VendorIDs)) > 0){
-                    $VendorQuote = DB::Table($this->currfyDB.'tbl_vendor_quotation as VQ')->join('tbl_vendors as V','V.VendorID','VQ.VendorID')/* ->where('VQ.Status','Sent') */->where('VQ.EnqID',$EnqID)->select('VQ.VendorID','V.VendorName','VQ.VQuoteID','VQ.Status','VQ.AdditionalCost')->get();
-                    foreach($VendorQuote as $row){
-                        $row->ProductData = DB::table($this->currfyDB.'tbl_vendor_quotation_details as VQD')->where('VQuoteID',$row->VQuoteID)
-                            ->select('DetailID','ProductID','Price','VQuoteID')
-                            ->get();
-                    }
-                }elseif($EnqData->Status == "Converted to Quotation"){
-                    $FinalQuoteData = DB::Table($this->currfyDB.'tbl_quotation_details as QD')->join($this->currfyDB.'tbl_quotation as Q','Q.QID','QD.QID')->join('tbl_vendors as V','V.VendorID','QD.VendorID')->join('tbl_products as P','P.ProductID','QD.ProductID')->join('tbl_uom as UOM','UOM.UID','P.UID')->where('Q.EnqID',$EnqID)->get();
-                }
-
-                $FormData['PData'] = $PData;
-                $FormData['VendorQuote'] = $VendorQuote;
-                $FormData['FinalQuoteData'] = $FinalQuoteData;
-                return view('home.quote-view', $FormData);
-            }else{
-                return view('errors.403');
-            }
-    }
-
-    public function orders(Request $request)
-    {
-        logger("orders");
-        logger($request);
-        logger($request->ip());
     }
 
     public function myAccount(Request $request)
