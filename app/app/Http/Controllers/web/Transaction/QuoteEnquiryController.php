@@ -421,7 +421,6 @@ class QuoteEnquiryController extends Controller{
 					$Title = "New Enquiry Received.";
 					$Message = "You have a new enquiry! Check now for details and respond promptly.";
 					Helper::saveNotification($VendorID,$Title,$Message,'Enquiry',$EnqID);
-					Helper::sendNotification($VendorID,$Title,$Message);
 				}
 				$status = DB::table($this->currfyDB.'tbl_enquiry')->where('EnqID',$EnqID)->update(['Status'=>'Quote Requested','VendorIDs'=>serialize($SelectedVendors),"UpdatedBy"=>$this->UserID,"UpdatedOn"=>date("Y-m-d H:i:s")]);
 			}catch(Exception $e) {
@@ -432,7 +431,6 @@ class QuoteEnquiryController extends Controller{
 				$Title = "Quotation Accepted";
 				$Message = "Your quotation has been accepted. The admin will update your quote pricing.";
 				Helper::saveNotification($EnqData->CustomerID,$Title,$Message,'Quotation',$EnqID);
-				Helper::sendNotification($EnqData->CustomerID,$Title,$Message);
 				$NewData=DB::table($this->currfyDB.'tbl_vendor_quotation as VQ')->join($this->currfyDB.'tbl_vendor_quotation_details as VQD','VQD.VQuoteID','VQ.VQuoteID')->where('VQ.EnqID',$EnqID)->get();
 				$logData=array("Description"=>"Quotation Request Sent","ModuleName"=>$this->ActiveMenuName,"Action"=>cruds::ADD->value,"ReferID"=>$EnqID,"OldData"=>$OldData,"NewData"=>$NewData,"UserID"=>$this->UserID,"IP"=>$req->ip());
 				logs::Store($logData);
@@ -691,7 +689,6 @@ class QuoteEnquiryController extends Controller{
 				$Title = "Quotation updated with price";
                 $Message = "Quotation" . $QData->QNo . " updated with price";
 				Helper::saveNotification($EnqData[0]->CustomerID,$Title,$Message,'Quotation',$QData->QID);
-				Helper::sendNotification($EnqData[0]->CustomerID,$Title,$Message);
 
 				$NewData=DB::table($this->currfyDB.'tbl_quotation_details as QD')->join($this->currfyDB.'tbl_quotation as Q','QD.QID','Q.QID')->where('QD.QID',$QData->QID)->get();
 				$logData=array("Description"=>"Quotation Converted","ModuleName"=>$this->ActiveMenuName,"Action"=>cruds::UPDATE->value,"ReferID"=>$QData->QID,"OldData"=>$OldData,"NewData"=>$NewData,"UserID"=>$this->UserID,"IP"=>$req->ip());
@@ -722,7 +719,6 @@ class QuoteEnquiryController extends Controller{
 				$Title = "Quotation Request Rejected.";
                 $Message = "Your quotation enquiry has been rejected by admin. We appreciate your interest. Should you require a reason for the rejection, please contact the admin through support ticket.";
                 Helper::saveNotification($OldData[0]->CustomerID,$Title,$Message,'Order',$EnqID);
-                Helper::sendNotification($OldData[0]->CustomerID,$Title,$Message);
 				$NewData=DB::table($this->currfyDB.'tbl_enquiry')->where('EnqID',$EnqID)->get();
 				$logData=array("Description"=>"Quotation has been Cancelled ","ModuleName"=>$this->ActiveMenuName,"Action"=>cruds::DELETE->value,"ReferID"=>$EnqID,"OldData"=>$OldData,"NewData"=>$NewData,"UserID"=>$this->UserID,"IP"=>$req->ip());
 				logs::Store($logData);

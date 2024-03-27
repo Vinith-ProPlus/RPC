@@ -486,9 +486,6 @@ class SupportController extends Controller{
         $Title = "Admin Respond your Ticket";
         $Message = "Admin has responded to your ticket. Check now for updates and further instructions.";
         $status = Helper::saveNotification($UserID,$Title,$Message,'Support',$SupportID);
-        if($status){
-            Helper::sendNotification($UserID,$Title,$Message);
-        }
     }
     private function sendMail($SupportID){
         try{

@@ -328,6 +328,9 @@ class QuotationController extends Controller{
 							if($status){
 								DocNum::updateDocNum(docTypes::VendorOrders->value, $this->CurrFYDB);
 								DocNum::updateInvNo(docTypes::VendorOrders->value);
+								$Title = "New Order Arrived. Order No " . $VOrderNo . ".";
+								$Message = "You have a new order! Check now for details and fulfill it promptly.";
+								Helper::saveNotification($item->VendorID,$Title,$Message,'Orders',$VOrderID);
 								$status=DB::table($this->CurrFYDB.'tbl_order_details')->where('VendorID',$item->VendorID)->where('QID',$item->QID)->update(["VOrderID"=>$VOrderID,"UpdatedOn"=>now(),"updatedBy"=>$this->UserID]);
 							}
 						}

@@ -915,12 +915,12 @@ class helper{
 		$status = DB::table(self::getCurrFYDB().'tbl_notifications')->insert($Ndata);
 		if($status){
 			DocNum::updateDocNum("Notification",self::getCurrFYDB());
+			self::sendNotification($UserID,$Title,$Message);
 		}
 		return $status;
 	}
 
-    public static function sendNotification($ReferID,$Title,$Message){
-		$UserID = DB::table('users')->where('ReferID',$ReferID)->value('UserID');
+    public static function sendNotification($UserID,$Title,$Message){
         $firebaseToken=array();
         $sql="Select IFNULL(fcmToken,'') as fcmToken,IFNULL(WebFcmToken,'') as WebFcmToken From users where ActiveStatus=1 and DFlag=0 and UserID='".$UserID."'";
         $result = DB::SELECT($sql);

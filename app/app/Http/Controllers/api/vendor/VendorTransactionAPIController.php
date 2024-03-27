@@ -195,6 +195,7 @@ class VendorTransactionAPIController extends Controller{
             return response()->json(['status' => false,'message' => "Quote Price Update Failed!"]);
         }
 	}
+    
     public function AddQuotePriceOld(Request $req){
         $VendorID = $this->ReferID;
 		DB::beginTransaction();
@@ -326,6 +327,7 @@ class VendorTransactionAPIController extends Controller{
             ->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)
             ->where('PSC.ActiveStatus', 'Active')->where('PSC.DFlag', 0)
             ->where('OD.OrderID',$row->OrderID)
+            ->where('OD.VOrderID',$row->VOrderID)
             ->whereNot('Status','Cancelled')
             ->select('OD.DetailID','OD.Taxable','OD.TaxAmt','OD.TotalAmt','P.ProductName','P.ProductID','OD.Qty', 'PC.PCName', 'PC.PCID', 'PSC.PSCName','U.UName','U.UCode','U.UID', 'PSC.PSCID','OD.Price','OD.Status')
             ->get();
@@ -363,7 +365,6 @@ class VendorTransactionAPIController extends Controller{
                 }
                 $Message .= ". Thank you.";
                 Helper::saveNotification($OrderData[0]->CustomerID,$Title,$Message,'Order',$req->VOrderID);
-                Helper::sendNotification($OrderData[0]->CustomerID,$Title,$Message);
             }
         }catch(Exception $e) {
             $status=false;
@@ -396,7 +397,6 @@ class VendorTransactionAPIController extends Controller{
                     $Title = "Your Order Completed";
                     $Message = "Your order has been successfully completed. Thank you for choosing us";
                     Helper::saveNotification($CustomerID,$Title,$Message,'Order',$req->OrderID);
-                    Helper::sendNotification($CustomerID,$Title,$Message);
                 }else{
                     $status = DB::table($this->currfyDB.'tbl_order')->where('OrderID',$req->OrderID)->update(['Status'=>'Partially Delivered','UpdatedOn'=>now(),'UpdatedBy'=>$VendorID]);
                 }
@@ -488,4 +488,5 @@ class VendorTransactionAPIController extends Controller{
             'data' => $SettlementHistory,
         ]);
     }
+
 }

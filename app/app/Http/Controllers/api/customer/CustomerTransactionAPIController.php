@@ -126,7 +126,6 @@ class CustomerTransactionAPIController extends Controller{
             $Title = "Quotation Received";
             $Message = "Your quotation has been received. Admin will verify your quotation and get back to you shortly.";
             Helper::saveNotification($CustomerID,$Title,$Message,'Quotation',$EnqID);
-            Helper::sendNotification($CustomerID,$Title,$Message);
             DocNum::updateInvNo("Quote-Enquiry");
             DB::table('tbl_customer_cart')->where('CustomerID',$CustomerID)->delete();
             return response()->json(['status' => true,'message' => "Order Placed Successfully"]);
@@ -356,6 +355,9 @@ class CustomerTransactionAPIController extends Controller{
                         if($status){
                             DocNum::updateDocNum(docTypes::VendorOrders->value, $this->currfyDB);
                             DocNum::updateInvNo(docTypes::VendorOrders->value);
+                            $Title = "New Order Arrived. Order No ".$VOrderNo;
+                            $Message = "You have a new order! Check now for details and fulfill it promptly.";
+                            Helper::saveNotification($item->VendorID,$Title,$Message,'Orders',$VOrderID);
                             $status=DB::table($this->currfyDB.'tbl_order_details')->where('VendorID',$item->VendorID)->where('QID',$item->QID)->update(["VOrderID"=>$VOrderID,"UpdatedOn"=>now(),"updatedBy"=>$this->UserID]);
                         }
                     }
