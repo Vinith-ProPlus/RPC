@@ -115,8 +115,8 @@
                                             <div class="form-group">
                                                 <label for="lstCreditOverDraft">Credit Over Draft <span class="required"></span></label>
                                                 <select class="form-control " id="lstCreditOverDraft">
-                                                    <option value="1" {{ $EditData ? (($EditData->CreditDays > 0) ? 'selected' : '') : '' }}>Enabled</option>
-                                                    <option value="0" {{ $EditData ? (($EditData->CreditDays == 0) ? 'selected' : '') : 'selected' }}>Disabled</option>
+                                                    <option value="1" {{ $isEdit ? (($EditData->CreditDays > 0) ? 'selected' : '') : '' }}>Enabled</option>
+                                                    <option value="0" {{ $isEdit ? (($EditData->CreditDays == 0) ? 'selected' : '') : 'selected' }}>Disabled</option>
                                                 </select>
                                                 <span class="errors" id="lstCreditOverDraft-err"></span>
                                             </div>
@@ -125,7 +125,7 @@
                                             <div class="form-group">
                                                 <label for="txtCreditDays">Credit Days <span class="required">*</span></label>
                                                 <input type="number" id="txtCreditDays" class="form-control " placeholder="Credit Days"
-                                                       value="{{ $EditData ? $EditData->CreditDays : $SETTINGS['default-customers-credit-days'] }}">
+                                                       value="{{ $isEdit ? $EditData->CreditDays : $SETTINGS['default-customers-credit-days'] }}">
                                                 <span class="errors Customer" id="txtCreditDays-err"></span>
                                             </div>
                                         </div>
@@ -1133,7 +1133,7 @@
             }else{
                 $('#txtCreditDays').prop('disabled',false);
                 {{--$('#txtCreditDays').val('{{$SETTINGS['default-customers-credit-days']}}');--}}
-                $('#txtCreditDays').val('{{ $EditData ? $EditData->CreditDays : $SETTINGS['default-customers-credit-days'] }}');
+                $('#txtCreditDays').val('{{ $isEdit ? $EditData->CreditDays : $SETTINGS['default-customers-credit-days'] }}');
             }
         });
         @if($isEdit)
