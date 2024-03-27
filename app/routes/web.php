@@ -126,7 +126,7 @@ Route::controller(HomeAuthController::class)->group(function () {
     Route::post('/add-cart','AddCart')->name('add-cart');
     Route::post('/update-cart','UpdateCart');
     Route::post('/delete-cart','DeleteCart');
-    Route::get('/checkout', 'Checkout');
+    Route::get('/checkout', 'Checkout')->name('checkout');
 
     Route::post('/place-order','PlaceOrder');
 });

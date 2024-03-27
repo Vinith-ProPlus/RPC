@@ -916,7 +916,7 @@
                     cache: false,
                     processData: false,
                     contentType: false,
-                    error:function(e, x, settings, exception){ajax_errors(e, x, settings, exception);},
+                    error:function(e, x, settings, exception){ajaxErrors(e, x, settings, exception);},
                     complete: function(e, x, settings, exception){btnReset($('#nextBtn'));ajaxindicatorstop();$("html, body").animate({ scrollTop: 0 }, "slow");},
                     success:function(response){
                         if(response.status==true){

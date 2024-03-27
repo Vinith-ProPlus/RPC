@@ -330,20 +330,80 @@
                                         <div class="card-header p-6">
                                             <p class="text-center fs-16 fw-500">Billing Address</p>
                                         </div>
+{{--                                        <div class="card-body">--}}
+{{--                                            <?php--}}
+{{--                                                $Address="";--}}
+{{--                                                if($EnqData->Address!=""){if($Address!=""){$Address.=",<br> ";}$Address.=$EnqData->Address;}--}}
+{{--                                                if($EnqData->CityName!=""){if($Address!=""){$Address.=",<br> ";}$Address.=$EnqData->CityName;}--}}
+{{--                                                if($EnqData->TalukName!=""){if($Address!=""){$Address.=",<br> ";}$Address.=$EnqData->TalukName;}--}}
+{{--                                                if($EnqData->DistrictName!=""){if($Address!=""){$Address.=",<br> ";}$Address.=$EnqData->DistrictName;}--}}
+{{--                                                if($EnqData->StateName!=""){if($Address!=""){$Address.=",<br>";}$Address.=$EnqData->StateName;}--}}
+{{--                                                if($EnqData->CountryName!=""){if($Address!=""){$Address.=", ";}$Address.=$EnqData->CountryName;}--}}
+{{--                                                if($EnqData->PostalCode!=""){if($Address!=""){$Address.=" - ";}$Address.=$EnqData->PostalCode;}--}}
+{{--                                                if($Address!=""){$Address.=".";}--}}
+{{--                                                echo  $Address;--}}
+{{--                                            ?>--}}
+{{--                                        </div>--}}
+
                                         <div class="card-body">
                                             <?php
-                                                $Address="";
-                                                if($EnqData->Address!=""){if($Address!=""){$Address.=",<br> ";}$Address.=$EnqData->Address;}
-                                                if($EnqData->CityName!=""){if($Address!=""){$Address.=",<br> ";}$Address.=$EnqData->CityName;}
-                                                if($EnqData->TalukName!=""){if($Address!=""){$Address.=",<br> ";}$Address.=$EnqData->TalukName;}
-                                                if($EnqData->DistrictName!=""){if($Address!=""){$Address.=",<br> ";}$Address.=$EnqData->DistrictName;}
-                                                if($EnqData->StateName!=""){if($Address!=""){$Address.=",<br>";}$Address.=$EnqData->StateName;}
-                                                if($EnqData->CountryName!=""){if($Address!=""){$Address.=", ";}$Address.=$EnqData->CountryName;}
-                                                if($EnqData->PostalCode!=""){if($Address!=""){$Address.=" - ";}$Address.=$EnqData->PostalCode;}
-                                                if($Address!=""){$Address.=".";}
-                                                echo  $Address;
+                                            $Address = "";
+
+                                            if(isset($EnqData->Address) && $EnqData->Address != "") {
+                                                $Address .= $EnqData->Address;
+                                            }
+
+                                            if(isset($EnqData->CityName) && $EnqData->CityName != "") {
+                                                if($Address != "") {
+                                                    $Address .= ",<br>";
+                                                }
+                                                $Address .= $EnqData->CityName;
+                                            }
+
+                                            if(isset($EnqData->TalukName) && $EnqData->TalukName != "") {
+                                                if($Address != "") {
+                                                    $Address .= ",<br>";
+                                                }
+                                                $Address .= $EnqData->TalukName;
+                                            }
+
+                                            if(isset($EnqData->DistrictName) && $EnqData->DistrictName != "") {
+                                                if($Address != "") {
+                                                    $Address .= ",<br>";
+                                                }
+                                                $Address .= $EnqData->DistrictName;
+                                            }
+
+                                            if(isset($EnqData->StateName) && $EnqData->StateName != "") {
+                                                if($Address != "") {
+                                                    $Address .= ",<br>";
+                                                }
+                                                $Address .= $EnqData->StateName;
+                                            }
+
+                                            if(isset($EnqData->CountryName) && $EnqData->CountryName != "") {
+                                                if($Address != "") {
+                                                    $Address .= ", ";
+                                                }
+                                                $Address .= $EnqData->CountryName;
+                                            }
+
+                                            if(isset($EnqData->PostalCode) && $EnqData->PostalCode != "") {
+                                                if($Address != "") {
+                                                    $Address .= " - ";
+                                                }
+                                                $Address .= $EnqData->PostalCode;
+                                            }
+
+                                            if($Address != "") {
+                                                $Address .= ".";
+                                            }
+
+                                            echo $Address;
                                             ?>
                                         </div>
+
+
                                     </div>
                                 </div>
                                 <div class="col-sm-4">

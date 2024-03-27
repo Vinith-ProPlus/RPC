@@ -1,7 +1,8 @@
 @extends('home.home-layout')
 @section('content')
-
-<div class="container">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.css" integrity="sha512-3pIirOrwegjM6erE5gPSwkUzO+3cTjpnV9lexlNZqvupR64iZBnOOTiiLPb9M36zpMScbmUNIcHUqKD47M719g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js" integrity="sha512-VEd+nq25CkR676O+pLBnDW09R7VQX9Mdiij052gVCp5yVH3jGtH70Ho/UUv4mJDsEdTvqRCFZg0NKGiojGnUCw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <div class="container">
     <ul class="checkout-progress-bar d-flex justify-content-center flex-wrap">
         <li class="active">
             <a href="#">Shopping Cart</a>
@@ -20,7 +21,7 @@
                             <th class="thumbnail-col"></th>
                             <th class="product-col">Product</th>
                             <th class="qty-col text-center">Quantity</th>
-                            <th class="text-center">Unit of Measurent</th>
+                            <th class="text-center">Unit of Measurement</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -94,8 +95,16 @@
                             <td colspan="2" class="text-left">
                                 <form action="#">
                                     <div class="form-group form-group-sm">
-                                        <label><strong>Expected Delivery Date</strong></label>
-                                        <input type="date" class="form-control" placeholder="Expected date" value="{{date('Y-m-d', strtotime('+15 days'))}}">
+                                        <label for="receiver_name"><strong>Receiver Name</strong></label>
+                                        <input type="text" class="form-control" id="receiver_name" placeholder="Receiver name" value="">
+                                    </div>
+                                    <div class="form-group form-group-sm">
+                                        <label for="receiver_mobile_no"><strong>Receiver Mobile No</strong></label>
+                                        <input type="number" class="form-control" id="receiver_mobile_no" placeholder="Receiver mobile no" value="">
+                                    </div>
+                                    <div class="form-group form-group-sm">
+                                        <label for="expected_date"><strong>Expected Delivery Date</strong></label>
+                                        <input type="date" class="form-control" id="expected_date" placeholder="Expected date" value="{{date('Y-m-d', strtotime('+15 days'))}}">
                                     </div>
                                 </form>
                             </td>
@@ -190,27 +199,54 @@
         });
 
         $('#btnMConfirm').on('click', function () {
-            let formData = {};
-            $.ajax({
-                type: "post",
-                url: "{{url('/')}}/place-order",
-                headers: { 'X-CSRF-Token': $('meta[name=_token]').attr('content') },
-                data: formData,
-                cache: false,
-                processData: false,
-                contentType: false,
-                error: function (e, x, settings, exception) {
-                    // ajax_errors(e, x, settings, exception);
+            let receiver_name = $('#receiver_name').val();
+            let receiver_mobile_no = $('#receiver_mobile_no').val();
+            let expected_date = $('#expected_date').val();
+            var errorStatus = true;
+            if (!receiver_name) {
+                toastr.warning("Receiver name should not be empty!");
+                errorStatus = false;
+            }
+            if (!receiver_mobile_no && !/^\d+$/.test(receiver_mobile_no)) {
+                toastr.warning("Receiver mobile number should not be empty and contain only numbers!!");
+                errorStatus = false;
+            }
+            if (!expected_date) {
+                toastr.warning("Expected date should not be empty!");
+                errorStatus = false;
+            }
+
+            if (errorStatus) {
+                let formData = new FormData();
+                formData.append('ReceiverName', $('#receiver_name').val());
+                formData.append('ReceiverMobNo', $('#receiver_mobile_no').val());
+                formData.append('ExpectedDeliveryDate', $('#expected_date').val());
+                $.ajax({
+                    type: "post",
+                    url: "{{url('/')}}/place-order",
+                    headers: {'X-CSRF-Token': $('meta[name=_token]').attr('content')},
+                    data: formData,
+                    cache: false,
+                    processData: false,
+                    contentType: false,
+                    error: function (e, x, settings, exception) {
+                        ajaxErrors(e, x, settings, exception);
                     },
-                complete: function (e, x, settings, exception) { $("html, body").animate({ scrollTop: 0 }, "slow"); },
-                success: function (response) {
-                    if (response.status == true) {
-                        window.location.replace("{{url('/')}}/customer-home");
-                    } else {
-                        $("html, body").animate({ scrollTop: 0 }, "slow");
+                    complete: function (e, x, settings, exception) {
+                        $("html, body").animate({scrollTop: 0}, "slow");
+                    },
+                    success: function (response) {
+                        if (response.status == true) {
+                            window.location.replace("{{url('/')}}");
+                        } else {
+                            $("html, body").animate({scrollTop: 0}, "slow");
+                        }
                     }
-                }
-            });
+                });
+            } else {
+                $("html, body").animate({scrollTop: 0}, "slow");
+                $('#btnMCancel').click();
+            }
         });
 
         $('#btnMCancel').on('click', function () {

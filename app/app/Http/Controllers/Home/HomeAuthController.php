@@ -611,6 +611,12 @@ class HomeAuthController extends Controller{
 		$FormData['PCategories']=$this->PCategories;
 		$FormData['isEdit']=false;
 		$FormData['isRegister']=false;
+
+        $customerAid = Session::get('selected_aid');
+        $customerDefaultAid = DB::table('tbl_customer_address')->where('CustomerID', $CustomerID)->where('isDefault', true)->first();
+        $AID = isset($customerAid) ? $customerAid : $customerDefaultAid->AID;
+        $FormData['AID']=$AID;
+
 		$FormData['ShippingAddress']=DB::table('tbl_customer_address as CA')->where('CustomerID',$CustomerID)
 		->join($this->generalDB.'tbl_countries as C','C.CountryID','CA.CountryID')
 		->join($this->generalDB.'tbl_states as S', 'S.StateID', 'CA.StateID')
@@ -629,7 +635,7 @@ class HomeAuthController extends Controller{
 		->join($this->generalDB.'tbl_postalcodes as PC', 'PC.PID', 'CU.PostalCodeID')
 		->select('CU.Address', 'CU.CountryID', 'C.CountryName', 'CU.StateID', 'S.StateName', 'CU.DistrictID', 'D.DistrictName', 'CU.TalukID', 'T.TalukName', 'CU.CityID', 'CI.CityName', 'CU.PostalCodeID', 'PC.PostalCode','CU.MobileNo1','CU.CustomerName')
 		->first();
-		$FormData['DeliveryAddress']=DB::table('tbl_customer_address as CA')->where('CustomerID',$CustomerID)->where('CA.isDefault',1)
+		$FormData['DeliveryAddress']=DB::table('tbl_customer_address as CA')->where('AID', $AID)
 		->join($this->generalDB.'tbl_countries as C','C.CountryID','CA.CountryID')
 		->join($this->generalDB.'tbl_states as S', 'S.StateID', 'CA.StateID')
 		->join($this->generalDB.'tbl_districts as D', 'D.DistrictID', 'CA.DistrictID')
@@ -642,13 +648,140 @@ class HomeAuthController extends Controller{
 		if($FormData['Cart'])
 		return view('home.checkout',$FormData);
     }
-	public function PlaceOrder(Request $req){
+//	public function PlaceOrder(Request $req){
+//        DB::beginTransaction();
+//        $status=false;
+//        $CustomerID=$this->ReferID;
+//        try {
+//            $CustomerData = DB::table('tbl_customer')->where('CustomerID',$CustomerID)->first();
+//            logger("CustomerData");
+//            [
+//                'ID' => 31,
+//                'UserID' => 'U2324-0000028',
+//                'ReferID' => 'CU2324-00000037',
+//                'LoginType' => 'Customer',
+//                'RoleID' => NULL,
+//                'RoleName' => NULL,
+//                'Name' => 'VINITH KUMAR R',
+//                'EMail' => 'vinithkumarpropluslogics@gmail.com',
+//                'FirstName' => 'VINITH',
+//                'LastName' => 'KUMAR R',
+//                'DOB' => '1998-10-06',
+//                'GenderID' => 'G2020-00001',
+//                'Gender' => 'Male',
+//                'Address' => 'Karur, Tamil Nadu',
+//                'CityID' => 'CI2023-0121887',
+//                'CityName' => 'Tirumanilaiyur',
+//                'StateID' => 'S2020-00000035',
+//                'StateName' => 'Tamil Nadu',
+//                'CountryID' => 'C2020-00000101',
+//                'CountryName' => 'India',
+//                'PhoneCode' => 91,
+//                'PostalCodeID' => 'PC2023-0016421',
+//                'PostalCode' => '639003',
+//                'MobileNumber' => '7904841269',
+//                'ProfileImage' => 'assets/images/male-icon.png',
+//                'ActiveStatus' => 'Active',
+//                'DFlag' => 0,
+//            ];
+//            $EnqID = DocNum::getDocNum(docTypes::Enquiry->value,$this->logDB,Helper::getCurrentFY());
+//            $BuildingImage = "";
+//            if($req->BuildingImage != null) {
+//                $dir = "uploads/transaction/enquiry/" . $EnqID . "/";
+//                if (!file_exists($dir)) {
+//                    mkdir($dir, 0777, true);
+//                }
+//                if ($req->hasFile('BuildingImage')) {
+//                    $file = $req->file('BuildingImage');
+//                    $fileName = md5($file->getClientOriginalName() . time());
+//                    $fileName1 = $fileName . "." . $file->getClientOriginalExtension();
+//                    $file->move($dir, $fileName1);
+//                    $BuildingImage = $dir . $fileName1;
+//                } else if (Helper::isJSON($req->BuildingImage) == true) {
+//                    $Img = json_decode($req->BuildingImage);
+//                    if (file_exists($Img->uploadPath)) {
+//                        $fileName1 = $Img->fileName != "" ? $Img->fileName : Helper::RandomString(10) . "png";
+//                        copy($Img->uploadPath, $dir . $fileName1);
+//                        $BuildingImage = $dir . $fileName1;
+//                        // unlink($Img->uploadPath);
+//                    }
+//                }
+//            }
+//            $data=[
+//                'EnqID' => $EnqID,
+//                'EnqNo' =>DocNum::getInvNo("Quote-Enquiry"),
+//                'EnqDate' => date('Y-m-d'),
+//                'EnqExpiryDate' => date('Y-m-d', strtotime('+15 days')),
+//                'CustomerID' => $CustomerID,
+//                'ReceiverName' => $req->ReceiverName,
+//                'ReceiverMobNo' => $req->ReceiverMobNo,
+//                'ExpectedDeliveryDate' => $req->ExpectedDeliveryDate,
+//                'Address' => $req->Address,
+//                'CountryID' => $req->CountryID,
+//                'StateID' => $req->StateID,
+//                'DistrictID' => $req->DistrictID,
+//                'TalukID' => $req->TalukID,
+//                'CityID' => $req->CityID,
+//                'PostalCodeID' => $req->PostalCodeID,
+//                'DAddress' => $req->Address,
+//                'DCountryID' => $req->CountryID,
+//                'DStateID' => $req->StateID,
+//                'DDistrictID' => $req->DistrictID,
+//                'DTalukID' => $req->TalukID,
+//                'DCityID' => $req->CityID,
+//                'DPostalCodeID' => $req->PostalCodeID,
+//                'StageID' => $req->StageID,
+//                'BuildingMeasurementID' => $req->BuildingMeasurementID,
+//                'BuildingMeasurement' => $req->BuildingMeasurement,
+//                'BuildingImage' => $BuildingImage,
+//                'CreatedOn' => date('Y-m-d H:i:s'),
+//                'CreatedBy' => $CustomerID,
+//            ];
+//            $status=DB::table($this->logDB.'tbl_enquiry')->insert($data);
+//            if($status){
+//                $ProductData = json_decode($req->ProductData,true);
+//                if($ProductData){
+//					foreach($ProductData as $item){
+//						$EnquiryDetailID = DocNum::getDocNum(docTypes::EnquiryDetails->value,$this->logDB,Helper::getCurrentFY());
+//						$data1=[
+//							'DetailID' => $EnquiryDetailID,
+//							'EnqID'=>$EnqID,
+//							'CID'=>$item['PCID'],
+//							'SCID'=>$item['PSCID'],
+//							'ProductID'=>$item['ProductID'],
+//							'Qty'=>$item['Qty'],
+//							'UOMID'=>$item['UID'],
+//							'CreatedOn'=>date('Y-m-d H:i:s'),
+//							'CreatedBy'=>$CustomerID,
+//						];
+//						$status = DB::table($this->logDB.'tbl_enquiry_details')->insert($data1);
+//						if($status){
+//							DocNum::updateDocNum(docTypes::EnquiryDetails->value,$this->logDB);
+//						}
+//					}
+//				}
+//                DocNum::updateDocNum(docTypes::Enquiry->value,$this->logDB);
+//            }
+//        }catch(Exception $e) {
+//            $status=false;
+//        }
+//        if($status==true){
+//            DB::commit();
+//            DocNum::updateInvNo("Quote-Enquiry");
+//            DB::table('tbl_customer_cart')->where('CustomerID',$CustomerID)->delete();
+//            return response()->json(['status' => true,'message' => "Order Placed Successfully"]);
+//        }else{
+//            DB::rollback();
+//            return response()->json(['status' => false,'message' => "Order Placing Failed!"]);
+//        }
+//    }
+    public function PlaceOrder(Request $req){
         DB::beginTransaction();
         $status=false;
         $CustomerID=$this->ReferID;
         try {
             $CustomerData = DB::table('tbl_customer')->where('CustomerID',$CustomerID)->first();
-            $EnqID = DocNum::getDocNum(docTypes::Enquiry->value,$this->logDB,Helper::getCurrentFY());
+            $EnqID = DocNum::getDocNum(docTypes::Enquiry->value,$this->CurrFyDB,Helper::getCurrentFY());
             $BuildingImage = "";
             if($req->BuildingImage != null) {
                 $dir = "uploads/transaction/enquiry/" . $EnqID . "/";
@@ -671,6 +804,39 @@ class HomeAuthController extends Controller{
                     }
                 }
             }
+            $customerAid = Session::get('selected_aid');
+            $customerDefaultAid = DB::table('tbl_customer_address')->where('CustomerID', $CustomerID)->where('isDefault', true)->first();
+            $AID = isset($customerAid) ? $customerAid : $customerDefaultAid->AID;
+            $AddressData = DB::table('tbl_customer_address')->where('AID', $AID)->first();
+//            [
+//                'ID' => 31,
+//                'UserID' => 'U2324-0000028',
+//                'ReferID' => 'CU2324-00000037',
+//                'LoginType' => 'Customer',
+//                'RoleID' => NULL,
+//                'RoleName' => NULL,
+//                'Name' => 'VINITH KUMAR R',
+//                'EMail' => 'vinithkumarpropluslogics@gmail.com',
+//                'FirstName' => 'VINITH',
+//                'LastName' => 'KUMAR R',
+//                'DOB' => '1998-10-06',
+//                'GenderID' => 'G2020-00001',
+//                'Gender' => 'Male',
+//                'Address' => 'Karur, Tamil Nadu',
+//                'CityID' => 'CI2023-0121887',
+//                'CityName' => 'Tirumanilaiyur',
+//                'StateID' => 'S2020-00000035',
+//                'StateName' => 'Tamil Nadu',
+//                'CountryID' => 'C2020-00000101',
+//                'CountryName' => 'India',
+//                'PhoneCode' => 91,
+//                'PostalCodeID' => 'PC2023-0016421',
+//                'PostalCode' => '639003',
+//                'MobileNumber' => '7904841269',
+//                'ProfileImage' => 'assets/images/male-icon.png',
+//                'ActiveStatus' => 'Active',
+//                'DFlag' => 0,
+//            ];
             $data=[
                 'EnqID' => $EnqID,
                 'EnqNo' =>DocNum::getInvNo("Quote-Enquiry"),
@@ -680,57 +846,53 @@ class HomeAuthController extends Controller{
                 'ReceiverName' => $req->ReceiverName,
                 'ReceiverMobNo' => $req->ReceiverMobNo,
                 'ExpectedDeliveryDate' => $req->ExpectedDeliveryDate,
-                'Address' => $req->Address,
-                'CountryID' => $req->CountryID,
-                'StateID' => $req->StateID,
-                'DistrictID' => $req->DistrictID,
-                'TalukID' => $req->TalukID,
-                'CityID' => $req->CityID,
-                'PostalCodeID' => $req->PostalCodeID,
-                'DAddress' => $req->Address,
-                'DCountryID' => $req->CountryID,
-                'DStateID' => $req->StateID,
-                'DDistrictID' => $req->DistrictID,
-                'DTalukID' => $req->TalukID,
-                'DCityID' => $req->CityID,
-                'DPostalCodeID' => $req->PostalCodeID,
-                'StageID' => $req->StageID,
+                'AID'=>$AID,
+                "DAddress"=>$AddressData->Address,
+                "DPostalCodeID"=>$AddressData->PostalCodeID,
+                "DCityID"=>$AddressData->CityID,
+                "DTalukID"=>$AddressData->TalukID,
+                "DDistrictID"=>$AddressData->DistrictID,
+                "DStateID"=>$AddressData->StateID,
+                "DCountryID"=>$AddressData->CountryID,
+                'StageID' => $req->StageID ?? '',
                 'BuildingMeasurementID' => $req->BuildingMeasurementID,
                 'BuildingMeasurement' => $req->BuildingMeasurement,
                 'BuildingImage' => $BuildingImage,
                 'CreatedOn' => date('Y-m-d H:i:s'),
                 'CreatedBy' => $CustomerID,
             ];
-            $status=DB::table($this->logDB.'tbl_enquiry')->insert($data);
+            $status=DB::table($this->CurrFyDB.'tbl_enquiry')->insert($data);
             if($status){
-                $ProductData = json_decode($req->ProductData,true);
-                if($ProductData){
-					foreach($ProductData as $item){
-						$EnquiryDetailID = DocNum::getDocNum(docTypes::EnquiryDetails->value,$this->logDB,Helper::getCurrentFY());
-						$data1=[
-							'DetailID' => $EnquiryDetailID,
-							'EnqID'=>$EnqID,
-							'CID'=>$item['PCID'],
-							'SCID'=>$item['PSCID'],
-							'ProductID'=>$item['ProductID'],
-							'Qty'=>$item['Qty'],
-							'UOMID'=>$item['UID'],
-							'CreatedOn'=>date('Y-m-d H:i:s'),
-							'CreatedBy'=>$CustomerID,
-						];
-						$status = DB::table($this->logDB.'tbl_enquiry_details')->insert($data1);
-						if($status){
-							DocNum::updateDocNum(docTypes::EnquiryDetails->value,$this->logDB);
-						}
-					}
-				}
-                DocNum::updateDocNum(docTypes::Enquiry->value,$this->logDB);
+                $ProductData = $this->getCart();
+                foreach($ProductData as $item){
+                    $EnquiryDetailID = DocNum::getDocNum(docTypes::EnquiryDetails->value,$this->CurrFyDB,Helper::getCurrentFY());
+                    $data1 = [
+                        'DetailID' => $EnquiryDetailID,
+                        'EnqID' => $EnqID,
+                        'CID' => $item->PCID,
+                        'SCID' => $item->PSCID,
+                        'ProductID' => $item->ProductID,
+                        'Qty' => $item->Qty,
+                        'UOMID' => $item->UID,
+                        'CreatedOn' => date('Y-m-d H:i:s'),
+                        'CreatedBy' => $CustomerID,
+                    ];
+                    $status = DB::table($this->CurrFyDB.'tbl_enquiry_details')->insert($data1);
+                    if($status){
+                        DocNum::updateDocNum(docTypes::EnquiryDetails->value,$this->CurrFyDB);
+                    }
+                }
+                DocNum::updateDocNum(docTypes::Enquiry->value,$this->CurrFyDB);
             }
         }catch(Exception $e) {
+            logger($e);
             $status=false;
         }
         if($status==true){
             DB::commit();
+            $Title = "Quotation Received";
+            $Message = "Your quotation has been received. Admin will verify your quotation and get back to you shortly.";
+            Helper::saveNotification($CustomerID,$Title,$Message,'Quotation',$EnqID);
             DocNum::updateInvNo("Quote-Enquiry");
             DB::table('tbl_customer_cart')->where('CustomerID',$CustomerID)->delete();
             return response()->json(['status' => true,'message' => "Order Placed Successfully"]);
@@ -1407,12 +1569,9 @@ class HomeAuthController extends Controller{
         $CustomerID = $this->ReferID;
         $quotation = DB::table($this->CurrFyDB . 'tbl_quotation')->where("CustomerID", $CustomerID)->where("EnqID", $EnqID)->first();
         $enquiry = DB::table($this->CurrFyDB . 'tbl_enquiry')->where("CustomerID", $CustomerID)->where("EnqID", $EnqID)->first();
-
         if ($quotation) {
-            logger("Quotation present");
             return $this->renderQuotationView($quotation);
         } elseif ($enquiry) {
-            logger("Enquiry present");
             return $this->renderEnquiryView($EnqID);
         } else {
             return view('errors.403');
@@ -1434,6 +1593,7 @@ class HomeAuthController extends Controller{
         $FormData['isRegister'] = false;
         $FormData['Cart'] = $this->getCart();
         $FormData['ShippingAddress'] = $this->shippingAddress;
+
         return view('home.customer.enquiry-view', $FormData);
     }
 
@@ -1510,7 +1670,7 @@ class HomeAuthController extends Controller{
             ->leftJoin($this->generalDB.'tbl_cities as DCI', 'DCI.CityID', 'E.DCityID')
             ->leftJoin($this->generalDB.'tbl_postalcodes as DPC', 'DPC.PID', 'E.DPostalCodeID')
             ->Where('E.EnqID',$EnqID)
-            ->select('EnqID','EnqNo','EnqDate','VendorIDs','Status','ReceiverName','ReceiverMobNo','ExpectedDeliveryDate','CU.Email','DPostalCodeID','E.PostalCodeID','E.Address','C.CountryName','S.StateName','D.DistrictName','T.TalukName','CI.CityName','PC.PostalCode','DAddress','DC.CountryName as DCountryName','DS.StateName as DStateName','DD.DistrictName as DDistrictName','DT.TalukName as DTalukName','DCI.CityName as DCityName','DPC.PostalCode as DPostalCode')
+            ->select('EnqID','EnqNo','EnqDate','VendorIDs','Status','ReceiverName','ReceiverMobNo','ExpectedDeliveryDate','CU.Email','DPostalCodeID','E.DPostalCodeID','E.DAddress','C.CountryName','S.StateName','D.DistrictName','T.TalukName','CU.Address','CI.CityName','PC.PostalCode','DAddress','DC.CountryName as DCountryName','DS.StateName as DStateName','DD.DistrictName as DDistrictName','DT.TalukName as DTalukName','DCI.CityName as DCityName','DPC.PostalCode as DPostalCode')
             ->first();
         $FormData['EnqData']=$EnqData;
         if($EnqData){
