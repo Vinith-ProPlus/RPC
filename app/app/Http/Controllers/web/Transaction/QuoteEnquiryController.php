@@ -140,6 +140,7 @@ class QuoteEnquiryController extends Controller{
 			try {
 				$CustomerID=$req->CustomerID;
 				$CustomerData = DB::table('tbl_customer')->where('CustomerID',$CustomerID)->first();
+				$AddressData = DB::table('tbl_customer_address')->where('AID',$req->AID)->first();
 				$EnqID = DocNum::getDocNum(docTypes::Enquiry->value,$this->currfyDB,Helper::getCurrentFY());
 				$data=[
 					'EnqID' => $EnqID,
@@ -151,6 +152,13 @@ class QuoteEnquiryController extends Controller{
 					'ReceiverMobNo' => $req->ReceiverMobNo,
 					'ExpectedDeliveryDate' => $req->ExpectedDeliveryDate,
 					'AID'=>$req->AID,
+					"DAddress"=>$AddressData->Address,
+					"DPostalCodeID"=>$AddressData->PostalCodeID,
+					"DCityID"=>$AddressData->CityID,
+					"DTalukID"=>$AddressData->TalukID,
+					"DDistrictID"=>$AddressData->DistrictID,
+					"DStateID"=>$AddressData->StateID,
+					"DCountryID"=>$AddressData->CountryID,
 					'StageID' => $req->StageID,
 					'BuildingMeasurementID' => $req->BuildingMeasurementID,
 					'BuildingMeasurement' => $req->BuildingMeasurement,
@@ -178,15 +186,14 @@ class QuoteEnquiryController extends Controller{
 							DocNum::updateDocNum(docTypes::EnquiryDetails->value,$this->currfyDB);
 						}
 					}
-					DocNum::updateDocNum(docTypes::Enquiry->value,$this->currfyDB);
 				}
 			}catch(Exception $e) {
 				$status=false;
 			}
 
 			if($status==true){
-				DocNum::updateDocNum(docTypes::VendorCategory->value);
 				DB::commit();
+				DocNum::updateDocNum(docTypes::Enquiry->value,$this->currfyDB);
 				$NewData=DB::table($this->currfyDB.'tbl_enquiry_details as ED')->leftJoin($this->currfyDB.'tbl_enquiry as E','E.EnqID','ED.EnqID')->where('ED.EnqID',$EnqID)->get();
 				$logData=array("Description"=>"New Quote Enquiry Created","ModuleName"=>$this->ActiveMenuName,"Action"=>cruds::ADD->value,"ReferID"=>$EnqID,"OldData"=>$OldData,"NewData"=>$NewData,"UserID"=>$this->UserID,"IP"=>$req->ip());
 				logs::Store($logData);
@@ -224,6 +231,7 @@ class QuoteEnquiryController extends Controller{
                         // unlink($Img->uploadPath);
                     }
                 }
+				$AddressData = DB::table('tbl_customer_address')->where('AID',$req->AID)->first();
 				$data=[
 					'EnqID' => $EnqID,
 					'EnqNo' =>DocNum::getInvNo("Quote-Enquiry"),
@@ -235,6 +243,13 @@ class QuoteEnquiryController extends Controller{
 					'VendorIDs' => serialize($VendorIDs),
 					'ExpectedDeliveryDate' => $req->ExpectedDeliveryDate,
 					'AID'=>$req->AID,
+					"DAddress"=>$AddressData->Address,
+					"DPostalCodeID"=>$AddressData->PostalCodeID,
+					"DCityID"=>$AddressData->CityID,
+					"DTalukID"=>$AddressData->TalukID,
+					"DDistrictID"=>$AddressData->DistrictID,
+					"DStateID"=>$AddressData->StateID,
+					"DCountryID"=>$AddressData->CountryID,
 					'QuoteImage' => $QuoteImage,
 					'isImageQuote' => 1,
 					'CreatedBy' => $this->UserID
@@ -271,8 +286,8 @@ class QuoteEnquiryController extends Controller{
 			}
 
 			if($status==true){
-				DocNum::updateDocNum(docTypes::VendorCategory->value);
 				DB::commit();
+				DocNum::updateDocNum(docTypes::Enquiry->value,$this->currfyDB);
 				$NewData=DB::table($this->currfyDB.'tbl_enquiry_details as ED')->leftJoin($this->currfyDB.'tbl_enquiry as E','E.EnqID','ED.EnqID')->where('ED.EnqID',$EnqID)->get();
 				$logData=array("Description"=>"New Image Quote Enquiry Created","ModuleName"=>$this->ActiveMenuName,"Action"=>cruds::ADD->value,"ReferID"=>$EnqID,"OldData"=>$OldData,"NewData"=>$NewData,"UserID"=>$this->UserID,"IP"=>$req->ip());
 				logs::Store($logData);
@@ -336,7 +351,7 @@ class QuoteEnquiryController extends Controller{
 						->select('DetailID','ProductID','Price','VQuoteID')
 						->get();
 					}
-				}elseif($EnqData->Status == "Converted to Quotation"){
+				}elseif($EnqData->Status == "Converted to Quotation" || $EnqData->Status == "Accepted"){
 					$FinalQuoteData = DB::Table($this->currfyDB.'tbl_quotation_details as QD')->join($this->currfyDB.'tbl_quotation as Q','Q.QID','QD.QID')->join('tbl_vendors as V','V.VendorID','QD.VendorID')->join('tbl_products as P','P.ProductID','QD.ProductID')->join('tbl_uom as UOM','UOM.UID','P.UID')->where('Q.EnqID',$EnqID)->get();
 				}
 
@@ -365,11 +380,16 @@ class QuoteEnquiryController extends Controller{
 				foreach ($SelectedVendors as $VendorID) {
 					$isQuoteRequested =  DB::table($this->currfyDB . 'tbl_vendor_quotation')->where('VendorID',$VendorID)->where('EnqID',$EnqID)->first();
 					if(!$isQuoteRequested){
+						$EnqData = DB::table($this->currfyDB.'tbl_enquiry')->where('EnqID',$EnqID)->select('CustomerID','AID')->first();
+						$CustomerLatLong = DB::table('tbl_customer_address')->where('AID',$EnqData->AID)->select('Latitude','Longitude')->first();
+						$StockPoints = DB::table('tbl_vendors_stock_point')->where('VendorID',$VendorID)->where('DFlag',0)->select('StockPointID','Latitude','Longitude')->get();
+						$Distance = Helper::findNearestStockPoint($CustomerLatLong, $StockPoints);
 						$VQuoteID = DocNum::getDocNum(docTypes::VendorQuotation->value, $this->currfyDB,Helper::getCurrentFy());
 						$data = [
 							"VQuoteID" => $VQuoteID,
 							"VendorID" => $VendorID,
 							"EnqID" => $EnqID,
+							"Distance" => $Distance,
 							"QReqOn" => date('Y-m-d'),
 							"QReqBy" => $this->UserID,
 							"CreatedBy" => $this->UserID,
@@ -398,6 +418,9 @@ class QuoteEnquiryController extends Controller{
 							DocNum::updateDocNum(docTypes::VendorQuotation->value, $this->currfyDB);
 						}
 					}
+					$Title = "New Enquiry Received.";
+					$Message = "You have a new enquiry! Check now for details and respond promptly.";
+					Helper::saveNotification($VendorID,$Title,$Message,'Enquiry',$EnqID);
 				}
 				$status = DB::table($this->currfyDB.'tbl_enquiry')->where('EnqID',$EnqID)->update(['Status'=>'Quote Requested','VendorIDs'=>serialize($SelectedVendors),"UpdatedBy"=>$this->UserID,"UpdatedOn"=>date("Y-m-d H:i:s")]);
 			}catch(Exception $e) {
@@ -405,6 +428,9 @@ class QuoteEnquiryController extends Controller{
 			}
 			if($status==true){
 				DB::commit();
+				$Title = "Quotation Accepted";
+				$Message = "Your quotation has been accepted. The admin will update your quote pricing.";
+				Helper::saveNotification($EnqData->CustomerID,$Title,$Message,'Quotation',$EnqID);
 				$NewData=DB::table($this->currfyDB.'tbl_vendor_quotation as VQ')->join($this->currfyDB.'tbl_vendor_quotation_details as VQD','VQD.VQuoteID','VQ.VQuoteID')->where('VQ.EnqID',$EnqID)->get();
 				$logData=array("Description"=>"Quotation Request Sent","ModuleName"=>$this->ActiveMenuName,"Action"=>cruds::ADD->value,"ReferID"=>$EnqID,"OldData"=>$OldData,"NewData"=>$NewData,"UserID"=>$this->UserID,"IP"=>$req->ip());
 				logs::Store($logData);
@@ -424,7 +450,6 @@ class QuoteEnquiryController extends Controller{
 			try {
 				$OldData=$NewData=[];
 				$ProductData = json_decode($req->ProductData);
-				// return $ProductData;
 				$data=[
 					'SubTotal'=>$req->SubTotal ?? 0,
 					'TaxAmount'=>$req->TaxAmount ?? 0,
@@ -555,8 +580,8 @@ class QuoteEnquiryController extends Controller{
 				foreach($AdditionalCostData as $cost){
 					$AdditionalCost += $cost->ACost;
 				}
-				$isEnqIDExists = DB::table($this->currfyDB.'tbl_quotation')->where('EnqID',$EnqID)->exists();
-				if(!$isEnqIDExists){
+				$QData = DB::table($this->currfyDB.'tbl_quotation')->where('EnqID',$EnqID)->first();
+				if(!$QData){
 					$QID = DocNum::getDocNum(docTypes::Quotation->value, $this->currfyDB,Helper::getCurrentFy());
 					$totalTaxable = 0;
 					$totalTaxAmount = 0;
@@ -606,7 +631,12 @@ class QuoteEnquiryController extends Controller{
 							'CreatedOn'=>date('Y-m-d H:i:s'),
 							'CreatedBy'=>$this->UserID,
 						];
-						
+						$isNotifiedVendor = DB::table($this->currfyDB.'tbl_quotation_details')->where('QID',$QID)->where('VendorID',$item->VendorID)->exists();
+						if(!$isNotifiedVendor){
+							$Title = "Quotation Accepted";
+							$Message = "Great news! Your quotation has been accepted. We'll proceed accordingly. Thank you.";
+							Helper::saveNotification($EnqData[0]->CustomerID,$Title,$Message,'Quotation',$QID);
+						}
 						$status = DB::table($this->currfyDB.'tbl_quotation_details')->insert($data1);
 						if($status){
 							DocNum::updateDocNum(docTypes::QuotationDetails->value, $this->currfyDB);
@@ -646,7 +676,7 @@ class QuoteEnquiryController extends Controller{
 						$status=DB::table($this->currfyDB.'tbl_quotation')->insert($data);
 					}
 				}
-				$status = DB::table($this->currfyDB.'tbl_enquiry')->where('EnqID',$EnqID)->update(['Status'=>'Converted to Quotation','UpdatedOn'=>date('Y-m-d'),'UpdatedBy'=>$this->UserID]);
+				$status = DB::table($this->currfyDB.'tbl_enquiry')->where('EnqID',$EnqID)->update(['Status'=>'Converted to Quotation','UpdatedOn'=>date('Y-m-d H:i:s'),'UpdatedBy'=>$this->UserID]);
 
 			}catch(Exception $e) {
 				$status=false;
@@ -655,15 +685,13 @@ class QuoteEnquiryController extends Controller{
 				DB::commit();
 				DocNum::updateDocNum(docTypes::Quotation->value, $this->currfyDB);
 				DocNum::updateInvNo(docTypes::Quotation->value);
+				$QData = DB::table($this->currfyDB.'tbl_quotation')->where('EnqID',$EnqID)->first();
+				$Title = "Quotation updated with price";
+                $Message = "Quotation" . $QData->QNo . " updated with price";
+				Helper::saveNotification($EnqData[0]->CustomerID,$Title,$Message,'Quotation',$QData->QID);
 
-				$Title = "New Quotation";
-                $Message = "New Quotation" . $QuoteNo . " Received";
-				$status= Helper::saveNotification($EnqData[0]->CustomerID,$Title,$Message,'Quotation',$QID);
-                if($status){
-                    Helper::sendNotification($EnqData[0]->CustomerID,$Title,$Message);
-                }
-				$NewData=DB::table($this->currfyDB.'tbl_quotation_details as QD')->join($this->currfyDB.'tbl_quotation as Q','QD.QID','Q.QID')->where('QD.QID',$QID)->get();
-				$logData=array("Description"=>"Quotation Converted","ModuleName"=>$this->ActiveMenuName,"Action"=>cruds::UPDATE->value,"ReferID"=>$QID,"OldData"=>$OldData,"NewData"=>$NewData,"UserID"=>$this->UserID,"IP"=>$req->ip());
+				$NewData=DB::table($this->currfyDB.'tbl_quotation_details as QD')->join($this->currfyDB.'tbl_quotation as Q','QD.QID','Q.QID')->where('QD.QID',$QData->QID)->get();
+				$logData=array("Description"=>"Quotation Converted","ModuleName"=>$this->ActiveMenuName,"Action"=>cruds::UPDATE->value,"ReferID"=>$QData->QID,"OldData"=>$OldData,"NewData"=>$NewData,"UserID"=>$this->UserID,"IP"=>$req->ip());
 				logs::Store($logData);
 				return array('status'=>true,'message'=>"Quotation Converted Successfully");
 			}else{
@@ -688,6 +716,9 @@ class QuoteEnquiryController extends Controller{
 			}
 			if($status==true){
 				DB::commit();
+				$Title = "Quotation Request Rejected.";
+                $Message = "Your quotation enquiry has been rejected by admin. We appreciate your interest. Should you require a reason for the rejection, please contact the admin through support ticket.";
+                Helper::saveNotification($OldData[0]->CustomerID,$Title,$Message,'Order',$EnqID);
 				$NewData=DB::table($this->currfyDB.'tbl_enquiry')->where('EnqID',$EnqID)->get();
 				$logData=array("Description"=>"Quotation has been Cancelled ","ModuleName"=>$this->ActiveMenuName,"Action"=>cruds::DELETE->value,"ReferID"=>$EnqID,"OldData"=>$OldData,"NewData"=>$NewData,"UserID"=>$this->UserID,"IP"=>$req->ip());
 				logs::Store($logData);

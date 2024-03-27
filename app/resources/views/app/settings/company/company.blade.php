@@ -589,7 +589,7 @@
             if(status){
                 swal({
                     title: "Are you sure?",
-                    text: "You want @if($isEdit==true)Update @else Save @endif this Company!",
+                    text: "You want @if($isEdit==true)Update @else Save @endif this Company Settings!",
                     type: "warning",
                     showCancelButton: true,
                     confirmButtonClass: "btn-outline-success",
@@ -599,7 +599,7 @@
                     swal.close();
                     const formData=await getData();
                     btnLoading($('#btnSave'));
-                    let postUrl="{{url('/')}}/settings/company/update";
+                    let postUrl="{{url('/')}}/admin/settings/company/update";
                     $.ajax({
                         type:"post",
                         url:postUrl,

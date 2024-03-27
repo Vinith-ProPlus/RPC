@@ -203,6 +203,7 @@ class QuotationController extends Controller{
 						"QID"=>$QID,
 						"EnqID"=>$data->EnqID,
 						"CustomerID"=>$data->CustomerID,
+						"AID"=>$data->AID,
 						"ReceiverName"=>$data->ReceiverName,
 						"ReceiverMobNo"=>$data->ReceiverMobNo,
 						"DAddress"=>$data->DAddress,
@@ -293,6 +294,7 @@ class QuotationController extends Controller{
 								"ExpectedDelivery"=>date("Y-m-d",strtotime($req->ExpectedDelivery)),
 								"QID"=>$QID,
 								"CustomerID"=>$data->CustomerID,
+								"AID"=>$data->AID,
 								"VendorID"=>$item->VendorID,
 								"ReceiverName"=>$data->ReceiverName,
 								"ReceiverMobNo"=>$data->ReceiverMobNo,
@@ -326,6 +328,9 @@ class QuotationController extends Controller{
 							if($status){
 								DocNum::updateDocNum(docTypes::VendorOrders->value, $this->CurrFYDB);
 								DocNum::updateInvNo(docTypes::VendorOrders->value);
+								$Title = "New Order Arrived. Order No " . $VOrderNo . ".";
+								$Message = "You have a new order! Check now for details and fulfill it promptly.";
+								Helper::saveNotification($item->VendorID,$Title,$Message,'Orders',$VOrderID);
 								$status=DB::table($this->CurrFYDB.'tbl_order_details')->where('VendorID',$item->VendorID)->where('QID',$item->QID)->update(["VOrderID"=>$VOrderID,"UpdatedOn"=>now(),"updatedBy"=>$this->UserID]);
 							}
 						}
@@ -396,7 +401,7 @@ class QuotationController extends Controller{
 		return DB::Select($sql);
 	}
 	public function getQuotes($data=array()){
-		$sql ="SELECT Q.QID, Q.EnqID, Q.QNo, Q.QDate, Q.QExpiryDate, Q.CustomerID, C.CustomerName, C.MobileNo1, C.MobileNo2, C.Email, C.Address as BAddress, C.CountryID as BCountryID, BC.CountryName as BCountryName, ";
+		$sql ="SELECT Q.QID, Q.EnqID, Q.QNo, Q.QDate, Q.QExpiryDate, Q.CustomerID, Q.AID, C.CustomerName, C.MobileNo1, C.MobileNo2, C.Email, C.Address as BAddress, C.CountryID as BCountryID, BC.CountryName as BCountryName, ";
 		$sql.=" C.StateID as BStateID, BS.StateName as BStateName, C.DistrictID as BDistrictID, BD.DistrictName as BDistrictName, C.TalukID, BT.TalukName as BTalukName, C.CityID as BCityID, BCI.CityName as BCityName, C.PostalCodeID as BPostalCodeID, ";
 		$sql.=" BPC.PostalCode as BPostalCode, BC.PhoneCode, Q.ReceiverName, Q.ReceiverMobNo, Q.DAddress, Q.DCountryID, CO.CountryName as DCountryName, Q.DStateID, S.StateName as DStateName, Q.DDistrictID, D.DistrictName as DDistrictName, Q.DTalukID, ";
 		$sql.=" T.TalukName as DTalukName, Q.DCityID, CI.CityName as DCityName, Q.DPostalCodeID, PC.PostalCode as DPostalCode, Q.TaxAmount, Q.SubTotal, Q.DiscountType, Q.DiscountPercent as DiscountPercentage, Q.DiscountAmount, Q.CGSTAmount, ";
@@ -407,7 +412,7 @@ class QuotationController extends Controller{
 		$sql.=" LEFT JOIN ".$this->generalDB."tbl_postalcodes as BPC ON BPC.PID=C.PostalCodeID LEFT JOIN ".$this->generalDB."tbl_countries as CO ON CO.CountryID=Q.DCountryID  ";
 		$sql.=" LEFT JOIN ".$this->generalDB."tbl_states as S ON S.StateID=Q.DStateID LEFT JOIN ".$this->generalDB."tbl_districts as D ON D.DistrictID=Q.DDistrictID ";
 		$sql.=" LEFT JOIN ".$this->generalDB."tbl_taluks as T ON T.TalukID=Q.DTalukID LEFT JOIN ".$this->generalDB."tbl_cities as CI ON CI.CityID=Q.DCityID ";
-		$sql.=" LEFT JOIN ".$this->generalDB."tbl_postalcodes as PC ON PC.PID=Q.DPostalCodeID LEFT JOIN tbl_reject_reason as RR ON RR.RReasonID=Q.RReasonID "; 
+		$sql.=" LEFT JOIN ".$this->generalDB."tbl_postalcodes as PC ON PC.PID=Q.DPostalCodeID LEFT JOIN tbl_reject_reason as RR ON RR.RReasonID=Q.RReasonID ";
 		$sql.=" Where 1=1 ";
 		if(is_array($data)){
 			if(array_key_exists("QID",$data)){$sql.=" AND Q.QID='".$data['QID']."'";}
@@ -430,17 +435,32 @@ class QuotationController extends Controller{
 	}
 	public function TableView(Request $request){
 		if($this->general->isCrudAllow($this->CRUD,"view")==true){
+			
 			$columns = array(
+				array( 'db' => 'Q.QNo', 'dt' => '0' ),
+				array( 'db' => 'Q.QDate', 'dt' => '1' ),
+				array( 'db' => 'C.CustomerName', 'dt' => '2' ),
+				array( 'db' => 'C.MobileNo1', 'dt' => '3' ),
+				array( 'db' => 'C.Email', 'dt' => '4' ),
+				array( 'db' => 'Q.QExpiryDate', 'dt' => '5' ),
+				array( 'db' => 'Q.Status', 'dt' => '6' ),
+				array( 'db' => 'Q.QID', 'dt' => '7' ),
+				array( 'db' => 'CO.PhoneCode', 'dt' => '8' ),
+			);
+			$columns1 = array(
 				array( 'db' => 'QNo', 'dt' => '0' ),
-				array( 'db' => 'QDate', 'dt' => '1','formatter' => function( $d, $row ) {return date($this->Settings['date-format'],strtotime($d));}),
-				array( 'db' => 'ReceiverName', 'dt' => '2' ),
-				array( 'db' => 'ReceiverMobNo', 'dt' => '3' ),
-				array( 'db' => 'QExpiryDate', 'dt' => '4','formatter' => function( $d, $row ) {return date($this->Settings['date-format'],strtotime($d));}),
-				array( 'db' => 'CustomerID', 'dt' => '5',
-					'formatter' => function( $d, $row ) {
-						return DB::table('tbl_customer')->where('CustomerID',$d)->value('Email');
+				array( 'db' => 'QDate', 'dt' => '1','formatter' => function( $d, $row ) { return date($this->Settings['date-format'],strtotime($d));} ),
+				array( 'db' => 'CustomerName', 'dt' => '2' ),
+				array( 
+					'db' => 'MobileNo1', 
+					'dt' => '3' ,
+					'formatter' => function( $d, $row ) { 
+						$phoneCode=$row['PhoneCode']!=""?"+".$row['PhoneCode']:"";
+						return $phoneCode." ".$d;
 					}
 				),
+				array( 'db' => 'Email', 'dt' => '4' ),
+				array( 'db' => 'QExpiryDate', 'dt' => '5' ,'formatter' => function( $d, $row ) {return date($this->Settings['date-format'],strtotime($d));}),
 				array( 'db' => 'Status','dt' => '6',
 					'formatter' => function( $d, $row ) {
 						$html = "";
@@ -472,7 +492,8 @@ class QuotationController extends Controller{
 							}
 							return $html;
 						}
-				)
+					),
+				array( 'db' => 'PhoneCode', 'dt' => '8' ),
 			);
 			$Where=" 1=1 ";
 			if($request->status){
@@ -495,10 +516,10 @@ class QuotationController extends Controller{
 			}
 			$data=array();
 			$data['POSTDATA']=$request;
-			$data['TABLE']=$this->CurrFYDB . 'tbl_quotation';
-			$data['PRIMARYKEY']='QID';
+			$data['TABLE']=$this->CurrFYDB . 'tbl_quotation as Q  LEFT JOIN tbl_customer as C ON C.CustomerID = Q.CustomerID LEFT JOIN '.$this->generalDB.'tbl_countries as CO On CO.CountryID=C.CountryID';
+			$data['PRIMARYKEY']='Q.QID';
 			$data['COLUMNS']=$columns;
-			$data['COLUMNS1']=$columns;
+			$data['COLUMNS1']=$columns1;
 			$data['GROUPBY']=null;
 			$data['WHERERESULT']=null;
 			$data['WHEREALL']=$Where;

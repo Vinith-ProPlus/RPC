@@ -162,6 +162,7 @@ class CustomerAuthController extends Controller{
                 "DistrictID"=>$req->DistrictID,
                 "StateID"=>$req->StateID,
                 "CountryID"=>$req->CountryID,
+                "CreatedBy"=>$CustomerID,
                 "CreatedOn"=>date("Y-m-d H:i:s")
             );
             // return $data;
@@ -488,31 +489,37 @@ class CustomerAuthController extends Controller{
 
     public function CustomerData(request $req){
         $CustomerID = $this->ReferID;
-        $CustomerData = DB::Table('tbl_customer as CU')
-        ->leftJoin($this->generalDB.'tbl_postalcodes as P','P.PID','CU.PostalCodeID')
-        ->where('CU.ActiveStatus','Active')->where('CU.CustomerID',$CustomerID)->where('CU.DFlag',0)
-        ->select('CustomerID','CustomerName','DOB','MobileNo1','Email','CustomerImage','CusTypeID','ConTypeIDs','GenderID','Address','CityID','TalukID','CU.DistrictID','CU.StateID','CU.CountryID','PostalCodeID','P.PostalCode')
+        $CustomerData = DB::Table('tbl_customer as CU')->leftJoin($this->generalDB.'tbl_postalcodes as P','P.PID','CU.PostalCodeID')->where('CU.CustomerID',$CustomerID)
+        ->select('CustomerID','CustomerName','DOB','MobileNo1','Email','CustomerImage','CusTypeID','ConTypeIDs','GenderID','Address','CityID','TalukID','CU.DistrictID','CU.StateID','CU.CountryID','PostalCodeID','P.PostalCode','CU.DFlag','CU.ActiveStatus')
         ->first();
-        $CustomerImagePath = $CustomerData->CustomerImage;
-        $CustomerImageURL = file_exists($CustomerImagePath) ? url('/') . '/' . $CustomerData->CustomerImage : url('/') . '/assets/images/no-image-b.png';
-        $CustomerData->CustomerImage = $CustomerImageURL;
-        $CustomerData->ProfileCompletePercent = 0;
-        $CustomerData->ConTypeIDs = unserialize($CustomerData->ConTypeIDs);
-        $CustomerData->SAddress = DB::table('tbl_customer_address as CA')->where('CustomerID',$CustomerID)->where('isDefault',1)
-        ->leftJoin($this->generalDB.'tbl_postalcodes as PC', 'PC.PID', 'CA.PostalCodeID')
-        ->leftJoin($this->generalDB.'tbl_cities as CI', 'CI.CityID', 'CA.CityID')
-        ->leftJoin($this->generalDB.'tbl_taluks as T', 'T.TalukID', 'CA.TalukID')
-        ->leftJoin($this->generalDB.'tbl_districts as D', 'D.DistrictID', 'PC.DistrictID')
-        ->leftJoin($this->generalDB.'tbl_states as S', 'S.StateID', 'D.StateID')
-        ->leftJoin($this->generalDB.'tbl_countries as C','C.CountryID','S.CountryID')
-        ->orderBy('CA.CreatedOn','desc')
-        ->select('CA.AID', 'CA.Address', 'CA.isDefault', 'CA.CountryID', 'C.CountryName', 'CA.StateID', 'S.StateName', 'CA.DistrictID', 'D.DistrictName', 'CA.TalukID', 'T.TalukName', 'CA.CityID', 'CI.CityName', 'CA.PostalCodeID', 'PC.PostalCode','CA.Latitude', 'CA.Longitude','CA.CompleteAddress','CA.AddressType')
-        ->first();
-        $return = [
-			'status' => true,
-			'data' => $CustomerData,
-		];
-        return response()->json($return);
+        if(!$CustomerData){
+            return response()->json(['status' => false,'message' => "No Customers Found! Contact Admin"]);
+        }elseif($CustomerData->DFlag == 1){
+            return response()->json(['status' => false,'message' => "Customer has been Deleted! Contact Admin"]);
+        }elseif($CustomerData->ActiveStatus =='Inactive'){
+            return response()->json(['status' => false,'message' => "You are currently inactive! Contact Admin"]);
+        }else{
+            $CustomerImagePath = $CustomerData->CustomerImage;
+            $CustomerImageURL = file_exists($CustomerImagePath) ? url('/') . '/' . $CustomerData->CustomerImage : url('/') . '/assets/images/no-image-b.png';
+            $CustomerData->CustomerImage = $CustomerImageURL;
+            $CustomerData->ProfileCompletePercent = 0;
+            $CustomerData->ConTypeIDs = unserialize($CustomerData->ConTypeIDs);
+            $CustomerData->SAddress = DB::table('tbl_customer_address as CA')->where('CustomerID',$CustomerID)->where('isDefault',1)
+            ->leftJoin($this->generalDB.'tbl_postalcodes as PC', 'PC.PID', 'CA.PostalCodeID')
+            ->leftJoin($this->generalDB.'tbl_cities as CI', 'CI.CityID', 'CA.CityID')
+            ->leftJoin($this->generalDB.'tbl_taluks as T', 'T.TalukID', 'CA.TalukID')
+            ->leftJoin($this->generalDB.'tbl_districts as D', 'D.DistrictID', 'PC.DistrictID')
+            ->leftJoin($this->generalDB.'tbl_states as S', 'S.StateID', 'D.StateID')
+            ->leftJoin($this->generalDB.'tbl_countries as C','C.CountryID','S.CountryID')
+            ->orderBy('CA.CreatedOn','desc')
+            ->select('CA.AID', 'CA.Address', 'CA.isDefault', 'CA.CountryID', 'C.CountryName', 'CA.StateID', 'S.StateName', 'CA.DistrictID', 'D.DistrictName', 'CA.TalukID', 'T.TalukName', 'CA.CityID', 'CI.CityName', 'CA.PostalCodeID', 'PC.PostalCode','CA.Latitude', 'CA.Longitude','CA.CompleteAddress','CA.AddressType')
+            ->first();
+            return response()->json([
+                'status' => true,
+                'data' => $CustomerData,
+            ]);
+        }
+
 	}
 
     public function getConstructionType(request $req){

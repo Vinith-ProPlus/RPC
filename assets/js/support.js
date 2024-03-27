@@ -13,8 +13,8 @@ $(document).ready(function(){
             $('#txtMShortName-err').html('Short Name is required');status=false;
         }else if(ShortName.length<2){
             $('#txtMShortName-err').html('Short Name must be atleast 2 characters');status=false;
-        }else if(ShortName.length>6){
-            $('#txtMShortName-err').html('Short Name may not be greater than 6 characters');status=false;
+        }else if(ShortName.length>3){
+            $('#txtMShortName-err').html('Short Name may not be greater than 3 characters');status=false;
         }
         if(CountryName==""){
             $('#txtMCountryName-err').html('Country Name is required');status=false;

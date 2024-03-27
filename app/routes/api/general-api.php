@@ -34,5 +34,6 @@ Route::controller(GeneralAPIController::class)->group(function () {
     Route::post('/get/banner-images','getBannerImages');
     
     Route::post('/get/co-ordinates','getCoordinates');
+    Route::post('/get/distance','calculateDistance');
 
 });

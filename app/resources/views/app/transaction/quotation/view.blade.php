@@ -64,8 +64,8 @@
                                         <th class="text-center">Quote Date</th>
 										<th class="text-center">Customer Name</th>
                                         <th class="text-center">Contact Number</th>
-                                        <th class="text-center">Expected Delivery</th>
                                         <th class="text-center">Email</th>
+                                        <th class="text-center">Expected Delivery</th>
                                         <th class="text-center">Status</th>
                                         <th class="text-center noExport">action</th>
                                     </tr>

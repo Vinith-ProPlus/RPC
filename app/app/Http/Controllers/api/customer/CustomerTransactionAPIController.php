@@ -30,7 +30,7 @@ class CustomerTransactionAPIController extends Controller{
     public function __construct(){
 		$this->generalDB=Helper::getGeneralDB();
         $this->logDB=Helper::getLogDB();
-		$this->currfyDB=Helper::getCurrFYDB();
+		$this->currfyDB=Helper::getcurrfyDB();
 		$this->tmpDB=Helper::getTmpDB();
 		$this->FileTypes=Helper::getFileTypes(array("category"=>array("Images","Documents")));
         $this->middleware('auth:api');
@@ -123,6 +123,9 @@ class CustomerTransactionAPIController extends Controller{
         }
         if($status==true){
             DB::commit();
+            $Title = "Quotation Received";
+            $Message = "Your quotation has been received. Admin will verify your quotation and get back to you shortly.";
+            Helper::saveNotification($CustomerID,$Title,$Message,'Quotation',$EnqID);
             DocNum::updateInvNo("Quote-Enquiry");
             DB::table('tbl_customer_cart')->where('CustomerID',$CustomerID)->delete();
             return response()->json(['status' => true,'message' => "Order Placed Successfully"]);
@@ -227,12 +230,14 @@ class CustomerTransactionAPIController extends Controller{
                 $OrderID = DocNum::getDocNum(docTypes::Order->value, $this->currfyDB,Helper::getCurrentFy());
                 $data=[
                     'OrderID' => $OrderID,
-                    'QID' => $req->QID,
                     'OrderNo' =>DocNum::getInvNo(docTypes::Order->value),
                     'OrderDate' => date('Y-m-d'),
+                    'QID' => $req->QID,
+                    'EnqID' => $AcceptedQData[0]->EnqID,
                     'CustomerID' => $AcceptedQData[0]->CustomerID,
                     'ReceiverName' => $AcceptedQData[0]->ReceiverName,
                     'ReceiverMobNo' => $AcceptedQData[0]->ReceiverMobNo,
+                    'AID' => $AcceptedQData[0]->AID,
                     'DAddress' => $AcceptedQData[0]->DAddress,
                     'DCountryID' => $AcceptedQData[0]->DCountryID,
                     'DStateID' => $AcceptedQData[0]->DStateID,
@@ -243,15 +248,18 @@ class CustomerTransactionAPIController extends Controller{
                     'TaxAmount' => $AcceptedQData[0]->TaxAmount,
                     'SubTotal' => $AcceptedQData[0]->SubTotal,
                     'DiscountType' => $AcceptedQData[0]->DiscountType,
-                    'DiscountPercent' => $AcceptedQData[0]->DiscountPercent,
+                    'DiscountPercentage' => $AcceptedQData[0]->DiscountPercent,
                     'DiscountAmount' => $AcceptedQData[0]->DiscountAmount,
                     'CGSTAmount' => $AcceptedQData[0]->CGSTAmount,
                     'SGSTAmount' => $AcceptedQData[0]->SGSTAmount,
                     'IGSTAmount' => $AcceptedQData[0]->IGSTAmount,
                     'TotalAmount' => $AcceptedQData[0]->TotalAmount,
-                    'OverAllAmount' => $AcceptedQData[0]->OverAllAmount,
                     'AdditionalCost' => $AcceptedQData[0]->AdditionalCost,
+                    'NetAmount' => $AcceptedQData[0]->OverAllAmount,
                     'AdditionalCostData' => $AcceptedQData[0]->AdditionalCostData,
+                    "PaidAmount"=>0,
+                    "BalanceAmount"=>$AcceptedQData[0]->OverAllAmount,
+                    "PaymentStatus"=>"Unpaid",
                     'CreatedOn' => date('Y-m-d'),
                     'CreatedBy' => $CustomerID,
                 ];
@@ -262,10 +270,11 @@ class CustomerTransactionAPIController extends Controller{
                         $data1=[
                             'DetailID' => $OrderDetailID,
                             'OrderID'=>$OrderID,
+                            'QID' => $req->QID,
+                            "QDID"=>$item->DetailID,
                             'ProductID'=>$item->ProductID,
                             'Qty'=>$item->Qty,
                             'Price'=>$item->Price,
-                            'VendorID' => $item->VendorID,
                             'TaxType'=>$item->TaxType,
                             'TaxPer'=>$item->TaxPer,
                             'Taxable'=>$item->Taxable,
@@ -280,6 +289,7 @@ class CustomerTransactionAPIController extends Controller{
                             'SGSTAmt'=>$item->SGSTAmt,
                             'IGSTAmt'=>$item->IGSTAmt,
                             'TotalAmt'=>$item->TotalAmt,
+                            'VendorID' => $item->VendorID,
                             'CreatedOn'=>date('Y-m-d'),
                             'CreatedBy' => $CustomerID,
                         ];
@@ -289,12 +299,77 @@ class CustomerTransactionAPIController extends Controller{
                         }
                     }
                 }
+
+                //save orders to vendors;
+                $sql="SELECT OrderID,QID,VendorID,Sum(Taxable) as SubTotal,Sum(TaxAmt) as TaxAmount, Sum(CGSTAmt) as CGSTAmount, Sum(SGSTAmt) as SGSTAmount, Sum(IGSTAmt) as IGSTAmount, Sum(TotalAmt) as TotalAmount  FROM ".$this->currfyDB."tbl_order_details Where OrderID='".$OrderID."' Group By OrderID,QID,VendorID";
+                $result=DB::SELECT($sql);
+                foreach($result as $item){
+                    if($status){
+                        $sql="SELECT AdditionalCost FROM ".$this->currfyDB."tbl_vendor_quotation Where VendorID='".$item->VendorID."' and EnqID in(Select EnqID From ".$this->currfyDB."tbl_quotation Where QID='".$item->QID."')";
+                        $tmp=DB::SELECT($sql);
+                        $additionalCharges=0;
+                        foreach($tmp as $t){
+                            $additionalCharges+=floatval($t->AdditionalCost);
+                        }
+                        $VOrderID=DocNum::getDocNum(docTypes::VendorOrders->value, $this->currfyDB,Helper::getCurrentFy());
+                        $VOrderNo=DocNum::getInvNo(docTypes::VendorOrders->value);
+                        $tdata=[
+                            "VOrderID"=>$VOrderID,
+                            "OrderID"=>$OrderID,
+                            "OrderNo"=>$VOrderNo,
+                            "OrderDate"=>date("Y-m-d"),
+                            "ExpectedDelivery"=>date("Y-m-d",strtotime($req->ExpectedDelivery)),
+                            "QID"=>$req->QID,
+                            "CustomerID"=>$AcceptedQData[0]->CustomerID,
+                            "AID"=>$AcceptedQData[0]->AID,
+                            "VendorID"=>$item->VendorID,
+                            "ReceiverName"=>$AcceptedQData[0]->ReceiverName,
+                            "ReceiverMobNo"=>$AcceptedQData[0]->ReceiverMobNo,
+                            "DAddress"=>$AcceptedQData[0]->DAddress,
+                            "DCountryID"=>$AcceptedQData[0]->DCountryID,
+                            "DStateID"=>$AcceptedQData[0]->DStateID,
+                            "DDistrictID"=>$AcceptedQData[0]->DDistrictID,
+                            "DTalukID"=>$AcceptedQData[0]->DTalukID,
+                            "DCityID"=>$AcceptedQData[0]->DCityID,
+                            "DPostalCodeID"=>$AcceptedQData[0]->DPostalCodeID,
+                            "Status"=>"New",
+                            "TaxAmount"=>$item->TaxAmount,
+                            "SubTotal"=>$item->SubTotal,
+                            "DiscountType"=>"",
+                            "DiscountPercentage"=>0,
+                            "DiscountAmount"=>0,
+                            "CGSTAmount"=>$item->CGSTAmount,
+                            "SGSTAmount"=>$item->SGSTAmount,
+                            "IGSTAmount"=>$item->IGSTAmount,
+                            "TotalAmount"=>$item->TotalAmount,
+                            "AdditionalCost"=>$additionalCharges,
+                            "NetAmount"=>($item->TotalAmount+$additionalCharges),
+                            "PaidAmount"=>0,
+                            "BalanceAmount"=>($item->TotalAmount+$additionalCharges),
+                            "PaymentStatus"=>"Unpaid",
+                            "AdditionalCostData"=> serialize([]),
+                            "CreatedOn"=>now(),
+                            "CreatedBy"=>$CustomerID
+                        ];
+                        $status=DB::table($this->currfyDB.'tbl_vendor_orders')->insert($tdata);
+                        if($status){
+                            DocNum::updateDocNum(docTypes::VendorOrders->value, $this->currfyDB);
+                            DocNum::updateInvNo(docTypes::VendorOrders->value);
+                            $Title = "New Order Arrived. Order No ".$VOrderNo;
+                            $Message = "You have a new order! Check now for details and fulfill it promptly.";
+                            Helper::saveNotification($item->VendorID,$Title,$Message,'Orders',$VOrderID);
+                            $status=DB::table($this->currfyDB.'tbl_order_details')->where('VendorID',$item->VendorID)->where('QID',$item->QID)->update(["VOrderID"=>$VOrderID,"UpdatedOn"=>now(),"updatedBy"=>$this->UserID]);
+                        }
+                    }
+                }
+
             }else{
                 return response()->json(['status' => false,'message' => "Quote already converted to Order!"]);
+                $status = false;
             }
             if($status){
-                $status = DB::Table($this->currfyDB.'tbl_quotation')->where('QID',$req->QID)->update(['Status'=>'Accepted','AcceptedOn'=>date('Y-m-d'),'UpdatedOn'=>date('Y-m-d H:i:s')]);
-                $status = DB::Table($this->currfyDB.'tbl_enquiry')->where('EnqID',$req->EnqID)->update(['Status'=>'Accepted','UpdatedOn'=>date('Y-m-d H:i:s')]);
+                $status = DB::Table($this->currfyDB.'tbl_quotation')->where('QID',$req->QID)->update(['Status'=>'Accepted','AcceptedOn'=>date('Y-m-d'),'UpdatedOn'=>date('Y-m-d H:i:s'),"UpdatedBy"=>$CustomerID]);
+                $status = DB::Table($this->currfyDB.'tbl_enquiry')->where('EnqID',$req->EnqID)->update(['Status'=>'Accepted','UpdatedOn'=>date('Y-m-d H:i:s'),"UpdatedBy"=>$CustomerID]);
             }
         }catch(Exception $e) {
             $status=false;

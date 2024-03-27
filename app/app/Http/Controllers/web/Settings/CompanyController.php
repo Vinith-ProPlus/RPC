@@ -65,7 +65,7 @@ class CompanyController extends Controller{
 			$FormData['EditData']=DB::Table('tbl_company_settings')->get();
 			if(count($FormData['EditData'])>0){
 				$FormData['PostalCode'] = DB::table($this->generalDB.'tbl_postalcodes')->where('PID', $FormData['EditData'][6]->KeyValue)->value('PostalCode');
-				return view('settings.company.company',$FormData);
+				return view('app.settings.company.company',$FormData);
 			}else{
 				return view('errors.403');
 			}
