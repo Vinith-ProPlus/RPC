@@ -141,6 +141,8 @@ $(document).ready(function(){
                         $('#txtADPostalCode').val(postalCode);
                         $('#btnADPostalCode').click();
                     } else {
+                        var lat = results[0].geometry.location.lat();
+                        var lng = results[0].geometry.location.lng();
                         $.ajax({
                             url: "http://api.geonames.org/findNearbyPostalCodesJSON?lat="+lat+"&lng="+lng+"&username={{ config('app.geo_names_user_name') }}",
                             method: 'GET',

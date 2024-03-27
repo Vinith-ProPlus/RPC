@@ -3,7 +3,7 @@
 
 <div class="container-fluid">
 	<div class="row d-flex justify-content-center">
-		<div class="col-sm-9">
+		<div class="col-sm-9 mt-3">
 			<div class="card">
 				<div class="card-header text-center"><h4 class="m-0">@if($isEdit) Profile @else Registration Form @endif</h4></div>
 				<div class="card-body " >
@@ -53,15 +53,40 @@
                                         <span class="errors Customer err-sm" id="txtMobileNo2-err"></span>
                                     </div>
                                 </div>
-                                {{-- <div class="col-sm-6 mt-20">
+                                <div class="col-sm-6 mt-20">
+                                    <div class="form-group">
+                                        <label for="lstGender">Gender <span class="required">*</span></label>
+                                        <select class="form-control" id="lstGender" data-selected="{{ $isEdit ? $EditData->GenderID : '' }}">
+                                            <option value="">Select Gender</option>
+                                        </select>
+                                        <span class="errors Customer err-sm" id="lstGender-err"></span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6 mt-20">
+                                    <div class="form-group">
+                                        <label for="txtDOB">DOB <span class="required">*</span></label>
+                                        <input type="date" id="txtDOB" class="form-control " placeholder="Select DOB" value="{{ $isEdit ? ($EditData->DOB ?? '') : '' }}">
+                                        <span class="errors Customer err-sm" id="txtDOB-err"></span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6 mt-20">
                                     <div class="form-group">
                                         <label for="lstCusType">Customer Type <span class="required">*</span></label>
-                                        <select class="form-control" id="lstCusType" data-selected="">
+                                        <select class="form-control" id="lstCusType" data-selected="{{ $isEdit ? ($EditData->CusTypeID ?? '') : '' }}">
                                             <option value="">Select a Customer Type</option>
                                         </select>
                                         <span class="errors Customer err-sm" id="lstCusType-err"></span>
                                     </div>
-                                </div> --}}
+                                </div>
+                                <div class="col-sm-6 mt-20">
+                                    <div class="form-group">
+                                        <label for="lstConTypeIDs">Construction Type <span class="required">*</span></label>
+                                        <select class="form-control" id="lstConTypeIDs" data-selected="{{ $isEdit ? ($EditData->ConTypeIDs ?? '') : '' }}">
+                                            <option value="">Select a Construction Type</option>
+                                        </select>
+                                        <span class="errors Customer err-sm" id="lstConTypeIDs-err"></span>
+                                    </div>
+                                </div>
                                 <div class="col-sm-12 mt-20">
                                     <label for="txtAddress">Billing Address <span class="required">*</span></label>
                                     <textarea  id="txtAddress" class="form-control">@if($isEdit){{$EditData->Address}}@endif</textarea>
@@ -148,9 +173,9 @@
                                                             {{ $item->DistrictName }}, {{ $item->StateName }},<br>
                                                             {{ $item->CountryName }} - {{ $item->PostalCode }}.
                                                         </td>
-                                                        <td class="text-center">
-                                                            <button type="button" class="btn btn-sm btn-outline-success m-5 btnEditSAddress"><i class="fas fa-pencil-alt"></i></button>
-                                                            <button type="button" class="btn btn-sm btn-outline-danger m-5 btnDeleteSAddress"><i class="fas fa-trash-alt"></i></button>
+                                                        <td class="text-center align-middle">
+                                                            <button type="button" class="btn btn-sm btn-outline-success m-2 btnEditSAddress"><i class="fas fa-pencil-alt"></i></button>
+                                                            <button type="button" class="btn btn-sm btn-outline-danger m-2 btnDeleteSAddress"><i class="fas fa-trash-alt"></i></button>
                                                         </td>
                                                         <td class="d-none">{{ json_encode($item) }}</td>
                                                     </tr>
@@ -338,7 +363,10 @@
 <!-- Image Crop Script End -->
 <script>
     $(document).ready(function(){
-
+        $('#lstConTypeIDs').select2({
+            multiple: true,
+            placeholder: 'Select a Construction Type'
+        });
         const ajaxIndicatorStart =async(text="") =>{
             var basepath=$('#txtRootUrl').val();
             if ($('body').find('#resultLoading').attr('id') != 'resultLoading') {
@@ -461,6 +489,10 @@
             let MobileNo1=$('#txtMobileNo1').val();
             let MobileNo2=$('#txtMobileNo2').val();
             let Email=$('#txtEmail').val();
+            let Gender=$('#lstGender').val();
+            let DOB=$('#txtDOB').val();
+            let CusType=$('#lstCusType').val();
+            let ConType=$('#lstConTypeIDs').val();
             let Address=$('#txtAddress').val();
             let PostalCode=$('#lstCity option:selected').attr('data-postal');
             let CityID=$('#lstCity').val();
@@ -484,7 +516,18 @@
             if (MobileNo2.length > 0 && !mobilePattern.test(MobileNo2)){
                 $("#txtMobileNo2-err").html("Alternate Mobile Number must be 10 digit");status=false;
             }
-
+            if(Gender === ""){
+                $('#lstGender-err').html('Gender is required.');status=false;
+            }
+            if(DOB === ""){
+                $('#txtDOB-err').html('DOB is required.');status=false;
+            }
+            if(CusType === ""){
+                $('#lstCusType-err').html('Customer type is required.');status=false;
+            }
+            if(ConType.length === 0){
+                $('#lstConTypeIDs-err').html('Construction type is required.');status=false;
+            }
             if(!PostalCode){
                 $('#txtPostalCode-err').html('Postal Code is required.');status=false;isAddress=true;
             }
@@ -616,7 +659,7 @@
                 cache: false,
                 processData: false,
                 contentType: false,
-                error: function (e, x, settings, exception) { ajax_errors(e, x, settings, exception); },
+                error: function (e, x, settings, exception) { ajaxErrors(e, x, settings, exception); },
                 complete: function (e, x, settings, exception) { btnReset($('#btSave')); ajaxIndicatorStop(); $("html, body").animate({ scrollTop: 0 }, "slow"); },
                 success: function (response) {
                     if (response.status == true) {
@@ -661,8 +704,8 @@
                                     ${formData.CountryName} - ${formData.PostalCode}.
                                 </td>
                                 <td class="text-center">
-                                    <button type="button" class="btn btn-sm btn-outline-success m-5 btnEditSAddress"><i class="fas fa-pencil-alt"></i></button>
-                                    <button type="button" class="btn btn-sm btn-outline-danger m-5 btnDeleteSAddress"><i class="fas fa-trash-alt"></i></button>
+                                    <button type="button" class="btn btn-sm btn-outline-success m-2 btnEditSAddress"><i class="fas fa-pencil-alt"></i></button>
+                                    <button type="button" class="btn btn-sm btn-outline-danger m-2 btnDeleteSAddress"><i class="fas fa-trash-alt"></i></button>
                                 </td>
                                 <td class="d-none">${JSON.stringify(formData)}</td>
                             </tr>`;
@@ -752,6 +795,10 @@
                 formData.append('MobileNo1',$('#txtMobileNo1').val());
                 formData.append('MobileNo2',$('#txtMobileNo2').val());
                 formData.append('Email',$('#txtEmail').val());
+                formData.append('GenderID', $('#lstGender').val());
+                formData.append('DOB', $('#txtDOB').val());
+                formData.append('CusTypeID', $('#lstCusType').val());
+                formData.append('ConTypeIDs', $('#lstConTypeIDs').val());
                 formData.append('Address',$('#txtAddress').val());
                 formData.append('PostalCodeID',$('#lstCity option:selected').attr('data-postal'));
                 formData.append('CityID',$('#lstCity').val());
@@ -916,7 +963,103 @@
                 }
             });
         }
+        const getGender=async(data,id)=>{
+            $('#'+id+' option').remove();
+            $('#'+id).append('<option value="">Select a Gender</option>');
+            $.ajax({
+                type:"post",
+                url:"{{ route('getGender') }}",
+                headers: { 'X-CSRF-Token' : '{{ csrf_token() }}' },
+                data:data,
+                dataType:"json",
+                async:true,
+                error:function(e, x, settings, exception){ajaxErrors(e, x, settings, exception);},
+                complete: function(e, x, settings, exception){},
+                success:function(response){
+                    for (let Item of response) {
+                        let selected = "";
+                        if (Item.GID  === $('#' + id).attr('data-selected')) {
+                            selected = "selected";
+                        }
+                        $('#' + id).append('<option ' + selected + ' value="' + Item.GID + '">' + Item.Gender + ' </option>');
+                    }
+                    if ($('#' + id).val() != "") {
+                        $('#' + id).trigger('change');
+                    }
+                }
+            });
+        }
+
+        const getCusType = async (data, id) => {
+            $('#' + id + ' option').remove();
+            $('#' + id).append('<option value="">Select a Customer Type</option>');
+            $.ajax({
+                type: "post",
+                url: "{{ route('getCustomerType') }}",
+                headers: {'X-CSRF-Token': '{{ csrf_token() }}'},
+                data: data,
+                dataType: "json",
+                async: true,
+                error: function (e, x, settings, exception) {
+                    ajaxErrors(e, x, settings, exception);
+                },
+                complete: function (e, x, settings, exception) {
+                },
+                success: function (response) {
+                    for (let Item of response) {
+                        let selected = "";
+                        if (Item.CusTypeID === $('#' + id).attr('data-selected')) {
+                            selected = "selected";
+                        }
+                        $('#' + id).append('<option ' + selected + ' value="' + Item.CusTypeID + '">' + Item.CusTypeName + ' </option>');
+                    }
+                    if ($('#' + id).val() != "") {
+                        $('#' + id).trigger('change');
+                    }
+                }
+            });
+        }
+
+        const getConType = async (data, id) => {
+            $('#'+id).select2('destroy');
+            $('#' + id + ' option').remove();
+            $.ajax({
+                type: "post",
+                url: "{{ route('getConstructionType') }}",
+                headers: {'X-CSRF-Token': '{{ csrf_token() }}'},
+                data: data,
+                dataType: "json",
+                async: true,
+                error: function (e, x, settings, exception) {
+                    ajaxErrors(e, x, settings, exception);
+                },
+                complete: function (e, x, settings, exception) {
+                },
+                success: function (response) {
+                    for (let Item of response.data) {
+                        var selectedValues = $('#' + id).attr('data-selected');
+                        var selectedValuesArray = selectedValues.split(',');
+                        if (selectedValuesArray.includes(Item.ConTypeID)) {
+                            $('#' + id).append('<option selected value="' + Item.ConTypeID + '">' + Item.ConTypeName + ' </option>');
+                        } else {
+                            $('#' + id).append('<option value="' + Item.ConTypeID + '">' + Item.ConTypeName + ' </option>');
+                        }
+                    }
+                    if ($('#' + id).val() != "") {
+                        $('#' + id).trigger('change');
+                    }
+                    $('#' + id).select2({
+                        multiple: true,
+                        placeholder: 'Select a Construction Type'
+                    });
+                }
+            });
+        }
+
         getCountry({},'lstCountry');
+        getGender({},'lstGender');
+        getCusType({},'lstCusType');
+        getConType({},'lstConTypeIDs');
         @if($isEdit)
         $('#btnGSearchPostalCode').trigger('click');
         @endif

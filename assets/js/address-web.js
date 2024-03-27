@@ -35,7 +35,7 @@ $(document).ready(function(){
             headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
             dataType:"json",
             async:true,
-            error:function(e, x, settings, exception){ajax_errors(e, x, settings, exception);},
+            error:function(e, x, settings, exception){ajaxErrors(e, x, settings, exception);},
             complete: function(e, x, settings, exception){},
             success:function(response){
                 $('#lstADCountry option').remove();
@@ -60,7 +60,7 @@ $(document).ready(function(){
             dataType:"json",
             data:{CountryID:$('#lstADCountry').val()},
             async:true,
-            error:function(e, x, settings, exception){ajax_errors(e, x, settings, exception);},
+            error:function(e, x, settings, exception){ajaxErrors(e, x, settings, exception);},
             complete: function(e, x, settings, exception){},
             success:function(response){
                 $('#lstADState option').remove();
@@ -84,7 +84,7 @@ $(document).ready(function(){
             dataType:"json",
             data:{CountryID:$('#lstADCountry').val(),StateID:$('#lstADState').val()},
             async:true,
-            error:function(e, x, settings, exception){ajax_errors(e, x, settings, exception);},
+            error:function(e, x, settings, exception){ajaxErrors(e, x, settings, exception);},
             complete: function(e, x, settings, exception){},
             success:function(response){
                 $('#lstADDistrict option').remove();
@@ -108,7 +108,7 @@ $(document).ready(function(){
             dataType:"json",
             data:{CountryID:$('#lstADCountry').val(),StateID:$('#lstADState').val(),DistrictID:$('#lstADDistrict').val()},
             async:true,
-            error:function(e, x, settings, exception){ajax_errors(e, x, settings, exception);},
+            error:function(e, x, settings, exception){ajaxErrors(e, x, settings, exception);},
             complete: function(e, x, settings, exception){},
             success:function(response){
                 $('#lstADTaluk option').remove();
