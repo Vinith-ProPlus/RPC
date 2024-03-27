@@ -38,6 +38,7 @@ return [
 
     'env' => env('APP_ENV', 'production'),
     'map_api_key' => env('GOOGLE_MAPS_API_KEY', ''),
+    'geo_names_user_name' => env('GEO_NAMES_USER_NAME', ''),
 
     /*
     |--------------------------------------------------------------------------

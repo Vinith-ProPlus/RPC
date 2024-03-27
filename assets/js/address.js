@@ -143,7 +143,7 @@ $(document).ready(function(){
     const getAddressModal=(data={})=>{
         $.ajax({
             type:"post",
-            url:RootUrl+"address-form",
+            url:RootUrl+"shipping-address-form",
             data:{"data":JSON.stringify(data)},
             headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
             dataType:"html",

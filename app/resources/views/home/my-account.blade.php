@@ -1902,6 +1902,97 @@
     <script>
         $(document).ready(function(){
 
+
+            const ajaxErrors=async(e, x, settings, exception)=> {
+                let isSwal=false;let isToastr=false;
+                try {
+                    if(window.swal != undefined) {isSwal=true;}
+                }
+                catch(err) {
+                    console.log("toastr is missing");
+                }
+                try {
+                    if(window.toastr != undefined) {isToastr=true;}
+                }
+                catch(err) {
+                    console.log("toastr is missing");
+                }
+                if ((e.status != 200) && (e.status != undefined)) {
+                    var message="";
+                    var statusErrorMap = {
+                        '400': "Server understood the request, but request content was invalid.",
+                        '401': "Unauthorized access.",
+                        '403': "Forbidden resource can't be accessed.",
+                        '404': "Sorry! Page Not Found",
+                        '405': "Sorry! Method not Allowed",
+                        '419': "Sorry! Page session has been expired",
+                        '500': "Internal server error.",
+                        '503': "Service unavailable."
+                    };
+                    if (e.status) {
+                        message = statusErrorMap[e.status];
+                    } else if (x == 'timeout') {
+                        message = "Request Time out.";
+                    } else if (x == 'abort') {
+                        //message = "Request was aborted by the server";
+                    }
+                    console.log(isToastr)
+                    if ((message != "")&&(message!=undefined)) {
+                        if(isToastr==true){
+                            toastr.error(message, "Failed", {
+                                positionClass: "toast-top-right",
+                                containerId: "toast-top-right",
+                                showMethod: "slideDown",
+                                hideMethod: "slideUp",
+                                progressBar: !0
+                            })
+                        }else if(isSwal==true){
+                            swal("Error", message, "error");
+                        }
+                        if(e.status==419){
+                            setTimeout(async()=>{
+                                window.location.reload();
+                            },100)
+                        }
+                    }
+                } else if (x == 'parsererror') {
+                    if(isToastr==true){
+                        toastr.error("Parsing JSON Request failed.", "Failed", {
+                            positionClass: "toast-top-right",
+                            containerId: "toast-top-right",
+                            showMethod: "slideDown",
+                            hideMethod: "slideUp",
+                            progressBar: !0
+                        })
+                    }else if(isSwal==true){
+                        swal("Error", "Parsing JSON Request failed.", "error");
+                    }
+                } else if (x == 'timeout') {
+                    if(isToastr==true){
+                        toastr.error("Request Time out.", "Failed", {
+                            positionClass: "toast-top-right",
+                            containerId: "toast-top-right",
+                            showMethod: "slideDown",
+                            hideMethod: "slideUp",
+                            progressBar: !0
+                        })
+                    }else if(isSwal==true){
+                        swal("Error", "Request Time out.", "error");
+                    }
+                } else if (x == 'abort') {
+                    if(isToastr==true){
+                        toastr.error("Request was aborted by the server", "Failed", {
+                            positionClass: "toast-top-right",
+                            containerId: "toast-top-right",
+                            showMethod: "slideDown",
+                            hideMethod: "slideUp",
+                            progressBar: !0
+                        })
+                    }else if(isSwal==true){
+                        swal("Error", "Request was aborted by the server", "error");
+                    }
+                }
+            }
             const ajaxIndicatorStart =async(text="") =>{
                 var basepath=$('#txtRootUrl').val();
                 if ($('body').find('#resultLoading').attr('id') != 'resultLoading') {
@@ -2017,72 +2108,7 @@
                 });
                 return uploadImages;
             }
-            function validateForm() {
-                $('.errors').html('');
-                let status=true;
-                let CustomerName=$('#txtCustomerName').val();
-                let MobileNo1=$('#txtMobileNo1').val();
-                let MobileNo2=$('#txtMobileNo2').val();
-                let Email=$('#txtEmail').val();
-                let Address=$('#txtAddress').val();
-                let PostalCode=$('#lstCity option:selected').attr('data-postal');
-                let CityID=$('#lstCity').val();
-                let TalukID=$('#lstTaluk').val();
-                let DistrictID=$('#lstDistricts').val();
-                let StateID=$('#lstState').val();
-                let CountryID=$('#lstCountry').val();
-                if(!CustomerName){
-                    $('#txtCustomerName-err').html('Customer Name is required');status=false;
-                }else if(CustomerName.length<2){
-                    $('#txtCustomerName-err').html('The Customer Name is must be greater than 2 characters.');status=false;
-                }else if(CustomerName.length>100){
-                    $('#txtCustomerName-err').html('The Customer Name is not greater than 100 characters.');status=false;
-                }
-                let mobilePattern = /^\d{10}$/;
-                if(!MobileNo1){
-                    $('#txtMobileNo1-err').html('Mobile Number is required.');status=false;
-                }else if (!mobilePattern.test(MobileNo1)){
-                    $("#txtMobileNo1-err").html("Mobile Number must be 10 digit");
-                }
-                if (MobileNo2.length > 0 && !mobilePattern.test(MobileNo2)){
-                    $("#txtMobileNo2-err").html("Alternate Mobile Number must be 10 digit");status=false;
-                }
 
-                if(!PostalCode){
-                    $('#txtPostalCode-err').html('Postal Code is required.');status=false;isAddress=true;
-                }
-                if(CityID==""){
-                    $('#lstCity-err').html('City is required.');status=false;isAddress=true;
-                }
-                if(TalukID==""){
-                    $('#lstTaluk-err').html('Taluk is required.');status=false;isAddress=true;
-                }
-                if(DistrictID==""){
-                    $('#lstDistricts-err').html('District is required.');status=false;isAddress=true;
-                }
-                if(StateID==""){
-                    $('#lstState-err').html('State is required.');status=false;isAddress=true;
-                }
-                if(CountryID==""){
-                    $('#lstCountry-err').html('Country is required.');status=false;isAddress=true;
-                }
-                if(Address==""){
-                    $('#txtAddress-err').html('Address is required.');status=false;
-                }else if(Address.length<10){
-                    $('#txtAddress-err').html('Address must be greater than 10 characters');status=false;isAddress=true;
-                }
-                let TotRows=$('#tblShippingAddress tbody tr').length;
-                let isSelectedDefaultShipping=$('input[type="radio"][name="SAddress"]:checked').length
-                if(TotRows<=0){
-                    $('#btnAddAddress-err').html('Shipping address is required');status=false;
-                }else if(isSelectedDefaultShipping<=0){
-                    $('#tblShippingAddress-err').html('Select a default shipping address');status=false;
-                }
-                if(status==false){$("html, body").animate({ scrollTop: 0 }, "slow");}
-
-                // return true;
-                return status;
-            }
             $(document).on('click','#btnGSearchPostalCode',async function(){
                 $('#txtPostalCode-err').html('')
                 let PostalCode=$('#txtPostalCode').val();
@@ -2138,9 +2164,7 @@
             $(document).on("change",'#lstCountry',function(){
                 getStates({CountryID:$('#lstCountry').val()},'lstState');
             });
-            $(document).on('click', '#btnSaveAddress', function () {
-                SaveAddress();
-            });
+
             $(document).on('click', '.btnEditSAddress', function () {
                 let Row=$(this).closest('tr');
                 let EditData=JSON.parse($(this).closest('tr').find("td:eq(3)").html());
@@ -2167,60 +2191,6 @@
             });
             $(document).on('click', '#btnEditImage', function () {
                 $('#txtCustomerImage').trigger('click');
-            });
-            $('#btnSave').on('click',async function () {
-                let status = await validateForm();
-                if (status) {
-                    $.magnificPopup.open({
-                        items: {
-                            src: '#confirm-modal'
-                        },
-                        type: 'inline',
-                        mainClass: 'mfp',
-                        removalDelay: 350
-                    });
-                }
-            });
-
-            $('#btnMConfirm').on('click',async function () {
-                let formData = await getData();
-                let postUrl = "{{url('/')}}/update";
-                $.ajax({
-                    type: "post",
-                    url: postUrl,
-                    headers: { 'X-CSRF-Token': $('meta[name=_token]').attr('content') },
-                    data: formData,
-                    cache: false,
-                    processData: false,
-                    contentType: false,
-                    error: function (e, x, settings, exception) { ajax_errors(e, x, settings, exception); },
-                    complete: function (e, x, settings, exception) { btnReset($('#btSave')); ajaxIndicatorStop(); $("html, body").animate({ scrollTop: 0 }, "slow"); },
-                    success: function (response) {
-                        if (response.status == true) {
-                            toastr.success("Profile saved");
-                            $('#confirm-modal .mfp-close').click();
-                            $('html, body').animate({
-                                scrollTop: $('.profilePageTitle').offset().top
-                            }, 1000);
-                            {{--                        window.location.replace("{{url('/')}}");--}}
-                        } else {
-                            $("html, body").animate({ scrollTop: 0 }, "slow");
-                            if (response['errors'] != undefined) {
-                                $('.errors').html('');
-                                $.each(response['errors'], function (KeyName, KeyValue) {
-                                    var key = KeyName;
-                                    if (key == "Email") { $('#txtEmail-err').html(KeyValue); }
-                                    if (key == "MobileNo1") { $('#txtMobileNo1-err').html(KeyValue); }
-                                    if (key == "CustomerImage") { $('#txtCustomerImage-err').html(KeyValue); }
-                                });
-                            }
-                        }
-                    }
-                });
-            });
-
-            $('#btnMCancel').on('click', function () {
-                $.magnificPopup.close();
             });
 
             const SaveReview = async () => {
@@ -2265,6 +2235,153 @@
                 }
             };
 
+
+            $(document).on('keyup change', 'input, select', function () {
+                $('.errors').html('');
+            });
+
+            const getAddressModal = (data = {}) => {
+                $.ajax({
+                    type: "post",
+                    url: "{{url('/')}}/shipping-address-form",
+                    data: {"data": JSON.stringify(data)},
+                    headers: {'X-CSRF-Token': $('meta[name=_token]').attr('content')},
+                    dataType: "html",
+                    async: true,
+                    error: function (e, x, settings, exception) {
+                    },
+                    success: async (response) => {
+                        if (response != "") {
+                            bootbox.dialog({
+                                title: "Shipping Address",
+                                closeButton: true,
+                                message: response,
+                                className: "AddressModal",
+                                buttons: {}
+                            }).on('shown.bs.modal', function() {
+                                $(this).scrollTop(0);
+                            })
+                        }
+                    }
+                });
+            }
+
+            const getReviewModal = (data = {}) => {
+                $.ajax({
+                    type: "post",
+                    url: "{{url('/')}}/review-form",
+                    data: {"data": JSON.stringify(data)},
+                    headers: {'X-CSRF-Token': $('meta[name=_token]').attr('content')},
+                    dataType: "html",
+                    async: true,
+                    error: function (e, x, settings, exception) {
+                    },
+                    success: async (response) => {
+                        if (response != "") {
+                            bootbox.dialog({
+                                title: "Review",
+                                closeButton: true,
+                                message: response,
+                                className: "ReviewModal",
+                                buttons: {}
+                            });
+                        }
+                    }
+                });
+            }
+
+            const getCity=async(data)=>{
+                return await new Promise((resolve,reject)=>{
+                    $.ajax({
+                        type:"post",
+                        url:"{{url('/')}}/get/city",
+                        headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
+                        data:data,
+                        dataType:"json",
+                        async:true,
+                        error:function(e, x, settings, exception){ajaxErrors(e, x, settings, exception);resolve([])},
+                        complete: function(e, x, settings, exception){},
+                        success:function(response){
+                            resolve(response)
+                        }
+                    });
+                });
+            }
+            const getTaluks=async(data,id)=>{
+                $('#'+id+' option').remove();
+                $('#'+id).append('<option value="">Select a Taluk</option>');
+                $.ajax({
+                    type:"post",
+                    url:"{{url('/')}}/get/taluks",
+                    headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
+                    data:data,
+                    dataType:"json",
+                    async:true,
+                    error:function(e, x, settings, exception){ajaxErrors(e, x, settings, exception);resolve([])},
+                    complete: function(e, x, settings, exception){},
+                    success:function(response){
+                        for(let Item of response){
+                            let selected="";
+                            if(Item.TalukID==$('#'+id).attr('data-selected')){selected="selected";}
+                            $('#'+id).append('<option '+selected+' data-taluk=""  value="'+Item.TalukID+'">'+Item.TalukName+' </option>');
+                        }
+                        if($('#'+id).val()!=""){
+                            $('#'+id).trigger('change');
+                        }
+                    }
+                });
+            }
+            const getDistricts=async(data,id)=>{
+                let Data = [];
+                $('#'+id+' option').remove();
+                $('#'+id).append('<option value="">Select a District</option>');
+                $.ajax({
+                    type:"post",
+                    url:"{{url('/')}}/get/districts",
+                    headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
+                    data:data,
+                    dataType:"json",
+                    async:true,
+                    error:function(e, x, settings, exception){ajaxErrors(e, x, settings, exception);resolve([])},
+                    complete: function(e, x, settings, exception){},
+                    success:function(response){
+                        for(let Item of response){
+                            let selected="";
+                            if(Item.DistrictID==$('#'+id).attr('data-selected')){selected="selected";}
+                            $('#'+id).append('<option '+selected+' data-taluk=""  value="'+Item.DistrictID+'">'+Item.DistrictName+' </option>');
+                        }
+                        if($('#'+id).val()!=""){
+                            $('#'+id).trigger('change');
+                        }
+                        Data = response;
+                    }
+                });
+                return Data;
+            }
+            const getStates=async(data,id)=>{
+                $('#'+id+' option').remove();
+                $('#'+id).append('<option value="">Select a State</option>');
+                $.ajax({
+                    type:"post",
+                    url:"{{url('/')}}/get/states",
+                    headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
+                    data:data,
+                    dataType:"json",
+                    async:true,
+                    error:function(e, x, settings, exception){ajaxErrors(e, x, settings, exception);resolve([])},
+                    complete: function(e, x, settings, exception){},
+                    success:function(response){
+                        for(let Item of response){
+                            let selected="";
+                            if(Item.StateID==$('#'+id).attr('data-selected')){selected="selected";}
+                            $('#'+id).append('<option '+selected+'  value="'+Item.StateID+'">'+Item.StateName+' </option>');
+                        }
+                        if($('#'+id).val()!=""){
+                            $('#'+id).trigger('change');
+                        }
+                    }
+                });
+            }
             const SaveAddress = async () => {
                 let { status, formData, Address } = await ValidateGetAddress();
                 // console.log(formData);
@@ -2398,180 +2515,152 @@
                     return formData;
                 }
             }
-            $(document).on('keyup change', 'input, select', function () {
+            function validateForm() {
                 $('.errors').html('');
+                let status=true;
+                let CustomerName=$('#txtCustomerName').val();
+                let MobileNo1=$('#txtMobileNo1').val();
+                let MobileNo2=$('#txtMobileNo2').val();
+                let Email=$('#txtEmail').val();
+                let Address=$('#txtAddress').val();
+                let PostalCode=$('#lstCity option:selected').attr('data-postal');
+                let CityID=$('#lstCity').val();
+                let TalukID=$('#lstTaluk').val();
+                let DistrictID=$('#lstDistricts').val();
+                let StateID=$('#lstState').val();
+                let CountryID=$('#lstCountry').val();
+                if(!CustomerName){
+                    $('#txtCustomerName-err').html('Customer Name is required');status=false;
+                }else if(CustomerName.length<2){
+                    $('#txtCustomerName-err').html('The Customer Name is must be greater than 2 characters.');status=false;
+                }else if(CustomerName.length>100){
+                    $('#txtCustomerName-err').html('The Customer Name is not greater than 100 characters.');status=false;
+                }
+                let mobilePattern = /^\d{10}$/;
+                if(!MobileNo1){
+                    $('#txtMobileNo1-err').html('Mobile Number is required.');status=false;
+                }else if (!mobilePattern.test(MobileNo1)){
+                    $("#txtMobileNo1-err").html("Mobile Number must be 10 digit");
+                }
+                if (MobileNo2.length > 0 && !mobilePattern.test(MobileNo2)){
+                    $("#txtMobileNo2-err").html("Alternate Mobile Number must be 10 digit");status=false;
+                }
+
+                if(!PostalCode){
+                    $('#txtPostalCode-err').html('Postal Code is required.');status=false;isAddress=true;
+                }
+                if(CityID==""){
+                    $('#lstCity-err').html('City is required.');status=false;isAddress=true;
+                }
+                if(TalukID==""){
+                    $('#lstTaluk-err').html('Taluk is required.');status=false;isAddress=true;
+                }
+                if(DistrictID==""){
+                    $('#lstDistricts-err').html('District is required.');status=false;isAddress=true;
+                }
+                if(StateID==""){
+                    $('#lstState-err').html('State is required.');status=false;isAddress=true;
+                }
+                if(CountryID==""){
+                    $('#lstCountry-err').html('Country is required.');status=false;isAddress=true;
+                }
+                if(Address==""){
+                    $('#txtAddress-err').html('Address is required.');status=false;
+                }else if(Address.length<10){
+                    $('#txtAddress-err').html('Address must be greater than 10 characters');status=false;isAddress=true;
+                }
+                let TotRows=$('#tblShippingAddress tbody tr').length;
+                let isSelectedDefaultShipping=$('input[type="radio"][name="SAddress"]:checked').length
+                if(TotRows<=0){
+                    $('#btnAddAddress-err').html('Shipping address is required');status=false;
+                }else if(isSelectedDefaultShipping<=0){
+                    $('#tblShippingAddress-err').html('Select a default shipping address');status=false;
+                }
+                if(status==false){$("html, body").animate({ scrollTop: 0 }, "slow");}
+
+                // return true;
+                return status;
+            }
+            $(document).on('click', '#btnSaveAddress', function () {
+                SaveAddress();
             });
 
-            const getAddressModal = (data = {}) => {
-                $.ajax({
-                    type: "post",
-                    url: "{{url('/')}}/address-form",
-                    data: {"data": JSON.stringify(data)},
-                    headers: {'X-CSRF-Token': $('meta[name=_token]').attr('content')},
-                    dataType: "html",
-                    async: true,
-                    error: function (e, x, settings, exception) {
-                    },
-                    success: async (response) => {
-                        if (response != "") {
-                            bootbox.dialog({
-                                title: "Shipping Address",
-                                closeButton: true,
-                                message: response,
-                                className: "AddressModal",
-                                buttons: {}
-                            });
-                        }
-                    }
-                });
-            }
-
-            const getReviewModal = (data = {}) => {
-                $.ajax({
-                    type: "post",
-                    url: "{{url('/')}}/review-form",
-                    data: {"data": JSON.stringify(data)},
-                    headers: {'X-CSRF-Token': $('meta[name=_token]').attr('content')},
-                    dataType: "html",
-                    async: true,
-                    error: function (e, x, settings, exception) {
-                    },
-                    success: async (response) => {
-                        if (response != "") {
-                            bootbox.dialog({
-                                title: "Review",
-                                closeButton: true,
-                                message: response,
-                                className: "ReviewModal",
-                                buttons: {}
-                            });
-                        }
-                    }
-                });
-            }
-
-            const getCity=async(data)=>{
-                return await new Promise((resolve,reject)=>{
-                    $.ajax({
-                        type:"post",
-                        url:"{{url('/')}}/get/city",
-                        headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
-                        data:data,
-                        dataType:"json",
-                        async:true,
-                        error:function(e, x, settings, exception){ajaxErrors(e, x, settings, exception);resolve([])},
-                        complete: function(e, x, settings, exception){},
-                        success:function(response){
-                            resolve(response)
-                        }
+            $(document).on('click', '#btnSave', function () {
+                let status = validateForm();
+                if (status) {
+                    $.magnificPopup.open({
+                        items: {
+                            src: '#confirm-modal'
+                        },
+                        type: 'inline',
+                        mainClass: 'mfp',
+                        removalDelay: 350
                     });
-                });
-            }
-            const getTaluks=async(data,id)=>{
-                $('#'+id+' option').remove();
-                $('#'+id).append('<option value="">Select a Taluk</option>');
-                $.ajax({
-                    type:"post",
-                    url:"{{url('/')}}/get/taluks",
-                    headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
-                    data:data,
-                    dataType:"json",
-                    async:true,
-                    error:function(e, x, settings, exception){ajaxErrors(e, x, settings, exception);resolve([])},
-                    complete: function(e, x, settings, exception){},
-                    success:function(response){
-                        for(let Item of response){
-                            let selected="";
-                            if(Item.TalukID==$('#'+id).attr('data-selected')){selected="selected";}
-                            $('#'+id).append('<option '+selected+' data-taluk=""  value="'+Item.TalukID+'">'+Item.TalukName+' </option>');
-                        }
-                        if($('#'+id).val()!=""){
-                            $('#'+id).trigger('change');
-                        }
-                    }
-                });
-            }
-            const getDistricts=async(data,id)=>{
-                let Data = [];
-                $('#'+id+' option').remove();
-                $('#'+id).append('<option value="">Select a District</option>');
-                $.ajax({
-                    type:"post",
-                    url:"{{url('/')}}/get/districts",
-                    headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
-                    data:data,
-                    dataType:"json",
-                    async:true,
-                    error:function(e, x, settings, exception){ajaxErrors(e, x, settings, exception);resolve([])},
-                    complete: function(e, x, settings, exception){},
-                    success:function(response){
-                        for(let Item of response){
-                            let selected="";
-                            if(Item.DistrictID==$('#'+id).attr('data-selected')){selected="selected";}
-                            $('#'+id).append('<option '+selected+' data-taluk=""  value="'+Item.DistrictID+'">'+Item.DistrictName+' </option>');
-                        }
-                        if($('#'+id).val()!=""){
-                            $('#'+id).trigger('change');
-                        }
-                        Data = response;
-                    }
-                });
-                return Data;
-            }
-            const getStates=async(data,id)=>{
-                $('#'+id+' option').remove();
-                $('#'+id).append('<option value="">Select a State</option>');
-                $.ajax({
-                    type:"post",
-                    url:"{{url('/')}}/get/states",
-                    headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
-                    data:data,
-                    dataType:"json",
-                    async:true,
-                    error:function(e, x, settings, exception){ajaxErrors(e, x, settings, exception);resolve([])},
-                    complete: function(e, x, settings, exception){},
-                    success:function(response){
-                        for(let Item of response){
-                            let selected="";
-                            if(Item.StateID==$('#'+id).attr('data-selected')){selected="selected";}
-                            $('#'+id).append('<option '+selected+'  value="'+Item.StateID+'">'+Item.StateName+' </option>');
-                        }
-                        if($('#'+id).val()!=""){
-                            $('#'+id).trigger('change');
-                        }
-                    }
-                });
-            }
-            const getCountry=async(data,id)=>{
-                $('#'+id+' option').remove();
-                $('#'+id).append('<option value="">Select a Country</option>');
-                $.ajax({
-                    type:"post",
-                    url:"{{url('/')}}/get/country",
-                    headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
-                    data:data,
-                    dataType:"json",
-                    async:true,
-                    error:function(e, x, settings, exception){ajaxErrors(e, x, settings, exception);resolve([])},
-                    complete: function(e, x, settings, exception){},
-                    success:function(response){
-                        for(let Item of response){
-                            let selected="";
-                            if(Item.CountryID==$('#'+id).attr('data-selected')){selected="selected";}
-                            $('#'+id).append('<option '+selected+' value="'+Item.CountryID+'">'+Item.CountryName+' </option>');
-                        }
-                        if($('#'+id).val()!=""){
-                            $('#'+id).trigger('change');
-                        }
-                    }
-                });
-            }
-            getCountry({},'lstCountry');
-            $('#btnGSearchPostalCode').trigger('click');
+                }
+            });
 
             $(document).on('click', '#btnReviewMClose', function () {
                 bootbox.hideAll();
             });
+            $(document).on('click', '#btnMConfirm', async function () {
+                let formData = await getData();
+                let postUrl = "{{url('/')}}/update";
+                $.ajax({
+                    type: "post",
+                    url: postUrl,
+                    headers: {'X-CSRF-Token': $('meta[name=_token]').attr('content')},
+                    data: formData,
+                    cache: false,
+                    processData: false,
+                    contentType: false,
+                    error: function (e, x, settings, exception) {
+                        // ajax_errors(e, x, settings, exception);
+                        toastr.failure("Error!.");
+                    },
+                    complete: function (e, x, settings, exception) {
+                        btnReset($('#btSave'));
+                        ajaxIndicatorStop();
+                        $("html, body").animate({scrollTop: 0}, "slow");
+                    },
+                    success: function (response) {
+                        if (response.status == true) {
+                            toastr.success("Profile saved");
+                            $('#confirm-modal .mfp-close').click();
+                            $('html, body').animate({
+                                scrollTop: $('.profilePageTitle').offset().top
+                            }, 1000);
+                        } else {
+                            $("html, body").animate({scrollTop: 0}, "slow");
+                            if (response['errors'] != undefined) {
+                                $('.errors').html('');
+                                $.each(response['errors'], function (KeyName, KeyValue) {
+                                    var key = KeyName;
+                                    if (key == "Email") {
+                                        $('#txtEmail-err').html(KeyValue);
+                                    }
+                                    if (key == "MobileNo1") {
+                                        $('#txtMobileNo1-err').html(KeyValue);
+                                    }
+                                    if (key == "CustomerImage") {
+                                        $('#txtCustomerImage-err').html(KeyValue);
+                                    }
+                                });
+                            }
+                        }
+                    }
+                });
+            });
+            $(document).on('click', '#btnMCancel', function () {
+                $.magnificPopup.close();
+            });
+            // $('#btnMConfirm').on('click',async function () {
+            //
+            // });
+
+
+            // $('#btnMCancel').on('click', function () {
+            //
+            // });
         });
     </script>
 @endsection

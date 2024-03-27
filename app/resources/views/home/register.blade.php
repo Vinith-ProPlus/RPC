@@ -780,7 +780,7 @@
         const getAddressModal=(data={})=>{
             $.ajax({
                 type:"post",
-                url:"{{url('/')}}/address-form",
+                url:"{{url('/')}}/shipping-address-form",
                 data:{"data":JSON.stringify(data)},
                 headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
                 dataType:"html",

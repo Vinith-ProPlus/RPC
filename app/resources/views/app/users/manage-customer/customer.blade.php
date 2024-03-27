@@ -160,7 +160,7 @@
                                                                         <input id="chkSA{{ $key + 1 }}" data-aid="{{ $item->AID }}" type="radio" name="SAddress" value="{{ $key + 1 }}" {{ $item->isDefault == 1 ? 'checked' : '' }}>
                                                                         <label for="chkSA{{ $key + 1 }}"></label>
                                                                     </div>
-                                                                </td> 
+                                                                </td>
                                                                 <td class="pointer">
                                                                     <b>{{ $item->Address }}</b>,<br>
                                                                     {{ $item->CityName }}, {{ $item->TalukName }},<br>
@@ -222,7 +222,7 @@
         $('#ImgCrop').modal('hide');
         $(document).on('change', '.imageScrop', function() {
             let id = $(this).attr('id');
-            $('#'+id).attr('data-remove',0); 
+            $('#'+id).attr('data-remove',0);
             if($('#'+id).attr('data-aspect-ratio')!=undefined){
                 options.aspectRatio=$('#'+id).attr('data-aspect-ratio')
             }
@@ -351,7 +351,7 @@
         $(document).on('click','.dropify-clear',function(){
             $(this).parent().find('input[type="file"]').attr('data-remove',1);
         });
-        
+
     });
 </script>
 <!-- Image Crop Script End -->
@@ -419,7 +419,7 @@
                     $("#txtMobileNo2-err").html("Alternate Mobile Number must be 10 digit");status=false;
                 }
                 let emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            
+
                 if(!Email){
                     $('#txtEmail-err').html('Email is required.');status=false;
                 }else if (!emailPattern.test(Email)) {
@@ -607,11 +607,11 @@
                                         <input id="chkSA${index}" data-aid="${formData.AID}" type="radio" name="SAddress" value="${index}">
                                         <label for="chkSA${index}"></label>
                                     </div>
-                                </td> 
+                                </td>
                                 <td class="pointer">
                                     <b>${formData.Address}</b>,<br>
-                                    ${formData.CityName}, ${formData.TalukName},<br> 
-                                    ${formData.DistrictName}, ${formData.StateName},<br> 
+                                    ${formData.CityName}, ${formData.TalukName},<br>
+                                    ${formData.DistrictName}, ${formData.StateName},<br>
                                     ${formData.CountryName} - ${formData.PostalCode}.
                                 </td>
                                 <td class="text-center">
@@ -723,7 +723,7 @@
             if(tmp.coverImage.uploadPath!=""){
                 formData.append('CustomerImage', JSON.stringify(tmp.coverImage));
             }
-            
+
             let SAddress = [];
             $("#tblShippingAddress tbody tr").each(function() {
                 let Address = JSON.parse($(this).find("td:eq(3)").html());
@@ -807,7 +807,7 @@
         const getAddressModal=(data={})=>{
             $.ajax({
                 type:"post",
-                url:"{{url('/')}}/address-form",
+                url:"{{url('/')}}/shipping-address-form",
                 data:{"data":JSON.stringify(data)},
                 headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
                 dataType:"html",
@@ -826,7 +826,7 @@
                 }
             });
         }
-        
+
         const getCity=async(data)=>{
             return await new Promise((resolve,reject)=>{
                 $.ajax({

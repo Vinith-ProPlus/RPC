@@ -102,6 +102,7 @@ Route::controller(generalController::class)->group(function () {
     Route::POST('/bank-account-type/create','createBankAccountType');
 
     Route::POST('address-form','getNewAddress');
+    Route::POST('shipping-address-form','getNewShippingAddress');
     Route::POST('review-form','getNewReview');
 
     Route::middleware('auth')->group(function () {

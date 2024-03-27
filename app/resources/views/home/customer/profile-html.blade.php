@@ -177,3 +177,39 @@
         </div>
     </div>
 </div>
+<script>
+    $(document).ready(function() {
+        const getCountry=async(data,id)=>{
+            $('#'+id+' option').remove();
+            $('#'+id).append('<option value="">Select a Country</option>');
+            $.ajax({
+                type:"post",
+                url:"{{url('/')}}/get/country",
+                headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
+                data:data,
+                dataType:"json",
+                async:true,
+                error:function(e, x, settings, exception){ajaxErrors(e, x, settings, exception);resolve([])},
+                complete: function(e, x, settings, exception){},
+                success:function(response){
+                    for (let Item of response) {
+                        let selected = "";
+                        if (Item.CountryID === $('#' + id).attr('data-selected')) {
+                            selected = "selected";
+                        }
+                        $('#' + id).append('<option ' + selected + ' value="' + Item.CountryID + '">' + Item.CountryName + ' </option>');
+                    }
+                    if ($('#' + id).val() != "") {
+                        $('#' + id).trigger('change');
+                    }
+                }
+            });
+        }
+
+        $('#btnGSearchPostalCode').trigger('click');
+        getCountry({},'lstCountry');
+
+
+
+    });
+</script>

@@ -912,6 +912,14 @@ class generalController extends Controller{
 		return view("app.modals.Address",array("Theme"=>$Theme,"data"=>$FormData));
 	}
 
+    //Shipping Address
+	public function getNewShippingAddress(Request $req){
+		// return $req;
+		$Theme=$this->getThemesOption();
+		$FormData=json_decode($req->data,true);
+		return view("app.modals.ShippingAddress",array("Theme"=>$Theme,"data"=>$FormData));
+	}
+
     public function getNewReview(Request $req){
         // return $req;
         $Theme=$this->getThemesOption();
