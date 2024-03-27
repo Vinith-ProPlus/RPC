@@ -98,15 +98,17 @@
                                     , {{ $ShippingAddress[0]->DistrictName }}, {{ $ShippingAddress[0]->StateName }}
                                     ,{{ $ShippingAddress[0]->CountryName }} - {{ $ShippingAddress[0]->PostalCode }}.
                                 </a>
-                                <ul id="changeCustomerAddressUl">
-                                    @foreach ($ShippingAddress as $key => $item)
-                                        <li><a href="#" data-postal-id="{{ $item->PostalCodeID }}" data-aid="{{ $item->AID }}" data-latitude="{{ $key.'11.048274' }}" data-longitude="{{ $key.'76.9885352' }}">
-                                                {{ $item->Address }}, {{ $item->CityName }}
-                                                , {{ $item->TalukName }}, {{ $item->DistrictName }}
-                                                , {{ $item->StateName }},{{ $item->CountryName }}
-                                                - {{ $item->PostalCode }}.</a></li>
-                                    @endforeach
-                                </ul>
+                                @if(Route::currentRouteName() !== 'checkout')
+                                    <ul id="changeCustomerAddressUl">
+                                        @foreach ($ShippingAddress as $key => $item)
+                                            <li><a href="#" data-postal-id="{{ $item->PostalCodeID }}" data-aid="{{ $item->AID }}" data-latitude="{{ $key.'11.048274' }}" data-longitude="{{ $key.'76.9885352' }}">
+                                                    {{ $item->Address }}, {{ $item->CityName }}
+                                                    , {{ $item->TalukName }}, {{ $item->DistrictName }}
+                                                    , {{ $item->StateName }},{{ $item->CountryName }}
+                                                    - {{ $item->PostalCode }}.</a></li>
+                                        @endforeach
+                                    </ul>
+                                @endif
                             @endif
                         </div>
                     </div>
@@ -699,13 +701,17 @@
             selectedAddress.attr('data-selected-longitude', $(this).data('longitude'));
             selectedAddress.html($(this).html());
             setCookie('selected_aid', $(this).data('aid'), 30);
+            let formData=new FormData();
+            formData.append('aid', $(this).data('aid'));
+            console.log(" aid formData");
+            console.log(formData);
             $.ajax({
                 url: "{{ route('setAidInSession') }}",
                 headers: { 'X-CSRF-Token' : '{{ csrf_token() }}' },
                 processData: false,
                 contentType: false,
                 type: "POST",
-                data: { aid: $(this).data('aid') },
+                data: formData,
                 success: function(response) {
                     // console.log(response.message);
                 },
