@@ -61,6 +61,8 @@ enum docTypes:string{
     case VendorOrders="Vendor-Orders";
     case Payments="Payments";
     case PaymentsDetails="Payment-Details";
+    case Receipts="Receipts";
+    case ReceiptsDetails="Receipt-Details";
 
     case UserRoles="User-Roles";
     case Users="Users";
@@ -75,5 +77,6 @@ enum docTypes:string{
     case SupportAttachments="Support-Attachments";
     
     case Withdraw="Withdraw";
+    case Notification="Notification";
 
 }

@@ -762,6 +762,7 @@
                     $('#tblProduct tbody').append(html);
                 }
                 clearProductDetails();
+                disableCustomerSelection();
             }
         };
         const clearProductDetails=async()=>{
@@ -769,6 +770,15 @@
             $("#txtQty, #txtDescription, #txtUOM").val("");
             $('#lstProduct').val("").trigger('change');
             getProduct();
+        }
+        const disableCustomerSelection=async()=>{
+            if($('#tblProduct tbody tr').length > 0){
+                $('#btnSAChange').addClass("d-none");
+                $('#lstCustomer').prop('disabled',true);
+            }else{
+                $('#btnSAChange').removeClass("d-none");
+                $('#lstCustomer').prop('disabled',false);
+            }
         }
         $(document).on('click', '#btnAddProduct', function () {            
             let EditID=$(this).attr('data-edit-id');
@@ -792,6 +802,7 @@
             $("#tblProduct tbody tr").each(function (index) {
                 $(this).find("td:eq(0)").text(index + 1);
             });
+            disableCustomerSelection();
         });
         $(document).on('click', '#btnCancelProduct', function () {
             $('.errors').html("");

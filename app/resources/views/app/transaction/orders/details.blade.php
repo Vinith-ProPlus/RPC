@@ -40,13 +40,13 @@
 				<ol class="breadcrumb">
 					<li class="breadcrumb-item"><a href="{{ url('/') }}" data-original-title="" title=""><i class="f-16 fa fa-home"></i></a></li>
 					<li class="breadcrumb-item">Transaction</li>
-					<li class="breadcrumb-item"><a href="{{ url('/') }}/admin/transaction/order/" data-original-title="" title="">{{$PageTitle}}</a></li>
+					<li class="breadcrumb-item"><a href="{{route('admin.transaction.orders')}}" data-original-title="" title="">{{$PageTitle}}</a></li>
                     <li class="breadcrumb-item">Order View</li>
 				</ol>
 			</div>
             <div class="col-sm-6 text-right">
                 @if($crud['view']==true)
-                    <a href="{{url('/')}}/admin/transaction/order" class="btn {{$Theme['button-size']}} btn-outline-dark m-5" >Back</a>
+                    <a href="{{route('admin.transaction.orders')}}" class="btn {{$Theme['button-size']}} btn-outline-dark m-5" >Back</a>
                 @endif
                 @if($OData->Status!="Cancelled" && $OData->Status!="Delivered")
                     <button class="btn {{$Theme['button-size']}} btn-outline-danger m-5 btnCancelOrder" data-id="{{$OrderID}}">Cancel Order</button>
@@ -306,10 +306,20 @@
                                                 <div class="col-1">:</div>
                                                 <div class="col-3 text-right" id="divAdditionalAmount">{{NumberFormat($OData->AdditionalCost,$Settings['price-decimals'])}}</div>
                                             </div>
-                                            <div class="row mt-10 fw-800 fs-17 mr-10 justify-content-end text-success">
+                                            <div class="row mt-10 fw-600 fs-15 mr-10 justify-content-end">
                                                 <div class="col-4">Net Amount</div>
                                                 <div class="col-1">:</div>
                                                 <div class="col-3 text-right" id="divOverAllAmount">{{NumberFormat($OData->NetAmount,$Settings['price-decimals'])}}</div>
+                                            </div>
+                                            <div class="row mt-10 fw-500 fs-13 mr-10 justify-content-end">
+                                                <div class="col-4">Paid Amount </div>
+                                                <div class="col-1">:</div>
+                                                <div class="col-3 text-right" id="divPaidAmount">{{NumberFormat($OData->TotalPaidAmount,$Settings['price-decimals'])}}</div>
+                                            </div>
+                                            <div class="row mt-10 fw-800 fs-17 mr-10 justify-content-end @if($OData->PaymentStatus=='Paid') text-success @elseif($OData->PaymentStatus=='Partial Paid') text-primary @else text-danger @endif">
+                                                <div class="col-4">Balance</div>
+                                                <div class="col-1">:</div>
+                                                <div class="col-3 text-right" id="divBalanceAmount">{{NumberFormat($OData->BalanceAmount,$Settings['price-decimals'])}}</div>
                                             </div>
                                         </div>
                                     </div>
@@ -322,7 +332,7 @@
                     <div class="row">
                         <div class="col-sm-12 text-right">
                             @if($crud['view']==true)
-                                <a href="{{url('/')}}/admin/transaction/order" class="btn {{$Theme['button-size']}} btn-outline-dark m-5" >Back</a>
+                                <a href="{{route('admin.transaction.orders')}}" class="btn {{$Theme['button-size']}} btn-outline-dark m-5" >Back</a>
                             @endif
                             @if($OData->Status!="Cancelled" && $OData->Status!="Delivered")
                                 @if($crud['delete'])

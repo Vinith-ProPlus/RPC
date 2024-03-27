@@ -29,6 +29,7 @@ enum activeMenuNames:string{
     case Quotation="Quotation";
     case Order="Order";
     case Payments="Payments";
+    case Receipts="Receipts";
     case ProductGroupPrice="Product-Group-Price";
     case CustomerGroups="Customer-Groups";
     case ManageCustomers="Manage-Customers";

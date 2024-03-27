@@ -32,6 +32,8 @@ Route::controller(CustomerAuthController::class)->group(function () {
 
     Route::post('/get/customer-home','getCustomerHome');
     Route::post('/get/customer-home-search','getCustomerHomeSearch');
+    Route::post('/get/notifications','getNotifications');
+    Route::post('/notification-read','NotificationRead');
 
 
 });

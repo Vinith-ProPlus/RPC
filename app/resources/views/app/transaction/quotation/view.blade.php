@@ -22,13 +22,6 @@
 						<div class="col-sm-4"></div>
 						<div class="col-sm-4 my-2"><h5>{{$PageTitle}}</h5></div>
 						<div class="col-sm-4 my-2 text-right text-md-right">
-							{{-- @if($crud['restore']==1)
-								<a href="{{ url('/') }}/admin/transaction/quotation/trash" class="btn btn-outline-dark {{$Theme['button-size']}} m-r-10" type="button" > Cancelled Quotations </a>
-							@endif
-							@if($crud['add']==1)
-								<a href="{{ url('/') }}/admin/transaction/quotation/create" class="btn btn-outline-success btn-air-success {{$Theme['button-size']}} m-r-10" type="button" >Create</a>
-								<a href="{{ url('/') }}/admin/transaction/image-quotation/create" class="btn btn-outline-success btn-air-success {{$Theme['button-size']}}" type="button" >Image Quote Create</a>
-							@endif --}}
 						</div>
 					</div>
 				</div>

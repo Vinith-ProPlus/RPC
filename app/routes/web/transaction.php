@@ -3,6 +3,7 @@
 use App\Http\Controllers\web\Transaction\EnquiryController;
 use App\Http\Controllers\web\Transaction\OrderController;
 use App\Http\Controllers\web\Transaction\PaymentController;
+use App\Http\Controllers\web\Transaction\ReceiptsController;
 use App\Http\Controllers\web\Transaction\QuotationController;
 use App\Http\Controllers\web\Transaction\QuoteEnquiryController;
 use App\Http\Controllers\web\Transaction\PaymentRequestController;
@@ -32,6 +33,7 @@ Route::group(['prefix'=>'quote-enquiry'],function (){
         Route::get('/edit/{ID}', 'Edit');
         Route::get('/view/{ID}', 'QuoteView');
         Route::post('/save', 'Save');
+        Route::post('/image-quote/save', 'ImageQuoteSave');
 
         Route::get('/image-quote/create', 'ImageQuoteCreate');
 
@@ -60,26 +62,54 @@ Route::group(['prefix'=>'quote-enquiry'],function (){
 
 Route::group(['prefix'=>'payments'],function (){
     Route::controller(PaymentController::class)->group(function () {
-        Route::get('/', 'view');
-        Route::get('/trash/view/', 'TrashView');
+        Route::get('/', 'view')->name('admin.transaction.payments');
+        Route::get('/trash/view/', 'TrashView')->name('admin.transaction.payments.trash');
 
-        Route::post('/data', 'TableView');
-        Route::post('/get/vendor', 'getVendor');
-        Route::post('/get/order-details/{OrderID}', 'getOrderDetails');
-        Route::post('/create', 'Save');
-        Route::post('/edit/{TranNo}', 'Update');
-        Route::post('/delete/{TranNo}', 'delete');
-        Route::post('/details/view', 'getDetails');
+        Route::post('/data', 'TableView')->name('admin.transaction.payments.data');
+        
+        Route::post('/create', 'Save')->name('admin.transaction.payments.save');
+        Route::post('/edit/{TranNo}', 'Update')->name('admin.transaction.payments.update');
+        Route::post('/delete/{TranNo}', 'delete')->name('admin.transaction.payments.delete');
+        Route::post('/details/view', 'getDetails')->name('admin.transaction.payments.details-view');
 
-        Route::group(['prefix'=>'advance-payment'],function (){
-            Route::get('/create', 'advancePaymentView');
-            Route::get('/edit/{TranNo}', 'AdvanceEdit');
+        Route::group(['prefix'=>'advance'],function (){
+            Route::get('/create', 'advancePaymentView')->name('admin.transaction.payments.advance.create');
+            Route::get('/edit/{TranNo}', 'AdvanceEdit')->name('admin.transaction.payments.advance.edit');
         });
-        Route::group(['prefix'=>'order-payment'],function (){
-            Route::get('/create', 'orderPaymentView');
-            Route::get('/edit/{TranNo}', 'Edit');
-            Route::post('/get/orders', 'getOrders');
+        Route::group(['prefix'=>'payment'],function (){
+            Route::get('/create', 'create')->name('admin.transaction.payments.payment.create');
+            Route::get('/edit/{TranNo}', 'Edit')->name('admin.transaction.payments.payment.edit');
+            Route::post('/get/orders', 'getOrders')->name('admin.transaction.payments.payment.get.orders');
         });
+
+        Route::post('/get/ledger', 'getLedger')->name('admin.transaction.payments.get.ledger');
+        Route::post('/get/order-details/{OrderID}', 'getOrderDetails')->name('admin.transaction.payments.get.order-details');
+    });
+});
+Route::group(['prefix'=>'receipts'],function (){
+    Route::controller(ReceiptsController::class)->group(function () {
+        Route::get('/', 'view')->name('admin.transaction.receipts');
+        Route::get('/trash/view/', 'TrashView')->name('admin.transaction.receipts.trash');
+
+        Route::post('/data', 'TableView')->name('admin.transaction.receipts.data');
+        
+        Route::post('/create', 'Save')->name('admin.transaction.receipts.save');
+        Route::post('/edit/{TranNo}', 'Update')->name('admin.transaction.receipts.update');
+        Route::post('/delete/{TranNo}', 'delete')->name('admin.transaction.receipts.delete');
+        Route::post('/details/view', 'getDetails')->name('admin.transaction.receipts.details-view');
+
+        Route::group(['prefix'=>'advance'],function (){
+            Route::get('/create', 'advancePaymentView')->name('admin.transaction.receipts.advance.create');
+            Route::get('/edit/{TranNo}', 'AdvanceEdit')->name('admin.transaction.receipts.advance.edit');
+        });
+        Route::group(['prefix'=>'order'],function (){
+            Route::get('/create', 'create')->name('admin.transaction.receipts.order.create');
+            Route::get('/edit/{TranNo}', 'Edit')->name('admin.transaction.receipts.order.edit');
+            Route::post('/get/orders', 'getOrders')->name('admin.transaction.receipts.order.get.orders');
+        });
+
+        Route::post('/get/ledger', 'getLedger')->name('admin.transaction.receipts.get.ledger');
+        Route::post('/get/order-details/{OrderID}', 'getOrderDetails')->name('admin.transaction.receipts.get.order-details');
     });
 });
 
@@ -123,7 +153,8 @@ Route::group(['prefix'=>'order'],function (){
         Route::POST('/get/filters/order-dates', 'getSearchOrderDates')->name('admin.transaction.orders.filter.order-dates');
         Route::POST('/get/filters/delivery-dates', 'getSearchDeliveryDates')->name('admin.transaction.orders.filter.delivery-dates');
     });
-});Route::group(['prefix'=>'payment-request'],function (){
+});
+Route::group(['prefix'=>'payment-request'],function (){
     Route::controller(PaymentRequestController::class)->group(function () {
         Route::get('/', 'view')->name('admin.transaction.payment-requests');
 

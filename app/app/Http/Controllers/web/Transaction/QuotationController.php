@@ -86,7 +86,7 @@ class QuotationController extends Controller{
             return view('errors.403');
         }
     }
-	public function QuoteCancel(request $req,$QID){ return $this->getQuotes(["QID"=>$QID]);
+	public function QuoteCancel(request $req,$QID){
 		if($this->general->isCrudAllow($this->CRUD,"delete")==true){
 			DB::beginTransaction();
 			$tdata=array(
@@ -284,7 +284,7 @@ class QuotationController extends Controller{
 								$additionalCharges+=floatval($t->AdditionalCost);
 							}
 							$VOrderID=DocNum::getDocNum(docTypes::VendorOrders->value, $this->CurrFYDB,Helper::getCurrentFy());
-							$VOrderNo=DocNum::getDocNum(docTypes::VendorOrders->value, $this->CurrFYDB,Helper::getCurrentFy());
+							$VOrderNo=DocNum::getInvNo(docTypes::VendorOrders->value);
 							$tdata=[
 								"VOrderID"=>$VOrderID,
 								"OrderID"=>$OrderID,
@@ -407,7 +407,7 @@ class QuotationController extends Controller{
 		$sql.=" LEFT JOIN ".$this->generalDB."tbl_postalcodes as BPC ON BPC.PID=C.PostalCodeID LEFT JOIN ".$this->generalDB."tbl_countries as CO ON CO.CountryID=Q.DCountryID  ";
 		$sql.=" LEFT JOIN ".$this->generalDB."tbl_states as S ON S.StateID=Q.DStateID LEFT JOIN ".$this->generalDB."tbl_districts as D ON D.DistrictID=Q.DDistrictID ";
 		$sql.=" LEFT JOIN ".$this->generalDB."tbl_taluks as T ON T.TalukID=Q.DTalukID LEFT JOIN ".$this->generalDB."tbl_cities as CI ON CI.CityID=Q.DCityID ";
-		$sql.=" LEFT JOIN ".$this->generalDB."tbl_postalcodes as PC ON PC.PID=Q.DPostalCodeID LEFT JOIN tbl_reject_reason as RR ON RR.RReasonID=Q.RReasonID ";
+		$sql.=" LEFT JOIN ".$this->generalDB."tbl_postalcodes as PC ON PC.PID=Q.DPostalCodeID LEFT JOIN tbl_reject_reason as RR ON RR.RReasonID=Q.RReasonID "; 
 		$sql.=" Where 1=1 ";
 		if(is_array($data)){
 			if(array_key_exists("QID",$data)){$sql.=" AND Q.QID='".$data['QID']."'";}

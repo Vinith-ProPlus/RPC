@@ -164,16 +164,16 @@ class GeneralAPIController extends Controller{
 		} */
 		$dir="uploads/tmp/".date("Ymd")."/";
 		if (!file_exists( $dir)) {mkdir( $dir, 0777, true);}
-
+		
 		$allowedImageExtensions = ['jpg', 'jpeg', 'png'];
 		$allowedDocExtensions = ['pdf', 'doc', 'docx', 'txt','jpg', 'jpeg'];
 		$maxFileSize = 10 * 1024 * 1024; // 10 MB
 
-		if ($req->hasFile('image')) {
+		if ($req->hasFile('image')) { 
 			$file = $req->file('image');
 			$ext = strtolower($file->getClientOriginalExtension());
-			// return $ext;
 			$size = $file->getSize();
+			// return $size;
 
 			if (!in_array(strtolower($ext), $allowedImageExtensions)) {
 				return array('status' => false, 'message' => 'Image upload failed', 'errors' => 'Invalid image extension. Allowed extensions: ' . implode(', ', $allowedImageExtensions));
@@ -185,7 +185,8 @@ class GeneralAPIController extends Controller{
 				$fileName=$tname. "." . $ext;
 				$fileName1 =  $tname. "-tmp." . $ext;
 				$file->move($dir, $fileName1);
-				return array("uploadPath"=>$dir.$fileName1,"fileName"=>$fileName,"ext"=>$ext,"referData"=>$req->referData);
+				$Data = array("uploadPath"=>$dir.$fileName1,"fileName"=>$fileName,"ext"=>$ext,"referData"=>$req->referData);
+				return response()->json(['status' => true,'data' => $Data]);
 			}
 		} elseif ($req->image != "") {
 			$rnd = Helper::RandomString(10) . "_" . date("YmdHis");
@@ -194,7 +195,8 @@ class GeneralAPIController extends Controller{
 			$fileName1 = $rnd . "-tmp." . $originalExtension;
 			$imgData = $this->getImageData($req->image);
 			file_put_contents($dir . $fileName1, $imgData);
-			return array("uploadPath" => $dir . $fileName1, "fileName" => $fileName, "ext" => $originalExtension, "referData" => $req->referData);
+			$Data = array("uploadPath" => $dir . $fileName1, "fileName" => $fileName, "ext" => $originalExtension, "referData" => $req->referData);
+			return response()->json(['status' => true,'data' => $Data]);
 		}
 
 		if ($req->hasFile('doc')) {
@@ -212,7 +214,8 @@ class GeneralAPIController extends Controller{
 				$fileName = $tname . "." . $file->getClientOriginalExtension();
 				$fileName1 = $tname . "-tmp." . $file->getClientOriginalExtension();
 				$file->move($dir, $fileName1);
-				return array("uploadPath" => $dir . $fileName1,"fileName" => $fileName,"ext" => $ext,"referData" => $req->referData);
+				$Data = array("uploadPath" => $dir . $fileName1,"fileName" => $fileName,"ext" => $ext,"referData" => $req->referData);
+				return response()->json(['status' => true,'data' => $Data]);
 			}
 		} elseif ($req->doc != "") {
 			$rnd = Helper::RandomString(10) . "_" . date("YmdHis");
@@ -221,9 +224,10 @@ class GeneralAPIController extends Controller{
 			$fileName1 = $rnd . "-tmp." . $originalExtension;
 			file_put_contents($dir . $fileName1, $req->doc);
 		
-			return array("uploadPath" => $dir . $fileName1, "fileName" => $fileName, "ext" => $originalExtension, "referData" => $req->referData);
+			$Data = array("uploadPath" => $dir . $fileName1, "fileName" => $fileName, "ext" => $originalExtension, "referData" => $req->referData);
+			return response()->json(['status' => true,'data' => $Data]);
 		}
-		return array("uploadPath" => "", "fileName" => "", "referData" => $req->referData);
+		return response()->json(['status' => false,'data' => []]);
 	}
 	private function getImageData($base64){
 		$base64_str = substr($base64, strpos($base64, ",")+1);
@@ -302,7 +306,8 @@ class GeneralAPIController extends Controller{
 		];
         return $return;
 	}
-	public function getCoordinates(Request $req){  return 1;
+	
+	public function getCoordinates(Request $req){
 		$address = $req->Address;
         $response = Http::get('https://maps.googleapis.com/maps/api/geocode/json', [
             'address' => $address,

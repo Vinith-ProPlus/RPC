@@ -18,12 +18,14 @@ use ValidDB;
 use DocNum;
 use docTypes;
 use logs;
+use PHPUnit\TextUI\Help;
 
 use function Laravel\Prompts\select;
 
 class CustomerAuthController extends Controller{
     private $generalDB;
     private $tmpDB;
+    private $currfyDB;
     private $ActiveMenuName;
     private $FileTypes;
 	private $UserID;
@@ -32,6 +34,7 @@ class CustomerAuthController extends Controller{
     public function __construct(){
 		$this->generalDB=Helper::getGeneralDB();
 		$this->tmpDB=Helper::getTmpDB();
+        $this->currfyDB=Helper::getCurrFYDB();
         $this->ActiveMenuName=activeMenuNames::ManageCustomers->value;
 		$this->FileTypes=Helper::getFileTypes(array("category"=>array("Images","Documents")));
         $this->middleware('auth:api');
@@ -204,6 +207,7 @@ class CustomerAuthController extends Controller{
             return response()->json(['status' => false,'message' => "Customer Register Failed"]);
         }
     }
+
     public function Update(Request $req){
 		$CustomerID = $this->ReferID;
 		$OldData=DB::table('tbl_customer_address as CA')->leftJoin('tbl_customer as C','C.CustomerID','CA.CustomerID')->where('CA.CustomerID',$CustomerID)->get();
@@ -346,7 +350,6 @@ class CustomerAuthController extends Controller{
             return response()->json(['status' => false,'message' => "Customer Update Failed"]);
 		}
 	}
-
     public function getSAddress(Request $req){
         $CustomerID = $this->ReferID;
         $SAddress = DB::table('tbl_customer_address as CA')->where('CA.CustomerID',$CustomerID)->where('CA.DFlag',0)
@@ -366,34 +369,53 @@ class CustomerAuthController extends Controller{
 		$CustomerID = $this->ReferID;
 		$OldData=$NewData=[];
 		$OldData=DB::table('tbl_customer_address')->where('CustomerID',$CustomerID)->get();
-		DB::beginTransaction();
 		$status=false;
 		try {
-            $PostalCodeData = DB::table($this->generalDB.'tbl_postalcodes as P')
+            $CityData = DB::table($this->generalDB.'tbl_postalcodes as P')
+            ->join($this->generalDB.'tbl_cities as CI', 'CI.PostalID', 'P.PID')
+            ->join($this->generalDB.'tbl_taluks as T', 'T.TalukID', 'CI.TalukID')
             ->join($this->generalDB.'tbl_districts as D', 'D.DistrictID', 'P.DistrictID')
             ->join($this->generalDB.'tbl_states as S', 'S.StateID', 'D.StateID')
             ->join($this->generalDB.'tbl_countries as C','C.CountryID','S.CountryID')
             ->where('P.PostalCode',$req->PostalCode)
+            ->where('CI.CityID',$req->CityID)
             ->where('P.ActiveStatus','Active')->where('P.DFlag',0)
+            ->where('CI.ActiveStatus','Active')->where('CI.DFlag',0)
+            ->where('T.ActiveStatus','Active')->where('T.DFlag',0)
             ->where('D.ActiveStatus','Active')->where('D.DFlag',0)
             ->where('S.ActiveStatus','Active')->where('S.DFlag',0)
             ->where('C.ActiveStatus','Active')->where('C.DFlag',0)
-            ->select('P.PID as PostalCodeID','D.DistrictID','S.StateID','C.CountryID')->first();
-            if(!$PostalCodeData){
-                return response()->json(['status' => false,'message' => "Postal Code does not exist!"]);
+            ->select('P.PID as PostalCodeID','CI.CityID','T.TalukID','D.DistrictID','S.StateID','C.CountryID')->first();
+
+            if(!$CityData){
+                $data = [
+                    'UserID'=>$this->UserID,
+                    'CityID'=>$req->CityID,
+                    'PostalCode'=>$req->PostalCode,
+                    'Latitude'=>$req->Latitude,
+                    'Longitude'=>$req->Longitude,
+                    'MapData'=>serialize(json_decode($req->MapData))
+                ];
+                $status = DB::table($this->currfyDB.'tbl_not_serving_locations')->insert($data);
+                if($status){
+                    return response()->json(['status' => false,'message' => "Postal Code does not exist!"]);
+                }
             }else{
-                $MapData = serialize($req->all());
+                DB::beginTransaction();
+                $MapData = serialize(json_decode($req->MapData));
                 $AID=DocNum::getDocNum(docTypes::CustomerAddress->value,"",Helper::getCurrentFY());
                 $data=array(
                     "AID"=>$AID,
                     "CustomerID"=>$CustomerID,
                     "CompleteAddress"=>$req->CompleteAddress,
-                    "Address"=>$req->Address,
+                    "Address"=>Helper::trimAddress($req->CompleteAddress),
                     "AddressType"=>$req->AddressType,
-                    "PostalCodeID"=>$PostalCodeData->PostalCodeID,
-                    "DistrictID"=>$PostalCodeData->DistrictID,
-                    "StateID"=>$PostalCodeData->StateID,
-                    "CountryID"=>$PostalCodeData->CountryID,
+                    "PostalCodeID"=>$CityData->PostalCodeID,
+                    "CityID"=>$CityData->CityID,
+                    "TalukID"=>$CityData->TalukID,
+                    "DistrictID"=>$CityData->DistrictID,
+                    "StateID"=>$CityData->StateID,
+                    "CountryID"=>$CityData->CountryID,
                     "Latitude"=>$req->Latitude,
                     "Longitude"=>$req->Longitude,
                     "MapData"=>$MapData,
@@ -440,6 +462,7 @@ class CustomerAuthController extends Controller{
             return response()->json(['status' => false,'message' => "Default Address Set Failed!"]);
         }
     }
+
     public function DeleteSAddress(Request $req){
         $CustomerID = $this->ReferID;
         DB::beginTransaction();
@@ -806,6 +829,42 @@ class CustomerAuthController extends Controller{
             }
         }else{
             return response()->json(['status' => false,'message' => "Shipping Address is required!"]);
+        }
+	}
+
+    public function getNotifications(Request $req){
+
+        $pageNo = $req->PageNo ?? 1;
+        $perPage = 10;
+
+        $Notifications = DB::table($this->currfyDB.'tbl_notifications')
+            // ->where('UserID', $this->UserID)
+            ->orderBy('CreatedOn','desc')
+            ->paginate($perPage, ['*'], 'page', $pageNo);
+
+        return response()->json([
+            'status' => true,
+            'data' => $Notifications->items(),
+            'CurrentPage' => $Notifications->currentPage(),
+            'LastPage' => $Notifications->lastPage(),
+        ]);
+    }
+
+    public function NotificationRead(Request $req){
+		DB::beginTransaction();
+        try {
+            $status = DB::Table($this->currfyDB.'tbl_notifications')
+            // ->where('UserID',$this->UserID)
+            ->where('NID',$req->NID)->update(['ReadStatus' => 1,'ReadOn'=>date('Y-m-d H:i:s')]);
+        }catch(Exception $e) {
+            $status=false;
+        }
+        if($status==true){
+            DB::commit();
+            return response()->json(['status' => true ,'message' => "Notification Read Successfully!"]);
+        }else{
+            DB::rollback();
+            return response()->json(['status' => false,'message' => "Notification Read Failed!"]);
         }
 	}
 }

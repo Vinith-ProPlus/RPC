@@ -28,6 +28,10 @@ Route::controller(VendorAuthController::class)->group(function () {
     Route::post('/update-stock-data','UpdateStockData');
     
     Route::post('/get/vendor-home','getVendorHome');
+    Route::post('/get/notifications','getNotifications');
+    Route::post('/notification-read','NotificationRead');
+
+    Route::post('/get/vendor-products-search','getVendorProductSearch');
 });
 
 Route::controller(VendorStockPointController::class)->group(function () {
@@ -52,8 +56,10 @@ Route::controller(VendorTransactionAPIController::class)->group(function () {
     Route::post('/get/orders','getOrders');
     Route::post('/get/current-orders','getCurrentOrders');
     Route::post('/get/completed-orders','getCompletedOrders');
-
     
+    Route::post('/order/mark-as-delivered','MarkasDelivered');
+    Route::post('/order/delivered','Delivered');
+
     Route::post('/request-payment','RequestPayment');
     Route::post('/get/transaction-history','getTransactionHistory');
     Route::post('/get/withdrawal-request','getWithdrawalRequest');

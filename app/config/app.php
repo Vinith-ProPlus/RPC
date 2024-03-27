@@ -38,6 +38,7 @@ return [
 
     'env' => env('APP_ENV', 'production'),
     'map_api_key' => env('GOOGLE_MAPS_API_KEY', ''),
+    'firebase_server_key' => env('FIREBASE_SERVER_KEY', ''),
 
     /*
     |--------------------------------------------------------------------------
@@ -197,6 +198,7 @@ return [
         'Helper' => App\helper\helper::class,
         'dynamicField' => App\helper\dynamicField::class,
         'Product' => App\helper\product::class,
+        'Ledgers' => App\helper\Ledgers::class,
         //enums
         'cruds' => App\enums\cruds::class,
         'docTypes' => App\enums\docTypes::class,

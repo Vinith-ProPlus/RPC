@@ -7,7 +7,7 @@
 				<ol class="breadcrumb">
 					<li class="breadcrumb-item"><a href="{{ url('/') }}" data-original-title="" title=""><i class="f-16 fa fa-home"></i></a></li>
 					<li class="breadcrumb-item">Transaction</li>
-					<li class="breadcrumb-item">Payments</li>
+					<li class="breadcrumb-item">Receipts</li>
 				</ol>
 			</div>
 		</div>
@@ -23,32 +23,29 @@
 							<div class="form-row align-items-center">
 								<div class="col-md-4">	</div>
 								<div class="col-md-4 my-2">
-									<h5>{{$PageTitle}} to Vendor</h5>
+									<h5>{{$PageTitle}}</h5>
 								</div>
 								<div class="col-md-4 my-2 text-right text-md-right">
-									@if($crud['restore']==1)
-										{{-- <a href="{{route('admin.transaction.payments.trash')}}" class="btn  btn-outline-light btn-sm m-r-10" type="button" > Trash view </a> --}}
-									@endif
 									@if($crud['add']==1)
-										@if($Settings['enable-advance-payments'])
-											<a href="{{route('admin.transaction.payments.advance.create')}}" class="btn  btn-outline-primary mr-10  btn-sm" type="button" title="Advance Payment" >Advance Payment</a>
+										@if($Settings['enable-advance-receipts'])
+											<a href="{{route('admin.transaction.receipts.advance.create')}}" class="btn  btn-outline-primary mr-10  btn-sm" type="button" title="Advance entry from customers" >Advance</a>
 										@endif
-										<a href="{{route('admin.transaction.payments.payment.create')}}" class="btn  btn-outline-success btn-air-success btn-sm" type="button" title="Payment  For Invoice" >Payment</a>
+										<a href="{{route('admin.transaction.receipts.order.create')}}" class="btn  btn-outline-success btn-air-success btn-sm" type="button" title="Receipt entry for order" >Receipt</a>
 									@endif
 								</div>
 							</div>
 						</div>
 						<div class="card-body " >
-                            <table class="table" id="tblPayments">
+                            <table class="table" id="tblReceipts">
                                 <thead>
                                     <tr>
-                                        <th class="text-center">Payment ID</th>
-                                        <th class="text-center">Payment Date</th>
-										<th class="text-center">Vendor</th>
+                                        <th class="text-center">Receipt ID</th>
+                                        <th class="text-center">Receipt Date</th>
+										<th class="text-center">Customer</th>
 										<th class="text-center">MOP</th>
 										<th class="text-center">Ref No</th>
-										<th class="text-center">Payment Type</th>
-                                        <th class="text-center">Paid Amount</th>
+										<th class="text-center">Receipt Type</th>
+                                        <th class="text-center">Receipt Amount</th>
                                         <th class="text-center">Action</th>
                                     </tr>
                                 </thead>
@@ -68,10 +65,10 @@
     $(document).ready(function(){
         const LoadTable=async()=>{
 			@if($crud['view']==1)
-			$('#tblPayments').dataTable( {
+			$('#tblReceipts').dataTable( {
 				"bProcessing": true,
 				"bServerSide": true,
-                "ajax": {"url": "{{route('admin.transaction.payments.data')}}?_token="+$('meta[name=_token]').attr('content'),"headers":{ 'X-CSRF-Token' : $('meta[name=_token]').attr('content') } ,"type": "POST"},
+                "ajax": {"url": "{{route('admin.transaction.receipts.data')}}?_token="+$('meta[name=_token]').attr('content'),"headers":{ 'X-CSRF-Token' : $('meta[name=_token]').attr('content') } ,"type": "POST"},
 				deferRender: true,
 				responsive: true,
 				dom: 'Bfrtip',
@@ -80,11 +77,11 @@
 				"lengthMenu": [[10, 25, 50,100,250,500, -1], [10, 25, 50,100,250,500, "All"]],
 				buttons: [
 					'pageLength'
-					@if($crud['excel']==1) ,{extend: 'excel',footer: true,title: 'Payments',"action": DataTableExportOption,exportOptions: {columns: "thead th:not(.noExport)"}} @endif
-					@if($crud['copy']==1) ,{extend: 'copy',footer: true,title: 'Payments',"action": DataTableExportOption,exportOptions: {columns: "thead th:not(.noExport)"}} @endif
-					@if($crud['csv']==1) ,{extend: 'csv',footer: true,title: 'Payments',"action": DataTableExportOption,exportOptions: {columns: "thead th:not(.noExport)"}} @endif
-					@if($crud['print']==1) ,{extend: 'print',footer: true,title: 'Payments',"action": DataTableExportOption,exportOptions: {columns: "thead th:not(.noExport)"}} @endif
-					@if($crud['pdf']==1) ,{extend: 'pdf',footer: true,title: 'Payments',"action": DataTableExportOption,exportOptions: {columns: "thead th:not(.noExport)"}} @endif
+					@if($crud['excel']==1) ,{extend: 'excel',footer: true,title: 'receipts',"action": DataTableExportOption,exportOptions: {columns: "thead th:not(.noExport)"}} @endif
+					@if($crud['copy']==1) ,{extend: 'copy',footer: true,title: 'receipts',"action": DataTableExportOption,exportOptions: {columns: "thead th:not(.noExport)"}} @endif
+					@if($crud['csv']==1) ,{extend: 'csv',footer: true,title: 'receipts',"action": DataTableExportOption,exportOptions: {columns: "thead th:not(.noExport)"}} @endif
+					@if($crud['print']==1) ,{extend: 'print',footer: true,title: 'receipts',"action": DataTableExportOption,exportOptions: {columns: "thead th:not(.noExport)"}} @endif
+					@if($crud['pdf']==1) ,{extend: 'pdf',footer: true,title: 'receipts',"action": DataTableExportOption,exportOptions: {columns: "thead th:not(.noExport)"}} @endif
 				],
 				columnDefs: [
 					{"className": "dt-center", "targets":5},
@@ -98,16 +95,16 @@
 			let pType=$(this).attr('data-payment-type');
 			let ID=$(this).attr('data-id');
 			if(pType=="Advance"){
-				window.location.replace("{{route('admin.transaction.payments.advance.edit','__ID__')}}".replace("__ID__",ID) );
+				window.location.replace("{{route('admin.transaction.receipts.advance.edit','__ID__')}}".replace("__ID__",ID) );
 			}else{
-				window.location.replace("{{route('admin.transaction.payments.payment.edit','__ID__')}}".replace("__ID__",ID) );
+				window.location.replace("{{route('admin.transaction.receipts.order.edit','__ID__')}}".replace("__ID__",ID) );
 			}
 		});
 		$(document).on('click','.btnDetailView',function(){
 			let TranNo=$(this).attr('data-id');
             $.ajax({
                 type:"post",
-                url:"{{route('admin.transaction.payments.details-view')}}",
+                url:"{{route('admin.transaction.receipts.details-view')}}",
                 data:{TranNo},
                 headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
                 dataType:"html",
@@ -132,7 +129,7 @@
 			let ID=$(this).attr('data-id');
 			swal({
                 title: "Are you sure?",
-                text: "You want delete this payment!",
+                text: "You want delete this receipt!",
                 type: "warning",
                 showCancelButton: true,
                 confirmButtonClass: "btn-outline-danger",
@@ -142,13 +139,13 @@
             function(){swal.close();
             	$.ajax({
             		type:"post",
-                    url:"{{route('admin.transaction.payments.delete','__ID__')}}".replace("__ID__",ID),
+                    url:"{{route('admin.transaction.receipts.delete','__ID__')}}".replace("__ID__",ID),
                     headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
                     dataType:"json",
                     success:function(response){
                     	swal.close();
                     	if(response.status==true){
-                    		$('#tblPayments').DataTable().ajax.reload();
+                    		$('#tblReceipts').DataTable().ajax.reload();
                     		toastr.success(response.message, "Success", {
                                 positionClass: "toast-top-right",
                                 containerId: "toast-top-right",

@@ -27,10 +27,10 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::group(['prefix'=>'customer'],function (){
-    require __DIR__.'/api/customer/customer-api.php';
+    require __DIR__.'/api/customer-api.php';
 });
 Route::group(['prefix'=>'vendor'],function (){
-    require __DIR__.'/api/vendor/vendor-api.php';
+    require __DIR__.'/api/vendor-api.php';
 });
 
 require __DIR__.'/api/general-api.php';

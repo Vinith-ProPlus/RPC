@@ -102,6 +102,8 @@ class QuoteEnquiryController extends Controller{
 			$FormData['ActiveMenuName']=$this->ActiveMenuName;
 			$FormData['PageTitle']=$this->PageTitle;
 			$FormData['isEdit']=false;
+			$FormData['Customers'] = DB::Table('tbl_customer')->where('DFlag', 0)->where('ActiveStatus', 'Active')->get();
+			$FormData['Vendors'] = DB::Table('tbl_vendors')->where('DFlag', 0)->where('ActiveStatus', 'Active')->where('isApproved', 1)->get();
 			$FormData['QNo']=DocNum::getInvNo($this->ActiveMenuName);
             return view('app.transaction.quote-enquiry.image-quote',$FormData);
         }elseif($this->general->isCrudAllow($this->CRUD,"view")==true){
@@ -198,6 +200,92 @@ class QuoteEnquiryController extends Controller{
 		}
 
 	}
+	public function ImageQuoteSave(Request $req){
+		if($this->general->isCrudAllow($this->CRUD,"add")==true){
+			DB::beginTransaction();
+			$OldData=$NewData=[];
+			$status=false;
+			try {
+				$CustomerID=$req->CustomerID;
+				$VendorIDs=json_decode($req->VendorIDs);
+				$CustomerData = DB::table('tbl_customer')->where('CustomerID',$CustomerID)->first();
+				$EnqID = DocNum::getDocNum(docTypes::Enquiry->value,$this->currfyDB,Helper::getCurrentFY());
+				$QuoteImage = "";
+				$dir = "uploads/transaction/enquiry/" . $EnqID . "/";
+                if (!file_exists($dir)) {
+                    mkdir($dir, 0777, true);
+                }
+				if (Helper::isJSON($req->QuoteImage) == true) {
+                    $Img = json_decode($req->QuoteImage);
+                    if (file_exists($Img->uploadPath)) {
+                        $fileName1 = $Img->fileName != "" ? $Img->fileName : Helper::RandomString(10) . "png";
+                        copy($Img->uploadPath, $dir . $fileName1);
+                        $QuoteImage = $dir . $fileName1;
+                        // unlink($Img->uploadPath);
+                    }
+                }
+				$data=[
+					'EnqID' => $EnqID,
+					'EnqNo' =>DocNum::getInvNo("Quote-Enquiry"),
+					'EnqDate' => $req->EnqDate,
+					'EnqExpiryDate' => date('Y-m-d', strtotime('+15 days')),
+					'CustomerID' => $CustomerID,
+					'ReceiverName' => $CustomerData->CustomerName,
+					'ReceiverMobNo' => $req->ReceiverMobNo,
+					'VendorIDs' => serialize($VendorIDs),
+					'ExpectedDeliveryDate' => $req->ExpectedDeliveryDate,
+					'AID'=>$req->AID,
+					'QuoteImage' => $QuoteImage,
+					'isImageQuote' => 1,
+					'CreatedBy' => $this->UserID
+				];
+				$status=DB::table($this->currfyDB.'tbl_enquiry')->insert($data);
+				if($status){
+					$SelectedVendors = json_decode($req->VendorIDs, true);
+					foreach ($SelectedVendors as $VendorID) {
+						$isQuoteRequested =  DB::table($this->currfyDB . 'tbl_vendor_quotation')->where('VendorID',$VendorID)->where('EnqID',$EnqID)->first();
+						if(!$isQuoteRequested){
+							$VQuoteID = DocNum::getDocNum(docTypes::VendorQuotation->value, $this->currfyDB,Helper::getCurrentFy());
+							$data = [
+								"VQuoteID" => $VQuoteID,
+								"VendorID" => $VendorID,
+								"EnqID" => $EnqID,
+								'QuoteImage' => $QuoteImage,
+								'isImageQuote' => 1,
+								"QReqOn" => date('Y-m-d'),
+								"QReqBy" => $this->UserID,
+								"CreatedBy" => $this->UserID,
+								"CreatedOn" => date("Y-m-d H:i:s"),
+							];
+							$status = DB::table($this->currfyDB . 'tbl_vendor_quotation')->insert($data);
+							if($status){
+								DocNum::updateDocNum(docTypes::VendorQuotation->value, $this->currfyDB);
+							}
+						}
+					}
+					$status = DB::table($this->currfyDB.'tbl_enquiry')->where('EnqID',$EnqID)->update(['Status'=>'Quote Requested','VendorIDs'=>serialize($SelectedVendors),"UpdatedBy"=>$this->UserID,"UpdatedOn"=>date("Y-m-d H:i:s")]);
+				}
+				
+			}catch(Exception $e) {
+				$status=false;
+			}
+
+			if($status==true){
+				DocNum::updateDocNum(docTypes::VendorCategory->value);
+				DB::commit();
+				$NewData=DB::table($this->currfyDB.'tbl_enquiry_details as ED')->leftJoin($this->currfyDB.'tbl_enquiry as E','E.EnqID','ED.EnqID')->where('ED.EnqID',$EnqID)->get();
+				$logData=array("Description"=>"New Image Quote Enquiry Created","ModuleName"=>$this->ActiveMenuName,"Action"=>cruds::ADD->value,"ReferID"=>$EnqID,"OldData"=>$OldData,"NewData"=>$NewData,"UserID"=>$this->UserID,"IP"=>$req->ip());
+				logs::Store($logData);
+				return array('status'=>true,'message'=>"Image Quote Enquiry Created Successfully");
+			}else{
+				DB::rollback();
+				return array('status'=>false,'message'=>"Image Quote Enquiry Create Failed");
+			}
+		}else{
+			return array('status'=>false,'message'=>'Access denined');
+		}
+
+	}
     public function QuoteView(Request $req,$EnqID){
         if($this->general->isCrudAllow($this->CRUD,"edit")==true){
             $FormData=$this->general->UserInfo;
@@ -226,81 +314,6 @@ class QuoteEnquiryController extends Controller{
 						$row->AvailableVendors=[];
 						$AvailableVendors = Helper::getAvailableVendors($EnqData->AID);
 						$AllVendors = DB::table('tbl_vendors as V')->leftJoin('tbl_vendor_ratings as VR','VR.VendorID','V.VendorID')->whereIn('V.VendorID',$AvailableVendors)->select('V.VendorID','V.VendorName','VR.OverAll')->get();
-						if(count($AllVendors)>0){
-							foreach($AllVendors as $item){
-								$isProductAvailable= DB::Table('tbl_vendors_product_mapping')->where('Status',1)->Where('VendorID',$item->VendorID)->where('ProductID',$row->ProductID)->first();
-									if($isProductAvailable){
-										$row->AvailableVendors[] = [
-											"VendorID" => $item->VendorID,
-											"VendorName" => $item->VendorName,
-											"OverAll" => $item->OverAll,
-											"ProductID" => $isProductAvailable->ProductID,
-										];
-									}
-							}
-						}
-					}
-				}
-				if($EnqData->Status == "Quote Requested" && $EnqData->VendorIDs && count(unserialize($EnqData->VendorIDs)) > 0){
-					$VendorQuote = DB::Table($this->currfyDB.'tbl_vendor_quotation as VQ')->join('tbl_vendors as V','V.VendorID','VQ.VendorID')/* ->where('VQ.Status','Sent') */->where('VQ.EnqID',$EnqID)->select('VQ.VendorID','V.VendorName','VQ.VQuoteID','VQ.Status','VQ.AdditionalCost')->get();
-					foreach($VendorQuote as $row){
-						$row->ProductData = DB::table($this->currfyDB.'tbl_vendor_quotation_details as VQD')->where('VQuoteID',$row->VQuoteID)
-						->select('DetailID','ProductID','Price','VQuoteID')
-						->get();
-					}
-				}elseif($EnqData->Status == "Converted to Quotation"){
-					$FinalQuoteData = DB::Table($this->currfyDB.'tbl_quotation_details as QD')->join($this->currfyDB.'tbl_quotation as Q','Q.QID','QD.QID')->join('tbl_vendors as V','V.VendorID','QD.VendorID')->join('tbl_products as P','P.ProductID','QD.ProductID')->join('tbl_uom as UOM','UOM.UID','P.UID')->where('Q.EnqID',$EnqID)->get();
-				}
-
-				$FormData['PData'] = $PData;
-				$FormData['VendorQuote'] = $VendorQuote;
-				$FormData['FinalQuoteData'] = $FinalQuoteData;
-				// return $FormData['VendorQuote'];
-				return view('app.transaction.quote-enquiry.quote-view', $FormData);
-			}else{
-				return view('errors.403');
-			}
-        }elseif($this->general->isCrudAllow($this->CRUD,"view")==true){
-            return Redirect::to('admin/transaction/quote-enquiry/');
-        }else{
-            return view('errors.403');
-        }
-    }
-    public function QuoteView1(Request $req,$EnqID){
-        if($this->general->isCrudAllow($this->CRUD,"edit")==true){
-            $FormData=$this->general->UserInfo;
-            $FormData['menus']=$this->Menus;
-            $FormData['crud']=$this->CRUD;
-			$FormData['ActiveMenuName']=$this->ActiveMenuName;
-			$FormData['PageTitle']=$this->PageTitle;
-			$FormData['isEdit']=false;
-			$FormData['Settings']=$this->Settings;
-			$EnqData=DB::Table($this->currfyDB.'tbl_enquiry as E')
-			->leftJoin('tbl_customer as CU', 'CU.CustomerID', 'E.CustomerID')
-			->leftJoin($this->generalDB.'tbl_countries as C','C.CountryID','CU.CountryID')
-			->leftJoin($this->generalDB.'tbl_states as S', 'S.StateID', 'CU.StateID')
-			->leftJoin($this->generalDB.'tbl_districts as D', 'D.DistrictID', 'CU.DistrictID')
-			->leftJoin($this->generalDB.'tbl_taluks as T', 'T.TalukID', 'CU.TalukID')
-			->leftJoin($this->generalDB.'tbl_cities as CI', 'CI.CityID', 'CU.CityID')
-			->leftJoin($this->generalDB.'tbl_postalcodes as PC', 'PC.PID', 'CU.PostalCodeID')
-			->leftJoin($this->generalDB.'tbl_countries as DC','DC.CountryID','E.DCountryID')
-			->leftJoin($this->generalDB.'tbl_states as DS', 'DS.StateID', 'E.DStateID')
-			->leftJoin($this->generalDB.'tbl_districts as DD', 'DD.DistrictID', 'E.DDistrictID')
-			->leftJoin($this->generalDB.'tbl_taluks as DT', 'DT.TalukID', 'E.DTalukID')
-			->leftJoin($this->generalDB.'tbl_cities as DCI', 'DCI.CityID', 'E.DCityID')
-			->leftJoin($this->generalDB.'tbl_postalcodes as DPC', 'DPC.PID', 'E.DPostalCodeID')
-			->whereNot('E.Status','Cancelled')->Where('E.EnqID',$EnqID)
-			->select('EnqID','EnqNo','EnqDate','VendorIDs','Status','ReceiverName','ReceiverMobNo','ExpectedDeliveryDate','CU.Email','DPostalCodeID','E.PostalCodeID','E.Address','C.CountryName','S.StateName','D.DistrictName','T.TalukName','CI.CityName','PC.PostalCode','DAddress','DC.CountryName as DCountryName','DS.StateName as DStateName','DD.DistrictName as DDistrictName','DT.TalukName as DTalukName','DCI.CityName as DCityName','DPC.PostalCode as DPostalCode')
-			->first();
-			$FormData['EnqData']=$EnqData;
-			if($EnqData){
-				$VendorQuote = [];
-				$FinalQuoteData = [];
-				$PData=DB::table($this->currfyDB.'tbl_enquiry_details as ED')->leftJoin('tbl_products as P','P.ProductID','ED.ProductID')->leftJoin('tbl_uom as UOM','UOM.UID','ED.UOMID')->where('ED.EnqID',$EnqID)->select('ED.ProductID','ED.CID','ED.SCID','ED.Qty','P.ProductName','UOM.UID','UOM.UName','UOM.UCode')->get();
-				if(count($PData) > 0){
-					foreach($PData as $row){
-						$row->AvailableVendors=[];
-						$AllVendors = DB::table('tbl_vendors as V')->join('tbl_vendors_service_locations as VSL','V.VendorID','VSL.VendorID')->leftJoin('tbl_vendor_ratings as VR','VR.VendorID','V.VendorID')->where('V.ActiveStatus',"Active")->where('V.isApproved',1)->where('V.DFlag',0)->where('VSL.PostalCodeID',$FormData['EnqData']->DPostalCodeID)->select('V.VendorID','V.VendorName','VR.OverAll')->get();
 						if(count($AllVendors)>0){
 							foreach($AllVendors as $item){
 								$isProductAvailable= DB::Table('tbl_vendors_product_mapping')->where('Status',1)->Where('VendorID',$item->VendorID)->where('ProductID',$row->ProductID)->first();
@@ -600,10 +613,11 @@ class QuoteEnquiryController extends Controller{
 						}
 					}
 					if ($status) {
+						$QuoteNo = DocNum::getInvNo(docTypes::Quotation->value);
 						$data=[
 							'QID' => $QID,
 							'EnqID' => $EnqID,
-							'QNo' =>DocNum::getInvNo(docTypes::Quotation->value),
+							'QNo' => $QuoteNo,
 							'QDate' => date('Y-m-d'),
 							'QExpiryDate' => date('Y-m-d', strtotime('+15 days')),
 							'CustomerID' => $EnqData[0]->CustomerID,
@@ -641,6 +655,13 @@ class QuoteEnquiryController extends Controller{
 				DB::commit();
 				DocNum::updateDocNum(docTypes::Quotation->value, $this->currfyDB);
 				DocNum::updateInvNo(docTypes::Quotation->value);
+
+				$Title = "New Quotation";
+                $Message = "New Quotation" . $QuoteNo . " Received";
+				$status= Helper::saveNotification($EnqData[0]->CustomerID,$Title,$Message,'Quotation',$QID);
+                if($status){
+                    Helper::sendNotification($EnqData[0]->CustomerID,$Title,$Message);
+                }
 				$NewData=DB::table($this->currfyDB.'tbl_quotation_details as QD')->join($this->currfyDB.'tbl_quotation as Q','QD.QID','Q.QID')->where('QD.QID',$QID)->get();
 				$logData=array("Description"=>"Quotation Converted","ModuleName"=>$this->ActiveMenuName,"Action"=>cruds::UPDATE->value,"ReferID"=>$QID,"OldData"=>$OldData,"NewData"=>$NewData,"UserID"=>$this->UserID,"IP"=>$req->ip());
 				logs::Store($logData);
@@ -768,70 +789,6 @@ class QuoteEnquiryController extends Controller{
 		}
 	}
 
-	public function QTableView(Request $request){
-		if($this->general->isCrudAllow($this->CRUD,"view")==true){
-			$columns = array(
-				array( 'db' => 'QNo', 'dt' => '0' ),
-				array( 'db' => 'QDate', 'dt' => '1','formatter' => function( $d, $row ) {return date($this->Settings['date-format'],strtotime($d));}),
-				array( 'db' => 'CustomerName', 'dt' => '2' ),
-				array( 'db' => 'MobileNo1', 'dt' => '3' ),
-				array( 'db' => 'MobileNo2', 'dt' => '4' ),
-				array( 'db' => 'Email', 'dt' => '5' ),
-				array( 'db' => 'Status','dt' => '6',
-					'formatter' => function( $d, $row ) {
-						$html = "";
-						if($d=="New"){
-							$html="<span class='badge badge-info m-1'>".$d."</span>";
-						}elseif($d=="Allocated"){
-							$html="<span class='badge badge-secondary m-1'>".$d."</span>";
-						}elseif($d=="Quote Requested"){
-							$html="<span class='badge badge-success m-1'>".$d."</span>";
-						}
-						return $html;
-					}
-				),
-				array( 'db' => 'VendorID','dt' => '7',
-					'formatter' => function( $d, $row ) {
-						if($d){
-							return DB::table('tbl_vendors')->where('VendorID',$d)->value('VendorName');
-						}else{
-							return "--";
-						}
-					}
-				),
-				array(
-						'db' => 'QID',
-						'dt' => '8',
-						'formatter' => function( $d, $row ) {
-							$html='';
-							/* if($this->general->isCrudAllow($this->CRUD,"edit")==true){
-								$html.='<button type="button" data-id="'.$d.'" class="btn  btn-outline-success '.$this->general->UserInfo['Theme']['button-size'].'  mr-10 btnEdit" data-original-title="Edit"><i class="fa fa-pencil"></i></button>';
-							} */
-							if($this->general->isCrudAllow($this->CRUD,"view")==true){
-								// $html.='<button type="button" data-id="'.$d.'" class="btn  btn-outline-info '.$this->general->UserInfo['Theme']['button-size'].'  mr-10 btnView" data-original-title="View Quotation"><i class="fa fa-eye"></i></button>';
-								$html.='<button type="button" data-id="'.$d.'" class="btn btn-outline-info '.$this->general->UserInfo['Theme']['button-size'].'  mr-10 btnView">View Enquiry</button>';
-							}
-							if($this->general->isCrudAllow($this->CRUD,"delete")==true && $row['Status'] !== "Allocated"){
-								$html.='<button type="button" data-id="'.$d.'" class="btn btn-outline-danger '.$this->general->UserInfo['Theme']['button-size'].'  btnDelete" data-original-title="Delete">Cancel</button>';
-							}
-							return $html;
-						}
-				)
-			);
-			$data=array();
-			$data['POSTDATA']=$request;
-			$data['TABLE']=$this->currfyDB . 'tbl_quotation';
-			$data['PRIMARYKEY']='QID';
-			$data['COLUMNS']=$columns;
-			$data['COLUMNS1']=$columns;
-			$data['GROUPBY']=null;
-			$data['WHERERESULT']=null;
-			$data['WHEREALL']=" Status != 'Cancelled'";
-			return SSP::SSP( $data);
-		}else{
-			return response(array('status'=>false,'message'=>"Access Denied"), 403);
-		}
-	}
 
 	public function TrashTableView(Request $request){
 		if($this->general->isCrudAllow($this->CRUD,"view")==true){

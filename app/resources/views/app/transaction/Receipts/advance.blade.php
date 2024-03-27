@@ -13,7 +13,7 @@
 				<ol class="breadcrumb">
 					<li class="breadcrumb-item"><a href="{{ url('/') }}" data-original-title="" title=""><i class="f-16 fa fa-home"></i></a></li>
 					<li class="breadcrumb-item">Transaction</li>
-					<li class="breadcrumb-item"><a href="{{route('admin.transaction.payments')}}">{{$PageTitle}}</a></li>
+					<li class="breadcrumb-item"><a href="{{route('admin.transaction.receipts')}}">{{$PageTitle}}</a></li>
 					<li class="breadcrumb-item">Advance</li>
                     <li class="breadcrumb-item">@if($isEdit) Update @else Create @endif</li>
 				</ol>
@@ -25,7 +25,7 @@
 	<div class="row d-flex justify-content-center">
 		<div class="col-sm-5 col-12">
 			<div class="card">
-				<div class="card-header text-center"><h5 class="mt-10">Advance {{$PageTitle}} to Vendor</h5></div>
+				<div class="card-header text-center"><h5 class="mt-10">Advance {{$PageTitle}}</h5></div>
 				<div class="card-body" >
                     <div class="row">
                         <div class="col-sm-12">
@@ -87,7 +87,7 @@
                     <div class="row">
                         <div class="col-sm-12 text-right">
                             @if($crud['view']==true)
-                                <a href="{{route('admin.transaction.payments')}}" class="btn btn-sm btn-outline-dark m-5">Back</a>
+                                <a href="{{route('admin.transaction.receipts')}}" class="btn btn-sm btn-outline-dark m-5">Back</a>
                             @endif
                             @if(($crud['add']==true)||($crud['edit']==true))
                                 <button type="button" class="btn btn-sm btn-outline-success btn-air-success m-5" id="btnSave">@if($isEdit) Update @else Create @endif</button>
@@ -115,7 +115,7 @@
             $('#lstLedger').append('<option value="" selected>Select a Ledger Name</option>');
             $.ajax({
                 type:"post",
-                url:"{{route('admin.transaction.payments.get.ledger')}}",
+                url:"{{route('admin.transaction.receipts.get.ledger')}}",
                 headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
                 dataType:"json",
                 async:true,
@@ -214,7 +214,7 @@
                 },function(){
                     swal.close();
                     btnLoading($('#btnSave'));
-                    let postUrl= "<?php if($isEdit){ echo route('admin.transaction.payments.update',$TranNo); }else{ echo route('admin.transaction.payments.save');} ?>";
+                    let postUrl= "<?php if($isEdit){ echo route('admin.transaction.receipts.update',$TranNo); }else{ echo route('admin.transaction.receipts.save');} ?>";
                     $.ajax({
                         type:"post",
                         url:postUrl,
@@ -234,7 +234,7 @@
                                     closeOnConfirm: false
                                 },function(){
                                     @if($isEdit==true)
-                                        window.location.replace("{{route('admin.transaction.payments')}}");
+                                        window.location.replace("{{route('admin.transaction.receipts')}}");
                                     @else
                                         window.location.reload();
                                     @endif

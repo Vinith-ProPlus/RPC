@@ -120,6 +120,11 @@ label {
     width: 95% !important;
     max-width: 95% !important;
 }
+
+.medium .modal-dialog{
+    width: 50% !important;
+    max-width: 50% !important;
+}
 .sweet-overlay{
     z-index: 1080;
 }
