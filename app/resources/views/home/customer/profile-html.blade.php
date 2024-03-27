@@ -179,19 +179,17 @@
                                                 <tr id="{{ $key + 1 }}" data-aid="{{ $item->AID }}">
                                                     <td class="text-right checkbox1 align-middle">
                                                         <div class="radio radio-primary">
-                                                            <input id="chkSA{{ $key + 1 }}" data-aid="{{ $item->AID }}" type="radio" name="SAddress" value="{{ $key + 1 }}" {{ $item->isDefault == 1 ? 'checked' : '' }}>
+                                                            <input id="chkSA{{ $key + 1 }}" data-aid="{{ $item->AID }}" class="defaultAddress" type="radio" name="SAddress" value="{{ $key + 1 }}" {{ ($item->isDefault == "1") ? "checked=checked" : '' }}>
                                                             <label for="chkSA{{ $key + 1 }}"></label>
                                                         </div>
                                                     </td>
-                                                    <td class="pointer">
+                                                    <td class="pointer align-middle">
                                                         <b>{{ $item->Address }}</b>,<br>
-                                                        {{ $item->CityName }}, {{ $item->TalukName }},<br>
-                                                        {{ $item->DistrictName }}, {{ $item->StateName }},<br>
-                                                        {{ $item->CountryName }} - {{ $item->PostalCode }}.
+                                                        {{ $item->CityName }}, {{ $item->PostalCode }}.
                                                     </td>
-                                                    <td class="d-flex text-center">
-                                                        <button type="button" class="btn btn-sm btn-outline-success m-3 btnEditSAddress"><i class="fas fa-pencil-alt"></i></button>
-                                                        <button type="button" class="btn btn-sm btn-outline-danger m-3 btnDeleteSAddress"><i class="fas fa-trash-alt"></i></button>
+                                                    <td class="d-flex text-center align-middle">
+{{--                                                        <button type="button" class="btn btn-sm btn-outline-success m-3 btnEditSAddress"><i class="fas fa-pencil-alt"></i></button>--}}
+                                                        <button type="button" class="btn btn-sm btn-outline-danger m-3 btnDeleteSAddress" data-aid="{{ $item->AID }}"><i class="fas fa-trash-alt"></i></button>
                                                     </td>
                                                     <td class="d-none">{{ json_encode($item) }}</td>
                                                 </tr>
@@ -348,6 +346,7 @@
         }
 
         $('#btnGSearchPostalCode').trigger('click');
+        $('input.defaultAddress[data-aid="' + '{{ $defaultAddressAID }}' + '"]').prop('checked', true);
         getCountry({},'lstCountry');
         getGender({},'lstGender');
         getCusType({},'lstCusType');

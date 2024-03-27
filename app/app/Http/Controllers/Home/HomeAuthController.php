@@ -1763,10 +1763,11 @@ class HomeAuthController extends Controller{
         $FormData['isRegister']=true;
         $FormData['Cart']=$this->getCart();
         $FormData['EditData'] = DB::table('tbl_customer')->where('DFlag',0)->Where('CustomerID',$CustomerID)->first();
+        $FormData['defaultAddressAID'] = DB::table('tbl_customer_address')->where('DFlag',0)->Where('CustomerID',$CustomerID)->where('isDefault', 1)->pluck('AID')->first();
         if($FormData['EditData']) {
             $FormData['EditData']->CustomerImage = $FormData['EditData']->CustomerImage ? url('/') . '/' . $FormData['EditData']->CustomerImage : url('/') . '/' . 'assets/images/no-image-b.png';
             $FormData['EditData']->PostalCode = DB::table($this->generalDB . 'tbl_postalcodes as P')->where('PID', $FormData['EditData']->PostalCodeID)->value('PostalCode');
-            $FormData['EditData']->SAddress = DB::table('tbl_customer_address as CA')->where('CustomerID', $CustomerID)
+            $FormData['EditData']->SAddress = DB::table('tbl_customer_address as CA')->where('CustomerID', $CustomerID)->where('CA.DFlag', 0)
                 ->join($this->generalDB . 'tbl_countries as C', 'C.CountryID', 'CA.CountryID')
                 ->join($this->generalDB . 'tbl_states as S', 'S.StateID', 'CA.StateID')
                 ->join($this->generalDB . 'tbl_districts as D', 'D.DistrictID', 'CA.DistrictID')
