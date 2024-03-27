@@ -1,6 +1,24 @@
 @extends('home.home-layout')
 @section('content')
-
+<style>
+    .select2-container--default .select2-selection--multiple
+    {
+        border: solid black 1px !important;
+        outline: 0;
+        background-color: white !important;
+        border: 1px solid #dfdfdf !important;
+        border-radius: 0px !important;
+        cursor: text;
+    }
+    .select2-search__field {
+        min-height: 35px !important; /* Adjust the font size as needed */
+        padding: .375rem .75rem !important;
+        padding-left: 0.75rem !important;
+        padding-left: 0.75rem !important;
+        font-size: 1.2rem !important;
+        font-weight: 400 !important;
+    }
+</style>
 <div class="container-fluid">
 	<div class="row d-flex justify-content-center">
 		<div class="col-sm-9 mt-3">
