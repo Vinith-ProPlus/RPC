@@ -516,7 +516,7 @@ class HomeAuthController extends Controller{
     public function getCategory(Request $req)
     {
         if ($req->AID) {
-            $AllVendors = Helper::getAvailableVendors($req->AID);
+            $AllVendors = Helper::getAvailableVendorsForCustomer($req->AID);
             $PCatagories = DB::table('tbl_vendors_product_mapping as VPM')
                 ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'VPM.PCID')
                 ->where('VPM.Status', 1)->WhereIn('VPM.VendorID', $AllVendors)
@@ -547,7 +547,7 @@ class HomeAuthController extends Controller{
             $customerID = $this->ReferID;
             $productCount = $request->productCount ?? 12;
             $pageNo = $request->pageNo ?? 1;
-            $AllVendors = Helper::getAvailableVendors($request->AID);
+            $AllVendors = Helper::getAvailableVendorsForCustomer($request->AID);
             $totalProducts = DB::table('tbl_vendors_product_mapping as VPM')
                 ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'VPM.PCID')
                 ->leftJoin('tbl_products as P', 'P.ProductID', 'VPM.ProductID')
@@ -841,7 +841,7 @@ class HomeAuthController extends Controller{
     {
         $CustomerID = $this->ReferID;
         $FormData['Company'] = $this->Company;
-        $AllVendors = Helper::getAvailableVendors($request->AID);
+        $AllVendors = Helper::getAvailableVendorsForCustomer($request->AID);
         $PCatagories = DB::table('tbl_vendors_product_mapping as VPM')
             ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'VPM.PCID')
             ->where('VPM.Status', 1)->WhereIn('VPM.VendorID', $AllVendors)
@@ -894,7 +894,7 @@ class HomeAuthController extends Controller{
             $productCount = ($request->productCount != 'undefined') ? $request->productCount : 12;
             $pageNo = ($request->pageNo != 'undefined') ? $request->pageNo : 1;
 
-            $AllVendors = Helper::getAvailableVendors($request->AID);
+            $AllVendors = Helper::getAvailableVendorsForCustomer($request->AID);
             $PCatagories = DB::table('tbl_vendors_product_mapping as VPM')
                 ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'VPM.PCID')
                 ->where('VPM.Status', 1)->WhereIn('VPM.VendorID', $AllVendors)
@@ -929,7 +929,7 @@ class HomeAuthController extends Controller{
     {
         $CustomerID = $this->ReferID;
         $FormData['Company'] = $this->Company;
-        $AllVendors = Helper::getAvailableVendors($request->AID);
+        $AllVendors = Helper::getAvailableVendorsForCustomer($request->AID);
         $PCatagories = DB::table('tbl_vendors_product_mapping as VPM')
             ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'VPM.PCID')
             ->where('VPM.Status', 1)->WhereIn('VPM.VendorID', $AllVendors)
@@ -981,7 +981,7 @@ class HomeAuthController extends Controller{
         if ($request->AID) {
             $productCount = ($request->productCount != 'undefined') ? $request->productCount : 12;
             $pageNo = ($request->pageNo != 'undefined') ? $request->pageNo : 1;
-            $AllVendors = Helper::getAvailableVendors($request->AID);
+            $AllVendors = Helper::getAvailableVendorsForCustomer($request->AID);
             $PSubCatagories = DB::table('tbl_vendors_product_mapping as VPM')
                 ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'VPM.PSCID')
                 ->where('VPM.Status', 1)->WhereIn('VPM.VendorID', $AllVendors)
@@ -1021,7 +1021,7 @@ class HomeAuthController extends Controller{
     {
         $CustomerID = $this->ReferID;
         $FormData['Company'] = $this->Company;
-        $AllVendors = Helper::getAvailableVendors($request->AID);
+        $AllVendors = Helper::getAvailableVendorsForCustomer($request->AID);
         $PCatagories = DB::table('tbl_vendors_product_mapping as VPM')
             ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'VPM.PCID')
             ->where('VPM.Status', 1)->WhereIn('VPM.VendorID', $AllVendors)
@@ -1096,7 +1096,7 @@ class HomeAuthController extends Controller{
             $productCount = ((int)($request->productCount) != 0) ? $request->productCount : 12;
             $pageNo = $request->pageNo ?? 1;
 
-            $AllVendors = Helper::getAvailableVendors($request->AID);
+            $AllVendors = Helper::getAvailableVendorsForCustomer($request->AID);
             $wishListCount = DB::table('tbl_vendors_product_mapping as VPM')
                 ->leftJoin('tbl_products as P', 'P.ProductID', 'VPM.ProductID')
                 ->leftJoin('tbl_wishlists as W', function($join) use ($customerID) {
@@ -1153,7 +1153,7 @@ class HomeAuthController extends Controller{
     {
         if ($req->AID) {
             if ($req->SearchText) {
-                $AllVendors = Helper::getAvailableVendors($req->AID);
+                $AllVendors = Helper::getAvailableVendorsForCustomer($req->AID);
 
                 $PCategories = DB::table('tbl_product_category as PC')
                     ->rightJoin('tbl_vendors_product_mapping as VPM', 'PC.PCID', 'VPM.PCID')
@@ -1357,7 +1357,7 @@ class HomeAuthController extends Controller{
         } else {
             $AID = $customerDefaultAid;
         }
-        $AllVendors = Helper::getAvailableVendors($AID);
+        $AllVendors = Helper::getAvailableVendorsForCustomer($AID);
         $PCatagories = DB::table('tbl_vendors_product_mapping as VPM')
             ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'VPM.PCID')
             ->where('VPM.Status', 1)->WhereIn('VPM.VendorID', $AllVendors)

@@ -65,6 +65,41 @@ class helper{
         }
         return $AllVendors;
     }
+
+    public static function getAvailableVendorsForCustomer($AID)
+    {
+        $AddressData = DB::table('tbl_customer_address')->where('AID', $AID)->first();
+        if ($AddressData) {
+            $AllVendors = DB::table('tbl_vendors as V')
+                ->join('tbl_vendors_service_locations as VSL', 'V.VendorID', 'VSL.VendorID')
+                ->where('V.isApproved', '1')
+                ->where('V.ActiveStatus', "Active")
+                ->where('V.DFlag', 0)
+                ->where('VSL.DFlag', 0)
+                ->where('VSL.PostalCodeID', $AddressData->PostalCodeID)->groupBy('V.VendorID')->pluck('V.VendorID')->toArray();
+            $RadiusVendors = DB::table('tbl_vendors_stock_point as VSP')
+                ->join('tbl_vendors as V', 'V.VendorID', 'VSP.VendorID')
+                ->where('VSP.ServiceBy', 'Radius')
+                ->where('V.ActiveStatus', "Active")->where('V.DFlag', 0)
+                ->where('VSP.DFlag', 0)->where('V.isApproved', '1')
+                ->select('V.VendorID', 'Latitude', 'Longitude', 'Range')->get();
+            foreach ($RadiusVendors as $Vendor) {
+                $vendorID = self::findVendorsInRange($AddressData, $Vendor);
+                if ($vendorID && !in_array($vendorID, $AllVendors)) {
+                    $AllVendors[] = $vendorID;
+                }
+            }
+        } else {
+            $AllVendors = DB::table('tbl_vendors as V')
+                ->join('tbl_vendors_service_locations as VSL', 'V.VendorID', 'VSL.VendorID')
+                ->where('V.ActiveStatus', "Active")
+                ->where('V.DFlag', 0)
+                ->where('VSL.DFlag', 0)
+                ->groupBy('V.VendorID')->pluck('V.VendorID')->toArray();
+        }
+        return $AllVendors;
+    }
+
 	public static function findVendorsInRange($Customer, $Vendor) {
         $customerLat = $Customer->Latitude;
         $customerLng = $Customer->Longitude;
@@ -89,25 +124,25 @@ class helper{
 		$customerLat = $Customer->Latitude;
 		$customerLng = $Customer->Longitude;
 		$earthRadius = 6371;
-	
+
 		$nearestStockPoints = [];
-	
+
 		foreach ($VendorStockPoints as $point) {
 			$vendorLat = $point->Latitude;
 			$vendorLng = $point->Longitude;
-	
+
 			$dLat = deg2rad($vendorLat - $customerLat);
 			$dLon = deg2rad($vendorLng - $customerLng);
 			$a = sin($dLat / 2) * sin($dLat / 2) + cos(deg2rad($customerLat)) * cos(deg2rad($vendorLat)) * sin($dLon / 2) * sin($dLon / 2);
 			$c = 2 * atan2(sqrt($a), sqrt(1 - $a));
 			$distance = $earthRadius * $c;
-	
+
 			$nearestStockPoints[] = [
 				'StockPointID' => $point->StockPointID,
 				'Distance' => $distance,
 			];
 		}
-	
+
 		return $nearestStockPoints;
 	}
 	public static function findNearestStockPoint($Customer, $VendorStockPoints) {
@@ -115,18 +150,18 @@ class helper{
 		$customerLng = $Customer->Longitude;
 		$minDistance = PHP_INT_MAX;
 		$nearestStockPoint = null;
-	
+
 		foreach ($VendorStockPoints as $point) {
 			$vendorLat = $point->Latitude;
 			$vendorLng = $point->Longitude;
-	
+
 			$earthRadius = 6371;
 			$dLat = deg2rad($vendorLat - $customerLat);
 			$dLon = deg2rad($vendorLng - $customerLng);
 			$a = sin($dLat / 2) * sin($dLat / 2) + cos(deg2rad($customerLat)) * cos(deg2rad($vendorLat)) * sin($dLon / 2) * sin($dLon / 2);
 			$c = 2 * atan2(sqrt($a), sqrt(1 - $a));
 			$distance = $earthRadius * $c;
-	
+
 			if ($distance < $minDistance) {
 				$minDistance = $distance;
 				$nearestStockPoint = $point;
@@ -135,7 +170,7 @@ class helper{
 		$RouteDistance = self::calculateDistance($Customer,$nearestStockPoint);
 		return $RouteDistance;
 	}
-	
+
 	public static function calculateDistance($Customer, $Vendor){
 		$client = new Client();
 

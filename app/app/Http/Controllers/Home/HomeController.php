@@ -33,7 +33,7 @@ class HomeController extends Controller
             $customerAid = Session::get('selected_aid');
             $customerDefaultAid = DB::table('tbl_customer_address')->where('CustomerID', $CustomerID)->where('isDefault', true)->first();
             $AID = isset($customerAid) ? $customerAid : $customerDefaultAid->AID;
-            $AllVendors = Helper::getAvailableVendors($AID);
+            $AllVendors = Helper::getAvailableVendorsForCustomer($AID);
             $PCatagories = DB::table('tbl_vendors_product_mapping as VPM')
                 ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'VPM.PCID')
                 ->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)
