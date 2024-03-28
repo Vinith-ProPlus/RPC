@@ -62,10 +62,25 @@
 				<div class="card-header text-center"><h5 class="mt-10">{{$PageTitle}}</h5></div>
 				<div class="card-body">
                     <div class="row">
-                        <div class="col-sm-12 mt-20">
+                        <div class="col-sm-6 mt-20">
+                            <label for="lstVendor">Vendor Name <span class="required">*</span></label>
+                            <select  class="form-control select2" id="lstVendor" @if($isEdit) disabled @endif>
+                                <option value="">Select a Vendor Name</option>
+                                @foreach ($Vendors as $row)
+                                    <option value="{{$row->VendorID}}" @if($isEdit && $EditData->VendorID == $row->VendorID) selected @endif>{{$row->VendorName}}</option>										
+                                @endforeach
+                            </select>
+                            <span class="errors err-sm" id="lstVendor-err"></span>
+                        </div>
+                        <div class="col-sm-6 mt-20">
                             <label for="txtPointName">Stock Point Name <span class="required">*</span></label>
                             <input type="text" class="form-control" id="txtPointName" value="<?php if($isEdit){ echo $EditData->PointName;} ?>">
                             <span class="errors err-sm" id="txtPointName-err"></span>
+                        </div>
+                        {{-- MAP --}}
+                        <div class="col-sm-12 mt-20">
+                            <div id="map" style="height: 450px;"></div>
+                            <div class="errors mt-10" id="txtMap-err"></div>
                         </div>
                         <div class="col-sm-12 mt-20">
                             <label for="txtAddress">Address <span class="required">*</span></label>
@@ -132,21 +147,21 @@
                     <div class="row justify-content-center mt-20">
                         <div class="col-12 col-sm-8 col-md-7 col-lg-4 text-center card-body">
                             <label class="d-block" for="edo-ani">
-                                <input class="radio_animated chkServiceBy" @if($isEdit && $data->ServiceBy == "District") checked @endif id="edo-ani" type="radio" name="rdo-ani" data-value="District" data-target="divDistrict"><span class="fw-500 fs-17">District</span>
+                                <input class="radio_animated chkServiceBy" @if($isEdit && $EditData->ServiceBy == "District") checked @endif id="edo-ani" type="radio" name="rdo-ani" data-value="District" data-target="divDistrict"><span class="fw-500 fs-17">District</span>
                             </label>
                         </div>
                         <div class="col-12 col-sm-8 col-md-7 col-lg-4 text-center card-body">
                             <label class="d-block" for="edo-ani1">
-                                <input class="radio_animated chkServiceBy" @if($isEdit && $data->ServiceBy == "PostalCode") checked @endif id="edo-ani1" type="radio" name="rdo-ani" data-value="PostalCode" data-target="divPostalCode"><span class="fw-500 fs-17">Postal Code</span>
+                                <input class="radio_animated chkServiceBy" @if($isEdit && $EditData->ServiceBy == "PostalCode") checked @endif id="edo-ani1" type="radio" name="rdo-ani" data-value="PostalCode" data-target="divPostalCode"><span class="fw-500 fs-17">Postal Code</span>
                             </label>
                         </div>
                         <div class="col-12 col-sm-8 col-md-7 col-lg-4 text-center card-body">
                             <label class="d-block" for="edo-ani2">
-                                <input class="radio_animated chkServiceBy" @if($isEdit && $data->ServiceBy == "Radius") checked @endif id="edo-ani2" type="radio" name="rdo-ani" data-value="Radius" data-target="divRadius"><span class="fw-500 fs-17">Radius</span>
+                                <input class="radio_animated chkServiceBy" @if($isEdit && $EditData->ServiceBy == "Radius") checked @endif id="edo-ani2" type="radio" name="rdo-ani" data-value="Radius" data-target="divRadius"><span class="fw-500 fs-17">Radius</span>
                             </label>
                         </div>
                     </div>
-                    <div class="row @if($isEdit && $data->ServiceBy == "District") @else d-none @endif divServiceBy my-2" id="divDistrict">
+                    <div class="row @if($isEdit && $EditData->ServiceBy == "District") @else d-none @endif divServiceBy my-2" id="divDistrict">
                         <div class="col-sm-12">
                             <div class="row justify-content-center mt-20">
                                 <div class="col-12 col-sm-8 col-md-7 col-lg-4">
@@ -155,7 +170,7 @@
                                     </select>
                                 </div>
                                 <div class="col-12 col-sm-8 col-md-7 col-lg-4">
-                                    <select  class="form-control select2" id="lstSLDState" data-selected="@if($isEdit){{$data->StateID}}@endif">
+                                    <select  class="form-control select2" id="lstSLDState" data-selected="{{-- @if($isEdit){{$EditData->StateID}}@endif --}}">
                                         <option value="">Select a State</option>
                                     </select>
                                 </div>
@@ -168,7 +183,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row @if($isEdit && $data->ServiceBy == "PostalCode") @else d-none @endif divServiceBy my-2" id="divPostalCode">
+                    <div class="row @if($isEdit && $EditData->ServiceBy == "PostalCode") @else d-none @endif divServiceBy my-2" id="divPostalCode">
                         <div class="col-sm-12">
                             <div class="row justify-content-center mt-20">
                                 <div class="col-12 col-sm-8 col-md-7 col-lg-4">
@@ -177,12 +192,12 @@
                                     </select>
                                 </div>
                                 <div class="col-12 col-sm-8 col-md-7 col-lg-4">
-                                    <select  class="form-control select2" id="lstSLPState" data-selected="@if($isEdit){{$data->StateID}}@endif">
+                                    <select  class="form-control select2" id="lstSLPState" data-selected="{{-- @if($isEdit){{$EditData->StateID}}@endif --}}">
                                         <option value="">Select a State</option>
                                     </select>
                                 </div>
                                 <div class="col-12 col-sm-8 col-md-7 col-lg-4">
-                                    <select  class="form-control select2" id="lstSLPDistrict" data-selected="@if($isEdit){{$data->DistrictID}}@endif">
+                                    <select  class="form-control select2" id="lstSLPDistrict" data-selected="{{-- @if($isEdit){{$EditData->DistrictID}}@endif --}}">
                                         <option value="">Select a District</option>
                                     </select>
                                 </div>
@@ -195,11 +210,11 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row @if($isEdit && $data->ServiceBy == "Radius") @else d-none @endif divServiceBy my-2 justify-content-center" id="divRadius">
+                    <div class="row @if($isEdit && $EditData->ServiceBy == "Radius") @else d-none @endif divServiceBy my-2 justify-content-center" id="divRadius">
                         <div class="col-sm-4">
                             <div class="form-row">
                                 <label for="txtRange">Range in KM <span class="required">*</span></label>
-                                <input type="number" class="form-control" id="txtRange" value="@if($isEdit) {{$data->Range}}@else 0 @endif">
+                                <input type="number" class="form-control" id="txtRange" value="{{ $isEdit ? $EditData->Range : '0' }}">
                                 <span class="errors err-sm" id="txtRange-err"></span>
                             </div>
                         </div>
@@ -222,19 +237,82 @@
 		</div>
 	</div>
 </div>
-<textarea style="display:none" id="txtAData">
-    <?php 
-        if($isEdit){
-            if(isset($EditData[0]->AdditionalSetting)){
-                echo json_encode(unserialize($EditData[0]->AdditionalSetting));
-            }else{
-                echo json_encode(array());
-            }
-        }
-    ?>
-</textarea>
+<input id="txtLatitude" class="d-none" value="@if($isEdit) {{ $EditData->Latitude }} @endif">
+<input id="txtLongitude" class="d-none" value="@if($isEdit) {{ $EditData->Longitude }} @endif">
+<textarea id="divServiceData" class="d-none">@if($isEdit) {{$EditData->ServiceData}} @endif</textarea>
+<textarea id="txtMapData" class="d-none">@if($isEdit) {{$EditData->MapData}} @endif</textarea>
+
 @endsection
 @section('scripts')
+{{-- Map Script --}}
+<script>
+    var map;
+    var marker;
+
+    function initMap() {
+        map = new google.maps.Map(document.getElementById('map'), {
+            center: { lat: 10.490, lng: 79.83 },
+            zoom: 7
+        });
+
+        marker = new google.maps.Marker({
+            map: map,
+            draggable: true // Make the marker draggable
+        });
+
+        map.addListener('click', function (event) {
+            updateMarker(event.latLng);
+        });
+
+        marker.addListener('dragend', function () {
+            updateAddress(marker.getPosition());
+        });
+        @if($isEdit && $EditData->Latitude && $EditData->Longitude)
+            var latLng = new google.maps.LatLng({{ $EditData->Latitude }}, {{ $EditData->Longitude }});
+            marker.setPosition(latLng);
+        @endif
+
+    }
+
+    function updateMarker(latLng) {
+        marker.setPosition(latLng);
+        updateAddress(latLng);
+    }
+
+    function updateAddress(latLng) {
+        var geocoder = new google.maps.Geocoder();
+        geocoder.geocode({ 'location': latLng }, function (results, status) {
+            if (status === 'OK' && results[0]) {
+                var formattedAddress = results[0].formatted_address;
+                var addressComponents = formattedAddress.split(', ');
+                var simplifiedAddress = addressComponents.slice(0, -2).join(', ');
+                $('#txtAddress').val(simplifiedAddress);
+                $('#txtLatitude').val(latLng.lat());
+                $('#txtLongitude').val(latLng.lng());
+                $('#txtMapData').val(JSON.stringify(results[0]));
+                var postalCode = extractPostalCodeFromAddressComponents(results[0]);
+                if (postalCode) {
+                    $('#txtPostalCode').val(postalCode);
+                    $('#btnGSearchPostalCode').click();
+                }
+
+            }
+        });
+    }
+    function extractPostalCodeFromAddressComponents(result) {
+        for (var i = 0; i < result.address_components.length; i++) {
+            var addressComponent = result.address_components[i];
+            if (addressComponent.types.includes('postal_code')) {
+                return addressComponent.long_name;
+            }
+        }
+        return null;
+    }
+
+    // Call initMap() to initialize the map when the page loads
+</script>
+<script async src="https://maps.googleapis.com/maps/api/js?key={{ config('app.map_api_key') }}&callback=initMap"></script>
+{{-- End Map Script --}}
 
 <script>
     
@@ -364,6 +442,31 @@
             });
             $('#'+id).select2();
         }
+        const loadData=async(data)=>{
+            if(data.length>0){
+                for(let item of data.ServiceData){
+                    console.log(item);
+                    let DistrictIDs = [];
+                    if(data.ServiceBy == "District"){
+                        for (let district of item.Districts) {
+                            DistrictIDs.push(district.DistrictID);
+                        }
+                        $('#ServiceLocationDAccordion .accordion-item[data-state-id ="' + item.StateID + '"]').length == 0 ? AddDServiceLocations(item.CountryID,item.StateID,item.StateName,DistrictIDs) : null;
+                    }else if (data.ServiceBy == "PostalCode") {
+                        for (let district of item.Districts) {
+                            $('#ServiceLocationPAccordion .accordion-item[data-district-id="' + district.DistrictID + '"]').length === 0 ? AddPServiceLocations(item.CountryID, item.StateID, district.DistrictID, district.DistrictName, district.PostalCodeIDs) : null;
+                        }
+                    }
+                }
+                
+                
+                if (data.ServiceBy == "District") {
+                    $('.chkServiceBy[data-value="District"]').trigger('change');
+                } else if (data.ServiceBy == "PostalCode") {
+                    $('.chkServiceBy[data-value="PostalCode"]').trigger('change');
+                }
+            }
+        }
         $(document).on('click','#btnGSearchPostalCode',async function(){
             $('#txtPostalCode-err').html('')
             let PostalCode=$('#txtPostalCode').val();
@@ -423,10 +526,11 @@
             getStates({CountryID:$('#lstCountry').val()},'lstState');
         });
         getCountry({},'lstCountry');
+
         // Service By District
         const AddDServiceLocations=async(CountryID,StateID,StateName,DistrictIDs)=>{
-            let AddressStateID =  @if($isEdit)"{{$data->StateID}}" @else $("#lstState").val() @endif;
-            let AddressDistrictID =  @if($isEdit)"{{$data->DistrictID}}" @else $("#lstDistrict").val() @endif;
+            let AddressStateID =  @if($isEdit)"{{$EditData->StateID}}" @else $("#lstState").val() @endif;
+            let AddressDistrictID =  @if($isEdit)"{{$EditData->DistrictID}}" @else $("#lstDistrict").val() @endif;
 
             let html = `<div class="accordion-item" data-country-id="${CountryID}" data-state-id="${StateID}">
                             <h2 class="accordion-header" id="${StateID}-heading">
@@ -506,8 +610,8 @@
 
         // Service By Postal Code
         const AddPServiceLocations=async(CountryID,StateID,DistrictID,DistrictName,PostalCodeIDs)=>{
-            let AddressDistrictID = @if($isEdit)"{{$data->DistrictID}}" @else $("#lstDistrict").val() @endif;
-            let AddressPostalCodeID = @if($isEdit)"{{$data->PostalCodeID}}" @else $("#lstCity option:selected").attr('data-postal') @endif;
+            let AddressDistrictID = @if($isEdit)"{{$EditData->DistrictID}}" @else $("#lstDistrict").val() @endif;
+            let AddressPostalCodeID = @if($isEdit)"{{$EditData->PostalID}}" @else $("#lstCity option:selected").attr('data-postal') @endif;
             let html = `<div class="accordion-item" data-country-id="${CountryID}" data-state-id="${StateID}" data-district-id="${DistrictID}">
                             <h2 class="accordion-header" data-district-id="${DistrictID}" id="${DistrictID}-heading">
                                 <button class="accordion-button" type="button" data-district-id="${DistrictID}" data-bs-toggle="collapse" data-bs-target="#panel-${DistrictID}" aria-expanded="true" aria-controls="panel-${DistrictID}">
@@ -643,9 +747,9 @@
             $(".divServiceBy").not("#"+target).addClass('d-none');
             $("#"+target).removeClass('d-none');
 
-            let Country = @if($isEdit)"{{$data->CountryID}}" @else $("#lstCountry").val() @endif;
-            let State = @if($isEdit)"{{$data->StateID}}" @else $("#lstState").val() @endif;
-            let District = @if($isEdit)"{{$data->DistrictID}}" @else $("#lstDistrict").val() @endif;
+            let Country = @if($isEdit)"{{$EditData->CountryID}}" @else $("#lstCountry").val() @endif;
+            let State = @if($isEdit)"{{$EditData->StateID}}" @else $("#lstState").val() @endif;
+            let District = @if($isEdit)"{{$EditData->DistrictID}}" @else $("#lstDistrict").val() @endif;
 
             if(Value == "District"){
                 let SLDCountry = $("#lstSLPCountry").val();
@@ -664,17 +768,20 @@
         });
 
         const appInit=async()=>{
-            let TData=[];
-            @if($isEdit==true)
-                TData=JSON.parse($('#txtAData').val());
+            @if($isEdit)
+            $('#btnGSearchPostalCode').trigger('click');
+            let Data = {
+                ServiceData : $('#divServiceData').val(),
+                ServiceBy : "{{$EditData->ServiceBy}}",
+            };
+            loadData(Data);
             @endif
-            df=$('#dynamicForm').dynamicForm({Columns:2,isValidate:true,Data:TData,BaseUrl:"{{url('/')}}/"});
         }
         const formValidation=async()=>{
             $('.errors').html('');
             let status=true;
-            let VendorType=$('#txtVendorType').val();
-
+            let Vendor=$('#lstVendor').val();
+            let PointName=$('#txtPointName').val();
             let Address=$('#txtAddress').val();
             let PostalCode=$('#lstCity option:selected').attr('data-postal');
             let CityID=$('#lstCity').val();
@@ -682,6 +789,10 @@
             let DistrictID=$('#lstDistricts').val();
             let StateID=$('#lstState').val();
             let CountryID=$('#lstCountry').val();
+            let Latitude = $('#txtLatitude').val();
+            if(!Latitude){
+                $('#txtMap-err').html('Mark your stock point in Map.');status=false;
+            }
             if(!PostalCode){
                 $('#txtPostalCode-err').html('Postal Code is required.');status=false;
             }
@@ -705,8 +816,13 @@
             }else if(Address.length<5){
                 $('#txtAddress-err').html('Address must be greater than 5 characters');status=false;
             }
-            if(VendorType==""){
-                $('#txtVendorType-err').html('The Vendor Type is required.');status=false;
+            if(!PointName){
+                $('#txtPointName-err').html('The Stock point name is required.');status=false;
+            }else if(PointName.length < 3){
+                $('#txtPointName-err').html('The Stock point name must be greater than 3 characters.');status=false;
+            }
+            if(!Vendor){
+                $('#lstVendor-err').html('The Vendor Name is required.');status=false;
             }
             if (!$('.chkServiceBy:checked').length && status) {
                 toastr.error("Please select any Services", "Failed", {positionClass: "toast-top-right",containerId: "toast-top-right",showMethod: "slideDown",hideMethod: "slideUp",progressBar: !0});
@@ -740,36 +856,72 @@
                     });
                 }
             } else if ($('.chkServiceBy:checked[data-value="Radius"]').length){
-                let Range=$('#txtRange').val();
-                if(Range == ""){
-                    $('#txtRange-err').html('Range is required.');status=false;
+                let Range = $('#txtRange').val().trim();
+                if (Range === "") {
+                    $('#txtRange-err').html('Range is required.');
+                    status = false;
+                } else {
+                    Range = Number(Range);
+                    if (Range <= 0 || isNaN(Range)) {
+                        $('#txtRange-err').html('Range must be a number greater than 0.');
+                        status = false;
+                    }
                 }
+
             }
             console.log(status);
             return status;
 
             if(status==false){$("html, body").animate({ scrollTop: 0 }, "slow");}
         }
-        const getData=async ()=>{
+        const GetData=async ()=>{
+            let ServiceData = [];
+            let ServiceBy = $('.chkServiceBy:checked').data('value');
+
             let formData=new FormData();
+            formData.append('VendorID',$('#lstVendor').val());
             formData.append('PointName',$('#txtPointName').val());
-            formData.append('MobileNo1',$('#txtMobileNo1').val());
+            formData.append('ServiceBy',ServiceBy);
+            formData.append('Range',$('#txtRange').val());
+            formData.append('MapData',$('#txtMapData').val());
+            formData.append('Latitude',$('#txtLatitude').val());
+            formData.append('Longitude',$('#txtLongitude').val());
             formData.append('Address',$('#txtAddress').val());
-            formData.append('PostalCodeID',$('#lstCity option:selected').attr('data-postal'));
+            formData.append('PostalID',$('#lstCity option:selected').attr('data-postal'));
             formData.append('CityID',$('#lstCity').val());
             formData.append('TalukID',$('#lstTaluk').val());
             formData.append('DistrictID',$('#lstDistricts').val());
             formData.append('StateID',$('#lstState').val());
             formData.append('CountryID',$('#lstCountry').val());
 
-            let SAddress = [];
-            $("#tblShippingAddress tbody tr").each(function() {
-                let Address = JSON.parse($(this).find("td:eq(3)").html());
-                let isSelectedDefaultShipping = $(this).find('input[type="radio"][name="SAddress"]:checked').length;
-                Address.isDefault = isSelectedDefaultShipping ? 1 : 0;
-                SAddress.push(Address);
-            });
-            formData.append('SAddress',JSON.stringify(SAddress));
+            if(ServiceBy == "District"){
+                $('#ServiceLocationDAccordion .accordion-item').each(function () {
+                    let serviceData = {
+                            CountryID: $(this).attr('data-country-id'),
+                            StateID: $(this).attr('data-state-id'),
+                            Districts: [],
+                        };
+
+                    let DistrictIDs = $(this).find('.lstSLDDistricts').val();
+                    DistrictIDs.forEach(function (districtID) {
+                        serviceData.Districts.push({DistrictID : districtID});
+                    });
+                    ServiceData.push(serviceData);
+                });
+            } else if(ServiceBy == "PostalCode"){
+                $('#ServiceLocationPAccordion .accordion-item').each(function () {
+                    let serviceData = {
+                            CountryID: $(this).attr('data-country-id'),
+                            StateID: $(this).attr('data-state-id'),
+                            Districts: [{
+                                DistrictID : $(this).attr('data-district-id'),
+                                PostalCodeIDs : $(this).find('.lstSLPPostalCodes').val(),
+                            }],
+                        };
+                    ServiceData.push(serviceData);
+                });
+            }
+            formData.append('ServiceData',JSON.stringify(ServiceData));
             return formData;
         }
         $('#btnSave').click(async function(){
@@ -779,7 +931,7 @@
 
                 swal({
                     title: "Are you sure?",
-                    text: "You want @if($isEdit==true)Update @else Save @endif this Category!",
+                    text: "You want @if($isEdit==true)Update @else Save @endif this Stock Point!",
                     type: "warning",
                     showCancelButton: true,
                     confirmButtonClass: "btn-outline-success",
@@ -788,7 +940,7 @@
                 },async function(){
                     swal.close();
                     btnLoading($('#btnSave'));
-                    let postUrl= @if($isEdit) "{{url('/')}}/admin/master/vendor/stock-points/edit/{{$EditData[0]->VendorTypeID}}"; @else "{{url('/')}}/admin/master/vendor/stock-points/create"; @endif
+                    let postUrl= @if($isEdit) "{{url('/')}}/admin/master/vendor/stock-points/edit/{{$EditData->StockPointID}}"; @else "{{url('/')}}/admin/master/vendor/stock-points/create"; @endif
                     $.ajax({
                         type:"post",
                         url:postUrl,
@@ -846,14 +998,6 @@
                                     hideMethod: "slideUp",
                                     progressBar: !0
                                 })
-                                if(response['errors']!=undefined){
-                                    $('.errors').html('');
-                                    $.each( response['errors'], function( KeyName, KeyValue ) {
-                                        var key=KeyName;
-                                        if(key=="VendorType"){$('#txtVendorType-err').html(KeyValue);}
-                                        if(key=="STImage"){$('#txtSTImage-err').html(KeyValue);}
-                                    });
-                                }
                             }
                         }
                     });

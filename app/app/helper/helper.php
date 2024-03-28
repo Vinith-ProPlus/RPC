@@ -844,7 +844,7 @@ class helper{
 		return $string;
 	}
 	public static function checkProductImageExists($url){
-		$image=file_exists($url)?$url:"assets/images/no-images.jpg";
+		$image=file_exists($url)?$url:"assets/images/no-image-b.png";
 		return $image;
 	}
 

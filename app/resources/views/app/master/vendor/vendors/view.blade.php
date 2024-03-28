@@ -37,14 +37,12 @@
 							<table class="table {{$Theme['table-size']}}" id="tblVendors">
 								<thead>
 									<tr>
+										<th class="text-center">Company Name</th>
 										<th class="text-center">Vendor Name</th>
 										<th class="text-center">Mobile Number</th>
-										<th class="text-center">GST Number</th>
 										<th class="text-center">Vendor Type</th>
-										<th class="text-center">Address</th>
-										<th class="text-center">City</th>
-										<th class="text-center">District</th>
-										<th class="text-center">Postal Code</th>
+										<th class="text-center">District Name</th>
+										<th class="text-center">Created Date</th>
 										<th class="text-center">Active Status</th>
 										<th class="text-center noExport">action</th>
 									</tr>
@@ -82,8 +80,7 @@
 					@if($crud['pdf']==1) ,{extend: 'pdf',className:"{{$Theme['button-size']}}",footer: true,title:  "{{$PageTitle}}","action": DataTableExportOption,exportOptions: {columns: "thead th:not(.noExport)"}} @endif
 				],
 				columnDefs: [
-					{"className": "dt-center", "targets": 8 },
-					{"className": "dt-center", "targets": 9 }
+					{"className": "dt-center", "targets": [7,6]},
 				]
 			});
 			@endif
@@ -97,7 +94,78 @@
 		$(document).on('click','.btnEditProductMap',function(){
 			window.location.replace("{{url('/')}}/admin/master/vendor/vendor-product-mapping/edit/"+ $(this).attr('data-id'));
 		});
-		
+		$(document).on('click', '.btnVendorInfo', function (e) {
+            e.preventDefault();
+            let VendorName = $(this).attr('data-vendor-name');
+            $.ajax({
+                type: "post",
+                url: "{{url('/')}}/admin/master/vendor/manage-vendors/get/vendor-info",
+                data: { VendorID: $(this).attr('data-id') },
+                headers: { 'X-CSRF-Token': $('meta[name=_token]').attr('content') },
+                success: function (response) {
+                    let modalContent = $('<div></div>');
+                    let row = $('<div class="row my-3 justify-content-center">').html(
+                            `<div class="row">
+                                <div class="col-sm-12 text-center">
+                                    <img src="{{ url('/') }}/${response.Logo}" alt="Vendor Logo" class="img-fluid rounded" height="150" width="150">
+                                </div>
+                                <div class="row mt-20 justify-content-center">
+                                    <div class="col-sm-5">
+                                        <div class="row">
+                                            <div class="col-sm-6 fs-15 fw-600">Vendor Name</div>
+                                            <div class="col-sm-1 fs-15 fw-600 text-center">:</div>
+                                            <div class="col-sm-5 fs-15">${response.VendorName}</div>
+                                        </div>
+                                        <div class="row my-2">
+                                            <div class="col-sm-6 fs-15 fw-600">Email</div>
+                                            <div class="col-sm-1 fs-15 fw-600 text-center	">:</div>
+                                            <div class="col-sm-5 fs-15">${response.Email}</div>
+                                        </div>
+                                        <div class="row my-2">
+                                            <div class="col-sm-6 fs-15 fw-600">Address</div>
+                                            <div class="col-sm-1 fs-15 fw-600 text-center">:</div>
+                                            <div class="col-sm-5 fs-15">${response.Address}, ${response.CityName}<br>${response.TalukName}, ${response.DistrictName}<br>${response.StateName}-${response.PostalCode}</div>
+                                        </div>
+                                        <div class="row my-2">
+                                            <div class="col-sm-6 fs-15 fw-600">GST No</div>
+                                            <div class="col-sm-1 fs-15 fw-600 text-center">:</div>
+                                            <div class="col-sm-5 fs-15">${response.GSTNo}</div>
+                                        </div>
+                                        <div class="row my-2">
+                                            <div class="col-sm-6 fs-15 fw-600">Mobile No</div>
+                                            <div class="col-sm-1 fs-15 fw-600 text-center">:</div>
+                                            <div class="col-sm-5 fs-15">${response.MobileNumber1}</div>
+                                        </div>
+                                    </div>
+                                </div>                               
+                            </div>`);
+                        modalContent.append(row);
+						let documentsRow = $('<div class="row my-3 justify-content-center">');
+							documentsRow.append(`<div class="col-sm-12 my-2"><h5 class="text-center text-info">Vendor Documents</h5></div>`);
+
+						response.Documents.forEach(function (document) {
+							let documentElement;
+							documentElement = `<a href="${document.documents}" target="_blank"><img src="${document.DefaultImage}" alt="${document.DisplayName}" class="img-fluid rounded" height="150" width="150"></a>`;
+							documentsRow.append(`
+								<div class="col-sm-3 text-center">
+									<h6>${document.DisplayName}</h6>
+									${documentElement}
+								</div>
+							`);
+						});
+						modalContent.append("<hr>");
+						modalContent.append(documentsRow);
+
+                    let dialog = bootbox.dialog({
+                        title: "Vendor ( " + VendorName + " )",
+                        closeButton: true,
+                        message: modalContent,
+                        className: 'modal-xl',
+                    });
+                    dialog.find('.modal-title').css({ 'margin': '0 auto', 'display': 'inline-block' });
+                }
+            });
+        });
 		$(document).on('click','.btnApprove',function(){
 			let ID=$(this).attr('data-id');
 			swal({

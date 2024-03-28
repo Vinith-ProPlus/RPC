@@ -327,7 +327,11 @@ class SupportController extends Controller{
             $NewData=DB::table($this->supportDB."tbl_support")->where('SupportID',$SupportID)->get();
 			$logData=array("Description"=>"Support Reopened ","ModuleName"=>"Support","Action"=>"Update","ReferID"=>$SupportID,"OldData"=>$OldData,"NewData"=>$NewData,"UserID"=>$this->UserID,"IP"=>$req->ip());
 			logs::Store($logData);
+            $ReferID = DB::table($this->supportDB.'tbl_support as S')->leftJoin('users as U','U.UserID','S.UserID')->where('S.SupportID',$SupportID)->value('U.ReferID');
 
+            $Title = "Admin closed ticket";
+            $Message = "Admin closed your ticket.";
+            $status = Helper::saveNotification($ReferID,$Title,$Message,'Support',$SupportID);
 			return array('status'=>true,'message'=>"Closed Successfully");
 		}else{
 			DB::rollback();

@@ -18,7 +18,8 @@ Route::controller(CustomerAuthController::class)->group(function () {
     Route::post('/get/products','getProducts');
     Route::post('/get/category/search','getCategorySearch');
     Route::post('/get/sub-category/search','getSubCategorySearch');
-    Route::post('/get/products/search','getProductsSearch');
+    Route::post('/get/all-products','getAllProducts');
+    Route::post('/get/single-product','getSingleProduct');
 
     Route::post('/get/cart','getCart');
     Route::post('/add-cart','AddCart');
@@ -34,6 +35,7 @@ Route::controller(CustomerAuthController::class)->group(function () {
     Route::post('/get/customer-home-search','getCustomerHomeSearch');
     Route::post('/get/notifications','getNotifications');
     Route::post('/notification-read','NotificationRead');
+
 
 
 });

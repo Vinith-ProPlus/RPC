@@ -26,6 +26,7 @@ class CustomerTransactionAPIController extends Controller{
     private $FileTypes;
 	private $UserID;
 	private $ReferID;
+	private $Settings;
 
     public function __construct(){
 		$this->generalDB=Helper::getGeneralDB();
@@ -313,12 +314,14 @@ class CustomerTransactionAPIController extends Controller{
                         }
                         $VOrderID=DocNum::getDocNum(docTypes::VendorOrders->value, $this->currfyDB,Helper::getCurrentFy());
                         $VOrderNo=DocNum::getInvNo(docTypes::VendorOrders->value);
+                        $defaultExpectedDeliveryDate = (int) DB::table('tbl_settings')->where('KeyName','Order-Delivery-Expected-days')->value('KeyValue');
+                        $expectedDelivery = $req->ExpectedDelivery ?? date('Y-m-d', strtotime('+'.$defaultExpectedDeliveryDate.' days'));
                         $tdata=[
                             "VOrderID"=>$VOrderID,
                             "OrderID"=>$OrderID,
                             "OrderNo"=>$VOrderNo,
                             "OrderDate"=>date("Y-m-d"),
-                            "ExpectedDelivery"=>date("Y-m-d",strtotime($req->ExpectedDelivery)),
+                            "ExpectedDelivery"=>$expectedDelivery,
                             "QID"=>$req->QID,
                             "CustomerID"=>$AcceptedQData[0]->CustomerID,
                             "AID"=>$AcceptedQData[0]->AID,
@@ -480,11 +483,11 @@ class CustomerTransactionAPIController extends Controller{
     public function ReviewOrder(Request $req){
 		DB::beginTransaction();
         try {
-            $isOrderCompleted = DB::Table($this->currfyDB.'tbl_order')->where('OrderID',$req->OrderID)->where('Status','Delivered')->exists();
+            $isOrderCompleted = DB::Table($this->currfyDB.'tbl_vendor_orders')->where('VOrderID',$req->VOrderID)->where('Status','Delivered')->exists();
             if(!$isOrderCompleted){
                 return response()->json(['status' => false,'message' => "Order is not Delivered!"]);
             }else{
-                $status = DB::Table($this->currfyDB.'tbl_order')->where('OrderID',$req->OrderID)->update(['Ratings'=>$req->Ratings,'Review'=>$req->Review,'isRated'=>1,'RatedOn'=>date('Y-m-d'),'UpdatedOn'=>date('Y-m-d H:i:s')]);
+                $status = DB::Table($this->currfyDB.'tbl_vendor_orders')->where('VOrderID',$req->VOrderID)->update(['CustomerRatings'=>$req->Ratings,'CustomerReview'=>$req->Review,'isCustomerRated'=>1,'CustomerRatedOn'=>date('Y-m-d'),'UpdatedOn'=>date('Y-m-d H:i:s')]);
             }
         }catch(Exception $e) {
             $status=false;

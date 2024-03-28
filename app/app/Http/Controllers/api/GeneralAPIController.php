@@ -300,10 +300,18 @@ class GeneralAPIController extends Controller{
 	}
 	
 	public function getBannerImages(request $req){
-		$BannerImages = DB::Table('tbl_banner_images')->where('BannerType','Mobile')->select('BannerType', DB::raw('CONCAT("' . url('/') . '/", BannerImage) AS BannerImage'))->get();
+		$BannerImages = DB::Table('tbl_banner_images')->where('BannerType','Mobile')->where('DFlag',0)->select('BannerType', DB::raw('CONCAT("' . url('/') . '/", BannerImage) AS BannerImage'))->get();
 		$return = [
 			'status' => true,
 			'data' => $BannerImages,
+		];
+        return $return;
+	}
+	public function getStepperImages(request $req){
+		$StepperImages = DB::Table('tbl_stepper_images')->where('StepperType','Mobile')->where('DFlag',0)->select('StepperType','StepperTitle','Description','StepperTitle', DB::raw('CONCAT("' . url('/') . '/", StepperImage) AS StepperImage'))->get();
+		$return = [
+			'status' => true,
+			'data' => $StepperImages,
 		];
         return $return;
 	}

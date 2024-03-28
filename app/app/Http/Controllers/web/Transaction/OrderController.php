@@ -273,9 +273,14 @@ class OrderController extends Controller{
 			
 			// Update Tax Amount, Total Amount, Subtotal, and Net Amount for non-cancelled items in the quotation table.
 			if($status){
-				$tdata=["TaxAmount"=>0,"CGSTAmount"=>0,"IGSTAmount"=>0,"SGSTAmount"=>0,"TotalAmount"=>0,"SubTotal"=>0,"DiscountAmount"=>0,"AdditionalCost"=>0,"NetAmount"=>0];
+				$tdata=["TaxAmount"=>0,"CGSTAmount"=>0,"IGSTAmount"=>0,"SGSTAmount"=>0,"TotalAmount"=>0,"SubTotal"=>0,"DiscountAmount"=>0,"AdditionalCost"=>0,"NetAmount"=>0,"TotalPaidAmount"=>0,"BalanceAmount"=>0];
 				$sql="SELECT IFNULL(SUM(TaxAmt),0) as TaxAmount, IFNULL(SUM(CGSTAmt),0) as CGSTAmount, IFNULL(SUM(IGSTAmt),0) as IGSTAmount, IFNULL(SUM(SGSTAmt),0) as SGSTAmount, SUM(TotalAmt) as TotalAmount, IFNULL(SUM(Taxable),0) as SubTotal FROM ".$this->CurrFYDB."tbl_order_details where OrderID='".$req->OrderID."' and Status<>'Cancelled'";
 				$result=DB::SELECT($sql);
+				/*
+				$tdata=["TaxAmount"=>0,"CGSTAmount"=>0,"IGSTAmount"=>0,"SGSTAmount"=>0,"TotalAmount"=>0,"SubTotal"=>0,"DiscountAmount"=>0,"AdditionalCost"=>0,"NetAmount"=>0];
+				$sql="SELECT IFNULL(SUM(TaxAmt),0) as TaxAmount, IFNULL(SUM(CGSTAmt),0) as CGSTAmount, IFNULL(SUM(IGSTAmt),0) as IGSTAmount, IFNULL(SUM(SGSTAmt),0) as SGSTAmount, SUM(TotalAmt) as TotalAmount, IFNULL(SUM(Taxable),0) as SubTotal FROM ".$this->CurrFYDB."tbl_order_details where OrderID='".$req->OrderID."' and Status<>'Cancelled'";
+				
+				$result=DB::SELECT($sql);*/
 				foreach($result as $tmp){
 					$tdata['TaxAmount']+=floatval($tmp->TaxAmount);
 					$tdata['CGSTAmount']+=floatval($tmp->CGSTAmount);
@@ -288,14 +293,85 @@ class OrderController extends Controller{
 				foreach($result as $tmp){
 					$tdata['DiscountAmount']+=floatval($tmp->DiscountAmount);
 					$tdata['AdditionalCost']+=floatval($tmp->AdditionalCost);
+					$tdata['TotalPaidAmount']+=floatval($tmp->TotalPaidAmount);
 				}
 				$tdata['TotalAmount']=floatval($tdata['SubTotal'])+floatval($tdata['CGSTAmount'])+floatval($tdata['IGSTAmount'])+floatval($tdata['SGSTAmount']);
 				$tdata['TotalAmount']-=floatval($tdata['DiscountAmount']);
 
 				$tdata['NetAmount']=floatval($tdata['TotalAmount'])+floatval($tdata['AdditionalCost']);
+				$tdata['BalanceAmount']=floatval($tdata['NetAmount'])-floatval($tdata['TotalPaidAmount']);
+				
 				$tdata['UpdatedOn']=date("Y-m-d",strtotime("1 minutes"));
 				$tdata['UpdatedBy']=$this->UserID;
 				$status=DB::Table($this->CurrFYDB."tbl_order")->where('OrderID',$req->OrderID)->update($tdata);
+			}
+			/************************************************************************************************** */
+			//Vendor Order Item Cancel
+			/************************************************************************************************** */
+			$VOrderDetailID="";
+			$VOrderID="";
+			$t=DB::Table($this->CurrFYDB."tbl_order_details")->where('OrderID',$req->OrderID)->where('DetailID',$DetailID)->get();
+			if(count($t)>0){
+				$VOrderID=$t[0]->VOrderID;
+				$VOrderDetailID=$t[0]->VOrderDetailID;
+			}
+			//item cancel
+			if($status){
+				$tdata=array(
+					"status"=>"Cancelled",
+					"ReasonID"=>$req->ReasonID,
+					"RDescription"=>$req->Description,
+					"RejectedOn"=>now(),
+					"RejectedBy"=>$this->UserID
+				);
+				$status=DB::Table($this->CurrFYDB."tbl_vendor_order_details")->where('VOrderID',$VOrderID)->where('DetailID',$VOrderDetailID)->update($tdata);
+			}
+			
+			// Verify if all items have been cancelled. If all items are cancelled, update the status in the main quotation table.
+			if($status){ 
+				$t=DB::Table($this->CurrFYDB."tbl_vendor_order_details")->where('VOrderID',$VOrderID)->where('status','<>','Cancelled')->count();
+				if(intval($t)<=0){
+					$tdata=array(
+						"Status"=>"Cancelled",
+						"ReasonID"=>$req->ReasonID,
+						"RDescription"=>$req->Description,
+						"RejectedOn"=>now(),
+						"RejectedBy"=>$this->UserID
+					);
+					$status=DB::Table($this->CurrFYDB."tbl_vendor_orders")->where('VOrderID',$VOrderID)->update($tdata);
+				}
+			}			
+			
+			// Update Tax Amount, Total Amount, Subtotal, and Net Amount for non-cancelled items in the quotation table.
+			if($status){
+				$tdata=["TaxAmount"=>0,"CGSTAmount"=>0,"IGSTAmount"=>0,"SGSTAmount"=>0,"TotalAmount"=>0,"SubTotal"=>0,"DiscountAmount"=>0,"AdditionalCost"=>0,"CommissionPercentage"=>0,"CommissionAmount"=>0,"NetAmount"=>0,"TotalPaidAmount"=>0,"BalanceAmount"=>0];
+				$sql="SELECT IFNULL(SUM(TaxAmt),0) as TaxAmount, IFNULL(SUM(CGSTAmt),0) as CGSTAmount, IFNULL(SUM(IGSTAmt),0) as IGSTAmount, IFNULL(SUM(SGSTAmt),0) as SGSTAmount, SUM(TotalAmt) as TotalAmount,  IFNULL(SUM(Taxable),0) as SubTotal FROM ".$this->CurrFYDB."tbl_vendor_order_details where VOrderID='".$VOrderID."' and Status<>'Cancelled'";
+				$result=DB::SELECT($sql);
+				foreach($result as $tmp){
+					$tdata['TaxAmount']+=floatval($tmp->TaxAmount);
+					$tdata['CGSTAmount']+=floatval($tmp->CGSTAmount);
+					$tdata['IGSTAmount']+=floatval($tmp->IGSTAmount);
+					$tdata['SGSTAmount']+=floatval($tmp->SGSTAmount);
+					$tdata['TotalAmount']+=floatval($tmp->TotalAmount);
+					$tdata['SubTotal']+=floatval($tmp->SubTotal);
+				}
+				$result=DB::Table($this->CurrFYDB."tbl_vendor_orders")->where('VOrderID',$VOrderID)->get();
+				foreach($result as $tmp){
+					$tdata['DiscountAmount']+=floatval($tmp->DiscountAmount);
+					$tdata['AdditionalCost']+=floatval($tmp->AdditionalCost);
+					$tdata['TotalPaidAmount']+=floatval($tmp->TotalPaidAmount);
+					$tdata['CommissionPercentage']=floatval($tmp->CommissionPercentage);
+				}
+				$tdata['TotalAmount']=floatval($tdata['SubTotal'])+floatval($tdata['CGSTAmount'])+floatval($tdata['IGSTAmount'])+floatval($tdata['SGSTAmount']);
+				$tdata['TotalAmount']-=floatval($tdata['DiscountAmount']);
+
+				$tdata['CommissionPercentage']=(($tdata['TotalAmount']*$tdata['CommissionPercentage'])/100);
+
+				$tdata['NetAmount']=(floatval($tdata['TotalAmount'])-$tdata['CommissionPercentage'])+floatval($tdata['AdditionalCost']);
+				$tdata['BalanceAmount']=floatval($tdata['NetAmount'])-floatval($tdata['TotalPaidAmount']);
+				$tdata['UpdatedOn']=date("Y-m-d",strtotime("1 minutes"));
+				$tdata['UpdatedBy']=$this->UserID;
+				$status=DB::Table($this->CurrFYDB."tbl_vendor_orders")->where('VOrderID',$VOrderID)->update($tdata);
 			}
 			if($status==true){
 				DB::commit();
@@ -329,7 +405,7 @@ class OrderController extends Controller{
 		$result=DB::SELECT($sql);
 		for($i=0;$i<count($result);$i++){
 			$result[$i]->AdditionalCostData=unserialize($result[$i]->AdditionalCostData);
-			$sql="SELECT OD.DetailID, OD.OrderID, OD.QID, OD.QDID, OD.VOrderID, OD.ProductID, P.ProductName, P.HSNSAC, P.UID, U.UCode, U.UName, OD.Qty, OD.Price, OD.TaxType, OD.TaxPer, OD.Taxable, OD.DiscountType, OD.DiscountPer, OD.DiscountAmt, OD.TaxAmt, OD.CGSTPer, OD.SGSTPer, OD.IGSTPer, OD.CGSTAmt, OD.SGSTAmt, OD.IGSTAmt, OD.TotalAmt, OD.VendorID, V.VendorName, OD.Status, OD.RejectedBy, OD.RejectedOn, OD.ReasonID, RR.RReason, OD.RDescription, OD.DeliveredOn, OD.DeliveredBy  ";
+			$sql="SELECT OD.DetailID, OD.OrderID, OD.QID, OD.QDID, OD.VOrderID, OD.VOrderDetailID, OD.ProductID, P.ProductName, P.HSNSAC, P.UID, U.UCode, U.UName, OD.Qty, OD.Price, OD.TaxType, OD.TaxPer, OD.Taxable, OD.DiscountType, OD.DiscountPer, OD.DiscountAmt, OD.TaxAmt, OD.CGSTPer, OD.SGSTPer, OD.IGSTPer, OD.CGSTAmt, OD.SGSTAmt, OD.IGSTAmt, OD.TotalAmt, OD.VendorID, V.VendorName, OD.Status, OD.RejectedBy, OD.RejectedOn, OD.ReasonID, RR.RReason, OD.RDescription, OD.DeliveredOn, OD.DeliveredBy  ";
 			$sql.=" FROM ".$this->CurrFYDB."tbl_order_details as OD LEFT JOIN tbl_products as P ON P.ProductID=OD.ProductID LEFT JOIN tbl_uom as U ON U.UID=P.UID LEFT JOIN tbl_reject_reason as RR ON RR.RReasonID=OD.ReasonID LEFT JOIN tbl_vendors as V ON V.VendorID=OD.VendorID ";
 			$sql.=" Where OD.OrderID='".$result[$i]->OrderID."' Order By OD.DetailID ";
 			$result[$i]->Details=DB::SELECT($sql);

@@ -28,10 +28,11 @@ class StockPointsController extends Controller{
 	private $Settings;
 	private $FileTypes;
     private $Menus;
-    private $dynamicForms;
+    private $generalDB;
     public function __construct(){
 		$this->ActiveMenuName=activeMenuNames::StockPoints->value;
 		$this->PageTitle="Stock Points";
+		$this->generalDB=Helper::getGeneralDB();
         $this->middleware('auth');
 		$this->FileTypes=Helper::getFileTypes(array("category"=>array("Images")));
 		$this->middleware(function ($request, $next) {
@@ -66,6 +67,7 @@ class StockPointsController extends Controller{
 			$FormData['ActiveMenuName']=$this->ActiveMenuName;
 			$FormData['PageTitle']=$this->PageTitle;
 			$FormData['isEdit']=false;
+			$FormData['Vendors']=DB::table('tbl_vendors')->where('DFlag',0)->where('ActiveStatus','Active')->where('isApproved',1)->select('VendorID','VendorName')->get();
 			$FormData['FileTypes']=$this->FileTypes;
             return view('app.master.vendor.stock-points.create',$FormData);
         }elseif($this->general->isCrudAllow($this->CRUD,"view")==true){
@@ -83,8 +85,39 @@ class StockPointsController extends Controller{
 			$FormData['PageTitle']=$this->PageTitle;
 			$FormData['isEdit']=true;
 			$FormData['FileTypes']=$this->FileTypes;
-			$FormData['EditData']=DB::Table('tbl_vendors_stock_point')->where('DFlag',0)->Where('StockPointID',$StockPointID)->get();
-			if(count($FormData['EditData'])>0){
+			$FormData['Vendors']=DB::table('tbl_vendors')->where('DFlag',0)->where('ActiveStatus','Active')->where('isApproved',1)->select('VendorID','VendorName')->get();
+			$StockPoints = DB::table('tbl_vendors_stock_point as H')
+			->leftJoin($this->generalDB . 'tbl_postalcodes as P', 'P.PID', 'H.PostalID')
+			->leftJoin($this->generalDB . 'tbl_cities as CI', 'CI.CityID', 'H.CityID')
+			->leftJoin($this->generalDB . 'tbl_taluks as T', 'T.TalukID', 'H.TalukID')
+			->leftJoin($this->generalDB . 'tbl_districts as D', 'D.DistrictID', 'H.DistrictID')
+			->leftJoin($this->generalDB . 'tbl_states as S', 'S.StateID', 'H.StateID')
+			->leftJoin($this->generalDB . 'tbl_countries as C', 'C.CountryID', 'H.CountryID')
+			->where('H.StockPointID', $StockPointID)
+			->where('H.DFlag', 0)
+			->select('StockPointID','UUID','H.PointName','H.VendorID','CompleteAddress','Address','MapData','ServiceBy','Range','Latitude','Longitude','H.PostalID','P.PostalCode','H.CityID','CI.CityName','H.TalukID','T.TalukName','H.DistrictID','D.DistrictName','H.StateID','S.StateName','H.CountryID','C.CountryName')
+			->first();
+			if($StockPoints->ServiceBy!=='Radius'){
+				$ServiceData = DB::table('tbl_vendors_service_locations as VSL')
+				->leftJoin($this->generalDB.'tbl_states as S', 'S.StateID','VSL.StateID')
+				->leftJoin($this->generalDB.'tbl_countries as C','C.CountryID','S.CountryID')
+				->where('ServiceBy',$StockPoints->ServiceBy)
+				->where('VSL.DFlag', 0)
+				->where('VSL.StockPointID', $StockPoints->StockPointID)
+				->groupBy('VSL.StateID','S.StateName','C.CountryID')
+				->select('VSL.StateID','S.StateName','C.CountryID')
+				->get();
+				foreach ($ServiceData as $item) {
+					$item->Districts = DB::table('tbl_vendors_service_locations as VSL')->join($this->generalDB.'tbl_districts as D','D.DistrictID','VSL.DistrictID')->where('VSL.DFlag', 0)->where('VSL.StateID', $item->StateID)->where('ServiceBy',$StockPoints->ServiceBy)->where('VSL.StockPointID', $StockPoints->StockPointID)->groupBy('VSL.DistrictID','D.DistrictName')->select('VSL.DistrictID','D.DistrictName')->get();
+					foreach ($item->Districts as $row){
+						$row->PostalCodeIDs = DB::table('tbl_vendors_service_locations as VSL')->leftJoin($this->generalDB.'tbl_postalcodes as P','P.PID','VSL.PostalCodeID')->where('VSL.StateID',$item->StateID)->where('VSL.DistrictID',$row->DistrictID)->where('VSL.StockPointID', $StockPoints->StockPointID)->where('VSL.ServiceBy',$StockPoints->ServiceBy)->where('VSL.DFlag', 0)->select('VSL.PostalCodeID','P.PostalCode')->get();
+					}
+				}
+				$StockPoints->ServiceData = $ServiceData;
+			}
+			$FormData['EditData']=$StockPoints;
+
+			if($FormData['EditData']){
 				return view('app.master.vendor.stock-points.create',$FormData);
 			}else{
 				return view('errors.403');
@@ -98,181 +131,251 @@ class StockPointsController extends Controller{
     public function save(Request $req){
 		if($this->general->isCrudAllow($this->CRUD,"add")==true){
 			$OldData=array();$NewData=array();$StockPointID="";
-			$rules=array(
-				'VendorType' =>['required','max:50',new ValidUnique(array("TABLE"=>"tbl_vendors_stock_point","WHERE"=>" VendorType='".$req->VendorType."'  "),"This Vendor Type Name is already taken.")],
-			);
-			$message=array(
-				'VendorType.required'=>"Vendor Type Name is required",
-				'VendorType.min'=>"Vendor Type Name must be greater than 2 characters",
-				'VendorType.max'=>"Vendor Type Name may not be greater than 100 characters",
-				'STImage.mimes'=>"The Vendor Type image field must be a file of type: ".implode(", ",$this->FileTypes['category']['Images'])."."
-			);
-			if($req->hasFile('STImage')){
-				$rules['STImage']='mimes:'.implode(",",$this->FileTypes['category']['Images']);
-			}
-			$validator = Validator::make($req->all(), $rules,$message);
 			
-			if ($validator->fails()) {
-				return array('status'=>false,'message'=>"Vendor Type Create Failed",'errors'=>$validator->errors());			
-			}
 			DB::beginTransaction();
 			$status=false;
 			$images=array();
 			try {
-				$STImage="";
-				$StockPointID=DocNum::getDocNum(docTypes::VendorType->value,"",Helper::getCurrentFY());
-				$dir="uploads/vendor-master/stock-points/".$StockPointID."/";
-				if (!file_exists( $dir)) {mkdir( $dir, 0777, true);}
-				if($req->hasFile('STImage')){
-					$file = $req->file('STImage');
-					$fileName=md5($file->getClientOriginalName() . time());
-					$fileName1 =  $fileName. "." . $file->getClientOriginalExtension();
-					$file->move($dir, $fileName1);  
-					$STImage=$dir.$fileName1;
-				}else if(Helper::isJSON($req->STImage)==true){
-					$Img=json_decode($req->STImage);
-					if(file_exists($Img->uploadPath)){
-						$fileName1=$Img->fileName!=""?$Img->fileName:Helper::RandomString(10)."png";
-						copy($Img->uploadPath,$dir.$fileName1);
-						$STImage=$dir.$fileName1;
-						unlink($Img->uploadPath);
-					}
-				}
-				if(file_exists($STImage)){
-					$images=helper::ImageResize($STImage,$dir);
-				}
-				$data=array(
-					"StockPointID"=>$StockPointID,
-					"VendorType"=>$req->VendorType,
-					'STImage'=>$STImage,
-					"Images"=>serialize($images),
-					"ActiveStatus"=>$req->ActiveStatus,
-					"CreatedBy"=>$this->UserID,
-					"CreatedOn"=>date("Y-m-d H:i:s")
-				);
-				$status=DB::Table('tbl_vendors_stock_point')->insert($data);
-				if($status){
-					DB::commit();
-					$status=dynamicField::add(docTypes::VendorType->value,$req,"tbl_vendors_stock_point","StockPointID",$StockPointID,$this->UserID);
-					if(DB::transactionLevel()==0){
-						DB::beginTransaction();
-					}
-				}
+				$MapData = serialize(json_decode($req->MapData));
+                $StockPointID = DocNum::getDocNum(docTypes::VendorStockPoint->value,"",Helper::getCurrentFY());
+				$CompleteAddress = Helper::formAddress($req->Address,$req->CityID);
+                $data=array(
+                    "StockPointID"=>$StockPointID,
+                    "VendorID"=>$req->VendorID,
+                    "UUID"=>substr(str_shuffle(substr(uniqid(uniqid(), true), 0, 16)), 0, 12),
+                    "PointName"=>$req->PointName,
+					"CompleteAddress"=>$CompleteAddress,
+                    "Address"=>$req->Address,
+                    "PostalID"=>$req->PostalID,
+                    "CityID"=>$req->CityID,
+                    "TalukID"=>$req->TalukID,
+                    "DistrictID"=>$req->DistrictID,
+                    "StateID"=>$req->StateID,
+                    "CountryID"=>$req->CountryID,
+                    "Latitude"=>$req->Latitude,
+                    "Longitude"=>$req->Longitude,
+                    "MapData"=>$MapData,
+                    "ServiceBy"=>$req->ServiceBy,
+                    "Range"=>$req->Range,
+                    "CreatedBy"=>$this->UserID,
+                    "CreatedOn"=>date("Y-m-d H:i:s"),
+                );
+                $status=DB::Table('tbl_vendors_stock_point')->insert($data);
+                if($status && $req->ServiceBy != 'Radius'){
+                    $ServiceData =json_decode($req->ServiceData);
+                    if($req->ServiceBy == "District"){
+                        foreach($ServiceData as $data){
+                            foreach($data->Districts as $item){
+                                $t=DB::Table('tbl_vendors_service_locations')->where('VendorID',$req->VendorID)->where('StockPointID',$StockPointID)->where('ServiceBy',$req->ServiceBy)->Where('DistrictID',$item->DistrictID)->first();
+                                if(!$t){
+                                    $PostalCodeIDs = DB::table($this->generalDB.'tbl_postalcodes')->where('DistrictID',$item->DistrictID)->where('ActiveStatus','Active')->where('DFlag',0)->pluck('PID')->toArray();
+                                    if (!empty($PostalCodeIDs)) {
+                                        foreach($PostalCodeIDs as $row){
+                                            $DetailID = DocNum::getDocNum(docTypes::VendorServiceLocation->value,"",Helper::getCurrentFY());
+                                            $tdata=array(
+                                                "DetailID"=>$DetailID,
+                                                "VendorID"=>$req->VendorID,
+                                                "StockPointID"=>$StockPointID,
+                                                "ServiceBy"=>$req->ServiceBy,
+                                                "StateID" => $data->StateID,
+                                                "DistrictID"=>$item->DistrictID,
+                                                "PostalCodeID"=>$row,
+                                                "CreatedOn"=>date("Y-m-d H:i:s")
+                                            );
+                                            $status=DB::Table('tbl_vendors_service_locations')->insert($tdata);
+                                            if($status){
+                                                DocNum::updateDocNum(docTypes::VendorServiceLocation->value);
+                                            }
+                                        }
+                                    }else{
+                                        $DetailID = DocNum::getDocNum(docTypes::VendorServiceLocation->value,"",Helper::getCurrentFY());
+                                        $tdata=array(
+                                            "DetailID"=>$DetailID,
+                                            "VendorID"=>$req->VendorID,
+                                            "StockPointID"=>$StockPointID,
+                                            "ServiceBy"=>$req->ServiceBy,
+                                            "StateID" => $data->StateID,
+                                            "DistrictID"=>$item->DistrictID,
+                                            "CreatedOn"=>date("Y-m-d H:i:s")
+                                        );
+                                        $status=DB::Table('tbl_vendors_service_locations')->insert($tdata);
+                                        if($status){
+                                            DocNum::updateDocNum(docTypes::VendorServiceLocation->value);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }elseif($req->ServiceBy == "PostalCode"){
+                        foreach($ServiceData as $data){
+                            foreach($data->Districts as $item){
+                                foreach($item->PostalCodeIDs as $row){
+                                    $PostalCodeIDs[] = $row;
+                                    $t=DB::Table('tbl_vendors_service_locations')->where('VendorID',$req->VendorID)->where('StockPointID',$StockPointID)->where('ServiceBy',$req->ServiceBy)->Where('PostalCodeID',$row)->first();
+                                    if(!$t){
+                                        $DetailID = DocNum::getDocNum(docTypes::VendorServiceLocation->value,"",Helper::getCurrentFY());
+                                        $tdata=array(
+                                            "DetailID"=>$DetailID,
+                                            "VendorID"=>$req->VendorID,
+                                            "StockPointID"=>$StockPointID,
+                                            "ServiceBy"=>$req->ServiceBy,
+                                            "StateID" => $data->StateID,
+                                            "DistrictID"=>$item->DistrictID,
+                                            "PostalCodeID"=>$row,
+                                            "CreatedOn"=>date("Y-m-d H:i:s")
+                                        );
+                                        $status=DB::Table('tbl_vendors_service_locations')->insert($tdata);
+                                        if($status){
+                                            DocNum::updateDocNum(docTypes::VendorServiceLocation->value);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
 			}catch(Exception $e) {
 				$status=false;
 			}
 
 			if($status==true){
-				DocNum::updateDocNum(docTypes::VendorType->value);
 				DB::commit();
+				DocNum::updateDocNum(docTypes::VendorStockPoint->value);
 				$NewData=DB::table('tbl_vendors_stock_point')->where('StockPointID',$StockPointID)->get();
-				$logData=array("Description"=>"New Vendor Type Created ","ModuleName"=>$this->ActiveMenuName,"Action"=>cruds::ADD->value,"ReferID"=>$StockPointID,"OldData"=>$OldData,"NewData"=>$NewData,"UserID"=>$this->UserID,"IP"=>$req->ip());
+				$logData=array("Description"=>"Vendor Stockpoint Added","ModuleName"=>"Vendor Stockpoint","Action"=>"Add","ReferID"=>$StockPointID,"OldData"=>$OldData,"NewData"=>$NewData,"UserID"=>$this->UserID,"IP"=>$req->ip());
 				logs::Store($logData);
-				return array('status'=>true,'message'=>"Vendor Type Created Successfully");
+				return array('status'=>true,'message'=>"Vendor Stockpoint Created Successfully");
 			}else{
 				DB::rollback();
-				//Helper::removeFile($STImage);
-				foreach($images as $KeyName=>$Img){
-					Helper::removeFile($Img['url']);
-				}
-				return array('status'=>false,'message'=>"Vendor Type Create Failed");
+				return array('status'=>false,'message'=>"Vendor Stockpoint Create Failed");
 			}
 		}else{
-			return array('status'=>false,'message'=>'Access denined');
+			return array('status'=>false,'message'=>'Access denied');
 		}
 	}
     public function update(Request $req,$StockPointID){
 		if($this->general->isCrudAllow($this->CRUD,"edit")==true){
-			$OldData=array();$NewData=array();
-			$rules=array(
-				'VendorType' =>['required','max:50',new ValidUnique(array("TABLE"=>"tbl_vendors_stock_point","WHERE"=>" VendorType='".$req->VendorType."' and StockPointID<>'".$StockPointID."'  "),"This Vendor Type Name is already taken.")]
-			)				;
-			$message=array(
-				'VendorType.required'=>"Vendor Type Name is required",
-				'VendorType.min'=>"Vendor Type Name must be greater than 2 characters",
-				'VendorType.max'=>"Vendor Type Name may not be greater than 100 characters",
-				'STImage.mimes'=>"The Vendor Type image field must be a file of type: ".implode(", ",$this->FileTypes['category']['Images'])."."
-			);
-			if($req->hasFile('STImage')){
-				$rules['STImage']='mimes:'.implode(",",$this->FileTypes['category']['Images']);
-			}
-			$validator = Validator::make($req->all(), $rules,$message);
-			
-			if ($validator->fails()) {
-				return array('status'=>false,'message'=>"Vendor Type Update Failed",'errors'=>$validator->errors());			
-			}
 			DB::beginTransaction();
-			$status=false;
-			$currSTImage=array();
-			$images=array();
-			try {
-				$OldData=DB::table('tbl_vendors_stock_point')->where('StockPointID',$StockPointID)->get();
-				$STImage="";
-				$dir="uploads/vendor-master/stock-points/".$StockPointID."/";
-				if (!file_exists( $dir)) {mkdir( $dir, 0777, true);}
-				if($req->hasFile('STImage')){
-					$file = $req->file('STImage');
-					$fileName=md5($file->getClientOriginalName() . time());
-					$fileName1 =  $fileName. "." . $file->getClientOriginalExtension();
-					$file->move($dir, $fileName1);  
-					$STImage=$dir.$fileName1;
-				}else if(Helper::isJSON($req->STImage)==true){
-					$Img=json_decode($req->STImage);
-					if(file_exists($Img->uploadPath)){
-						$fileName1=$Img->fileName!=""?$Img->fileName:Helper::RandomString(10)."png";
-						copy($Img->uploadPath,$dir.$fileName1);
-						$STImage=$dir.$fileName1;
-						unlink($Img->uploadPath);
-					}
-				}
-				if(file_exists($STImage)){
-					$images=helper::ImageResize($STImage,$dir);
-				}
-				if(($STImage!="" || intval($req->removeSTImage)==1) && Count($OldData)>0){ 
-					$currSTImage=$OldData[0]->Images!=""?unserialize($OldData[0]->Images):array();
-				}
-				$data=array(
-					"VendorType"=>$req->VendorType,
-					"ActiveStatus"=>$req->ActiveStatus,
-					"UpdatedBy"=>$this->UserID,
-					"UpdatedOn"=>date("Y-m-d H:i:s")
-				);
-				if($STImage!=""){
-					$data['STImage']=$STImage;
-					$data['Images']=serialize($images);
-				}else if(intval($req->removeSTImage)==1){
-					$data['STImage']="";
-					$data['Images']=serialize(array());
-				}
-				$status=DB::Table('tbl_vendors_stock_point')->where('StockPointID',$StockPointID)->update($data);
-				if($status){
-					DB::commit();
-					$status=dynamicField::add(docTypes::VendorType->value,$req,"tbl_vendors_stock_point","StockPointID",$StockPointID,$this->UserID);
-					if(DB::transactionLevel()==0){
-						DB::beginTransaction();
-					}
-				}
-			}catch(Exception $e) {
-				$status=false;
-			}
+			$OldData=$NewData=[];
+            $OldData=DB::table('tbl_vendors_stock_point as VSP')->leftJoin('tbl_vendors_service_locations as VSL','VSL.StockPointID','VSP.StockPointID')->where('VSL.DFlag',0)->where('VSP.StockPointID',$req->StockPointID)->get();
+            $MapData = serialize(json_decode($req->MapData));
+            $data=array(
+                "PointName"=>$req->PointName,
+                "CompleteAddress"=>$req->CompleteAddress,
+                "Address"=>$req->Address,
+                "PostalID"=>$req->PostalID,
+                "CityID"=>$req->CityID,
+                "TalukID"=>$req->TalukID,
+                "DistrictID"=>$req->DistrictID,
+                "StateID"=>$req->StateID,
+                "CountryID"=>$req->CountryID,
+                "Latitude"=>$req->Latitude,
+                "Longitude"=>$req->Longitude,
+                "MapData"=>$MapData,
+                "ServiceBy"=>$req->ServiceBy,
+                "Range"=>$req->Range,
+                "UpdatedBy"=>$this->UserID,
+                "UpdatedOn"=>date("Y-m-d H:i:s"),
+            );
+            $status=DB::Table('tbl_vendors_stock_point')->where('StockPointID',$StockPointID)->update($data);
+            if($status && $req->ServiceBy != 'Radius'){
+                $ServiceData = json_decode($req->ServiceData);
+                if($req->ServiceBy == "District"){
+                    $DistrictIDs=[];
+                    foreach($ServiceData as $data){
+                        foreach($data->Districts as $item){
+                            $DistrictIDs[] = $item->DistrictID;
+                            $t=DB::Table('tbl_vendors_service_locations')->where('VendorID',$req->VendorID)->where('StockPointID',$StockPointID)->where('ServiceBy',$req->ServiceBy)->Where('DistrictID',$item->DistrictID)->first();
+                            if(!$t){
+                                $PostalCodeIDs = DB::table($this->generalDB.'tbl_postalcodes')->where('DistrictID',$item->DistrictID)->where('ActiveStatus','Active')->where('DFlag',0)->pluck('PID')->toArray();
+                                if (!empty($PostalCodeIDs)) {
+                                    foreach($PostalCodeIDs as $row){
+                                        $DetailID = DocNum::getDocNum(docTypes::VendorServiceLocation->value,"",Helper::getCurrentFY());
+                                        $tdata=array(
+                                            "DetailID"=>$DetailID,
+                                            "VendorID"=>$req->VendorID,
+                                            "StockPointID"=>$StockPointID,
+                                            "ServiceBy"=>$req->ServiceBy,
+                                            "StateID" => $data->StateID,
+                                            "DistrictID"=>$item->DistrictID,
+                                            "PostalCodeID"=>$row,
+                                            "CreatedOn"=>date("Y-m-d H:i:s")
+                                        );
+                                        $status=DB::Table('tbl_vendors_service_locations')->insert($tdata);
+                                        if($status){
+                                            DocNum::updateDocNum(docTypes::VendorServiceLocation->value);
+                                        }
+                                    }
+                                }else{
+                                    $DetailID = DocNum::getDocNum(docTypes::VendorServiceLocation->value,"",Helper::getCurrentFY());
+                                    $tdata=array(
+                                        "DetailID"=>$DetailID,
+                                        "VendorID"=>$req->VendorID,
+                                        "StockPointID"=>$StockPointID,
+                                        "ServiceBy"=>$req->ServiceBy,
+                                        "StateID" => $data->StateID,
+                                        "DistrictID"=>$item->DistrictID,
+                                        "CreatedOn"=>date("Y-m-d H:i:s")
+                                    );
+                                    $status=DB::Table('tbl_vendors_service_locations')->insert($tdata);
+                                    if($status){
+                                        DocNum::updateDocNum(docTypes::VendorServiceLocation->value);
+                                    }
+                                }
+
+                            }
+                        }
+                    }
+                    if (!empty($DistrictIDs)) {
+                        DB::Table('tbl_vendors_service_locations')->where('VendorID',$req->VendorID)->where('StockPointID',$StockPointID)->where('ServiceBy',$req->ServiceBy)->WhereIn('DistrictID',$DistrictIDs)->update(['DFlag'=>0,'UpdatedBy'=>$req->VendorID,'UpdatedOn'=>date('Y-m-d H:i:s')]);
+                        DB::Table('tbl_vendors_service_locations')->where('VendorID',$req->VendorID)->where('StockPointID',$StockPointID)->where('ServiceBy',$req->ServiceBy)->WhereNotIn('DistrictID',$DistrictIDs)->update(['DFlag'=>1,'DeletedBy'=>$req->VendorID,'UpdatedOn'=>date('Y-m-d H:i:s')]);
+                        $status=true;
+                    }
+                }elseif($req->ServiceBy == "PostalCode"){
+                    $PostalCodeIDs=[];
+                    foreach($ServiceData as $data){
+                        foreach($data->Districts as $item){
+                            foreach($item->PostalCodeIDs as $row){
+                                $PostalCodeIDs[] = $row;
+                                $t=DB::Table('tbl_vendors_service_locations')->where('VendorID',$req->VendorID)->where('StockPointID',$StockPointID)->where('ServiceBy',$req->ServiceBy)->Where('PostalCodeID',$row)->first();
+                                if(!$t){
+                                    $DetailID = DocNum::getDocNum(docTypes::VendorServiceLocation->value,"",Helper::getCurrentFY());
+                                    $tdata=array(
+                                        "DetailID"=>$DetailID,
+                                        "VendorID"=>$req->VendorID,
+                                        "StockPointID"=>$StockPointID,
+                                        "ServiceBy"=>$req->ServiceBy,
+                                        "StateID" => $data->StateID,
+                                        "DistrictID"=>$item->DistrictID,
+                                        "PostalCodeID"=>$row,
+                                        "CreatedOn"=>date("Y-m-d H:i:s")
+                                    );
+                                    $status=DB::Table('tbl_vendors_service_locations')->insert($tdata);
+                                    if($status){
+                                        DocNum::updateDocNum(docTypes::VendorServiceLocation->value);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if (!empty($PostalCodeIDs)) {
+                        DB::Table('tbl_vendors_service_locations')->where('VendorID',$req->VendorID)->where('StockPointID',$StockPointID)->where('ServiceBy',$req->ServiceBy)->WhereIn('PostalCodeID',$PostalCodeIDs)->update(['DFlag'=>0,'UpdatedBy'=>$req->VendorID,'UpdatedOn'=>date('Y-m-d H:i:s')]);
+                        DB::Table('tbl_vendors_service_locations')->where('VendorID',$req->VendorID)->where('StockPointID',$StockPointID)->where('ServiceBy',$req->ServiceBy)->WhereNotIn('PostalCodeID',$PostalCodeIDs)->update(['DFlag'=>1,'DeletedBy'=>$req->VendorID,'DeletedOn'=>date('Y-m-d H:i:s')]);
+                        $status=true;
+                    }
+                }
+            }
+            DB::Table('tbl_vendors_service_locations')->where('VendorID',$req->VendorID)->whereNot('ServiceBy',$req->ServiceBy)->update(['DFlag'=>1,'UpdatedOn'=>date('Y-m-d H:i:s'),'UpdatedBy'=>$this->UserID]);
 
 			if($status==true){
 				DB::commit();
-				$NewData=DB::table('tbl_vendors_stock_point')->where('StockPointID',$StockPointID)->get();
-				$logData=array("Description"=>"Vendor Type Updated ","ModuleName"=>$this->ActiveMenuName,"Action"=>cruds::UPDATE->value,"ReferID"=>$StockPointID,"OldData"=>$OldData,"NewData"=>$NewData,"UserID"=>$this->UserID,"IP"=>$req->ip());
+				$NewData=DB::table('tbl_vendors_stock_point as VSP')->leftJoin('tbl_vendors_service_locations as VSL','VSL.StockPointID','VSP.StockPointID')->where('VSL.DFlag',0)->where('VSP.StockPointID',$req->StockPointID)->first();
+				$logData=array("Description"=>"Vendor Stock point Updated","ModuleName"=>"Vendor Stockpoint","Action"=>"Update","ReferID"=>$StockPointID,"OldData"=>$OldData,"NewData"=>$NewData,"UserID"=>$req->VendorID,"IP"=>$req->ip());
 				logs::Store($logData);
-				//Helper::removeFile($currSTImage);
-				
-				foreach($currSTImage as $KeyName=>$Img){
-					Helper::removeFile($Img['url']);
-				}
-				return array('status'=>true,'message'=>"Vendor Type Updated Successfully");
+				return array('status'=>true,'message'=>"Vendor Stock point Updated Successfully");
 			}else{
 				DB::rollback();
-				foreach($images as $KeyName=>$Img){
-					Helper::removeFile($Img['url']);
-				}
-				return array('status'=>false,'message'=>"Vendor Type Update Failed");
+				return array('status'=>false,'message'=>"Vendor Stock point Update Failed");
 			}
 		}else{
 			return array('status'=>false,'message'=>'Access denined');
@@ -291,37 +394,12 @@ class StockPointsController extends Controller{
 			}
 			if($status==true){
 				DB::commit();
-				$logData=array("Description"=>"Vendor Type has been Deleted ","ModuleName"=>$this->ActiveMenuName,"Action"=>cruds::DELETE->value,"ReferID"=>$StockPointID,"OldData"=>$OldData,"NewData"=>$NewData,"UserID"=>$this->UserID,"IP"=>$req->ip());
+				$logData=array("Description"=>"Stock Point has been Deleted ","ModuleName"=>$this->ActiveMenuName,"Action"=>cruds::DELETE->value,"ReferID"=>$StockPointID,"OldData"=>$OldData,"NewData"=>$NewData,"UserID"=>$this->UserID,"IP"=>$req->ip());
 				logs::Store($logData);
-				return array('status'=>true,'message'=>"Vendor Type Deleted Successfully");
+				return array('status'=>true,'message'=>"Stock Point Deleted Successfully");
 			}else{
 				DB::rollback();
-				return array('status'=>false,'message'=>"Vendor Type Delete Failed");
-			}
-		}else{
-			return response(array('status'=>false,'message'=>"Access Denied"), 403);
-		}
-	}
-	public function Restore(Request $req,$StockPointID){
-		$OldData=$NewData=array();
-		if($this->general->isCrudAllow($this->CRUD,"restore")==true){
-			DB::beginTransaction();
-			$status=false;
-			try{
-				$OldData=DB::table('tbl_vendors_stock_point')->where('StockPointID',$StockPointID)->get();
-				$status=DB::table('tbl_vendors_stock_point')->where('StockPointID',$StockPointID)->update(array("DFlag"=>0,"UpdatedBy"=>$this->UserID,"UpdatedOn"=>date("Y-m-d H:i:s")));
-			}catch(Exception $e) {
-				
-			}
-			if($status==true){
-				DB::commit();
-				$NewData=DB::table('tbl_vendors_stock_point')->where('StockPointID',$StockPointID)->get();
-				$logData=array("Description"=>"Vendor Type has been Restored ","ModuleName"=>$this->ActiveMenuName,"Action"=>cruds::RESTORE->value,"ReferID"=>$StockPointID,"OldData"=>$OldData,"NewData"=>$NewData,"UserID"=>$this->UserID,"IP"=>$req->ip());
-				logs::Store($logData);
-				return array('status'=>true,'message'=>"Vendor Type Restored Successfully");
-			}else{
-				DB::rollback();
-				return array('status'=>false,'message'=>"Vendor Type Restore Failed");
+				return array('status'=>false,'message'=>"Stock Point Delete Failed");
 			}
 		}else{
 			return response(array('status'=>false,'message'=>"Access Denied"), 403);
@@ -372,69 +450,5 @@ class StockPointsController extends Controller{
 		}else{
 			return response(array('status'=>false,'message'=>"Access Denied"), 403);
 		}
-	}
-	public function TrashTableView(Request $request){
-		if($this->general->isCrudAllow($this->CRUD,"restore")==true){
-			$columns = array(
-				array( 'db' => 'StockPointID', 'dt' => '0' ),
-				array( 'db' => 'VendorType', 'dt' => '1' ),
-				array( 'db' => 'ActiveStatus', 'dt' => '2',
-					'formatter' => function( $d, $row ) {
-						if($d=="Active"){
-							return "<span class='badge badge-success m-1'>Active</span>";
-						}else{
-							return "<span class='badge badge-danger m-1'>Inactive</span>";
-						}
-					} 
-				),
-				array( 
-					'db' => 'StockPointID', 
-					'dt' => '3',
-					'formatter' => function( $d, $row ) {
-						$html='<button type="button" data-id="'.$d.'" class="btn btn-outline-success '.$this->general->UserInfo['Theme']['button-size'].'  m-2 btnRestore"> <i class="fa fa-repeat" aria-hidden="true"></i> </button>';
-						return $html;
-					} 
-				)
-			);
-			$data=array();
-			$data['POSTDATA']=$request;
-			$data['TABLE']='tbl_vendors_stock_point';
-			$data['PRIMARYKEY']='StockPointID';
-			$data['COLUMNS']=$columns;
-			$data['COLUMNS1']=$columns;
-			$data['GROUPBY']=null;
-			$data['WHERERESULT']=null;
-			$data['WHEREALL']=" DFlag=1 ";
-			return SSP::SSP( $data);
-		}else{
-			return response(array('status'=>false,'message'=>"Access Denied"), 403);
-		}
-	}
-
-	// Create Form
-
-	private function getUserID(){
-		if(Auth::Check()){
-			return auth()->user()->UserID;
-		}
-		return "";
-	}
-    private function getThemesOption(){
-		$UserID=$this->getUserID();
-    	$return=array("button-size"=>"btn-sm","table-size"=>"table-sm","input-size"=>"","switch-size"=>"");
-    	$result=DB::Table('tbl_user_theme')->where('UserID',$UserID)->get();
-    	if(count($result)>0){
-    		for($i=0;$i<count($result);$i++){
-    			$return[$result[$i]->Theme_option]=$result[$i]->Theme_Value;
-    		}
-    	}
-    	return $return;
-    }
-	public function GetNewVendorType(Request $req){
-		$Theme=$this->getThemesOption();
-		return view("modals.vendorCategory",array("Theme"=>$Theme,"FileTypes"=>$this->FileTypes));
-	}
-	public static function GetVendorType(request $req){
-		return DB::Table('tbl_vendors_stock_point')->where('ActiveStatus','Active')->where('DFlag',0)->get();
 	}
 }

@@ -29,12 +29,14 @@ class VendorsController extends Controller{
 	private $FileTypes;
     private $Menus;
 	private $generalDB;
+	private $currfyDB;
     public function __construct(){
 		$this->ActiveMenuName=activeMenuNames::Vendors->value;
 		$this->PageTitle="Manage Vendors";
         $this->middleware('auth');
 		$this->FileTypes=Helper::getFileTypes(array("category"=>array("Images","Documents")));
 		$this->generalDB=Helper::getGeneralDB();
+		$this->currfyDB=Helper::getcurrfyDB();
 		$this->middleware(function ($request, $next) {
 			$this->UserID=auth()->user()->UserID;
 			$this->general=new general($this->UserID,$this->ActiveMenuName);
@@ -178,11 +180,12 @@ class VendorsController extends Controller{
 		$result=DB::SELECT($sql);
 		for($i=0;$i<count($result);$i++){
 			//Documents
-			$Documents=DB::Table('tbl_vendors_document')->where('VendorID',$result[$i]->VendorID)->get();
+			$Documents=DB::Table('tbl_vendors_document as VD')->leftJoin('tbl_vendor_required_documents as VRD','VRD.DocName','VD.DocName')->where('VD.VendorID',$result[$i]->VendorID)->select('documents','DisplayName')->get();
 			for($k=0;$k<count($Documents);$k++){
 				$Documents[$k]->ext= pathinfo($Documents[$k]->documents,PATHINFO_EXTENSION);
 				$Documents[$k]->fileName= basename($Documents[$k]->documents);
-				$Documents[$k]->documents=Helper::checkProductImageExists($Documents[$k]->documents);
+				$Documents[$k]->documents=url('/') . '/' . Helper::checkProductImageExists($Documents[$k]->documents);
+				$Documents[$k]->DefaultImage=url('/') . '/assets/images/default_document.jpg' ;
 			}
 			//Vehicles
 			$sql ="SELECT VV.VehicleID, VV.VendorID, VV.UUID, VV.VNumber, VV.VType as VTypeID, VT.VehicleType, VV.VBrand as VBrandID, VB.VehicleBrandName, VV.VModel as VModelID, VM.VehicleModel,";
@@ -1323,6 +1326,72 @@ class VendorsController extends Controller{
 		$generalDB=Helper::getGeneralDB();
 		if($this->general->isCrudAllow($this->CRUD,"view")==true){
 			$columns = array(
+				array( 'db' => 'V.VendorCoName', 'dt' => '0' ),
+				array( 'db' => 'V.VendorName', 'dt' => '1' ),
+				array( 'db' => 'V.MobileNumber1', 'dt' => '2' ),
+				array( 'db' => 'VT.VendorType', 'dt' => '3' ),
+				array( 'db' => 'D.DistrictName', 'dt' => '4' ),
+				array( 'db' => 'V.CreatedOn', 'dt' => '5' ),
+				array( 'db' => 'V.ActiveStatus', 'dt' => '6'),
+				array( 'db' => 'V.VendorID', 'dt' => '7'),
+				array( 'db' => 'V.isApproved', 'dt' => '8'),
+			);
+			$columns1 = array(
+				array( 'db' => 'VendorCoName', 'dt' => '0' ),
+				array( 'db' => 'VendorName', 'dt' => '1' ),
+				array( 'db' => 'MobileNumber1', 'dt' => '2' ),
+				array( 'db' => 'VendorType', 'dt' => '3' ),
+				array( 'db' => 'DistrictName', 'dt' => '4' ),
+				array( 'db' => 'CreatedOn', 'dt' => '5','formatter' => function( $d, $row ) {return date($this->Settings['date-format'],strtotime($d));} ),
+				array( 
+					'db' => 'ActiveStatus', 
+					'dt' => '6',
+					'formatter' => function( $d, $row ) {
+						if($d=="Active"){
+							return "<span class='badge badge-success m-1'>Active</span>";
+						}else{
+							return "<span class='badge badge-danger m-1'>Inactive</span>";
+						}
+					} 
+				),
+				array( 
+					'db' => 'VendorID', 
+					'dt' => '7',
+					'formatter' => function( $d, $row ) {
+						$html='';
+						if($this->general->isCrudAllow($this->CRUD,"edit")==true && $row['isApproved'] == 1){
+							$html.='<button type="button" data-id="'.$d.'" class="btn btn-outline-info '.$this->general->UserInfo['Theme']['button-size'].' me-2 mb-2 btnEditServiceLocation" title="Edit Service Location"><i class="fa fa-map-marker" aria-hidden="true"></i></button>';
+							$html.='<button type="button" data-id="'.$d.'" class="btn btn-outline-dark '.$this->general->UserInfo['Theme']['button-size'].' me-2 mb-2 btnEditProductMap" title="Edit Product Mapping"><i class="fa fa-dropbox" aria-hidden="true"></i></button>';
+							$html.='<button type="button" data-id="'.$d.'" class="btn btn-outline-success '.$this->general->UserInfo['Theme']['button-size'].' me-2 mb-2 btnEdit" title="Edit"><i class="fa fa-pencil"></i></button>';
+						}else if ($this->general->isCrudAllow($this->CRUD,"edit")==true && $row['isApproved'] == 0){
+							$html.='<button type="button" data-id="'.$d.'" data-vendor-name="'.$row['VendorCoName'].'" class="btn btn-outline-info '.$this->general->UserInfo['Theme']['button-size'].' me-2 mb-2 btnVendorInfo" title="View"><i class="fa fa-eye" aria-hidden="true"></i></button>';
+							$html.='<button type="button" data-id="'.$d.'" class="btn btn-outline-primary '.$this->general->UserInfo['Theme']['button-size'].' me-2 mb-2 btnApprove" title="Approve"><i class="fa fa-check" aria-hidden="true"></i></button>';
+						}
+						if($this->general->isCrudAllow($this->CRUD,"delete")==true){
+							$html.='<button type="button" data-id="'.$d.'" class="btn btn-outline-danger '.$this->general->UserInfo['Theme']['button-size'].' mb-2 btnDelete" title="Delete"><i class="fa fa-trash" aria-hidden="true"></i></button>';
+						}
+						return $html;
+					} 
+				),
+			);
+			$data=array();
+			$data['POSTDATA']=$request;
+			$data['TABLE']='tbl_vendors as V LEFT JOIN tbl_vendor_type as VT ON VT.VendorTypeID=V.VendorType LEFT JOIN '.$generalDB.'tbl_postalcodes as P ON P.PID=V.PostalCode LEFT JOIN '.$generalDB.'tbl_cities as CI ON CI.CityID=V.CityID LEFT JOIN '.$generalDB.'tbl_taluks as T ON T.TalukID=V.TalukID LEFT JOIN '.$generalDB.'tbl_districts as D ON D.DistrictID=V.DistrictID';
+			$data['PRIMARYKEY']='V.VendorID';
+			$data['COLUMNS']=$columns;
+			$data['COLUMNS1']=$columns1;
+			$data['GROUPBY']=null;
+			$data['WHERERESULT']=null;
+			$data['WHEREALL']=" V.DFlag=0 ";
+			return SSP::SSP( $data);
+		}else{
+			return response(array('status'=>false,'message'=>"Access Denied"), 403);
+		}
+	}
+	public function TableView1(Request $request){
+		$generalDB=Helper::getGeneralDB();
+		if($this->general->isCrudAllow($this->CRUD,"view")==true){
+			$columns = array(
 				array( 'db' => 'V.VendorName', 'dt' => '0' ),
 				array( 'db' => 'V.MobileNumber1', 'dt' => '1' ),
 				array( 'db' => 'V.GSTNo', 'dt' => '2' ),
@@ -1451,5 +1520,9 @@ class VendorsController extends Controller{
 	}
 	public function getVendorType(Request $req){
 		return DB::Table('tbl_vendor_type')->where('ActiveStatus','Active')->where('DFlag',0)->get();
+	}
+	public function GetVendorInfo(request $req){
+		$VendorInfo = $this->getVendor($req->VendorID);
+		return $VendorInfo[0];
 	}
 }

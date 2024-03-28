@@ -391,14 +391,17 @@ class VendorTransactionAPIController extends Controller{
                 }
                 $AllProducts = DB::table($this->currfyDB.'tbl_order_details')->where('OrderID',$req->OrderID)->whereNot('Status','Cancelled')->count();
                 $DeliveredProducts = DB::table($this->currfyDB.'tbl_order_details')->where('OrderID',$req->OrderID)->where('Status','Delivered')->count();
+                $CustomerID = DB::table($this->currfyDB.'tbl_order')->where('OrderID',$req->OrderID)->value('CustomerID');
                 if($AllProducts == $DeliveredProducts){
                     $status = DB::table($this->currfyDB.'tbl_order')->where('OrderID',$req->OrderID)->update(['Status'=>'Delivered','DeliveredOn'=>now(),'UpdatedOn'=>now(),'UpdatedBy'=>$VendorID]);
-                    $CustomerID = DB::table($this->currfyDB.'tbl_order')->where('OrderID',$req->OrderID)->value('CustomerID');
                     $Title = "Your Order Completed";
                     $Message = "Your order has been successfully completed. Thank you for choosing us";
                     Helper::saveNotification($CustomerID,$Title,$Message,'Order',$req->OrderID);
                 }else{
                     $status = DB::table($this->currfyDB.'tbl_order')->where('OrderID',$req->OrderID)->update(['Status'=>'Partially Delivered','UpdatedOn'=>now(),'UpdatedBy'=>$VendorID]);
+                    $Title = "Your Order Partially Delivered";
+                    $Message = "Your order has been successfully delivered. Kindly review the order";
+                    Helper::saveNotification($CustomerID,$Title,$Message,'Order',$req->VOrderID);
                 }
             }
         }catch(Exception $e) {

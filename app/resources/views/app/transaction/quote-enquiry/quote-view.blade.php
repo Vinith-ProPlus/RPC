@@ -672,7 +672,7 @@
                         let row = $('<tr data-product-id="' + product.ProductID + '"></tr>');
                         row.append('<td>' + (index + 1) + '</td>');
                         row.append('<td>' + product.ProductName + '</td>');
-                        row.append('<td class="text-center">' + product.Qty + ' ( ' + product.UCode + ' )</td>');
+                        row.append('<td class="text-center" data-qty = '+ product.Qty +'>' + product.Qty + ' ( ' + product.UCode + ' )</td>');
                         let formattedPrice = product.VendorPrice.toFixed(2);
                         row.append(`<td class="align-items-center align-middle">
                                         <div class="row d-flex align-items-center justify-content-center">
@@ -732,6 +732,7 @@
             $('#tblVendorPriceUpdate tbody tr').each(function(){
                 let product = {
                     ProductID : $(this).data('product-id'),
+                    Qty : $(this).find('td:eq(2)').data('qty'),
                     Price : $(this).find('.txtVendorPrice').val(),
                 }
                 ProductData.push(product);

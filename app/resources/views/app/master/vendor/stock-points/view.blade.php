@@ -113,7 +113,7 @@
 			let ID=$(this).attr('data-id');
 			swal({
                 title: "Are you sure?",
-                text: "You want Delete this Vendor Type!",
+                text: "You want Delete this Stock Point!",
                 type: "warning",
                 showCancelButton: true,
                 confirmButtonClass: "btn-outline-danger",

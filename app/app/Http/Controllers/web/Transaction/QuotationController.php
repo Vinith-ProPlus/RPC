@@ -59,6 +59,7 @@ class QuotationController extends Controller{
         }
     }
     public function QuoteView(Request $req,$QID){
+		//return $this->SaveVendorOrders("ODR2324-00000031");
         if($this->general->isCrudAllow($this->CRUD,"edit")==true){
 
 			$OtherCRUD=[
@@ -97,7 +98,6 @@ class QuotationController extends Controller{
 				"RejectedBy"=>$this->UserID
 			);
 			$status=DB::Table($this->CurrFYDB."tbl_quotation")->where('QID',$QID)->update($tdata);
-
 			if($status==true){
 				DB::commit();
 				return array('status'=>true,'message'=>"Quote Successfully Canceled");
@@ -109,7 +109,7 @@ class QuotationController extends Controller{
 			return response(array('status'=>false,'message'=>"Access Denied"), 403);
 		}
 	}
-	public function itemUpdate(Request $req,$DetailID){
+	public function itemUpdate(Request $req,$DetailID){ 
 		if($this->general->isCrudAllow($this->CRUD,"edit")==true){
 			
 			DB::beginTransaction();
@@ -124,7 +124,7 @@ class QuotationController extends Controller{
 				"IGSTAmt"=>$req->IGSTAmt,
 				"TotalAmt"=>$req->TotalAmt,
 				"UpdatedOn"=>now(),
-				"CancelledBy"=>$this->UserID
+				"updatedBy"=>$this->UserID
 			);
 			//Update Quotation table amount totals
 			$status=DB::Table($this->CurrFYDB."tbl_quotation_details")->where('QID',$req->QID)->where('DetailID',$DetailID)->update($tdata);
@@ -153,6 +153,42 @@ class QuotationController extends Controller{
 				$tdata['UpdatedBy']=$this->UserID;
 				$status=DB::Table($this->CurrFYDB."tbl_quotation")->where('QID',$req->QID)->update($tdata);
 			}
+
+			//Update Vendor Quote Details
+			if($status){
+				$tdata=array(
+					"Qty"=>$req->Qty,
+					"Price"=>$req->Price,
+					"Taxable"=>$req->Taxable,
+					"TaxAmt"=>$req->TaxAmt,
+					"CGSTAmt"=>$req->CGSTAmt,
+					"SGSTAmt"=>$req->SGSTAmt,
+					"IGSTAmt"=>$req->IGSTAmt,
+					"TotalAmt"=>$req->TotalAmt,
+					"UpdatedOn"=>now(),
+					"updatedBy"=>$this->UserID
+				);
+				//Update Quotation table amount totals
+				$status=DB::Table($this->CurrFYDB."tbl_vendor_quotation_details")->where('VQuoteID',$req->VQuoteID)->where('DetailID',$req->VQDetailID)->update($tdata);
+				if($status){
+					$tdata=["TaxAmount"=>0,"TotalAmount"=>0,"SubTotal"=>0];
+					$sql="SELECT IFNULL(SUM(TaxAmt),0) as TaxAmount, IFNULL(SUM(CGSTAmt),0) as CGSTAmount, IFNULL(SUM(IGSTAmt),0) as IGSTAmount, IFNULL(SUM(SGSTAmt),0) as SGSTAmount, SUM(TotalAmt) as TotalAmount, IFNULL(SUM(Taxable),0) as SubTotal FROM ".$this->CurrFYDB."tbl_vendor_quotation_details where VQuoteID='".$req->VQuoteID."' and isCancelled=0";
+					$result=DB::SELECT($sql);
+					foreach($result as $tmp){
+						$tdata['TaxAmount']+=floatval($tmp->TaxAmount);
+						//$tdata['CGSTAmount']+=floatval($tmp->CGSTAmount);
+						//$tdata['IGSTAmount']+=floatval($tmp->IGSTAmount);
+						//$tdata['SGSTAmount']+=floatval($tmp->SGSTAmount);
+						$tdata['TotalAmount']+=floatval($tmp->TotalAmount);
+						$tdata['SubTotal']+=floatval($tmp->SubTotal);
+					}
+					$tdata['TotalAmount']=floatval($tdata['SubTotal'])+floatval($tdata['TaxAmount']);
+	
+					$tdata['UpdatedOn']=date("Y-m-d H:i:s",strtotime("1 minutes"));
+					$tdata['UpdatedBy']=$this->UserID;
+					$status=DB::Table($this->CurrFYDB."tbl_vendor_quotation")->where('VQuoteID',$req->VQuoteID)->update($tdata);
+				}
+			}
 			if($status==true){
 				DB::commit();
 				return array('status'=>true,'message'=>"Quote updated Successfully ");
@@ -164,7 +200,7 @@ class QuotationController extends Controller{
 			return response(array('status'=>false,'message'=>"Access Denied"), 403);
 		}
 	}
-	public function QuoteItemCancel(request $req,$DetailID){
+	public function QuoteItemCancel(request $req,$DetailID){ 
 		if($this->general->isCrudAllow($this->CRUD,"delete")==true){
 			DB::beginTransaction();
 			$status=false;
@@ -201,7 +237,6 @@ class QuotationController extends Controller{
 					$status=DB::Table($this->CurrFYDB."tbl_quotation")->where('QID',$req->QID)->update($tdata);
 				}
 			}
-
 			// Update Tax Amount, Total Amount, Subtotal, and Net Amount for non-cancelled items in the quotation table.
 			if($status){
 				$tdata=["TaxAmount"=>0,"CGSTAmount"=>0,"IGSTAmount"=>0,"SGSTAmount"=>0,"TotalAmount"=>0,"SubTotal"=>0,"DiscountAmount"=>0,"AdditionalCost"=>0,"OverAllAmount"=>0];
@@ -228,6 +263,51 @@ class QuotationController extends Controller{
 				$tdata['UpdatedBy']=$this->UserID;
 				$status=DB::Table($this->CurrFYDB."tbl_quotation")->where('QID',$req->QID)->update($tdata);
 			}
+			
+			/********************************************************************************************************************************* */
+			//Update Vendor Quote Item Cancell
+			/********************************************************************************************************************************* */
+			if($status){
+				$tdata=array(
+					"isCancelled"=>"1",
+					"ReasonID"=>$req->ReasonID,
+					"RDescription"=>$req->Description,
+					"CancelledOn"=>now(),
+					"CancelledBy"=>$this->UserID
+				);
+				//Vendor item cancel
+				$status=DB::Table($this->CurrFYDB."tbl_vendor_quotation_details")->where('VQuoteID',$req->VQID)->where('DetailID',$req->VQDID)->update($tdata);
+			}
+			// Verify if all items have been cancelled. If all items are cancelled, update the status in the main vendor quotation table.
+			if($status){
+				$t=DB::Table($this->CurrFYDB."tbl_vendor_quotation_details")->where('VQuoteID',$req->VQID)->where('isCancelled',0)->count();
+				if(intval($t)<=0){
+					$tdata=array(
+						"Status"=>"Rejected",
+						"RReasonID"=>$req->ReasonID,
+						"RRDescription"=>$req->Description,
+						"RejectedOn"=>now(),
+						"RejectedBy"=>$this->UserID
+					);
+					$status=DB::Table($this->CurrFYDB."tbl_vendor_quotation")->where('VQuoteID',$req->VQID)->update($tdata);
+				}
+			}
+			// Update Tax Amount, Total Amount, Subtotal, and Net Amount for non-cancelled items in the quotation table.
+			if($status){
+				$tdata=["TaxAmount"=>0,"TotalAmount"=>0,"SubTotal"=>0];
+				$sql="SELECT IFNULL(SUM(TaxAmt),0) as TaxAmount, IFNULL(SUM(CGSTAmt),0) as CGSTAmount, IFNULL(SUM(IGSTAmt),0) as IGSTAmount, IFNULL(SUM(SGSTAmt),0) as SGSTAmount, SUM(TotalAmt) as TotalAmount, IFNULL(SUM(Taxable),0) as SubTotal FROM ".$this->CurrFYDB."tbl_vendor_quotation_details where VQuoteID='".$req->VQID."' and isCancelled=0";
+				$result=DB::SELECT($sql);
+				foreach($result as $tmp){
+					$tdata['TaxAmount']+=floatval($tmp->TaxAmount);
+					$tdata['TotalAmount']+=floatval($tmp->TotalAmount);
+					$tdata['SubTotal']+=floatval($tmp->SubTotal);
+				}
+				$tdata['TotalAmount']=floatval($tdata['SubTotal'])+floatval($tdata['TaxAmount']);
+
+				$tdata['UpdatedOn']=date("Y-m-d",strtotime("1 minutes"));
+				$tdata['UpdatedBy']=$this->UserID;
+				$status=DB::Table($this->CurrFYDB."tbl_vendor_quotation")->where('VQuoteID',$req->VQID)->update($tdata);
+			}
 			if($status==true){
 				DB::commit();
 				return array('status'=>true,'message'=>"Quote Successfully Canceled");
@@ -239,6 +319,135 @@ class QuotationController extends Controller{
 			return response(array('status'=>false,'message'=>"Access Denied"), 403);
 		}
 	}
+	private function SaveVendorOrders($QData,$OrderID,$QID,$ExpectedDelivery){
+		$status=true;
+		$QDetails=DB::Select("Select DISTINCT(VendorID) as VendorID From ".$this->CurrFYDB."tbl_order_details Where OrderID='".$OrderID."' and Status<>'Cancelled'");
+		//SELECT OD.DetailID as ODetailID, OD.QID, OD.QDID, OD.OrderID, OD.ProductID, VQD.Qty, VQD.Price FROM tbl_order_details as OD LEFT JOIN tbl_quotation_details as QD ON QD.DetailID=OD.QDID AND QD.QID=OD.QID LEFT JOIN tbl_vendor_quotation_details as VQD ON VQD.DetailID=QD.VQDetailID AND VQD.ProductID=QD.ProductID;
+		foreach($QDetails as $QItem){
+			$VendorID=$QItem->VendorID;
+			$CommissionPercentage=0;
+			$t=DB::Table('tbl_vendors')->where('VendorID',$VendorID)->get();
+			if(count($t)>0){
+				$CommissionPercentage=$t[0]->CommissionPercentage;
+			}
+			$VOrderID=DocNum::getDocNum(docTypes::VendorOrders->value, $this->CurrFYDB,Helper::getCurrentFy());
+			$VOrderNo=DocNum::getInvNo(docTypes::VendorOrders->value);
+			if($status){
+				$sql =" SELECT OD.DetailID as ODetailID, OD.QID, OD.QDID, OD.OrderID, OD.ProductID, VQD.Qty, VQD.Price, VQD.TaxType, VQD.TaxID, VQD.TaxPer, VQD.Taxable, VQD.DiscountType, VQD.DiscountPer, VQD.DiscountAmt, VQD.TaxAmt, VQD.CGSTPer, VQD.SGSTPer, VQD.IGSTPer, VQD.CGSTAmt, VQD.SGSTAmt, VQD.IGSTAmt, VQD.TotalAmt ";
+				$sql.=" FROM ".$this->CurrFYDB."tbl_order_details as OD LEFT JOIN ".$this->CurrFYDB."tbl_quotation_details as QD ON QD.DetailID=OD.QDID AND QD.QID=OD.QID LEFT JOIN ".$this->CurrFYDB."tbl_vendor_quotation_details as VQD ON VQD.DetailID=QD.VQDetailID AND VQD.ProductID=QD.ProductID ";
+				$sql.=" Where OD.OrderID='".$OrderID."' and OD.VendorID='".$VendorID."'"; 
+				$result=DB::SELECT($sql);
+				$totals=json_decode(json_encode(["TaxAmount"=>0,"SubTotal"=>0,"CGSTAmount"=>0,"SGSTAmount"=>0,"IGSTAmount"=>0,"additionalCharges"=>0,"TotalAmount"=>0]));
+				foreach($result as $tdata){
+					if($status){
+						$DetailID=DocNum::getDocNum(docTypes::VendorOrderDetails->value, $this->CurrFYDB,Helper::getCurrentFy());
+						$data=[
+							"DetailID"=>$DetailID,
+							"QID"=>$tdata->QID,
+							"QDID"=>$tdata->QDID,
+							"OrderID"=>$tdata->OrderID,
+							"ODetailID"=>$tdata->ODetailID,
+							"VOrderID"=>$VOrderID,
+							"ProductID"=>$tdata->ProductID,
+							"Qty"=>$tdata->Qty,
+							"Price"=>$tdata->Price,
+							"TaxType"=>$tdata->TaxType,
+							"TaxPer"=>$tdata->TaxPer,
+							"Taxable"=>$tdata->Taxable,
+							"DiscountType"=>$tdata->DiscountType,
+							"DiscountPer"=>$tdata->DiscountPer,
+							"DiscountAmt"=>$tdata->DiscountAmt,
+							"TaxAmt"=>$tdata->TaxAmt,
+							"CGSTPer"=>$tdata->CGSTPer,
+							"SGSTPer"=>$tdata->SGSTPer,
+							"IGSTPer"=>$tdata->IGSTPer,
+							"CGSTAmt"=>$tdata->CGSTAmt,
+							"SGSTAmt"=>$tdata->SGSTAmt,
+							"IGSTAmt"=>$tdata->IGSTAmt,
+							"TotalAmt"=>$tdata->TotalAmt,
+							"CreatedOn"=>now(),
+							"CreatedBy"=>$this->UserID
+						];
+
+						$totals->TaxAmount+=$tdata->TaxAmt;
+						$totals->SubTotal+=$tdata->Taxable;
+						$totals->CGSTAmount+=$tdata->CGSTAmt;
+						$totals->SGSTAmount+=$tdata->SGSTAmt;
+						$totals->IGSTAmount+=$tdata->IGSTAmt;
+						$status=DB::Table($this->CurrFYDB.'tbl_vendor_order_details')->insert($data);
+						if($status){
+							DocNum::updateDocNum(docTypes::VendorOrderDetails->value, $this->CurrFYDB);
+							$status=DB::table($this->CurrFYDB.'tbl_order_details')->where('DetailID',$tdata->ODetailID)->update(["VOrderID"=>$VOrderID,"VOrderDetailID"=>$DetailID,"UpdatedOn"=>now(),"updatedBy"=>$this->UserID]);
+						}
+					}
+				}
+				if($status){
+					$sql="SELECT AdditionalCost FROM ".$this->CurrFYDB."tbl_vendor_quotation Where VendorID='".$VendorID."' and EnqID in(Select EnqID From ".$this->CurrFYDB."tbl_quotation Where QID='".$QID."')";
+					$tmp=DB::SELECT($sql);
+					foreach($tmp as $t){
+						$totals->additionalCharges+=floatval($t->AdditionalCost);
+					}
+					$totals->TotalAmount=floatval($totals->SubTotal)+floatval($totals->CGSTAmount)+floatval($totals->SGSTAmount)+floatval($totals->IGSTAmount);
+					$CommissionAmount=(($totals->TotalAmount*$CommissionPercentage)/100);
+					$NetAmount=(($totals->TotalAmount-$CommissionAmount)+$totals->additionalCharges);
+					$tdata=[
+						"VOrderID"=>$VOrderID,
+						"OrderID"=>$OrderID,
+						"OrderNo"=>$VOrderNo,
+						"OrderDate"=>date("Y-m-d"),
+						"ExpectedDelivery"=>date("Y-m-d",strtotime($ExpectedDelivery)),
+						"QID"=>$QID,
+						"CustomerID"=>$QData->CustomerID,
+						"AID"=>$QData->AID,
+						"VendorID"=>$VendorID,
+						"ReceiverName"=>$QData->ReceiverName,
+						"ReceiverMobNo"=>$QData->ReceiverMobNo,
+						"DAddress"=>$QData->DAddress,
+						"DCountryID"=>$QData->DCountryID,
+						"DStateID"=>$QData->DStateID,
+						"DDistrictID"=>$QData->DDistrictID,
+						"DTalukID"=>$QData->DTalukID,
+						"DCityID"=>$QData->DCityID,
+						"DPostalCodeID"=>$QData->DPostalCodeID,
+						"Status"=>"New",
+						"TaxAmount"=>$totals->TaxAmount,
+						"SubTotal"=>$totals->SubTotal,
+						"DiscountType"=>"",
+						"DiscountPercentage"=>0,
+						"DiscountAmount"=>0,
+						"CGSTAmount"=>$totals->CGSTAmount,
+						"SGSTAmount"=>$totals->SGSTAmount,
+						"IGSTAmount"=>$totals->IGSTAmount,
+						"TotalAmount"=>$totals->TotalAmount,
+						"CommissionAmount"=>$CommissionAmount,
+						"CommissionPercentage"=>$CommissionPercentage,
+						"AdditionalCost"=>$totals->additionalCharges,
+						"NetAmount"=>$NetAmount,
+						"PaidAmount"=>0,
+						"BalanceAmount"=>$NetAmount,
+						"PaymentStatus"=>"Unpaid",
+						"AdditionalCostData"=> serialize([]),
+						"CreatedOn"=>now(),
+						"CreatedBy"=>$this->UserID
+					];
+					$status=DB::table($this->CurrFYDB.'tbl_vendor_orders')->insert($tdata);
+					if($status){
+						DocNum::updateDocNum(docTypes::VendorOrders->value, $this->CurrFYDB);
+						DocNum::updateInvNo(docTypes::VendorOrders->value);
+						$Title = "New Order Arrived. Order No " . $VOrderNo . ".";
+						$Message = "You have a new order! Check now for details and fulfill it promptly.";
+						Helper::saveNotification($VendorID,$Title,$Message,'Orders',$VOrderID);
+						
+					}
+				}
+				if($status){
+					DocNum::updateDocNum(docTypes::VendorOrders->value, $this->CurrFYDB);
+					DocNum::updateInvNo(docTypes::VendorOrders->value);
+				}
+			}
+		}
+		return $status;
+	}
 	public function QuoteApprove(Request $req,$QID){
 		$OrderCRUD=$this->general->getCrudOperations(activeMenuNames::Order->value);
 		if($this->general->isCrudAllow($this->CRUD,"add")==true){
@@ -248,6 +457,8 @@ class QuotationController extends Controller{
 			try {
 				if(count($data)>0){
 					$data=$data[0];
+					
+
 					$OrderID=DocNum::getDocNum(docTypes::Order->value, $this->CurrFYDB,Helper::getCurrentFy());
 					$OrderNo=DocNum::getInvNo(docTypes::Order->value);
 					$tdata=[
@@ -329,6 +540,11 @@ class QuotationController extends Controller{
 						}
 					}
 					//save orders to vendors;
+					if($status){
+						$status=$this->SaveVendorOrders($data,$OrderID,$QID,$req->ExpectedDelivery);
+					}
+					
+					/*
 					$sql="SELECT OrderID,QID,VendorID,Sum(Taxable) as SubTotal,Sum(TaxAmt) as TaxAmount, Sum(CGSTAmt) as CGSTAmount, Sum(SGSTAmt) as SGSTAmount, Sum(IGSTAmt) as IGSTAmount, Sum(TotalAmt) as TotalAmount  FROM ".$this->CurrFYDB."tbl_order_details Where OrderID='".$OrderID."' Group By OrderID,QID,VendorID";
 					$result=DB::SELECT($sql);
 					foreach($result as $item){
@@ -390,7 +606,8 @@ class QuotationController extends Controller{
 							}
 						}
 
-					}
+					}*/
+					
 					if($status){
 						$status=DB::Table($this->CurrFYDB."tbl_quotation")->where('QID',$QID)->update(["Status"=>"Accepted","UpdatedOn"=>now(),"UpdatedBy"=>$this->UserID]);
 					}
@@ -479,6 +696,13 @@ class QuotationController extends Controller{
 			$sql.=" FROM ".$this->CurrFYDB."tbl_quotation_details as QD LEFT JOIN tbl_products as P ON P.ProductID=QD.ProductID LEFT JOIN tbl_uom as U ON U.UID=P.UID LEFT JOIN tbl_reject_reason as RR ON RR.RReasonID=QD.ReasonID LEFT JOIN tbl_vendors as V ON V.VendorID=QD.VendorID ";
 			$sql.=" Where QD.QID='".$result[$i]->QID."' and QD.isCancelled=0 ";
 			$result[$i]->Details=DB::SELECT($sql);
+			for($j=0;$j<count($result[$i]->Details);$j++){
+				$result[$i]->Details[$j]->VQuoteID="";
+				$result1=DB::Table($this->CurrFYDB.'tbl_vendor_quotation')->Where('EnqID',$result[$i]->EnqID)->where('VendorID',$result[$i]->Details[$j]->VendorID)->get();
+				if(count($result1)>0){
+					$result[$i]->Details[$j]->VQuoteID=$result1[0]->VQuoteID;
+				}
+			}
 			$addCharges=[];
 			$result1=DB::Table($this->CurrFYDB.'tbl_vendor_quotation')->Where('EnqID',$result[$i]->EnqID)->get();
 			foreach($result1 as $tmp){

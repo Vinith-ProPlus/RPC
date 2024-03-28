@@ -194,6 +194,7 @@ class QuoteEnquiryController extends Controller{
 			if($status==true){
 				DB::commit();
 				DocNum::updateDocNum(docTypes::Enquiry->value,$this->currfyDB);
+				DocNum::updateInvNo(docTypes::Enquiry->value);
 				$NewData=DB::table($this->currfyDB.'tbl_enquiry_details as ED')->leftJoin($this->currfyDB.'tbl_enquiry as E','E.EnqID','ED.EnqID')->where('ED.EnqID',$EnqID)->get();
 				$logData=array("Description"=>"New Quote Enquiry Created","ModuleName"=>$this->ActiveMenuName,"Action"=>cruds::ADD->value,"ReferID"=>$EnqID,"OldData"=>$OldData,"NewData"=>$NewData,"UserID"=>$this->UserID,"IP"=>$req->ip());
 				logs::Store($logData);
@@ -288,6 +289,7 @@ class QuoteEnquiryController extends Controller{
 			if($status==true){
 				DB::commit();
 				DocNum::updateDocNum(docTypes::Enquiry->value,$this->currfyDB);
+				DocNum::updateInvNo(docTypes::Enquiry->value);
 				$NewData=DB::table($this->currfyDB.'tbl_enquiry_details as ED')->leftJoin($this->currfyDB.'tbl_enquiry as E','E.EnqID','ED.EnqID')->where('ED.EnqID',$EnqID)->get();
 				$logData=array("Description"=>"New Image Quote Enquiry Created","ModuleName"=>$this->ActiveMenuName,"Action"=>cruds::ADD->value,"ReferID"=>$EnqID,"OldData"=>$OldData,"NewData"=>$NewData,"UserID"=>$this->UserID,"IP"=>$req->ip());
 				logs::Store($logData);
@@ -328,6 +330,7 @@ class QuoteEnquiryController extends Controller{
 					foreach($PData as $row){
 						$row->AvailableVendors=[];
 						$AvailableVendors = Helper::getAvailableVendors($EnqData->AID);
+						// return $AvailableVendors;
 						$AllVendors = DB::table('tbl_vendors as V')->leftJoin('tbl_vendor_ratings as VR','VR.VendorID','V.VendorID')->whereIn('V.VendorID',$AvailableVendors)->select('V.VendorID','V.VendorName','VR.OverAll')->get();
 						if(count($AllVendors)>0){
 							foreach($AllVendors as $item){
@@ -450,35 +453,66 @@ class QuoteEnquiryController extends Controller{
 			try {
 				$OldData=$NewData=[];
 				$ProductData = json_decode($req->ProductData);
-				$data=[
-					'SubTotal'=>$req->SubTotal ?? 0,
-					'TaxAmount'=>$req->TaxAmount ?? 0,
-					'TotalAmount'=>$req->TotalAmount ?? 0,
-					'LabourCost'=>$req->LabourCost ?? 0,
-					'TransportCost'=>$req->TransportCost ?? 0,
-					'AdditionalCost'=>$req->TransportCost + $req->LabourCost ?? 0,
-					'Status' => 'Sent',
-					'QSentOn'=>date('Y-m-d'),
-					'UpdatedBy'=>$this->UserID,
-					'UpdatedOn'=>date('Y-m-d H:i:s')
-				];
-				$status = DB::Table($this->currfyDB.'tbl_vendor_quotation')->where('VendorID',$req->VendorID)->where('VQuoteID',$req->VQuoteID)->update($data);
-				if($status){
-					foreach($ProductData as $item){
-						$PDetails= DB::table('tbl_products as P')->leftJoin('tbl_tax as T', 'T.TaxID', 'P.TaxID')->where('ProductID',$item->ProductID)->first();
-						$data=[
-							'Taxable'=>$item->Taxable ?? 0,
-							'TaxAmt'=>$item->TaxAmt ?? 0,
-							'TaxID'=>$PDetails->TaxID ?? 0,
-							'TaxPer'=>$PDetails->TaxPercentage ?? 0,
-							'TaxType'=>$PDetails->TaxType ?? 0,
-							'TotalAmt'=>$item->TotalAmt ?? 0,
-							'Price'=>$item->Price ?? 0,
-							'Status'=>'Price Sent',
-							'UpdatedOn'=>date('Y-m-d H:i:s')
-						];
-						$status = DB::Table($this->currfyDB.'tbl_vendor_quotation_details')->where('VQuoteID',$req->VQuoteID)->where('ProductID',$item->ProductID)->update($data);
+				$totalTaxable = 0;
+				$totalTaxAmount = 0;
+				$totalCGST = 0;
+				$totalSGST = 0;
+				$totalIGST = 0;
+				$totalQuoteValue = 0;
+				foreach ($ProductData as $item) {
+					$ProductDetails = DB::table('tbl_products as P')->leftJoin('tbl_tax as T', 'T.TaxID', 'P.TaxID')->where('P.ProductID', $item->ProductID)->select('P.TaxType', 'T.TaxPercentage','P.TaxID')->first();
+					$Amt = $item->Qty * $item->Price;
+					if($ProductDetails->TaxType == 'Include'){
+						$taxAmount =  $Amt * ($ProductDetails->TaxPercentage / 100);
+						$taxableAmount = $Amt - $taxAmount;
+					}else{
+						$taxAmount =  $Amt * ($ProductDetails->TaxPercentage / 100);
+						$taxableAmount = $Amt;
 					}
+
+					$cgstPercentage = $sgstPercentage = $ProductDetails->TaxPercentage / 2;
+					$cgstAmount = $sgstAmount = $taxAmount / 2;
+
+					$totalAmount = $taxableAmount + $taxAmount;
+
+					$totalTaxable += $taxableAmount;
+					$totalTaxAmount += $taxAmount;
+					$totalCGST += $cgstAmount;
+					$totalSGST += $sgstAmount;
+					$totalQuoteValue += $totalAmount;
+
+
+					$data=[
+						'Taxable'=>$taxableAmount,
+						'TaxAmt'=>$taxAmount,
+						'TaxID'=>$ProductDetails->TaxID,
+						'TaxPer'=>$ProductDetails->TaxPercentage,
+						'TaxType'=>$ProductDetails->TaxType,
+						"CGSTPer" => $cgstPercentage,
+						"SGSTPer" => $sgstPercentage,
+						"CGSTAmt" => $cgstAmount,
+						"SGSTAmt" => $sgstAmount,
+						'TotalAmt'=>$totalAmount,
+						'Price'=>$item->Price,
+						'Status'=>'Price Sent',
+						'UpdatedOn'=>date('Y-m-d H:i:s')
+					];
+					$status = DB::Table($this->currfyDB.'tbl_vendor_quotation_details')->where('VQuoteID',$req->VQuoteID)->where('ProductID',$item->ProductID)->update($data);
+				}
+				if ($status) {
+					$data=[
+						'SubTotal' => $totalTaxable,
+						'TaxAmount' => $totalTaxAmount,
+						'TotalAmount' => $totalQuoteValue,
+						'LabourCost'=>$req->LabourCost ?? 0,
+						'TransportCost'=>$req->TransportCost ?? 0,
+						'AdditionalCost'=>$req->TransportCost + $req->LabourCost ?? 0,
+						'Status' => 'Sent',
+						'QSentOn'=>date('Y-m-d'),
+						'UpdatedBy'=>$this->UserID,
+						'UpdatedOn'=>date('Y-m-d H:i:s')
+					];
+					$status = DB::Table($this->currfyDB.'tbl_vendor_quotation')->where('VendorID',$req->VendorID)->where('VQuoteID',$req->VQuoteID)->update($data);	
 				}
 			}catch(Exception $e) {
 				$status=false;
@@ -955,13 +989,43 @@ class QuoteEnquiryController extends Controller{
 	}
 	
 	public function GetVendorRatings(request $req){
-		return DB::Table('tbl_vendor_ratings as VR')->join('tbl_vendors as V','V.VendorID','VR.VendorID')
+		$VendorRatings = DB::Table('tbl_vendors as V')
 				->join($this->generalDB.'tbl_states as S','S.StateID','V.StateID')
 				->join($this->generalDB.'tbl_districts as D','D.DistrictID','V.DistrictID')
 				->join($this->generalDB.'tbl_taluks as T','T.TalukID','V.TalukID')
 				->join($this->generalDB.'tbl_cities as C','C.CityID','V.CityID')
 				->join($this->generalDB.'tbl_postalcodes as P','P.PID','V.PostalCode')
-				->where('VR.VendorID',$req->VendorID)->first();
+				->where('V.VendorID',$req->VendorID)->first();
+				$createdDate = strtotime($VendorRatings->CreatedOn);
+				$currentDate = time();
+				$difference = $currentDate - $createdDate;
+				$years = floor($difference / (365 * 24 * 60 * 60));
+				$months = floor(($difference - $years * 365 * 24 * 60 * 60) / (30 * 24 * 60 * 60));
+
+				if ($years > 0) {
+					$yearLabel = ($years > 1) ? 'Years' : 'Year';
+					$formattedOutput = date('M Y', $createdDate) . ' (' . $years . ' ' . $yearLabel;
+				
+					if ($months > 0) {
+						$monthLabel = ($months > 1) ? 'Months' : 'Month';
+						$formattedOutput .= ' ' . $months . ' ' . $monthLabel . ')';
+					} else {
+						$formattedOutput .= ')';
+					}
+				} else {
+					$formattedOutput = '';
+				}
+
+				$VendorRatings->TotalYears = $formattedOutput;
+
+
+		$VendorRatings->TotalYears = $formattedOutput;
+		$VendorRatings->TotalOrders = DB::table($this->currfyDB.'tbl_vendor_orders')->where('VendorID',$VendorRatings->VendorID)->where('Status','Delivered')->count();
+		$VendorRatings->OrderValue = DB::table($this->currfyDB.'tbl_vendor_orders')->where('VendorID',$VendorRatings->VendorID)->where('Status','Delivered')->sum('NetAmount');
+		$VendorRatings->Outstanding = DB::table($this->currfyDB.'tbl_vendor_orders')->where('VendorID',$VendorRatings->VendorID)->where('Status','Delivered')->sum('BalanceAmount');
+		$VendorRatings->AdminRating = DB::table($this->currfyDB.'tbl_vendor_orders')->where('VendorID',$VendorRatings->VendorID)->where('Status','Delivered')->sum('Ratings');
+		// $VendorRatings->CustomerRating = DB::table($this->currfyDB.'tbl_vendor_orders as VO')->leftJoin($this->currfyDB.'tbl_order as O')->where('VO.VendorID',$VendorRatings->VendorID)->where('VO.Status','Delivered')->sum('Ratings');
+		return $VendorRatings;
 	}
 
 	public function GetCategory(Request $req){
