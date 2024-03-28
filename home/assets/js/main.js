@@ -28,6 +28,7 @@
 		}
 	} );
 
+	var checkoutPageUrl = $('#divCartAction a').attr('href');
 	var Porto = {
 		initialised: false,
 		mobile: false,
@@ -38,7 +39,7 @@
 			name: '',
 			nameLink: '#', // 'product.html',
 			content: 'has been added to your cart.',
-			action: '<a href="cart.html" class="btn viewcart">View Cart</a><a href="checkout.html" class="btn btn-dark checkout">Checkout</a>',
+			action: '<a href="#" onclick="$(\'.cart-toggle\').click();" class="btn viewcart">View Cart</a><a href="'+ checkoutPageUrl +'" class="btn btn-dark checkout">Checkout</a>',
 			// option
 			delay: 4000, // milliseconds
 			space: 20,

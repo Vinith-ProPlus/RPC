@@ -560,7 +560,6 @@
             Parent.html('');
 
             data.forEach((item) => {
-                debugger
                 let Content = `<div class="product">
                                         <div class="product-details">
                                             <h4 class="product-title">

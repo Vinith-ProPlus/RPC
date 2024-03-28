@@ -989,7 +989,7 @@
                             <div class="row row-lg">
                                 <div class="col-6 col-md-4">
                                     <div class="feature-box text-center pb-4">
-                                        <a onclick="$('#orders-tab').click();" class="link-to-tab"><i class="sicon-social-dropbox"></i></a>
+                                        <a href="#order" onclick="$('#orders-tab').click();" class="link-to-tab"><i class="sicon-social-dropbox"></i></a>
                                         <div class="feature-box-content">
                                             <h3>ORDERS</h3>
                                         </div>
@@ -998,7 +998,7 @@
 
                                 <div class="col-6 col-md-4">
                                     <div class="feature-box text-center pb-4">
-                                        <a onclick="$('#wishlist-tab').click();"><i class="sicon-heart"></i></a>
+                                        <a href="#wishlist" onclick="$('#wishlist-tab').click();"><i class="sicon-heart"></i></a>
                                         <div class="feature-box-content">
                                             <h3>WISHLIST</h3>
                                         </div>
@@ -1007,7 +1007,7 @@
 
                                 <div class="col-6 col-md-4">
                                     <div class="feature-box text-center pb-4">
-                                        <a onclick="$('#support-tab').click();" class="link-to-tab"><i class="sicon-support"></i></a>
+                                        <a href="#support" onclick="$('#support-tab').click();" class="link-to-tab"><i class="sicon-support"></i></a>
                                         <div class="feature-box-content">
                                             <h3>SUPPORT</h3>
                                         </div>
@@ -1016,7 +1016,7 @@
 
                                 <div class="col-6 col-md-4">
                                     <div class="feature-box text-center pb-4">
-                                        <a onclick="$('#quotations-tab').click();" class="link-to-tab"><i class="sicon-notebook"></i></a>
+                                        <a href="#quotations" onclick="$('#quotations-tab').click();" class="link-to-tab"><i class="sicon-notebook"></i></a>
                                         <div class=" feature-box-content">
                                             <h3>QUOTATIONS</h3>
                                         </div>
@@ -1035,7 +1035,7 @@
 
                                 <div class="col-6 col-md-4">
                                     <div class="feature-box text-center pb-4">
-                                        <a onclick="$('#profile-tab').click();" class="link-to-tab"><i class="icon-user-2"></i></a>
+                                        <a href="#profile" onclick="$('#profile-tab').click();" class="link-to-tab"><i class="icon-user-2"></i></a>
                                         <div class="feature-box-content p-0">
                                             <h3>ACCOUNT DETAILS</h3>
                                         </div>
