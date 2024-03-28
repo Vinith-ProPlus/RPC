@@ -505,4 +505,5 @@ class CustomerSupportController extends Controller{
         }
         return array('status'=>true,'message'=>'');
     }
+
 }

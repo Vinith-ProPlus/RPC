@@ -22,6 +22,7 @@
     <link rel="preload" href="{{url('/')}}/home/assets/vendor/fontawesome-free/webfonts/fa-brands-400.woff2" as="font" type="font/woff2" crossorigin="anonymous">
     <link rel="stylesheet" href="{{url('/')}}/home/assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="{{url('/')}}/home/assets/css/slider.css">
+    <link rel="stylesheet" type="text/css" href="{{url('/')}}/assets/css/sweetalert2.css?r={{date('YmdHis')}}">
     <link rel="stylesheet" href="{{url('/')}}/home/assets/css/demo42.min.css">
     <link rel="stylesheet" href="{{url('/')}}/home/assets/css/toastr.css">
     <link rel="stylesheet" href="{{url('/')}}/assets/home/vendor/simple-line-icons/css/simple-line-icons.min.css">

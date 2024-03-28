@@ -69,7 +69,7 @@ class HomeController extends Controller
                 ->where('C.CustomerID', $CustomerID)->where('P.ActiveStatus', 'Active')->where('P.DFlag', 0)->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)->where('PSC.ActiveStatus', 'Active')->where('PSC.DFlag', 0)
                 ->select('P.ProductName', 'P.ProductID', 'C.Qty', 'PC.PCName', 'PC.PCID', 'PSC.PSCName', 'U.UName', 'U.UCode', 'U.UID', 'PSC.PSCID', DB::raw('CONCAT(IF(ProductImage != "", "https://rpc.prodemo.in/", "' . url('/') . '/"), COALESCE(NULLIF(ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'))->get();
             $generalDB = Helper::getGeneralDB();
-            $FormData['ShippingAddress'] = DB::table('tbl_customer_address as CA')->where('CustomerID', $CustomerID)
+            $FormData['ShippingAddress'] = DB::table('tbl_customer_address as CA')->where('CustomerID', $CustomerID)->where('CA.DFlag',0)
                 ->join($generalDB . 'tbl_countries as C', 'C.CountryID', 'CA.CountryID')
                 ->join($generalDB . 'tbl_states as S', 'S.StateID', 'CA.StateID')
                 ->join($generalDB . 'tbl_districts as D', 'D.DistrictID', 'CA.DistrictID')
@@ -123,7 +123,7 @@ class HomeController extends Controller
                 ->where('C.CustomerID', $CustomerID)->where('P.ActiveStatus', 'Active')->where('P.DFlag', 0)->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)->where('PSC.ActiveStatus', 'Active')->where('PSC.DFlag', 0)
                 ->select('P.ProductName', 'P.ProductID', 'C.Qty', 'PC.PCName', 'PC.PCID', 'PSC.PSCName', 'U.UName', 'U.UCode', 'U.UID', 'PSC.PSCID', DB::raw('CONCAT(IF(ProductImage != "", "https://rpc.prodemo.in/", "' . url('/') . '/"), COALESCE(NULLIF(ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'))->get();
             $generalDB = Helper::getGeneralDB();
-            $FormData['ShippingAddress'] = DB::table('tbl_customer_address as CA')->where('CustomerID', $CustomerID)
+            $FormData['ShippingAddress'] = DB::table('tbl_customer_address as CA')->where('CustomerID', $CustomerID)->where('CA.DFlag',0)
                 ->join($generalDB . 'tbl_countries as C', 'C.CountryID', 'CA.CountryID')
                 ->join($generalDB . 'tbl_states as S', 'S.StateID', 'CA.StateID')
                 ->join($generalDB . 'tbl_districts as D', 'D.DistrictID', 'CA.DistrictID')
@@ -307,7 +307,7 @@ class HomeController extends Controller
                 ->where('C.CustomerID', $CustomerID)->where('P.ActiveStatus', 'Active')->where('P.DFlag', 0)->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)->where('PSC.ActiveStatus', 'Active')->where('PSC.DFlag', 0)
                 ->select('P.ProductName', 'P.ProductID', 'C.Qty', 'PC.PCName', 'PC.PCID', 'PSC.PSCName', 'U.UName', 'U.UCode', 'U.UID', 'PSC.PSCID', DB::raw('CONCAT(IF(ProductImage != "", "https://rpc.prodemo.in/", "' . url('/') . '/"), COALESCE(NULLIF(ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'))->get();
             $generalDB = Helper::getGeneralDB();
-            $FormData['ShippingAddress'] = DB::table('tbl_customer_address as CA')->where('CustomerID', $CustomerID)
+            $FormData['ShippingAddress'] = DB::table('tbl_customer_address as CA')->where('CustomerID', $CustomerID)->where('CA.DFlag',0)
                 ->join($generalDB . 'tbl_countries as C', 'C.CountryID', 'CA.CountryID')
                 ->join($generalDB . 'tbl_states as S', 'S.StateID', 'CA.StateID')
                 ->join($generalDB . 'tbl_districts as D', 'D.DistrictID', 'CA.DistrictID')
@@ -364,7 +364,7 @@ class HomeController extends Controller
                 ->where('C.CustomerID', $CustomerID)->where('P.ActiveStatus', 'Active')->where('P.DFlag', 0)->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)->where('PSC.ActiveStatus', 'Active')->where('PSC.DFlag', 0)
                 ->select('P.ProductName', 'P.ProductID', 'C.Qty', 'PC.PCName', 'PC.PCID', 'PSC.PSCName', 'U.UName', 'U.UCode', 'U.UID', 'PSC.PSCID', DB::raw('CONCAT(IF(ProductImage != "", "https://rpc.prodemo.in/", "' . url('/') . '/"), COALESCE(NULLIF(ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'))->get();
             $generalDB = Helper::getGeneralDB();
-            $FormData['ShippingAddress'] = DB::table('tbl_customer_address as CA')->where('CustomerID', $CustomerID)
+            $FormData['ShippingAddress'] = DB::table('tbl_customer_address as CA')->where('CustomerID', $CustomerID)->where('CA.DFlag',0)
                 ->join($generalDB . 'tbl_countries as C', 'C.CountryID', 'CA.CountryID')
                 ->join($generalDB . 'tbl_states as S', 'S.StateID', 'CA.StateID')
                 ->join($generalDB . 'tbl_districts as D', 'D.DistrictID', 'CA.DistrictID')
@@ -428,7 +428,7 @@ class HomeController extends Controller
                 ->where('C.CustomerID', $CustomerID)->where('P.ActiveStatus', 'Active')->where('P.DFlag', 0)->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)->where('PSC.ActiveStatus', 'Active')->where('PSC.DFlag', 0)
                 ->select('P.ProductName', 'P.ProductID', 'C.Qty', 'PC.PCName', 'PC.PCID', 'PSC.PSCName', 'U.UName', 'U.UCode', 'U.UID', 'PSC.PSCID', DB::raw('CONCAT(IF(ProductImage != "", "https://rpc.prodemo.in/", "' . url('/') . '/"), COALESCE(NULLIF(ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'))->get();
             $generalDB = Helper::getGeneralDB();
-            $FormData['ShippingAddress'] = DB::table('tbl_customer_address as CA')->where('CustomerID', $CustomerID)
+            $FormData['ShippingAddress'] = DB::table('tbl_customer_address as CA')->where('CustomerID', $CustomerID)->where('CA.DFlag',0)
                 ->join($generalDB . 'tbl_countries as C', 'C.CountryID', 'CA.CountryID')
                 ->join($generalDB . 'tbl_states as S', 'S.StateID', 'CA.StateID')
                 ->join($generalDB . 'tbl_districts as D', 'D.DistrictID', 'CA.DistrictID')

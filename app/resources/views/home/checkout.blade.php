@@ -2,6 +2,17 @@
 @section('content')
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.css" integrity="sha512-3pIirOrwegjM6erE5gPSwkUzO+3cTjpnV9lexlNZqvupR64iZBnOOTiiLPb9M36zpMScbmUNIcHUqKD47M719g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js" integrity="sha512-VEd+nq25CkR676O+pLBnDW09R7VQX9Mdiij052gVCp5yVH3jGtH70Ho/UUv4mJDsEdTvqRCFZg0NKGiojGnUCw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <style>
+        #receiver_mobile_no::-webkit-inner-spin-button,
+        #receiver_mobile_no::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        #receiver_mobile_no {
+            -moz-appearance: textfield; /* Firefox */
+        }
+    </style>
     <div class="container">
     <ul class="checkout-progress-bar d-flex justify-content-center flex-wrap">
         <li class="active">
@@ -237,7 +248,8 @@
                     },
                     success: function (response) {
                         if (response.status == true) {
-                            window.location.replace("{{url('/')}}");
+                            toastr.success("Order successfully placed Enquiry!.");
+                            window.location.replace("{{url('/')}}/quotations/view/"+response.EnqID);
                         } else {
                             $("html, body").animate({scrollTop: 0}, "slow");
                         }

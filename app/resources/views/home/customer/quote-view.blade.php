@@ -1,5 +1,6 @@
 @extends('home.home-layout')
 @section('content')
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js" integrity="sha512-AA1Bzp5Q0K1KanKKmvN/4d3IRKVlv9PYgwFPvm32nPO6QS8yH1HO7LbgB1pgiOxPtfeg5zEn2ba64MUcqJx6CA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <style>
         .checkout-progress-bar {
             margin: 2.7rem 0 -2.9rem;
@@ -323,29 +324,37 @@
             color: #222529;
             font-weight: 600
         }
-    </style>
-    {{--<div class="container">--}}
-    {{--	<div class="page-header">--}}
-    {{--		<div class="row">--}}
-    {{--			<div class="col-sm-6">--}}
-    {{--				<ol class="breadcrumb">--}}
-    {{--					<li class="breadcrumb-item"><a href="{{ url('/') }}" data-original-title="" title=""><i class="f-16 fa fa-home"></i></a></li>--}}
-    {{--					<li class="breadcrumb-item">Transaction</li>--}}
-    {{--					<li class="breadcrumb-item"><a href="{{ url('/') }}/admin/transaction/quotation/" data-original-title="" title="">Qoutation</a></li>--}}
-    {{--                    <li class="breadcrumb-item">Quote View</li>--}}
-    {{--				</ol>--}}
-    {{--			</div>--}}
-    {{--            <div class="col-sm-6 text-right">--}}
-    {{--                    <a href="{{url('/')}}/admin/transaction/quotation" class="btn btn-sm btn-outline-dark m-5" >Back</a>--}}
 
-    {{--                @if($QData->Status=="New")--}}
-    {{--                    <button class="btn btn-sm btn-outline-danger m-5 btnCancelQuote" data-id="{{$QID}}">Cancel Quote</button>--}}
-    {{--                    <button class="btn btn-sm btn-outline-success btn-air-success m-5 btnOrderConvert" data-id="{{$QID}}">Move to Order</button>--}}
-    {{--                @endif--}}
-    {{--            </div>--}}
-    {{--		</div>--}}
-    {{--	</div>--}}
-    {{--</div>--}}
+        #QuoteCancelModelLabel {
+            font-size: 2rem !important;
+        }
+
+        #updateCAChargesLabel {
+            font-size: 2rem !important;
+        }
+
+        .select2-container--default .select2-selection--single
+        {
+            border: solid black 1px !important;
+            outline: 0;
+            background-color: white !important;
+            border: 1px solid #dfdfdf !important;
+            border-radius: 0px !important;
+            cursor: text;
+        }
+        .select2-search__field {
+            min-height: 35px !important; /* Adjust the font size as needed */
+            padding: .375rem .75rem !important;
+            padding-left: 0.75rem !important;
+            padding-left: 0.75rem !important;
+            font-size: 1.2rem !important;
+            font-weight: 400 !important;
+        }
+
+        .select2-container {
+            width: 100% !important;
+        }
+    </style>
     <?php
     $vendorAdditionalCharges = [];
     ?>
@@ -624,6 +633,9 @@
                                     <button class="btn btn-sm btn-outline-danger m-3 btnCancelQuote" data-id="{{$QID}}">
                                         Cancel Quote
                                     </button>
+                                    <button class="btn btn-sm btn-outline-success m-3 btnOrderConvert" data-id="{{$QID}}">
+                                        Approve Quote
+                                    </button>
                                 @endif
                             </div>
                         </div>
@@ -638,8 +650,8 @@
         <div class="modal-dialog modal-dialog-centered modal-fullscreen-md-down">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h1 class="modal-title fs-15 fw-600" id="QuoteCancelModelLabel">Quote Cancel</h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <h1 class="modal-title" id="QuoteCancelModelLabel">Quote Cancel</h1>
+                    <button type="button" class="btn-close d-none" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <input type="hidden" id="txtMQID" value="{{$QID}}">
@@ -657,7 +669,7 @@
                                 <div class="errors err-sm quote-cancel-err" id="lstMCancelReason-err"></div>
                             </div>
                         </div>
-                        <div class="col-12 mt-10">
+                        <div class="col-12 mt-1">
                             <div class="form-group">
                                 <label for="txtMDescription">Description</label>
                                 <textarea name="" id="txtMDescription" rows=4 class="form-control"></textarea>
@@ -665,36 +677,9 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-12 mt-10 divMVACharge">
-                            <div class="form-group">
-                                <label for="spaVNoOfItems">Vendor Additional Charge</label>
-                                <div class="input-group">
-                                    <input type="number" step="{{Helper::NumberSteps(2)}}" id="txtMVACost"
-                                           class="form-control">
-                                    <span class="input-group-text"> for <span id="spaVNoOfItems"
-                                                                              class="mr-5 ml-5">0</span>  Items</span>
-                                </div>
-                                <div class="errors err-sm quote-cancel-err" id="txtMVACost-err"></div>
-                            </div>
-                        </div>
-                        <div class="col-12 mt-10 divMCACharge">
-                            <div class="form-group">
-                                <label for="txtMCACost">Customer Additional Charge</label>
-                                <div class="input-group">
-                                    <input type="number" step="{{Helper::NumberSteps(2)}}" id="txtMCACost"
-                                           class="form-control"
-                                           value="<?php  echo NumberFormat($QData->AdditionalCost,2);?>">
-                                    <span class="input-group-text"> for <span id="spaCNoOfItems"
-                                                                              class="mr-5 ml-5">{{count($QData->Details)}}</span>  Items</span>
-                                </div>
-                                <div class="errors err-sm quote-cancel-err" id="txtMCACost-err"></div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Close
+                    <button type="button" class="btn btn-outline-secondary btn-sm" id="btnSingleItemCloseM" data-bs-dismiss="modal">Close
                     </button>
                     <button type="button" class="btn btn-outline-primary btn-sm" id="btnCancelQuote">Cancel Quote
                     </button>
@@ -702,83 +687,83 @@
             </div>
         </div>
     </div>
-    <div class="modal fade  updateAdditionalCharges" id="updateAdditionalCharges" data-bs-backdrop="static"
-         data-bs-keyboard="false" tabindex="-1">
-        <div class="modal-dialog medium modal-fullscreen-lg-down">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h1 class="modal-title fs-15 fw-600" id="updateAdditionalChargesLabel">Additional Charges
-                        Update</h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col-12 table-responsive">
-                            <table class="table table-sm" id="tblVACharges">
-                                <thead>
-                                <tr class="valign-top">
-                                    <th class="text-center bg-dark  pl-5 pr-5">Vendor Name</th>
-                                    <th class="text-center bg-dark pl-5 pr-5">Items</th>
-                                    <th class="text-center bg-dark pl-5 pr-5">Additional Charges</th>
-                                </tr>
-                                </thead>
-                                <tbody></tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Close
-                    </button>
-                    <button type="button" class="btn btn-outline-primary btn-sm" id="btnUpdateCost">Update</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="modal fade  updateCACharges" id="updateCACharges" data-bs-backdrop="static" data-bs-keyboard="false"
+{{--    <div class="modal fade  updateAdditionalCharges" id="updateAdditionalCharges" data-bs-backdrop="static"--}}
+{{--         data-bs-keyboard="false" tabindex="-1">--}}
+{{--        <div class="modal-dialog medium modal-fullscreen-lg-down">--}}
+{{--            <div class="modal-content">--}}
+{{--                <div class="modal-header">--}}
+{{--                    <h1 class="modal-title fs-15 fw-600" id="updateAdditionalChargesLabel">Additional Charges--}}
+{{--                        Update</h1>--}}
+{{--                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>--}}
+{{--                </div>--}}
+{{--                <div class="modal-body">--}}
+{{--                    <div class="row">--}}
+{{--                        <div class="col-12 table-responsive">--}}
+{{--                            <table class="table table-sm" id="tblVACharges">--}}
+{{--                                <thead>--}}
+{{--                                <tr class="valign-top">--}}
+{{--                                    <th class="text-center bg-dark  pl-5 pr-5">Vendor Name</th>--}}
+{{--                                    <th class="text-center bg-dark pl-5 pr-5">Items</th>--}}
+{{--                                    <th class="text-center bg-dark pl-5 pr-5">Additional Charges</th>--}}
+{{--                                </tr>--}}
+{{--                                </thead>--}}
+{{--                                <tbody></tbody>--}}
+{{--                            </table>--}}
+{{--                        </div>--}}
+{{--                    </div>--}}
+{{--                </div>--}}
+{{--                <div class="modal-footer">--}}
+{{--                    <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Close--}}
+{{--                    </button>--}}
+{{--                    <button type="button" class="btn btn-outline-primary btn-sm" id="btnUpdateCost">Update</button>--}}
+{{--                </div>--}}
+{{--            </div>--}}
+{{--        </div>--}}
+{{--    </div>--}}
+{{--    <div class="modal fade  updateCACharges" id="updateCACharges" data-bs-backdrop="static" data-bs-keyboard="false"--}}
+{{--         tabindex="-1">--}}
+{{--        <div class="modal-dialog medium modal-fullscreen-lg-down">--}}
+{{--            <div class="modal-content">--}}
+{{--                <div class="modal-header">--}}
+{{--                    <h1 class="modal-title fs-15 fw-600" id="updateCAChargesLabel">Additional Charges Update</h1>--}}
+{{--                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>--}}
+{{--                </div>--}}
+{{--                <div class="modal-body">--}}
+{{--                    <div class="row">--}}
+{{--                        <div class="col-12 mt-10">--}}
+{{--                            <div class="form-group">--}}
+{{--                                <label for="txtMCACost1">Customer Additional Charge</label>--}}
+{{--                                <div class="input-group">--}}
+{{--                                    <input type="number" step="{{Helper::NumberSteps(2)}}" id="txtMCACost1"--}}
+{{--                                           class="form-control"--}}
+{{--                                           value="<?php  echo NumberFormat($QData->AdditionalCost,2);?>">--}}
+{{--                                    <span class="input-group-text"> for <span--}}
+{{--                                            class="mr-5 ml-5">{{count($QData->Details)}}</span>  Items</span>--}}
+{{--                                </div>--}}
+{{--                            </div>--}}
+{{--                        </div>--}}
+{{--                    </div>--}}
+{{--                </div>--}}
+{{--                <div class="modal-footer">--}}
+{{--                    <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Close--}}
+{{--                    </button>--}}
+{{--                    <button type="button" class="btn btn-outline-primary btn-sm" id="btnUpdateCustomerCost">Update--}}
+{{--                    </button>--}}
+{{--                </div>--}}
+{{--            </div>--}}
+{{--        </div>--}}
+{{--    </div>--}}
+    <div class="modal fade ApproveOrder" id="ApproveOrder" data-bs-backdrop="static" data-bs-keyboard="false"
          tabindex="-1">
         <div class="modal-dialog medium modal-fullscreen-lg-down">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h1 class="modal-title fs-15 fw-600" id="updateCAChargesLabel">Additional Charges Update</h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <h1 class="modal-title" id="updateCAChargesLabel">Order Details</h1>
+                    <button type="button" class="btn-close d-none" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <div class="row">
-                        <div class="col-12 mt-10">
-                            <div class="form-group">
-                                <label for="txtMCACost1">Customer Additional Charge</label>
-                                <div class="input-group">
-                                    <input type="number" step="{{Helper::NumberSteps(2)}}" id="txtMCACost1"
-                                           class="form-control"
-                                           value="<?php  echo NumberFormat($QData->AdditionalCost,2);?>">
-                                    <span class="input-group-text"> for <span
-                                            class="mr-5 ml-5">{{count($QData->Details)}}</span>  Items</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Close
-                    </button>
-                    <button type="button" class="btn btn-outline-primary btn-sm" id="btnUpdateCustomerCost">Update
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="modal fade  ApproveOrder" id="ApproveOrder" data-bs-backdrop="static" data-bs-keyboard="false"
-         tabindex="-1">
-        <div class="modal-dialog medium modal-fullscreen-lg-down">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h1 class="modal-title fs-15 fw-600" id="updateCAChargesLabel">Order Details</h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col-12 mt-10">
+                        <div class="col-12 mt-1">
                             <div class="form-group">
                                 <label for="dtpDeliveryExpected">Expected Delivery</label>
                                 <input type="date" id="dtpDeliveryExpected" class="form-control" min="{{date('Y-m-d')}}"
@@ -787,8 +772,8 @@
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Close
+                <div class="modal-footer mt-1">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" id="btnApproveCloseM" data-bs-dismiss="modal">Close
                     </button>
                     <button type="button" class="btn btn-outline-primary btn-sm" id="btnMoveOrder">Proceed to Order
                     </button>
@@ -800,6 +785,7 @@
 @section('scripts')
     <script>
         $(document).ready(function () {
+            $('#lstMCancelReason').select2();
             let isItemCancel = false;
             var cancelReasons = {};
             const init = async () => {
@@ -812,8 +798,8 @@
                 $('#lstMCancelReason').append('<option value="">Select a reason</option>');
                 $.ajax({
                     type: "post",
-                    url: "{{route('admin.transaction.quotes.get.cancel-reasons')}}",
-                    headers: {'X-CSRF-Token': $('meta[name=_token]').attr('content')},
+                    url: "{{route('customer.quotes.get.cancel-reasons')}}",
+                    headers: {'X-CSRF-Token': '{{ csrf_token() }}'},
                     dataType: "json",
                     success: function (response) {
                         for (let item of response) {
@@ -833,46 +819,46 @@
                 e.preventDefault();
                 $('#updateCACharges').modal('show');
             });
-            $(document).on('click', '#btnUpdateCustomerCost', function (e) {
-                let formData = {};
-                formData.QID = "{{$QID}}";
-                formData.AdditionalCharges = $('#txtMCACost1').val();
-                $.ajax({
-                    type: "post",
-                    url: "{{route('admin.transaction.quotes.update.customer-cost',$QID)}}",
-                    headers: {'X-CSRF-Token': $('meta[name=_token]').attr('content')},
-                    data: formData,
-                    dataType: "json",
-                    async: true,
-                    beforeSend: function () {
-                        ajaxIndicatorStart("The process of updating customer additional cost is currently in progress. Please wait a few seconds.")
-                    },
-                    complete: function (e, x, settings, exception) {
-                        ajaxIndicatorStop()
-                    },
-                    success: function (response) {
-                        if (response.status) {
-                            $('#updateCACharges').modal('hide');
-                            toastr.success(response.message, "", {
-                                positionClass: "toast-top-right",
-                                containerId: "toast-top-right",
-                                showMethod: "slideDown",
-                                hideMethod: "slideUp",
-                                progressBar: !0
-                            })
-                            window.location.reload();
-                        } else {
-                            toastr.error(response.message, "", {
-                                positionClass: "toast-top-right",
-                                containerId: "toast-top-right",
-                                showMethod: "slideDown",
-                                hideMethod: "slideUp",
-                                progressBar: !0
-                            })
-                        }
-                    }
-                });
-            });
+            {{--$(document).on('click', '#btnUpdateCustomerCost', function (e) {--}}
+            {{--    let formData = {};--}}
+            {{--    formData.QID = "{{$QID}}";--}}
+            {{--    formData.AdditionalCharges = $('#txtMCACost1').val();--}}
+            {{--    $.ajax({--}}
+            {{--        type: "post",--}}
+            {{--        url: "{{route('customer.quotes.update.customer-cost',$QID)}}",--}}
+            {{--        headers: {'X-CSRF-Token': '{{ csrf_token() }},--}}
+            {{--        data: formData,--}}
+            {{--        dataType: "json",--}}
+            {{--        async: true,--}}
+            {{--        beforeSend: function () {--}}
+            {{--            ajaxIndicatorStart("The process of updating customer additional cost is currently in progress. Please wait a few seconds.")--}}
+            {{--        },--}}
+            {{--        complete: function (e, x, settings, exception) {--}}
+            {{--            ajaxIndicatorStop()--}}
+            {{--        },--}}
+            {{--        success: function (response) {--}}
+            {{--            if (response.status) {--}}
+            {{--                $('#updateCACharges').modal('hide');--}}
+            {{--                toastr.success(response.message, "", {--}}
+            {{--                    positionClass: "toast-top-right",--}}
+            {{--                    containerId: "toast-top-right",--}}
+            {{--                    showMethod: "slideDown",--}}
+            {{--                    hideMethod: "slideUp",--}}
+            {{--                    progressBar: !0--}}
+            {{--                })--}}
+            {{--                window.location.reload();--}}
+            {{--            } else {--}}
+            {{--                toastr.error(response.message, "", {--}}
+            {{--                    positionClass: "toast-top-right",--}}
+            {{--                    containerId: "toast-top-right",--}}
+            {{--                    showMethod: "slideDown",--}}
+            {{--                    hideMethod: "slideUp",--}}
+            {{--                    progressBar: !0--}}
+            {{--                })--}}
+            {{--            }--}}
+            {{--        }--}}
+            {{--    });--}}
+            {{--});--}}
             $(document).on('click', '#btnEditVACharges', function (e) {
                 e.preventDefault();
                 const loadVAData = async () => {
@@ -897,52 +883,52 @@
                 loadVAData();
                 $('#updateAdditionalCharges').modal('show');
             });
-            $(document).on('click', '#btnUpdateCost', function (e) {
-                let details = {};
-                $('#tblVACharges tbody tr input.txtMVACosts').each(function (index) {
-                    let VID = $(this).attr('data-vendor-id');
-                    details[VID] = $(this).val()
-                });
-                let formData = {};
-                formData.QID = "{{$QID}}";
-                formData.EnqID = "{{$QData->EnqID}}";
-                formData.details = JSON.stringify(details);
-                $.ajax({
-                    type: "post",
-                    url: "{{route('admin.transaction.quotes.update.vendor-cost',$QID)}}",
-                    headers: {'X-CSRF-Token': $('meta[name=_token]').attr('content')},
-                    data: formData,
-                    dataType: "json",
-                    async: true,
-                    beforeSend: function () {
-                        ajaxIndicatorStart("The process of updating vendor additional cost is currently in progress. Please wait a few seconds.")
-                    },
-                    complete: function (e, x, settings, exception) {
-                        ajaxIndicatorStop()
-                    },
-                    success: function (response) {
-                        if (response.status) {
-                            $('#updateAdditionalCharges').modal('hide');
-                            toastr.success(response.message, "", {
-                                positionClass: "toast-top-right",
-                                containerId: "toast-top-right",
-                                showMethod: "slideDown",
-                                hideMethod: "slideUp",
-                                progressBar: !0
-                            })
-                            window.location.reload();
-                        } else {
-                            toastr.error(response.message, "", {
-                                positionClass: "toast-top-right",
-                                containerId: "toast-top-right",
-                                showMethod: "slideDown",
-                                hideMethod: "slideUp",
-                                progressBar: !0
-                            })
-                        }
-                    }
-                });
-            });
+            {{--$(document).on('click', '#btnUpdateCost', function (e) {--}}
+            {{--    let details = {};--}}
+            {{--    $('#tblVACharges tbody tr input.txtMVACosts').each(function (index) {--}}
+            {{--        let VID = $(this).attr('data-vendor-id');--}}
+            {{--        details[VID] = $(this).val()--}}
+            {{--    });--}}
+            {{--    let formData = {};--}}
+            {{--    formData.QID = "{{$QID}}";--}}
+            {{--    formData.EnqID = "{{$QData->EnqID}}";--}}
+            {{--    formData.details = JSON.stringify(details);--}}
+            {{--    $.ajax({--}}
+            {{--        type: "post",--}}
+            {{--        url: "{{route('customer.quotes.update.vendor-cost',$QID)}}",--}}
+            {{--        headers: {'X-CSRF-Token': '{{ csrf_token() }},--}}
+            {{--        data: formData,--}}
+            {{--        dataType: "json",--}}
+            {{--        async: true,--}}
+            {{--        beforeSend: function () {--}}
+            {{--            ajaxIndicatorStart("The process of updating vendor additional cost is currently in progress. Please wait a few seconds.")--}}
+            {{--        },--}}
+            {{--        complete: function (e, x, settings, exception) {--}}
+            {{--            ajaxIndicatorStop()--}}
+            {{--        },--}}
+            {{--        success: function (response) {--}}
+            {{--            if (response.status) {--}}
+            {{--                $('#updateAdditionalCharges').modal('hide');--}}
+            {{--                toastr.success(response.message, "", {--}}
+            {{--                    positionClass: "toast-top-right",--}}
+            {{--                    containerId: "toast-top-right",--}}
+            {{--                    showMethod: "slideDown",--}}
+            {{--                    hideMethod: "slideUp",--}}
+            {{--                    progressBar: !0--}}
+            {{--                })--}}
+            {{--                window.location.reload();--}}
+            {{--            } else {--}}
+            {{--                toastr.error(response.message, "", {--}}
+            {{--                    positionClass: "toast-top-right",--}}
+            {{--                    containerId: "toast-top-right",--}}
+            {{--                    showMethod: "slideDown",--}}
+            {{--                    hideMethod: "slideUp",--}}
+            {{--                    progressBar: !0--}}
+            {{--                })--}}
+            {{--            }--}}
+            {{--        }--}}
+            {{--    });--}}
+            {{--});--}}
             $(document).on('click', '.btnQItemDelete', function () {
 
                 isItemCancel = true;
@@ -989,6 +975,7 @@
                 $('#QuoteCancelModel').modal('show');
             });
             $(document).on('click', '#btnCancelQuote', function () {
+                debugger
                 const validate = (formData) => {
                     let status = true;
                     $('.quote-cancel-err').html('');
@@ -996,28 +983,28 @@
                         $('#lstMCancelReason-err').html('Reason is required.');
                         status = false;
                     }
-                    if (isItemCancel) {
-                        if (formData.VACharges == "") {
-                            $('#txtMVACost-err').html('The Vendor Additional Charge is required.');
-                            status = false;
-                        } else if ($.isNumeric(formData.VACharges) == false) {
-                            $('#txtMVACost-err').html('The Vendor Additional Charge must be a numeric value.');
-                            status = false;
-                        } else if (parseFloat(formData.VACharges) < 0) {
-                            $('#txtMVACost-err').html('The Vendor Additional Charge must be greater than or equal to 0.');
-                            status = false;
-                        }
-                        if (formData.CACharges == "") {
-                            $('#txtMCACost-err').html('The Customer Additional Charge is required.');
-                            status = false;
-                        } else if ($.isNumeric(formData.CACharges) == false) {
-                            $('#txtMCACost-err').html('The Customer Additional Charge must be a numeric value.');
-                            status = false;
-                        } else if (parseFloat(formData.CACharges) < 0) {
-                            $('#txtMCACost-err').html('The Customer Additional Charge must be greater than or equal to 0.');
-                            status = false;
-                        }
-                    }
+                    // if (isItemCancel) {
+                    //     if (formData.VACharges == "") {
+                    //         $('#txtMVACost-err').html('The Vendor Additional Charge is required.');
+                    //         status = false;
+                    //     } else if ($.isNumeric(formData.VACharges) == false) {
+                    //         $('#txtMVACost-err').html('The Vendor Additional Charge must be a numeric value.');
+                    //         status = false;
+                    //     } else if (parseFloat(formData.VACharges) < 0) {
+                    //         $('#txtMVACost-err').html('The Vendor Additional Charge must be greater than or equal to 0.');
+                    //         status = false;
+                    //     }
+                    //     if (formData.CACharges == "") {
+                    //         $('#txtMCACost-err').html('The Customer Additional Charge is required.');
+                    //         status = false;
+                    //     } else if ($.isNumeric(formData.CACharges) == false) {
+                    //         $('#txtMCACost-err').html('The Customer Additional Charge must be a numeric value.');
+                    //         status = false;
+                    //     } else if (parseFloat(formData.CACharges) < 0) {
+                    //         $('#txtMCACost-err').html('The Customer Additional Charge must be greater than or equal to 0.');
+                    //         status = false;
+                    //     }
+                    // }
                     return status;
                 }
                 let formData = {};
@@ -1025,15 +1012,15 @@
                 formData.QDID = $('#txtMQDID').val();
                 formData.ReasonID = $('#lstMCancelReason').val();
                 formData.Description = $('#txtMDescription').val();
-                formData.VACharges = $('#txtMVACost').val();
-                formData.CACharges = $('#txtMCACost').val();
+                // formData.VACharges = $('#txtMVACost').val();
+                // formData.CACharges = $('#txtMCACost').val();
                 formData.EnqID = $('#txtMEnqID').val();
                 formData.VendorID = $('#txtMVendorID').val();
                 if (validate(formData) == true) {
                     $.ajax({
                         type: "post",
-                        url: isItemCancel ? "{{route('admin.transaction.quotes.cancel-item','__ID__')}}".replace("__ID__", formData.QDID) : "{{route('admin.transaction.quotes.cancel','__ID__')}}".replace("__ID__", formData.QID),
-                        headers: {'X-CSRF-Token': $('meta[name=_token]').attr('content')},
+                        url: isItemCancel ? "{{route('customer.quotes.cancel-item','__ID__')}}".replace("__ID__", formData.QDID) : "{{route('customer.quotes.cancel','__ID__')}}".replace("__ID__", formData.QID),
+                        headers: {'X-CSRF-Token': '{{ csrf_token() }}'},
                         data: formData,
                         dataType: "json",
                         async: true,
@@ -1054,7 +1041,13 @@
                                     hideMethod: "slideUp",
                                     progressBar: !0
                                 })
-                                window.location.reload();
+                                if(isItemCancel){
+                                    toastr.success("Quotation Item Canceled successfully!.");
+                                    window.location.reload();
+                                } else {
+                                    toastr.success("Quotation Canceled successfully!.")
+                                    window.location.replace("{{ route('my-account', ['tab'=> 'quotations']) }}");
+                                }
                             } else {
                                 toastr.error(response.message, "", {
                                     positionClass: "toast-top-right",
@@ -1080,53 +1073,108 @@
             $(document).on('click', '.btnOrderConvert', function () {
                 $('#ApproveOrder').modal('show');
             });
+            $(document).on('click', '#btnSingleItemCloseM', function () {
+                $('#QuoteCancelModel').modal('hide');
+            });
+            $(document).on('click', '#btnApproveCloseM', function () {
+                $('#ApproveOrder').modal('hide');
+            });
             $(document).on('click', '#btnMoveOrder', function () {
                 swal({
                     title: "Are you sure?",
-                    text: "Do you want to move this quote to an order?",
-                    type: "warning",
-                    showCancelButton: true,
-                    confirmButtonClass: "btn-outline-success",
-                    confirmButtonText: "Move",
-                    closeOnConfirm: false
-                }, function () {
-                    swal.close();
-                    $.ajax({
-                        type: "post",
-                        url: "{{route('admin.transaction.quotes.approve',$QID)}}",
-                        headers: {'X-CSRF-Token': $('meta[name=_token]').attr('content')},
-                        data: {ExpectedDelivery: $('#dtpDeliveryExpected').val()},
-                        dataType: "json",
-                        async: true,
-                        beforeSend: function () {
-                            ajaxIndicatorStart("The process of moving the quote to the order is currently in progress. Please wait for a few minutes.")
-                        },
-                        complete: function (e, x, settings, exception) {
-                            ajaxIndicatorStop()
-                        },
-                        success: function (response) {
-                            if (response.status) {
-                                $('#ApproveOrder').modal('hide');
-                                toastr.success(response.message, "", {
-                                    positionClass: "toast-top-right",
-                                    containerId: "toast-top-right",
-                                    showMethod: "slideDown",
-                                    hideMethod: "slideUp",
-                                    progressBar: !0
-                                })
-                                window.location.reload();
-                            } else {
-                                toastr.error(response.message, "", {
-                                    positionClass: "toast-top-right",
-                                    containerId: "toast-top-right",
-                                    showMethod: "slideDown",
-                                    hideMethod: "slideUp",
-                                    progressBar: !0
-                                })
-                            }
+                    text: "You want to approve this order?",
+                    icon: "warning",
+                    buttons: true,
+                    dangerMode: true,
+                }).then((willApprove) => {
+                        if (willApprove) {
+                            $.ajax({
+                                type: "post",
+                                url: "{{route('customer.quotes.approve',$QID)}}",
+                                headers: {'X-CSRF-Token': '{{ csrf_token() }}'},
+                                data: {ExpectedDelivery: $('#dtpDeliveryExpected').val()},
+                                dataType: "json",
+                                async: true,
+                                beforeSend: function () {
+                                    ajaxIndicatorStart("The process of moving the quote to the order is currently in progress. Please wait for a few minutes.")
+                                },
+                                complete: function (e, x, settings, exception) {
+                                    ajaxIndicatorStop()
+                                },
+                                success: function (response) {
+                                    if (response.status) {
+                                        $('#ApproveOrder').modal('hide');
+                                        toastr.success(response.message, "", {
+                                            positionClass: "toast-top-right",
+                                            containerId: "toast-top-right",
+                                            showMethod: "slideDown",
+                                            hideMethod: "slideUp",
+                                            progressBar: !0
+                                        });
+                                        toastr.success("Quotation order placed!.");
+                                        window.location.replace("{{ url("/") }}/order/view/"+response.OrderID);
+                                    } else {
+                                        toastr.error(response.message, "", {
+                                            positionClass: "toast-top-right",
+                                            containerId: "toast-top-right",
+                                            showMethod: "slideDown",
+                                            hideMethod: "slideUp",
+                                            progressBar: !0
+                                        });
+                                    }
+                                }
+                            });
+                        } else {
+                            swal.close();
                         }
                     });
-                });
+
+                {{--swal({--}}
+                {{--    title: "Are you sure?",--}}
+                {{--    text: "Do you want to move this quote to an order?",--}}
+                {{--    type: "warning",--}}
+                {{--    showCancelButton: true,--}}
+                {{--    confirmButtonClass: "btn-outline-success",--}}
+                {{--    confirmButtonText: "Move",--}}
+                {{--    closeOnConfirm: false--}}
+                {{--}, function () {--}}
+                {{--    swal.close();--}}
+                {{--    $.ajax({--}}
+                {{--        type: "post",--}}
+                {{--        url: "{{route('customer.quotes.approve',$QID)}}",--}}
+                {{--        headers: {'X-CSRF-Token': '{{ csrf_token() }}'},--}}
+                {{--        data: {ExpectedDelivery: $('#dtpDeliveryExpected').val()},--}}
+                {{--        dataType: "json",--}}
+                {{--        async: true,--}}
+                {{--        beforeSend: function () {--}}
+                {{--            ajaxIndicatorStart("The process of moving the quote to the order is currently in progress. Please wait for a few minutes.")--}}
+                {{--        },--}}
+                {{--        complete: function (e, x, settings, exception) {--}}
+                {{--            ajaxIndicatorStop()--}}
+                {{--        },--}}
+                {{--        success: function (response) {--}}
+                {{--            if (response.status) {--}}
+                {{--                $('#ApproveOrder').modal('hide');--}}
+                {{--                toastr.success(response.message, "", {--}}
+                {{--                    positionClass: "toast-top-right",--}}
+                {{--                    containerId: "toast-top-right",--}}
+                {{--                    showMethod: "slideDown",--}}
+                {{--                    hideMethod: "slideUp",--}}
+                {{--                    progressBar: !0--}}
+                {{--                })--}}
+                {{--                window.location.reload();--}}
+                {{--            } else {--}}
+                {{--                toastr.error(response.message, "", {--}}
+                {{--                    positionClass: "toast-top-right",--}}
+                {{--                    containerId: "toast-top-right",--}}
+                {{--                    showMethod: "slideDown",--}}
+                {{--                    hideMethod: "slideUp",--}}
+                {{--                    progressBar: !0--}}
+                {{--                })--}}
+                {{--            }--}}
+                {{--        }--}}
+                {{--    });--}}
+                {{--});--}}
             });
         });
     </script>

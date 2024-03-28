@@ -193,6 +193,12 @@ Route::post('customer/support/new-ticket/save', [CustomerSupportController::clas
 Route::post('customer/support/details/save', [CustomerSupportController::class, 'SupportDetailsSave'])->name('customer.support.SupportDetailsSave');
 Route::get('customer/support/details/{SID}', [CustomerSupportController::class, 'SupportDetailsView'])->name('customer.support.SupportDetailsView');
 
+// Customer Quotation
+Route::post('/cancel/{QID}', [HomeAuthController::class, 'QuoteCancel'])->name('customer.quotes.cancel');
+Route::post('/approve/{QID}', [HomeAuthController::class, 'QuoteApprove'])->name('customer.quotes.approve');
+Route::post('/cancel-item/{DetailID}', [HomeAuthController::class, 'QuoteItemCancel'])->name('customer.quotes.cancel-item');
+Route::post('/get/cancel-reasons', [HomeAuthController::class, 'getCancelReasons'])->name('customer.quotes.get.cancel-reasons');
+
 
 Route::controller(SocialController::class)->group(function () {
     Route::get('/social/auth/{provider}', 'redirect');
