@@ -29,42 +29,45 @@
             <span class="errors Address err-sm" id="lstADCity-err"></span>
         </div>
     </div>
-    <div class="col-sm-6 mt-20">
-        <div class="form-group">
-            <label for="lstADTaluk">Taluk <span class="required"> * </span></label>
-            <select class="form-control  {{$Theme['input-size']}} adselect2" data-parent="1" id="lstADTaluk" data-country-id="lstADCountry" data-state-id="lstADState" data-district-id="lstADDistrict" data-selected="<?php if(array_key_exists("TalukID",$data)){ echo $data['TalukID']; } ?>">
-                <option value="">Select a Taluk</option>
-            </select>
-            <div class="errors Address err-sm" id="lstADTaluk-err"></div>
-        </div>
-    </div>
-    <div class="col-sm-6 mt-20">
-        <div class="form-group">
-            <label for="lstADDistrict">District <span class="required">*</span></label>
-            <select class="form-control  {{$Theme['input-size']}} adselect2" data-parent="1" id="lstADDistrict" data-country-id="lstADCountry" data-state-id="lstADState" data-selected="<?php if(array_key_exists("DistrictID",$data)){ echo $data['DistrictID']; } ?>">
-                <option value="">-- Select a District--</option>
-            </select>
-            <span class="errors Address err-sm" id="lstADDistrict-err"></span>
-        </div>
-    </div>
-    <div class="col-sm-6 mt-20">
-        <div class="form-group">
-            <label for="lstADState">State <span class="required">*</span></label>
-            <select class="form-control  {{$Theme['input-size']}} adselect2" data-parent="1" id="lstADState" data-parent="1" data-country-id="lstADCountry" data-selected="<?php if(array_key_exists("StateID",$data)){ echo $data['StateID']; } ?>">
-                <option value="">-- Select a State--</option>
-            </select>
-            <span class="errors Address err-sm" id="lstADState-err"></span>
-        </div>
-    </div>
-    <div class="col-sm-6 mt-20">
-        <div class="form-group">
-            <label for="lstADCountry">Country <span class="required">*</span></label>
-            <select class="form-control  {{$Theme['input-size']}} adselect2" id="lstADCountry" data-parent="1" data-selected="<?php if(array_key_exists("CountryID",$data)){ echo $data['CountryID']; } ?>">
-                <option value="">-- Select a Country--</option>
-            </select>
-            <span class="errors Address err-sm" id="lstADCountry-err"></span>
-        </div>
-    </div>
+    <input type="text" id="txtADLatitude" value="" style="display: none !important;">
+    <input type="text" id="txtADLongitude" value="" style="display: none !important;">
+    <input type="text" id="MapData" value="" style="display: none !important;">
+{{--    <div class="col-sm-6 mt-20">--}}
+{{--        <div class="form-group">--}}
+{{--            <label for="lstADTaluk">Taluk <span class="required"> * </span></label>--}}
+{{--            <select class="form-control  {{$Theme['input-size']}} adselect2" data-parent="1" id="lstADTaluk" data-country-id="lstADCountry" data-state-id="lstADState" data-district-id="lstADDistrict" data-selected="<?php if(array_key_exists("TalukID",$data)){ echo $data['TalukID']; } ?>">--}}
+{{--                <option value="">Select a Taluk</option>--}}
+{{--            </select>--}}
+{{--            <div class="errors Address err-sm" id="lstADTaluk-err"></div>--}}
+{{--        </div>--}}
+{{--    </div>--}}
+{{--    <div class="col-sm-6 mt-20">--}}
+{{--        <div class="form-group">--}}
+{{--            <label for="lstADDistrict">District <span class="required">*</span></label>--}}
+{{--            <select class="form-control  {{$Theme['input-size']}} adselect2" data-parent="1" id="lstADDistrict" data-country-id="lstADCountry" data-state-id="lstADState" data-selected="<?php if(array_key_exists("DistrictID",$data)){ echo $data['DistrictID']; } ?>">--}}
+{{--                <option value="">-- Select a District--</option>--}}
+{{--            </select>--}}
+{{--            <span class="errors Address err-sm" id="lstADDistrict-err"></span>--}}
+{{--        </div>--}}
+{{--    </div>--}}
+{{--    <div class="col-sm-6 mt-20">--}}
+{{--        <div class="form-group">--}}
+{{--            <label for="lstADState">State <span class="required">*</span></label>--}}
+{{--            <select class="form-control  {{$Theme['input-size']}} adselect2" data-parent="1" id="lstADState" data-parent="1" data-country-id="lstADCountry" data-selected="<?php if(array_key_exists("StateID",$data)){ echo $data['StateID']; } ?>">--}}
+{{--                <option value="">-- Select a State--</option>--}}
+{{--            </select>--}}
+{{--            <span class="errors Address err-sm" id="lstADState-err"></span>--}}
+{{--        </div>--}}
+{{--    </div>--}}
+{{--    <div class="col-sm-6 mt-20">--}}
+{{--        <div class="form-group">--}}
+{{--            <label for="lstADCountry">Country <span class="required">*</span></label>--}}
+{{--            <select class="form-control  {{$Theme['input-size']}} adselect2" id="lstADCountry" data-parent="1" data-selected="<?php if(array_key_exists("CountryID",$data)){ echo $data['CountryID']; } ?>">--}}
+{{--                <option value="">-- Select a Country--</option>--}}
+{{--            </select>--}}
+{{--            <span class="errors Address err-sm" id="lstADCountry-err"></span>--}}
+{{--        </div>--}}
+{{--    </div>--}}
 </div>
 <div class="row  mt-20">
     <div class="col-sm-12 text-right">
@@ -101,19 +104,23 @@ $(document).ready(function(){
                 if (status === 'OK') {
                     if (results[0]) {
                         var formattedAddress = results[0].formatted_address;
-                        var addressComponents = formattedAddress.split(', ');
-                        var simplifiedAddress = addressComponents.slice(0, -2).join(', ');
-                        $('#txtADAddress').val(simplifiedAddress);
+                        var lat = results[0].geometry.location.lat();
+                        var lng = results[0].geometry.location.lng();
+                        var mapData = results[0].geometry;
+                        $('#txtADAddress').val(formattedAddress);
+                        $('#txtADLatitude').val(lat);
+                        $('#txtADLongitude').val(lng);
+                        $('#mapData').val(mapData);
                         var postalCode = extractPostalCodeFromAddressComponents(results[0]);
                         if (!postalCode) {
                             reverseGeocodeWithPlaceId(results[0].place_id);
                         } else {
                             $('#txtADPostalCode').val(postalCode);
                             $('#btnADPostalCode').click();
-                            $('#lstADTaluk').val('');
-                            $('#lstADDistrict').val('');
-                            $('#lstADState').val('');
-                            $('#lstADCountry').val('');
+                            // $('#lstADTaluk').val('');
+                            // $('#lstADDistrict').val('');
+                            // $('#lstADState').val('');
+                            // $('#lstADCountry').val('');
                         }
                     }
                 }

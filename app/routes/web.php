@@ -182,6 +182,10 @@ Route::post('orderTableHtml', [HomeAuthController::class, 'orderTableHtml'])->na
 Route::get('order/view/{OrderID}', [HomeAuthController::class, 'CustomerOrderView'])->name('CustomerOrderView');
 Route::post('customerHomeSearch', [HomeAuthController::class, 'customerHomeSearch'])->name('customerHomeSearch');
 Route::post('guestHomeSearch', [HomeController::class, 'guestHomeSearch'])->name('guestHomeSearch');
+Route::post('UpdateShippingAddress', [HomeAuthController::class, 'UpdateShippingAddress'])->name('UpdateShippingAddress');
+Route::post('SetAddressDefault', [HomeAuthController::class, 'SetAddressDefault'])->name('SetAddressDefault');
+Route::post('DeleteShippingAddress', [HomeAuthController::class, 'DeleteShippingAddress'])->name('DeleteShippingAddress');
+Route::post('getNotifications', [HomeAuthController::class, 'getNotifications'])->name('getNotifications');
 
 //Customer Support details
 Route::post('customer/support/get/details', [CustomerSupportController::class, 'getDetails'])->name('customer.support.getDetails');
@@ -189,6 +193,12 @@ Route::post('customer/support/new-ticket', [CustomerSupportController::class, 'N
 Route::post('customer/support/new-ticket/save', [CustomerSupportController::class, 'SaveTicket'])->name('customer.support.SaveTicket');
 Route::post('customer/support/details/save', [CustomerSupportController::class, 'SupportDetailsSave'])->name('customer.support.SupportDetailsSave');
 Route::get('customer/support/details/{SID}', [CustomerSupportController::class, 'SupportDetailsView'])->name('customer.support.SupportDetailsView');
+
+// Customer Quotation
+Route::post('/cancel/{QID}', [HomeAuthController::class, 'QuoteCancel'])->name('customer.quotes.cancel');
+Route::post('/approve/{QID}', [HomeAuthController::class, 'QuoteApprove'])->name('customer.quotes.approve');
+Route::post('/cancel-item/{DetailID}', [HomeAuthController::class, 'QuoteItemCancel'])->name('customer.quotes.cancel-item');
+Route::post('/get/cancel-reasons', [HomeAuthController::class, 'getCancelReasons'])->name('customer.quotes.get.cancel-reasons');
 
 
 Route::controller(SocialController::class)->group(function () {

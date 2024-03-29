@@ -65,7 +65,7 @@ class HomeTransactionController extends Controller{
             $this->Menus=$this->general->loadMenu();
             $this->CRUD=$this->general->getCrudOperations($this->ActiveMenuName);
             $this->Settings=$this->general->getSettings();
-            $this->shippingAddress = DB::table('tbl_customer_address as CA')->where('CustomerID',$this->ReferID)
+            $this->shippingAddress = DB::table('tbl_customer_address as CA')->where('CustomerID',$this->ReferID)->where('CA.DFlag',0)
                 ->join($this->generalDB.'tbl_countries as C','C.CountryID','CA.CountryID')
                 ->join($this->generalDB.'tbl_states as S', 'S.StateID', 'CA.StateID')
                 ->join($this->generalDB.'tbl_districts as D', 'D.DistrictID', 'CA.DistrictID')

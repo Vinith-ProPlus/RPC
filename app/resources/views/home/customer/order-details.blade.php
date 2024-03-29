@@ -464,12 +464,12 @@
                                                 $item->Status =$OData->Status=="Cancelled"?$OData->Status:$item->Status;
                                                 ?>
                                                 <tr data-status="{{$item->Status}}" data-vendor-id="{{$item->VendorID}}" data-detail-id="{{$item->DetailID}}">
-                                                    <td>{{$key + 1}}</td>
-                                                    <td>{{$item->ProductName}}</td>
-                                                    <td class="text-right">{{$item->Qty}} {{$item->UCode}}</td>
-                                                    <td class="text-right">{{NumberFormat($item->Price, 2)}}</td>
-                                                    <td>{{$item->TaxType}}</td>
-                                                    <td class="text-right">{{ $item->Status == 'Cancelled' ? '--' : NumberFormat($item->Taxable, 2) }}</td>
+                                                    <td class="text-center align-middle">{{$key + 1}}</td>
+                                                    <td class="text-center align-middle">{{$item->ProductName}}</td>
+                                                    <td class="text-center align-middle">{{$item->Qty}} {{$item->UCode}}</td>
+                                                    <td class="text-center align-middle">{{NumberFormat($item->Price, 2)}}</td>
+                                                    <td class="text-center align-middle">{{$item->TaxType}}</td>
+                                                    <td class="text-center align-middle">{{ $item->Status == 'Cancelled' ? '--' : NumberFormat($item->Taxable, 2) }}</td>
                                                     {{--                                                    @if(count($OData->Details)>0)--}}
                                                     {{--                                                        @if(floatval($item->IGSTAmt)<=0)--}}
                                                     {{--                                                            <td class="text-right">--}}
@@ -487,11 +487,11 @@
                                                     {{--                                                            </td>--}}
                                                     {{--                                                        @endif--}}
                                                     {{--                                                    @else--}}
-                                                    <td class="text-right">{{ $item->Status == 'Cancelled' ? '--' : NumberFormat(($item->TaxAmt ?? 0), 2) }}</td>
+                                                    <td class="text-center align-middle">{{ $item->Status == 'Cancelled' ? '--' : NumberFormat(($item->TaxAmt ?? 0), 2) }}</td>
                                                     {{--                                                    @endif--}}
-                                                    <td class="text-right">{{ $item->Status == 'Cancelled' ? '--' : NumberFormat($item->TotalAmt, 2) }} </td>
+                                                    <td class="text-center align-middle">{{ $item->Status == 'Cancelled' ? '--' : NumberFormat($item->TotalAmt, 2) }} </td>
                                                     {{--                                                    <td><span class=" fw-600 text-info text-center">{{$item->VendorName}}</span></td>--}}
-                                                    <td>
+                                                    <td class="text-center align-middle">
                                                         @if($item->Status=="Cancelled")
                                                             <span class="badge badge-danger">Cancelled</span>
                                                         @elseif($item->Status=="Delivered")
@@ -500,7 +500,7 @@
                                                             <span class="badge badge-primary">Not Delivered</span>
                                                         @endif
                                                     </td>
-                                                    <td class="text-center">
+                                                    <td class="text-center align-middle">
                                                         @if($item->Status=="Delivered")
                                                             {{date('d-M-Y',strtotime($item->DeliveredOn))}}
                                                         @else
@@ -521,7 +521,7 @@
                                                             $vendorAdditionalCharges[$item->VendorID]=["name"=>$item->VendorName,"amount"=>$tmpAmount];
                                                         }
                                                     ?>
-                                                    <td class="tdata" style="display:none"><?php echo json_encode($item); ?></td>
+                                                    <td class="tdata text-center align-middle" style="display:none"><?php echo json_encode($item); ?></td>
                                                 </tr>
                                             @endforeach
                                         </tbody>

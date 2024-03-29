@@ -970,9 +970,9 @@
 {{--                        <li class="nav-item">--}}
 {{--                            <a class="nav-link" id="shop-address-tab" data-toggle="tab" href="#shipping" role="tab" aria-controls="edit" aria-selected="false">Shopping Address</a>--}}
 {{--                        </li>--}}
-                        <li class="nav-item">
-                            <a class="nav-link" id="wishlist-tab" data-toggle="tab" href="#wishlist" role="tab" aria-controls="wishlist" aria-selected="false">Wishlist</a>
-                        </li>
+{{--                        <li class="nav-item">--}}
+{{--                            <a class="nav-link" id="wishlist-tab" data-toggle="tab" href="#wishlist" role="tab" aria-controls="wishlist" aria-selected="false">Wishlist</a>--}}
+{{--                        </li>--}}
                         <li class="nav-item">
                             <a class="nav-link" id="support-tab" data-toggle="tab" href="#support" role="tab" aria-controls="support" aria-selected="false">Support</a>
                         </li>
@@ -989,7 +989,7 @@
                             <div class="row row-lg">
                                 <div class="col-6 col-md-4">
                                     <div class="feature-box text-center pb-4">
-                                        <a onclick="$('#orders-tab').click();" class="link-to-tab"><i class="sicon-social-dropbox"></i></a>
+                                        <a href="#order" onclick="$('#orders-tab').click();" class="link-to-tab"><i class="sicon-social-dropbox"></i></a>
                                         <div class="feature-box-content">
                                             <h3>ORDERS</h3>
                                         </div>
@@ -998,16 +998,25 @@
 
                                 <div class="col-6 col-md-4">
                                     <div class="feature-box text-center pb-4">
-                                        <a onclick="$('#wishlist-tab').click();"><i class="sicon-heart"></i></a>
+                                        <a href="{{ route('products') }}"><i class="sicon-present"></i></a>
                                         <div class="feature-box-content">
-                                            <h3>WISHLIST</h3>
+                                            <h3>Products</h3>
                                         </div>
                                     </div>
                                 </div>
 
+{{--                                <div class="col-6 col-md-4">--}}
+{{--                                    <div class="feature-box text-center pb-4">--}}
+{{--                                        <a href="#wishlist" onclick="$('#wishlist-tab').click();"><i class="sicon-heart"></i></a>--}}
+{{--                                        <div class="feature-box-content">--}}
+{{--                                            <h3>WISHLIST</h3>--}}
+{{--                                        </div>--}}
+{{--                                    </div>--}}
+{{--                                </div>--}}
+
                                 <div class="col-6 col-md-4">
                                     <div class="feature-box text-center pb-4">
-                                        <a onclick="$('#support-tab').click();" class="link-to-tab"><i class="sicon-support"></i></a>
+                                        <a href="#support" onclick="$('#support-tab').click();" class="link-to-tab"><i class="sicon-support"></i></a>
                                         <div class="feature-box-content">
                                             <h3>SUPPORT</h3>
                                         </div>
@@ -1016,7 +1025,7 @@
 
                                 <div class="col-6 col-md-4">
                                     <div class="feature-box text-center pb-4">
-                                        <a onclick="$('#quotations-tab').click();" class="link-to-tab"><i class="sicon-notebook"></i></a>
+                                        <a href="#quotations" onclick="$('#quotations-tab').click();" class="link-to-tab"><i class="sicon-notebook"></i></a>
                                         <div class=" feature-box-content">
                                             <h3>QUOTATIONS</h3>
                                         </div>
@@ -1035,7 +1044,7 @@
 
                                 <div class="col-6 col-md-4">
                                     <div class="feature-box text-center pb-4">
-                                        <a onclick="$('#profile-tab').click();" class="link-to-tab"><i class="icon-user-2"></i></a>
+                                        <a href="#profile" onclick="$('#profile-tab').click();" class="link-to-tab"><i class="icon-user-2"></i></a>
                                         <div class="feature-box-content p-0">
                                             <h3>ACCOUNT DETAILS</h3>
                                         </div>
@@ -1110,15 +1119,15 @@
 {{--                        </div>--}}
                     </div><!-- End .tab-pane -->
 
-                    <div class="tab-pane fade" id="wishlist" role="tabpanel">
-                        <div class="download-content">
-                            <h3 class="account-sub-title d-none d-md-block"><i class="sicon-heart align-middle mr-3"></i>Wishlist</h3>
-                            <div class="download-table-container" style="margin-top: 20px !important;">
-                                <div class="wishlist-table-container" id="wishlistTableHtml">
-                                </div>
-                            </div>
-                        </div>
-                    </div><!-- End .tab-pane -->
+{{--                    <div class="tab-pane fade" id="wishlist" role="tabpanel">--}}
+{{--                        <div class="download-content">--}}
+{{--                            <h3 class="account-sub-title d-none d-md-block"><i class="sicon-heart align-middle mr-3"></i>Wishlist</h3>--}}
+{{--                            <div class="download-table-container" style="margin-top: 20px !important;">--}}
+{{--                                <div class="wishlist-table-container" id="wishlistTableHtml">--}}
+{{--                                </div>--}}
+{{--                            </div>--}}
+{{--                        </div>--}}
+{{--                    </div><!-- End .tab-pane -->--}}
                     <div class="tab-pane fade" id="support" role="tabpanel">
                         <div class="download-content">
                             <div class="row align-items-center">
@@ -2183,10 +2192,6 @@
             $(document).on('click', '#btnSaveReview', function () {
                 SaveReview();
             });
-
-            $(document).on('click', '.btnDeleteSAddress', function () {
-                $(this).closest('tr').remove();
-            });
             $(document).on('click', '#btnEditImage', function () {
                 $('#txtCustomerImage').trigger('click');
             });
@@ -2382,61 +2387,135 @@
             }
             const SaveAddress = async () => {
                 let { status, formData, Address } = await ValidateGetAddress();
-                // console.log(formData);
+                console.log(formData);
 
                 if (status) {
-                    let index = formData.EditID ? formData.EditID : $('#tblShippingAddress tbody tr').length + 1;
 
-                    let html = `<tr id="${index}" data-aid="${formData.AID}">
+                    $.ajax({
+                        type:"post",
+                        url:"{{ route('UpdateShippingAddress') }}",
+                        data: formData,
+                        headers: { 'X-CSRF-Token' : '{{ csrf_token() }}' },
+                        // dataType:"html",
+                        async:true,
+                        error:function(e, x, settings, exception){},
+                        success:async(response)=>{
+                            if(response.status === true){
+                                let index = formData.EditID ? formData.EditID : $('#tblShippingAddress tbody tr').length + 1;
+
+                                // ${formData.TalukName},<br>
+                                //     ${formData.DistrictName}, ${formData.StateName},<br>
+                                //     ${formData.CountryName} -
+                                // <button type="button" class="btn btn-sm btn-outline-success m-2 btnEditSAddress"><i class="fas fa-pencil-alt"></i></button>
+
+                                let html = `<tr id="${index}" data-aid="${response.AID}">
                                 <td class="text-right checkbox1 align-middle">
                                     <div class="radio radio-primary">
-                                        <input id="chkSA${index}" data-aid="${formData.AID}" type="radio" name="SAddress" value="${index}">
+                                        <input id="chkSA${index}" data-aid="${response.AID}" class="defaultAddress" type="radio" name="SAddress" value="${index}">
                                         <label for="chkSA${index}"></label>
                                     </div>
                                 </td>
-                                <td class="pointer">
+                                <td class="pointer align-middle">
                                     <b>${formData.Address}</b>,<br>
-                                    ${formData.CityName}, ${formData.TalukName},<br>
-                                    ${formData.DistrictName}, ${formData.StateName},<br>
-                                    ${formData.CountryName} - ${formData.PostalCode}.
+                                    ${formData.CityName},${formData.PostalCode}.
                                 </td>
-                                <td class="d-flex text-center">
-                                    <button type="button" class="btn btn-sm btn-outline-success m-3 btnEditSAddress"><i class="fas fa-pencil-alt"></i></button>
-                                    <button type="button" class="btn btn-sm btn-outline-danger m-3 btnDeleteSAddress"><i class="fas fa-trash-alt"></i></button>
+                                <td class="text-center align-middle">
+                                    <button type="button" class="btn btn-sm btn-outline-danger m-2 btnDeleteSAddress" data-aid="${response.AID}"><i class="fas fa-trash-alt"></i></button>
                                 </td>
                                 <td class="d-none">${JSON.stringify(formData)}</td>
                             </tr>`;
 
-                    if (formData.EditID) {
-                        $("#tblShippingAddress tbody tr").each(function () {
-                            let SNo = $(this).attr('id');
-                            if (SNo == formData.EditID) {
-                                $(this).replaceWith(html);
-                                return false;
+                                if (formData.EditID) {
+                                    $("#tblShippingAddress tbody tr").each(function () {
+                                        let SNo = $(this).attr('id');
+                                        if (SNo == formData.EditID) {
+                                            $(this).replaceWith(html);
+                                            return false;
+                                        }
+                                    });
+                                } else {
+                                    $('#tblShippingAddress tbody').append(html);
+                                }
+                                toastr.success("Address added successfully!.");
+                            } else {
+                                toastr.warning("Error!.");
                             }
-                        });
-                    } else {
-                        $('#tblShippingAddress tbody').append(html);
-                    }
-
+                        }
+                    });
                     bootbox.hideAll();
                 }
+            };
+            const DeleteAddress = async (thiss) => {
+                let { status, formData, Address } = await ValidateDeleteAddress(thiss.attr('data-aid'));
+                $.ajax({
+                    type:"post",
+                    url:"{{ route('DeleteShippingAddress') }}",
+                    data: formData,
+                    headers: { 'X-CSRF-Token' : '{{ csrf_token() }}' },
+                    async:true,
+                    error:function(e, x, settings, exception){},
+                    success:async(response)=>{
+                        if(response.status === true){
+                            toastr.success('Shipping address deleted');
+                            $('tr[data-aid="' + thiss.attr('data-aid') + '"]').remove();
+                        } else {
+                            toastr.warning(response.message);
+                        }
+                    }
+                });
+            };
+            const SetDefaultAddress = async (thiss) => {
+                let { status, formData, Address } = await ValidateDefaultAddress(thiss.attr('data-aid'));
+                $.ajax({
+                    type:"post",
+                    url:"{{ route('SetAddressDefault') }}",
+                    data: formData,
+                    headers: { 'X-CSRF-Token' : '{{ csrf_token() }}' },
+                    async:true,
+                    error:function(e, x, settings, exception){},
+                    success:async(response)=>{
+                        if(response.status === true){
+                            toastr.success('Default address changed!.');
+                            // $('tr[data-aid="' + thiss.attr('data-aid') + '"]').remove();
+                        } else {
+                            toastr.warning(response.message);
+                        }
+                    }
+                });
+            };
+            const ValidateDeleteAddress = async (AID) => {
+                let status = true;
+                let Address = "";
+                var formData={};
+                formData.AID=AID;
+                return { status, formData, Address };
+            };
+            const ValidateDefaultAddress = async (AID) => {
+                let status = true;
+                let Address = "";
+                var formData={};
+                formData.AID=AID;
+                return { status, formData, Address };
             };
             const ValidateGetAddress = async () => {
                 $(".errors.Address").html("");
                 let status = true;
-                let formData={};
+                var formData={};
                 formData.EditID=$("#btnSaveAddress").attr('data-edit-id');
                 formData.AID=$("#btnSaveAddress").attr('data-aid');
                 formData.Address=$('#txtADAddress').val();
-                formData.CountryID=$('#lstADCountry').val();
-                formData.CountryName=$('#lstADCountry option:selected').attr('data-country-name');
-                formData.StateID=$('#lstADState').val();
-                formData.StateName=$('#lstADState option:selected').text();
-                formData.DistrictID=$('#lstADDistrict').val();
-                formData.DistrictName=$('#lstADDistrict option:selected').text();
-                formData.TalukID=$('#lstADTaluk').val();
-                formData.TalukName=$('#lstADTaluk option:selected').text();
+                formData.CompleteAddress=$('#txtADAddress').val();
+                formData.Latitude=$('#txtADLatitude').val();
+                formData.Longitude=$('#txtADLongitude').val();
+                formData.mapData=$('#mapData').val();
+                // formData.CountryID=$('#lstADCountry').val();
+                // formData.CountryName=$('#lstADCountry option:selected').attr('data-country-name');
+                // formData.StateID=$('#lstADState').val();
+                // formData.StateName=$('#lstADState option:selected').text();
+                // formData.DistrictID=$('#lstADDistrict').val();
+                // formData.DistrictName=$('#lstADDistrict option:selected').text();
+                // formData.TalukID=$('#lstADTaluk').val();
+                // formData.TalukName=$('#lstADTaluk option:selected').text();
                 formData.CityID=$('#lstADCity').val();
                 formData.CityName=$('#lstADCity option:selected').text();
                 formData.PostalCode=$('#txtADPostalCode').val();
@@ -2455,26 +2534,26 @@
                 }else{
                     Address+=",<br>"+formData.CityName;
                 }
-                if(formData.TalukID==""){
-                    $('#lstADTaluk-err').html('Taluk is required');status=false;
-                }else{
-                    Address+=",<br>"+formData.TalukName;
-                }
-                if(formData.DistrictID==""){
-                    $('#lstADDistrict-err').html('District is required');status=false;
-                }else{
-                    Address+=",<br>"+formData.DistrictName;
-                }
-                if(formData.StateID==""){
-                    $('#lstADState-err').html('State is required');status=false;
-                }else{
-                    Address+=",<br>"+formData.StateName;
-                }
-                if(formData.CountryID==""){
-                    $('#lstADCountry-err').html('Country is required');status=false;
-                }else{
-                    Address+=","+formData.CountryName;
-                }
+                // if(formData.TalukID==""){
+                //     $('#lstADTaluk-err').html('Taluk is required');status=false;
+                // }else{
+                //     Address+=",<br>"+formData.TalukName;
+                // }
+                // if(formData.DistrictID==""){
+                //     $('#lstADDistrict-err').html('District is required');status=false;
+                // }else{
+                //     Address+=",<br>"+formData.DistrictName;
+                // }
+                // if(formData.StateID==""){
+                //     $('#lstADState-err').html('State is required');status=false;
+                // }else{
+                //     Address+=",<br>"+formData.StateName;
+                // }
+                // if(formData.CountryID==""){
+                //     $('#lstADCountry-err').html('Country is required');status=false;
+                // }else{
+                //     Address+=","+formData.CountryName;
+                // }
                 if(formData.PostalCode==""){
                     $('#txtADPostalCode-err').html('Postal Code is required');status=false;
                 }else{
@@ -2601,7 +2680,13 @@
             $(document).on('click', '#btnSaveAddress', function () {
                 SaveAddress();
             });
-
+            $(document).on('click', '.defaultAddress', function () {
+                SetDefaultAddress($(this));
+            });
+            $(document).on('click', '.btnDeleteSAddress', function () {
+                var thiss = $(this);
+                DeleteAddress(thiss);
+            });
             $(document).on('click', '#btnSave', function () {
                 let status = validateForm();
                 if (status) {

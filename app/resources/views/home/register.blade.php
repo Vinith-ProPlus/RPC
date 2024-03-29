@@ -1,6 +1,9 @@
 @extends('home.home-layout')
 @section('content')
-<style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.css" integrity="sha512-3pIirOrwegjM6erE5gPSwkUzO+3cTjpnV9lexlNZqvupR64iZBnOOTiiLPb9M36zpMScbmUNIcHUqKD47M719g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js" integrity="sha512-VEd+nq25CkR676O+pLBnDW09R7VQX9Mdiij052gVCp5yVH3jGtH70Ho/UUv4mJDsEdTvqRCFZg0NKGiojGnUCw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <style>
     .select2-container--default .select2-selection--multiple
     {
         border: solid black 1px !important;
@@ -181,19 +184,17 @@
                                                     <tr id="{{ $key + 1 }}" data-aid="{{ $item->AID }}">
                                                         <td class="text-right checkbox1 align-middle">
                                                             <div class="radio radio-primary">
-                                                                <input id="chkSA{{ $key + 1 }}" data-aid="{{ $item->AID }}" type="radio" name="SAddress" value="{{ $key + 1 }}" {{ $item->isDefault == 1 ? 'checked' : '' }}>
+                                                                <input id="chkSA{{ $key + 1 }}" data-aid="{{ $item->AID }}" class="defaultAddress" type="radio" name="SAddress" value="{{ $key + 1 }}" {{ ($item->isDefault == "1") ? "checked=checked" : '' }}>
                                                                 <label for="chkSA{{ $key + 1 }}"></label>
                                                             </div>
                                                         </td>
                                                         <td class="pointer">
                                                             <b>{{ $item->Address }}</b>,<br>
-                                                            {{ $item->CityName }}, {{ $item->TalukName }},<br>
-                                                            {{ $item->DistrictName }}, {{ $item->StateName }},<br>
-                                                            {{ $item->CountryName }} - {{ $item->PostalCode }}.
+                                                            {{ $item->CityName }}, {{ $item->PostalCode }}.
                                                         </td>
                                                         <td class="text-center align-middle">
-                                                            <button type="button" class="btn btn-sm btn-outline-success m-2 btnEditSAddress"><i class="fas fa-pencil-alt"></i></button>
-                                                            <button type="button" class="btn btn-sm btn-outline-danger m-2 btnDeleteSAddress"><i class="fas fa-trash-alt"></i></button>
+{{--                                                            <button type="button" class="btn btn-sm btn-outline-success m-2 btnEditSAddress"><i class="fas fa-pencil-alt"></i></button>--}}
+                                                            <button type="button" class="btn btn-sm btn-outline-danger m-2 btnDeleteSAddress" data-aid="{{ $item->AID }}"><i class="fas fa-trash-alt"></i></button>
                                                         </td>
                                                         <td class="d-none">{{ json_encode($item) }}</td>
                                                     </tr>
@@ -639,6 +640,9 @@
         $(document).on('click', '#btnSaveAddress', function () {
             SaveAddress();
         });
+        $(document).on('click', '.defaultAddress', function () {
+            SetDefaultAddress($(this));
+        });
         $(document).on('click', '.btnEditSAddress', function () {
             let Row=$(this).closest('tr');
             let EditData=JSON.parse($(this).closest('tr').find("td:eq(3)").html());
@@ -647,7 +651,8 @@
             getAddressModal(EditData);
         });
         $(document).on('click', '.btnDeleteSAddress', function () {
-            $(this).closest('tr').remove();
+            var thiss = $(this);
+            DeleteAddress(thiss);
         });
         $(document).on('click', '#btnEditImage', function () {
             $('#txtCustomerImage').trigger('click');
@@ -703,61 +708,136 @@
         });
         const SaveAddress = async () => {
             let { status, formData, Address } = await ValidateGetAddress();
-            // console.log(formData);
+            console.log(formData);
 
             if (status) {
-                let index = formData.EditID ? formData.EditID : $('#tblShippingAddress tbody tr').length + 1;
 
-                let html = `<tr id="${index}" data-aid="${formData.AID}">
+                $.ajax({
+                    type:"post",
+                    url:"{{ route('UpdateShippingAddress') }}",
+                    data: formData,
+                    headers: { 'X-CSRF-Token' : '{{ csrf_token() }}' },
+                    // dataType:"html",
+                    async:true,
+                    error:function(e, x, settings, exception){},
+                    success:async(response)=>{
+                        if(response.status === true){
+                            let index = formData.EditID ? formData.EditID : $('#tblShippingAddress tbody tr').length + 1;
+
+                            // ${formData.TalukName},<br>
+                            //     ${formData.DistrictName}, ${formData.StateName},<br>
+                            //     ${formData.CountryName} -
+                            // <button type="button" class="btn btn-sm btn-outline-success m-2 btnEditSAddress"><i class="fas fa-pencil-alt"></i></button>
+
+                            let html = `<tr id="${index}" data-aid="${response.AID}">
                                 <td class="text-right checkbox1 align-middle">
                                     <div class="radio radio-primary">
-                                        <input id="chkSA${index}" data-aid="${formData.AID}" type="radio" name="SAddress" value="${index}">
+                                        <input id="chkSA${index}" data-aid="${response.AID}" class="defaultAddress" type="radio" name="SAddress" value="${index}">
                                         <label for="chkSA${index}"></label>
                                     </div>
                                 </td>
                                 <td class="pointer">
                                     <b>${formData.Address}</b>,<br>
-                                    ${formData.CityName}, ${formData.TalukName},<br>
-                                    ${formData.DistrictName}, ${formData.StateName},<br>
-                                    ${formData.CountryName} - ${formData.PostalCode}.
+                                    ${formData.CityName},${formData.PostalCode}.
                                 </td>
                                 <td class="text-center">
-                                    <button type="button" class="btn btn-sm btn-outline-success m-2 btnEditSAddress"><i class="fas fa-pencil-alt"></i></button>
-                                    <button type="button" class="btn btn-sm btn-outline-danger m-2 btnDeleteSAddress"><i class="fas fa-trash-alt"></i></button>
+                                    <button type="button" class="btn btn-sm btn-outline-danger m-2 btnDeleteSAddress" data-aid="${response.AID}"><i class="fas fa-trash-alt"></i></button>
                                 </td>
                                 <td class="d-none">${JSON.stringify(formData)}</td>
                             </tr>`;
 
-                if (formData.EditID) {
-                    $("#tblShippingAddress tbody tr").each(function () {
-                        let SNo = $(this).attr('id');
-                        if (SNo == formData.EditID) {
-                            $(this).replaceWith(html);
-                            return false;
+                            if (formData.EditID) {
+                                $("#tblShippingAddress tbody tr").each(function () {
+                                    let SNo = $(this).attr('id');
+                                    if (SNo == formData.EditID) {
+                                        $(this).replaceWith(html);
+                                        return false;
+                                    }
+                                });
+                            } else {
+                                $('#tblShippingAddress tbody').append(html);
+                            }
+                            toastr.success("Address added successfully!.");
+                        } else {
+                            toastr.warning("Error!.");
                         }
-                    });
-                } else {
-                    $('#tblShippingAddress tbody').append(html);
-                }
-
+                    }
+                });
                 bootbox.hideAll();
             }
         };
+        const DeleteAddress = async (thiss) => {
+            let { status, formData, Address } = await ValidateDeleteAddress(thiss.attr('data-aid'));
+            $.ajax({
+                type:"post",
+                url:"{{ route('DeleteShippingAddress') }}",
+                data: formData,
+                headers: { 'X-CSRF-Token' : '{{ csrf_token() }}' },
+                async:true,
+                error:function(e, x, settings, exception){},
+                success:async(response)=>{
+                    if(response.status === true){
+                        toastr.success('Shipping address deleted');
+                        $('tr[data-aid="' + thiss.attr('data-aid') + '"]').remove();
+                    } else {
+                        toastr.warning(response.message);
+                    }
+                }
+            });
+        };
+        const SetDefaultAddress = async (thiss) => {
+            let { status, formData, Address } = await ValidateDefaultAddress(thiss.attr('data-aid'));
+            $.ajax({
+                type:"post",
+                url:"{{ route('SetAddressDefault') }}",
+                data: formData,
+                headers: { 'X-CSRF-Token' : '{{ csrf_token() }}' },
+                async:true,
+                error:function(e, x, settings, exception){},
+                success:async(response)=>{
+                    if(response.status === true){
+                        toastr.success('Default address changed!.');
+                        // $('tr[data-aid="' + thiss.attr('data-aid') + '"]').remove();
+                    } else {
+                        toastr.warning(response.message);
+                    }
+                }
+            });
+        };
+        const ValidateDeleteAddress = async (AID) => {
+            let status = true;
+            let Address = "";
+            var formData={};
+            formData.AID=AID;
+            return { status, formData, Address };
+        };
+        const ValidateDefaultAddress = async (AID) => {
+            let status = true;
+            let Address = "";
+            var formData={};
+            formData.AID=AID;
+            return { status, formData, Address };
+        };
+
         const ValidateGetAddress = async () => {
             $(".errors.Address").html("");
             let status = true;
-            let formData={};
+            var formData={};
             formData.EditID=$("#btnSaveAddress").attr('data-edit-id');
             formData.AID=$("#btnSaveAddress").attr('data-aid');
             formData.Address=$('#txtADAddress').val();
-            formData.CountryID=$('#lstADCountry').val();
-            formData.CountryName=$('#lstADCountry option:selected').attr('data-country-name');
-            formData.StateID=$('#lstADState').val();
-            formData.StateName=$('#lstADState option:selected').text();
-            formData.DistrictID=$('#lstADDistrict').val();
-            formData.DistrictName=$('#lstADDistrict option:selected').text();
-            formData.TalukID=$('#lstADTaluk').val();
-            formData.TalukName=$('#lstADTaluk option:selected').text();
+            formData.CompleteAddress=$('#txtADAddress').val();
+            formData.Latitude=$('#txtADLatitude').val();
+            formData.Longitude=$('#txtADLongitude').val();
+            formData.mapData=$('#mapData').val();
+            // formData.CountryID=$('#lstADCountry').val();
+            // formData.CountryName=$('#lstADCountry option:selected').attr('data-country-name');
+            // formData.StateID=$('#lstADState').val();
+            // formData.StateName=$('#lstADState option:selected').text();
+            // formData.DistrictID=$('#lstADDistrict').val();
+            // formData.DistrictName=$('#lstADDistrict option:selected').text();
+            // formData.TalukID=$('#lstADTaluk').val();
+            // formData.TalukName=$('#lstADTaluk option:selected').text();
             formData.CityID=$('#lstADCity').val();
             formData.CityName=$('#lstADCity option:selected').text();
             formData.PostalCode=$('#txtADPostalCode').val();
@@ -776,26 +856,26 @@
             }else{
                 Address+=",<br>"+formData.CityName;
             }
-            if(formData.TalukID==""){
-                $('#lstADTaluk-err').html('Taluk is required');status=false;
-            }else{
-                Address+=",<br>"+formData.TalukName;
-            }
-            if(formData.DistrictID==""){
-                $('#lstADDistrict-err').html('District is required');status=false;
-            }else{
-                Address+=",<br>"+formData.DistrictName;
-            }
-            if(formData.StateID==""){
-                $('#lstADState-err').html('State is required');status=false;
-            }else{
-                Address+=",<br>"+formData.StateName;
-            }
-            if(formData.CountryID==""){
-                $('#lstADCountry-err').html('Country is required');status=false;
-            }else{
-                Address+=","+formData.CountryName;
-            }
+            // if(formData.TalukID==""){
+            //     $('#lstADTaluk-err').html('Taluk is required');status=false;
+            // }else{
+            //     Address+=",<br>"+formData.TalukName;
+            // }
+            // if(formData.DistrictID==""){
+            //     $('#lstADDistrict-err').html('District is required');status=false;
+            // }else{
+            //     Address+=",<br>"+formData.DistrictName;
+            // }
+            // if(formData.StateID==""){
+            //     $('#lstADState-err').html('State is required');status=false;
+            // }else{
+            //     Address+=",<br>"+formData.StateName;
+            // }
+            // if(formData.CountryID==""){
+            //     $('#lstADCountry-err').html('Country is required');status=false;
+            // }else{
+            //     Address+=","+formData.CountryName;
+            // }
             if(formData.PostalCode==""){
                 $('#txtADPostalCode-err').html('Postal Code is required');status=false;
             }else{
@@ -1080,6 +1160,7 @@
         getConType({},'lstConTypeIDs');
         @if($isEdit)
         $('#btnGSearchPostalCode').trigger('click');
+        $('input.defaultAddress[data-aid="' + '{{ $defaultAddressAID }}' + '"]').prop('checked', true);
         @endif
 
     });

@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers\web\Transaction;
 
+use App\helper\helper;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
@@ -11,7 +12,6 @@ use general;
 use SSP;
 use DB;
 use Auth;
-use Helper;
 use ValidUnique;
 use logs;
 use activeMenuNames;
@@ -281,7 +281,7 @@ class QuoteEnquiryController extends Controller{
 					}
 					$status = DB::table($this->currfyDB.'tbl_enquiry')->where('EnqID',$EnqID)->update(['Status'=>'Quote Requested','VendorIDs'=>serialize($SelectedVendors),"UpdatedBy"=>$this->UserID,"UpdatedOn"=>date("Y-m-d H:i:s")]);
 				}
-				
+
 			}catch(Exception $e) {
 				$status=false;
 			}
@@ -380,6 +380,8 @@ class QuoteEnquiryController extends Controller{
 			$status=false;
 			try {
 				$SelectedVendors = json_decode($req->SelectedVendors, true);
+                logger("SelectedVendors");
+                logger($SelectedVendors);
 				foreach ($SelectedVendors as $VendorID) {
 					$isQuoteRequested =  DB::table($this->currfyDB . 'tbl_vendor_quotation')->where('VendorID',$VendorID)->where('EnqID',$EnqID)->first();
 					if(!$isQuoteRequested){
@@ -512,7 +514,7 @@ class QuoteEnquiryController extends Controller{
 						'UpdatedBy'=>$this->UserID,
 						'UpdatedOn'=>date('Y-m-d H:i:s')
 					];
-					$status = DB::Table($this->currfyDB.'tbl_vendor_quotation')->where('VendorID',$req->VendorID)->where('VQuoteID',$req->VQuoteID)->update($data);	
+					$status = DB::Table($this->currfyDB.'tbl_vendor_quotation')->where('VendorID',$req->VendorID)->where('VQuoteID',$req->VQuoteID)->update($data);
 				}
 			}catch(Exception $e) {
 				$status=false;
@@ -530,7 +532,7 @@ class QuoteEnquiryController extends Controller{
 		}else{
 			return array('status'=>false,'message'=>'Access denined');
 		}
-		
+
 	}
 
 	public function RejectQuote(Request $req){
@@ -864,7 +866,7 @@ class QuoteEnquiryController extends Controller{
 
 	public function TrashTableView(Request $request){
 		if($this->general->isCrudAllow($this->CRUD,"view")==true){
-			
+
 			$columns = array(
 				array( 'db' => 'EnqNo', 'dt' => '0' ),
 				array( 'db' => 'EnqDate', 'dt' => '1','formatter' => function( $d, $row ) {return date($this->Settings['date-format'],strtotime($d));}),
@@ -987,7 +989,7 @@ class QuoteEnquiryController extends Controller{
 		return DB::Table($VendorDB.'tbl_quotation_sent_details as QSD')->join('tbl_products as P','P.ProductID','QSD.ProductID')->join('tbl_uom as UOM','UOM.UID','QSD.UOMID')->where('QSD.QuoteSentID',$req->QuoteSentID)
 		->select('QSD.Amount','QSD.Price','QSD.TaxAmount','QSD.Taxable','QSD.TaxType','QSD.CGSTPer','QSD.SGSTPer','QSD.CGSTAmount','QSD.SGSTAmount','QSD.Qty','P.ProductName','UOM.UCode','UOM.UName')->get();
 	}
-	
+
 	public function GetVendorRatings(request $req){
 		$VendorRatings = DB::Table('tbl_vendors as V')
 				->join($this->generalDB.'tbl_states as S','S.StateID','V.StateID')
@@ -1005,7 +1007,7 @@ class QuoteEnquiryController extends Controller{
 				if ($years > 0) {
 					$yearLabel = ($years > 1) ? 'Years' : 'Year';
 					$formattedOutput = date('M Y', $createdDate) . ' (' . $years . ' ' . $yearLabel;
-				
+
 					if ($months > 0) {
 						$monthLabel = ($months > 1) ? 'Months' : 'Month';
 						$formattedOutput .= ' ' . $months . ' ' . $monthLabel . ')';

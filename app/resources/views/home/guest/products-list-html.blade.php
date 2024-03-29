@@ -68,9 +68,9 @@
                                 <div class="category-list">
                                     <a href="#">{{ $product->SubCategoryName }}</a>
                                 </div>
-                                <a href="#" class="guest-btn-icon-wish redirectLogin" title="wishlist">
-                                    <i class="icon-heart"></i>
-                                </a>
+{{--                                <a href="#" class="guest-btn-icon-wish redirectLogin" title="wishlist">--}}
+{{--                                    <i class="icon-heart"></i>--}}
+{{--                                </a>--}}
                             </div>
                             <h3 class="product-title">
                                 <a href="#">{{ $product->ProductName }}</a>
@@ -109,9 +109,9 @@
                                 <i class="icon-shopping-cart"></i>
                                 <span>ADD TO CART</span>
                             </a>
-                            <a href="#" class="guest-btn-icon-wish redirectLogin" title="wishlist">
-                                <i class="icon-heart"></i>
-                            </a>
+{{--                            <a href="#" class="guest-btn-icon-wish redirectLogin" title="wishlist">--}}
+{{--                                <i class="icon-heart"></i>--}}
+{{--                            </a>--}}
                             <a href="{{ route('guest.products.quickView', $product->ProductID) }}" class="btn-quickview" title="Quick View">
                                 <i class="fas fa-external-link-alt"></i>
                             </a>

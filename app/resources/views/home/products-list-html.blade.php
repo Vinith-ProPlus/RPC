@@ -80,9 +80,9 @@
                                         <div class="category-list">
                                             <a href="#">{{ $product->SubCategoryName }}</a>
                                         </div>
-                                        <a href="#" class="btn-icon-wish {{ $product->IsInWishlist ? 'added-wishlist' : '' }}" title="wishlist">
-                                            <i class="icon-heart"></i>
-                                        </a>
+{{--                                        <a href="#" class="btn-icon-wish {{ $product->IsInWishlist ? 'added-wishlist' : '' }}" title="wishlist">--}}
+{{--                                            <i class="icon-heart"></i>--}}
+{{--                                        </a>--}}
                                     </div>
                                     <h3 class="product-title">
                                         <a href="#">{{ $product->ProductName }}</a>
@@ -121,9 +121,9 @@
                                         <i class="icon-shopping-cart"></i>
                                         <span>ADD TO CART</span>
                                     </a>
-                                    <a href="#" class="btn-icon-wish {{ $product->IsInWishlist ? 'added-wishlist' : '' }}" title="wishlist">
-                                        <i class="icon-heart"></i>
-                                    </a>
+{{--                                    <a href="#" class="btn-icon-wish {{ $product->IsInWishlist ? 'added-wishlist' : '' }}" title="wishlist">--}}
+{{--                                        <i class="icon-heart"></i>--}}
+{{--                                    </a>--}}
                                     <a href="{{ route('products.quickView', $product->ProductID) }}" class="btn-quickview" title="Quick View">
                                         <i class="fas fa-external-link-alt"></i>
                                     </a>
