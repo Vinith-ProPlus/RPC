@@ -1096,7 +1096,7 @@
                                 dataType: "json",
                                 async: true,
                                 beforeSend: function () {
-                                    ajaxIndicatorStart("The process of moving the quote to the order is currently in progress. Please wait for a few minutes.")
+                                    ajaxIndicatorStart("The process of moving the quote to the order is currently in progress. Please wait for a few seconds.")
                                 },
                                 complete: function (e, x, settings, exception) {
                                     ajaxIndicatorStop()
@@ -1147,7 +1147,7 @@
                 {{--        dataType: "json",--}}
                 {{--        async: true,--}}
                 {{--        beforeSend: function () {--}}
-                {{--            ajaxIndicatorStart("The process of moving the quote to the order is currently in progress. Please wait for a few minutes.")--}}
+                {{--            ajaxIndicatorStart("The process of moving the quote to the order is currently in progress. Please wait for a few seconds.")--}}
                 {{--        },--}}
                 {{--        complete: function (e, x, settings, exception) {--}}
                 {{--            ajaxIndicatorStop()--}}
