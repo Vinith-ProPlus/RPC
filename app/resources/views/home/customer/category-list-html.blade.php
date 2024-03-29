@@ -57,12 +57,12 @@
                                             <h3 class="product-title">
                                                 {{ $PCategory->PCName  }}
                                             </h3>
-                                            <div class="ratings-container">
-                                                <div class="product-ratings">
-                                                    <span class="ratings" style="width: {{ $rating }}%"></span>
-                                                    <span class="tooltiptext tooltip-top"></span>
-                                                </div>
-                                            </div>
+{{--                                            <div class="ratings-container">--}}
+{{--                                                <div class="product-ratings">--}}
+{{--                                                    <span class="ratings" style="width: {{ $rating }}%"></span>--}}
+{{--                                                    <span class="tooltiptext tooltip-top"></span>--}}
+{{--                                                </div>--}}
+{{--                                            </div>--}}
                                         </div>
                                     </div>
                                 </a>

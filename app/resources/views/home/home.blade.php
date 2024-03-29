@@ -110,11 +110,11 @@
                 </a>
                 <div class="category-content">
                     <h3 class="category-title">{{ $category->PCName }}</h3>
-                    <ul class="sub-categories">
-                        @foreach ($category->PSCData->take(4) as $subCategory)
-                            <li><a href="{{ route('products.customer.productsList', ['SCID' => $subCategory->PSCID]) }}">{{ $subCategory->PSCName }}</a></li>
-                        @endforeach
-                    </ul>
+{{--                    <ul class="sub-categories">--}}
+{{--                        @foreach ($category->PSCData->take(4) as $subCategory)--}}
+{{--                            <li><a href="{{ route('products.customer.productsList', ['SCID' => $subCategory->PSCID]) }}">{{ $subCategory->PSCName }}</a></li>--}}
+{{--                        @endforeach--}}
+{{--                    </ul>--}}
                 </div>
             </div>
         @endforeach
