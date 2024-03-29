@@ -2040,7 +2040,7 @@ class HomeAuthController extends Controller{
             })
             ->where('P.ActiveStatus','Active')->where('P.DFlag',0)
             ->where('P.ProductID', $ProductID)
-            ->select('P.ProductID','P.ProductName','P.Description','PC.PCName as CategoryName','PSC.PSCName as SubCategoryName',
+            ->select('P.ProductID','P.ProductName','P.ShortDescription','P.Description','PC.PCName as CategoryName','PSC.PSCName as SubCategoryName',
                 DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(P.ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'),
                 DB::raw('IF(W.product_id IS NOT NULL, true, false) AS IsInWishlist'))
             ->first();

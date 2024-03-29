@@ -187,6 +187,8 @@ Route::post('UpdateShippingAddress', [HomeAuthController::class, 'UpdateShipping
 Route::post('SetAddressDefault', [HomeAuthController::class, 'SetAddressDefault'])->name('SetAddressDefault');
 Route::post('DeleteShippingAddress', [HomeAuthController::class, 'DeleteShippingAddress'])->name('DeleteShippingAddress');
 Route::post('getNotifications', [HomeAuthController::class, 'getNotifications'])->name('getNotifications');
+Route::get('productShortDescription/{PID}', [HomeController::class, 'productShortDescription'])->name('productShortDescription');
+Route::get('productDescription/{PID}', [HomeController::class, 'productDescription'])->name('productDescription');
 
 //Customer Support details
 Route::post('customer/support/get/details', [CustomerSupportController::class, 'getDetails'])->name('customer.support.getDetails');

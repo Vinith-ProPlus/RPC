@@ -13031,6 +13031,9 @@
             });
             var config = { attributes: true };
             observer.observe(document.getElementById('customerSelectedAddress'), config);
+            {{--$('.productPageLink').on('click', function(){--}}
+            {{--    window.location.replace("{{ url('/') }}/customer/product/view/"+ $(this).data('id'));--}}
+            {{--});--}}
         });
     </script>
 @endsection

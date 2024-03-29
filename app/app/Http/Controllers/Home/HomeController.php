@@ -620,4 +620,13 @@ class HomeController extends Controller
 
         return response()->json(['message' => 'Selected aid set successfully']);
     }
+
+    public function productDescription($PID)
+    {
+        return DB::table('tbl_products')->where('ProductID', $PID)->pluck('Description')->first();
+    }
+    public function productShortDescription($PID)
+    {
+        return DB::table('tbl_products')->where('ProductID', $PID)->pluck('ShortDescription')->first();
+    }
 }
