@@ -185,6 +185,7 @@ Route::post('guestHomeSearch', [HomeController::class, 'guestHomeSearch'])->name
 Route::post('UpdateShippingAddress', [HomeAuthController::class, 'UpdateShippingAddress'])->name('UpdateShippingAddress');
 Route::post('SetAddressDefault', [HomeAuthController::class, 'SetAddressDefault'])->name('SetAddressDefault');
 Route::post('DeleteShippingAddress', [HomeAuthController::class, 'DeleteShippingAddress'])->name('DeleteShippingAddress');
+Route::post('getNotifications', [HomeAuthController::class, 'getNotifications'])->name('getNotifications');
 
 //Customer Support details
 Route::post('customer/support/get/details', [CustomerSupportController::class, 'getDetails'])->name('customer.support.getDetails');

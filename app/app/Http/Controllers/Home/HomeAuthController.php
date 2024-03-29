@@ -2007,4 +2007,22 @@ class HomeAuthController extends Controller{
         $sql="Select * From tbl_reject_reason Where ActiveStatus='Active' and DFlag=0 and (RReasonFor='All')";
         return DB::Select($sql);
     }
+
+    public function getNotifications(Request $req){
+
+        $pageNo = $req->PageNo ?? 1;
+        $perPage = 10;
+
+        $Notifications = DB::table($this->CurrFyDB.'tbl_notifications')
+             ->where('ReferID', $this->ReferID)
+            ->orderBy('CreatedOn','desc')
+            ->paginate($perPage, ['*'], 'page', $pageNo);
+
+        return response()->json([
+            'status' => true,
+            'data' => $Notifications->items(),
+            'CurrentPage' => $Notifications->currentPage(),
+            'LastPage' => $Notifications->lastPage(),
+        ]);
+    }
 }

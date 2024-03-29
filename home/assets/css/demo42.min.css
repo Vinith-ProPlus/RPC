@@ -11845,10 +11845,16 @@ header .separator {
 	height: auto
 }
 
+/*.dropdown-arrow .badge-circle {*/
+/*	top: 3px;*/
+/*	left: 19px;*/
+/*	z-index: 2*/
+/*}*/
+
 .dropdown-arrow .badge-circle {
-	top: 3px;
-	left: 19px;
-	z-index: 2
+	top: 10px !important;
+	left: 27px;
+	z-index: 2;
 }
 
 .cart-dropdown a:focus,
