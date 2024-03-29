@@ -1696,6 +1696,26 @@
             margin:0 4px 0 0;
             font-weight:800
         }
+
+        .product-default .addToCartBtn {
+            display:inline-block;
+            padding:0 1.4rem;
+            font-size:1.2rem;
+            font-weight:600;
+            font-family:Poppins,sans-serif;
+            text-align:center;
+            vertical-align:top;
+            cursor:pointer;
+            transition:all 0.25s ease
+        }
+        .product-default .addToCartBtn i {
+            font-size:1.5rem;
+            line-height:32px
+        }
+        .product-default .addToCartBtn i:before {
+            margin:0 4px 0 0;
+            font-weight:800
+        }
         .product-default.product-unfold .btn-add-cart i {
             display:inline-block
         }

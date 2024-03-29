@@ -1964,6 +1964,18 @@
             transition: all 0.25s ease
         }
 
+        .product-default .addToCartBtn {
+            display: inline-block;
+            padding: 0 1.4rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+            font-family: Poppins, sans-serif;
+            text-align: center;
+            vertical-align: top;
+            cursor: pointer;
+            transition: all 0.25s ease
+        }
+
         .product-default .btn-add-cart i {
             font-size: 1.5rem;
             line-height: 32px
