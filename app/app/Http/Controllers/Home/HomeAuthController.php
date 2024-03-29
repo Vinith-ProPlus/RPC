@@ -1879,6 +1879,7 @@ class HomeAuthController extends Controller{
                         "CreatedBy"=>$this->UserID
                     ];
                     $status=DB::table($this->CurrFyDB.'tbl_order')->insert($tdata);
+                    $status=DB::table($this->CurrFyDB.'tbl_enquiry')->where('EnqID', $data->EnqID)->update(['status' => 'Accepted']);
                     if($status){
                         DocNum::updateDocNum(docTypes::Order->value, $this->CurrFyDB);
                         DocNum::updateInvNo(docTypes::Order->value);

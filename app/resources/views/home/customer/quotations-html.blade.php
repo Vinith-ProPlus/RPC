@@ -60,7 +60,21 @@
 {{--                <td>{{ $quotationDetail->EnqNo }}</td>--}}
                 <td>{{ $quotationDetail->EnqDate }}</td>
                 <td>{{ $quotationDetail->ExpectedDeliveryDate }}</td>
-                <td>{{ $quotationDetail->Status }}</td>
+                @php
+                    $status = $quotationDetail->Status;
+                    if($status == "New"){
+                        $statusText = "Quote Requested";
+                    } elseif ($status == "Converted to Quotation"){
+                        $statusText = "Price Updated";
+                    } elseif ($status == "Accepted"){
+                        $statusText = "Accepted";
+                    } elseif ($status == "Rejected"){
+                        $statusText = "Rejected";
+                    } else {
+                        $statusText = "Pending";
+                    }
+                @endphp
+                <td>{{ $statusText }}</td>
                 <td><button class="btn btn-dark product-type-simple btnQuoteView" data-id="{{ $quotationDetail->EnqID }}">
                         VIEW
                     </button></td>
