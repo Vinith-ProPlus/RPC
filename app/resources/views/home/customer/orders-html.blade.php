@@ -61,7 +61,7 @@
                 <td>{{ $orderDetail->OrderNo }}</td>
                 <td>{{ $orderDetail->OrderDate }}</td>
                 <td>{{ $orderDetail->ExpectedDelivery }}</td>
-                <td>{{ $orderDetail->Status }}</td>
+                <td>{{ in_array($orderDetail->Status, ["New", "Delivered"]) ? $orderDetail->Status : 'In progress' }}</td>
 {{--                <td>{{ $orderDetail->PaymentStatus }}</td>--}}
                 <td class="d-flex">
                     <button class="btn btn-dark product-type-simple btnOrderView mr-2" data-id="{{ $orderDetail->OrderID }}" title="View order">
