@@ -167,7 +167,7 @@
                         <div class="category-list">
                             <a href="#">{{ $hotProduct->PSCName }}</a>
                         </div>
-                        <a href="#" class="btn-icon-wish {{ $hotProduct->IsInWishlist ? 'added-wishlist' : '' }}" title="wishlist"><i class="icon-heart"></i></a>
+{{--                        <a href="#" class="btn-icon-wish {{ $hotProduct->IsInWishlist ? 'added-wishlist' : '' }}" title="wishlist"><i class="icon-heart"></i></a>--}}
                     </div>
                     <h3 class="product-title">
                         <a href="#">{{ $hotProduct->ProductName }}</a>
@@ -264,7 +264,7 @@
                     <div class="category-list">
                         <a href="#">{{ $recentProduct->PSCName }}</a>
                     </div>
-                    <a href="#" class="btn-icon-wish {{ $recentProduct->IsInWishlist ? 'added-wishlist' : '' }}" title="wishlist"><i class="icon-heart"></i></a>
+{{--                    <a href="#" class="btn-icon-wish {{ $recentProduct->IsInWishlist ? 'added-wishlist' : '' }}" title="wishlist"><i class="icon-heart"></i></a>--}}
                 </div>
                 <h3 class="product-title">
                     <a href="#">{{ $recentProduct->ProductName }}</a>

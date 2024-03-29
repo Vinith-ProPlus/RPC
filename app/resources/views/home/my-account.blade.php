@@ -970,9 +970,9 @@
 {{--                        <li class="nav-item">--}}
 {{--                            <a class="nav-link" id="shop-address-tab" data-toggle="tab" href="#shipping" role="tab" aria-controls="edit" aria-selected="false">Shopping Address</a>--}}
 {{--                        </li>--}}
-                        <li class="nav-item">
-                            <a class="nav-link" id="wishlist-tab" data-toggle="tab" href="#wishlist" role="tab" aria-controls="wishlist" aria-selected="false">Wishlist</a>
-                        </li>
+{{--                        <li class="nav-item">--}}
+{{--                            <a class="nav-link" id="wishlist-tab" data-toggle="tab" href="#wishlist" role="tab" aria-controls="wishlist" aria-selected="false">Wishlist</a>--}}
+{{--                        </li>--}}
                         <li class="nav-item">
                             <a class="nav-link" id="support-tab" data-toggle="tab" href="#support" role="tab" aria-controls="support" aria-selected="false">Support</a>
                         </li>
@@ -998,12 +998,21 @@
 
                                 <div class="col-6 col-md-4">
                                     <div class="feature-box text-center pb-4">
-                                        <a href="#wishlist" onclick="$('#wishlist-tab').click();"><i class="sicon-heart"></i></a>
+                                        <a href="{{ route('products') }}"><i class="sicon-present"></i></a>
                                         <div class="feature-box-content">
-                                            <h3>WISHLIST</h3>
+                                            <h3>Products</h3>
                                         </div>
                                     </div>
                                 </div>
+
+{{--                                <div class="col-6 col-md-4">--}}
+{{--                                    <div class="feature-box text-center pb-4">--}}
+{{--                                        <a href="#wishlist" onclick="$('#wishlist-tab').click();"><i class="sicon-heart"></i></a>--}}
+{{--                                        <div class="feature-box-content">--}}
+{{--                                            <h3>WISHLIST</h3>--}}
+{{--                                        </div>--}}
+{{--                                    </div>--}}
+{{--                                </div>--}}
 
                                 <div class="col-6 col-md-4">
                                     <div class="feature-box text-center pb-4">
@@ -1110,15 +1119,15 @@
 {{--                        </div>--}}
                     </div><!-- End .tab-pane -->
 
-                    <div class="tab-pane fade" id="wishlist" role="tabpanel">
-                        <div class="download-content">
-                            <h3 class="account-sub-title d-none d-md-block"><i class="sicon-heart align-middle mr-3"></i>Wishlist</h3>
-                            <div class="download-table-container" style="margin-top: 20px !important;">
-                                <div class="wishlist-table-container" id="wishlistTableHtml">
-                                </div>
-                            </div>
-                        </div>
-                    </div><!-- End .tab-pane -->
+{{--                    <div class="tab-pane fade" id="wishlist" role="tabpanel">--}}
+{{--                        <div class="download-content">--}}
+{{--                            <h3 class="account-sub-title d-none d-md-block"><i class="sicon-heart align-middle mr-3"></i>Wishlist</h3>--}}
+{{--                            <div class="download-table-container" style="margin-top: 20px !important;">--}}
+{{--                                <div class="wishlist-table-container" id="wishlistTableHtml">--}}
+{{--                                </div>--}}
+{{--                            </div>--}}
+{{--                        </div>--}}
+{{--                    </div><!-- End .tab-pane -->--}}
                     <div class="tab-pane fade" id="support" role="tabpanel">
                         <div class="download-content">
                             <div class="row align-items-center">

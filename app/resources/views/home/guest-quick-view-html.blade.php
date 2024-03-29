@@ -61,12 +61,12 @@
                     <a href="#" class="btn btn-dark add-cart mr-2 redirectLogin" title="Add to Cart" id="{{ $product->ProductID }}">Add to Cart</a>
                 </div><!-- End .product-action -->
 
-                <hr class="divider mb-0 mt-0">
+{{--                <hr class="divider mb-0 mt-0">--}}
 
-                <div class="product-single-share mb-0">
-                    <a href="#" class="guest-btn-icon-wish redirectLogin add-wishlist" title="Add to Wishlist"><i
-                            class="icon-wishlist-2"></i><span>Add to Wishlist</span></a>
-                </div>
+{{--                <div class="product-single-share mb-0">--}}
+{{--                    <a href="#" class="guest-btn-icon-wish redirectLogin add-wishlist" title="Add to Wishlist"><i--}}
+{{--                            class="icon-wishlist-2"></i><span>Add to Wishlist</span></a>--}}
+{{--                </div>--}}
             </div>
         </div>
 

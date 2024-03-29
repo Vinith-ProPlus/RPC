@@ -64,12 +64,12 @@
                     <a href="#" class="btn view-cart d-none">View cart</a>
                 </div>
 
-                <hr class="divider mb-0 mt-0">
+{{--                <hr class="divider mb-0 mt-0">--}}
 
-                <div class="product-single-share mb-0">
-                    <a href="#" class="btn-icon-wish add-wishlist {{ $product->IsInWishlist ? 'added-wishlist' : '' }}" title="{{ $product->IsInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist' }}"><i
-                            class="icon-wishlist-2"></i><span>{{ $product->IsInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist' }}</span></a>
-                </div>
+{{--                <div class="product-single-share mb-0">--}}
+{{--                    <a href="#" class="btn-icon-wish add-wishlist {{ $product->IsInWishlist ? 'added-wishlist' : '' }}" title="{{ $product->IsInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist' }}"><i--}}
+{{--                            class="icon-wishlist-2"></i><span>{{ $product->IsInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist' }}</span></a>--}}
+{{--                </div>--}}
             </div>
         </div>
 
