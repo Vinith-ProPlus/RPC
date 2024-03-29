@@ -39,6 +39,10 @@ enum activeMenuNames:string{
     
     case rptLedger="Ledger";
     case rptOutstandings="Outstandings";
+    case rptPerformanceAnalysis="Performance-Analysis";
+    case rptOrdersDue="Orders-Due-Report";
+    case rptDeliveryStatus="Delivery-Status-Report";
+    case rptCommision="Commision-Report";
     
     case UserRoles="User-and-Roles";
     case Users="Users";

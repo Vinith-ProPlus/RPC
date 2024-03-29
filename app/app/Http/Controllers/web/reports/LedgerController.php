@@ -69,9 +69,9 @@ class LedgerController extends Controller{
 		return view('app.reports.ledger.details',$FormData);
 	}
 	public function getLedgerAccounts(Request $req){
-		$sql ="Select V.VendorID as LedgerID, V.VendorName as LedgerName,'Vendor' as LedgerType,CONCAT( CASE WHEN IFNULL(CO.PhoneCode,'')<>'' Then CONCAT('+', CO.PhoneCode) ELSE '' END ,' ', V.MobileNumber1) as MobileNumber From tbl_vendors as V  LEFT JOIN rpc_general.tbl_countries as CO ON CO.CountryID=V.CountryID Where V.ActiveStatus=1 and V.DFlag=0 ";
+		$sql ="Select V.VendorID as LedgerID, V.VendorName as LedgerName,'Vendor' as LedgerType,CONCAT( CASE WHEN IFNULL(CO.PhoneCode,'')<>'' Then CONCAT('+', CO.PhoneCode) ELSE '' END ,' ', V.MobileNumber1) as MobileNumber From tbl_vendors as V  LEFT JOIN ".$this->generalDB."tbl_countries as CO ON CO.CountryID=V.CountryID Where V.ActiveStatus=1 and V.DFlag=0 ";
 		$sql.=" UNION ";
-		$sql.=" Select C.CustomerID as LedgerID, C.CustomerName as LedgerName,'Customer' as LedgerType,CONCAT( CASE WHEN IFNULL(CO.PhoneCode,'')<>'' Then CONCAT('+', CO.PhoneCode) ELSE '' END ,' ', C.MobileNo1) as MobileNumber From tbl_customer as C  LEFT JOIN rpc_general.tbl_countries as CO ON CO.CountryID=C.CountryID Where C.ActiveStatus=1 and C.DFlag=0";
+		$sql.=" Select C.CustomerID as LedgerID, C.CustomerName as LedgerName,'Customer' as LedgerType,CONCAT( CASE WHEN IFNULL(CO.PhoneCode,'')<>'' Then CONCAT('+', CO.PhoneCode) ELSE '' END ,' ', C.MobileNo1) as MobileNumber From tbl_customer as C  LEFT JOIN  ".$this->generalDB."tbl_countries as CO ON CO.CountryID=C.CountryID Where C.ActiveStatus=1 and C.DFlag=0";
 
 		$sql="SELECT * FROM (".$sql.") as T Where LedgerType='".$req->LedgerType."' Order BY LedgerName ";
 		return DB::SELECT($sql);
@@ -195,7 +195,7 @@ class LedgerController extends Controller{
 
 		$sql ="Insert Into ".$tmp->DBName.$tableName."(TranNo,TranDate,LedgerType,LedgerID, LedgerName,Description,Debit,Credit,CreatedOn)";
 		$sql.=" SELECT T.TranNo,T.TranDate,T.LedgerType,T.LedgerID, IFNULL(C.CustomerName,V.VendorName) as LedgerName,T.Description,T.Debit,T.Credit,T.CreatedOn ";
-		$sql.=" FROM ".$tmp->DBName.$tmp->TableName."  as T LEFT JOIN rpc_main.tbl_vendors as V ON V.VendorID=T.LedgerID LEFT JOIN rpc_main.tbl_customer as C ON C.CustomerID=T.LedgerID  ";
+		$sql.=" FROM ".$tmp->DBName.$tmp->TableName."  as T LEFT JOIN tbl_vendors as V ON V.VendorID=T.LedgerID LEFT JOIN tbl_customer as C ON C.CustomerID=T.LedgerID  ";
 		$sql.=" where LedgerID='".$req->LedgerID."' and T.TranDate>='".date("Y-m-d",strtotime($req->FromDate))."' and T.TranDate<='".date("Y-m-d",strtotime($req->ToDate))."' order By CreatedOn asc";
 		DB::Statement($sql);
 

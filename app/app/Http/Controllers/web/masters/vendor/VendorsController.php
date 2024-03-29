@@ -1360,81 +1360,12 @@ class VendorsController extends Controller{
 					'formatter' => function( $d, $row ) {
 						$html='';
 						if($this->general->isCrudAllow($this->CRUD,"edit")==true && $row['isApproved'] == 1){
-							$html.='<button type="button" data-id="'.$d.'" class="btn btn-outline-info '.$this->general->UserInfo['Theme']['button-size'].' me-2 mb-2 btnEditServiceLocation" title="Edit Service Location"><i class="fa fa-map-marker" aria-hidden="true"></i></button>';
+							// $html.='<button type="button" data-id="'.$d.'" class="btn btn-outline-info '.$this->general->UserInfo['Theme']['button-size'].' me-2 mb-2 btnStockPoint" title="Edit Stock Point"><i class="fa fa-map-marker" aria-hidden="true"></i></button>';
 							$html.='<button type="button" data-id="'.$d.'" class="btn btn-outline-dark '.$this->general->UserInfo['Theme']['button-size'].' me-2 mb-2 btnEditProductMap" title="Edit Product Mapping"><i class="fa fa-dropbox" aria-hidden="true"></i></button>';
 							$html.='<button type="button" data-id="'.$d.'" class="btn btn-outline-success '.$this->general->UserInfo['Theme']['button-size'].' me-2 mb-2 btnEdit" title="Edit"><i class="fa fa-pencil"></i></button>';
 						}else if ($this->general->isCrudAllow($this->CRUD,"edit")==true && $row['isApproved'] == 0){
 							$html.='<button type="button" data-id="'.$d.'" data-vendor-name="'.$row['VendorCoName'].'" class="btn btn-outline-info '.$this->general->UserInfo['Theme']['button-size'].' me-2 mb-2 btnVendorInfo" title="View"><i class="fa fa-eye" aria-hidden="true"></i></button>';
 							$html.='<button type="button" data-id="'.$d.'" class="btn btn-outline-primary '.$this->general->UserInfo['Theme']['button-size'].' me-2 mb-2 btnApprove" title="Approve"><i class="fa fa-check" aria-hidden="true"></i></button>';
-						}
-						if($this->general->isCrudAllow($this->CRUD,"delete")==true){
-							$html.='<button type="button" data-id="'.$d.'" class="btn btn-outline-danger '.$this->general->UserInfo['Theme']['button-size'].' mb-2 btnDelete" title="Delete"><i class="fa fa-trash" aria-hidden="true"></i></button>';
-						}
-						return $html;
-					} 
-				),
-			);
-			$data=array();
-			$data['POSTDATA']=$request;
-			$data['TABLE']='tbl_vendors as V LEFT JOIN tbl_vendor_type as VT ON VT.VendorTypeID=V.VendorType LEFT JOIN '.$generalDB.'tbl_postalcodes as P ON P.PID=V.PostalCode LEFT JOIN '.$generalDB.'tbl_cities as CI ON CI.CityID=V.CityID LEFT JOIN '.$generalDB.'tbl_taluks as T ON T.TalukID=V.TalukID LEFT JOIN '.$generalDB.'tbl_districts as D ON D.DistrictID=V.DistrictID';
-			$data['PRIMARYKEY']='V.VendorID';
-			$data['COLUMNS']=$columns;
-			$data['COLUMNS1']=$columns1;
-			$data['GROUPBY']=null;
-			$data['WHERERESULT']=null;
-			$data['WHEREALL']=" V.DFlag=0 ";
-			return SSP::SSP( $data);
-		}else{
-			return response(array('status'=>false,'message'=>"Access Denied"), 403);
-		}
-	}
-	public function TableView1(Request $request){
-		$generalDB=Helper::getGeneralDB();
-		if($this->general->isCrudAllow($this->CRUD,"view")==true){
-			$columns = array(
-				array( 'db' => 'V.VendorName', 'dt' => '0' ),
-				array( 'db' => 'V.MobileNumber1', 'dt' => '1' ),
-				array( 'db' => 'V.GSTNo', 'dt' => '2' ),
-				array( 'db' => 'VT.VendorType', 'dt' => '3' ),
-				array( 'db' => 'V.Address', 'dt' => '4' ),
-				array( 'db' => 'CI.CityName', 'dt' => '5' ),
-				array( 'db' => 'D.DistrictName', 'dt' => '6'),
-				array( 'db' => 'P.PostalCode', 'dt' => '7'),
-				array( 'db' => 'V.ActiveStatus', 'dt' => '8'),
-				array( 'db' => 'V.VendorID', 'dt' => '9'),
-				array( 'db' => 'V.isApproved', 'dt' => '9'),
-			);
-			$columns1 = array(
-				array( 'db' => 'VendorName', 'dt' => '0' ),
-				array( 'db' => 'MobileNumber1', 'dt' => '1' ),
-				array( 'db' => 'GSTNo', 'dt' => '2' ),
-				array( 'db' => 'VendorType', 'dt' => '3' ),
-				array( 'db' => 'Address', 'dt' => '4' ),
-				array( 'db' => 'CityName', 'dt' => '5' ),
-				array( 'db' => 'DistrictName', 'dt' => '6'),
-				array( 'db' => 'PostalCode', 'dt' => '7'),
-				array( 
-					'db' => 'ActiveStatus', 
-					'dt' => '8',
-					'formatter' => function( $d, $row ) {
-						if($d=="Active"){
-							return "<span class='badge badge-success m-1'>Active</span>";
-						}else{
-							return "<span class='badge badge-danger m-1'>Inactive</span>";
-						}
-					} 
-				),
-				array( 
-					'db' => 'VendorID', 
-					'dt' => '9',
-					'formatter' => function( $d, $row ) {
-						$html='';
-						if($this->general->isCrudAllow($this->CRUD,"edit")==true && $row['isApproved'] == 1){
-							$html.='<button type="button" data-id="'.$d.'" class="btn btn-outline-info '.$this->general->UserInfo['Theme']['button-size'].' me-2 mb-2 btnEditServiceLocation" title="Edit Service Location"><i class="fa fa-map-marker" aria-hidden="true"></i></button>';
-							$html.='<button type="button" data-id="'.$d.'" class="btn btn-outline-dark '.$this->general->UserInfo['Theme']['button-size'].' me-2 mb-2 btnEditProductMap" title="Edit Product Mapping"><i class="fa fa-dropbox" aria-hidden="true"></i></button>';
-							$html.='<button type="button" data-id="'.$d.'" class="btn btn-outline-success '.$this->general->UserInfo['Theme']['button-size'].' me-2 mb-2 btnEdit" title="Edit"><i class="fa fa-pencil"></i></button>';
-						}else if ($this->general->isCrudAllow($this->CRUD,"edit")==true && $row['isApproved'] == 0){
-							$html.='<button type="button" data-id="'.$d.'" class="btn btn-outline-info '.$this->general->UserInfo['Theme']['button-size'].' me-2 mb-2 btnApprove" title="Approve"><i class="fa fa-check" aria-hidden="true"></i></button>';
 						}
 						if($this->general->isCrudAllow($this->CRUD,"delete")==true){
 							$html.='<button type="button" data-id="'.$d.'" class="btn btn-outline-danger '.$this->general->UserInfo['Theme']['button-size'].' mb-2 btnDelete" title="Delete"><i class="fa fa-trash" aria-hidden="true"></i></button>';

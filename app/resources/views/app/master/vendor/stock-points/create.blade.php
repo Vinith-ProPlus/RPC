@@ -239,7 +239,6 @@
 </div>
 <input id="txtLatitude" class="d-none" value="@if($isEdit) {{ $EditData->Latitude }} @endif">
 <input id="txtLongitude" class="d-none" value="@if($isEdit) {{ $EditData->Longitude }} @endif">
-<textarea id="divServiceData" class="d-none">@if($isEdit) {{$EditData->ServiceData}} @endif</textarea>
 <textarea id="txtMapData" class="d-none">@if($isEdit) {{$EditData->MapData}} @endif</textarea>
 
 @endsection
@@ -442,31 +441,6 @@
             });
             $('#'+id).select2();
         }
-        const loadData=async(data)=>{
-            if(data.length>0){
-                for(let item of data.ServiceData){
-                    console.log(item);
-                    let DistrictIDs = [];
-                    if(data.ServiceBy == "District"){
-                        for (let district of item.Districts) {
-                            DistrictIDs.push(district.DistrictID);
-                        }
-                        $('#ServiceLocationDAccordion .accordion-item[data-state-id ="' + item.StateID + '"]').length == 0 ? AddDServiceLocations(item.CountryID,item.StateID,item.StateName,DistrictIDs) : null;
-                    }else if (data.ServiceBy == "PostalCode") {
-                        for (let district of item.Districts) {
-                            $('#ServiceLocationPAccordion .accordion-item[data-district-id="' + district.DistrictID + '"]').length === 0 ? AddPServiceLocations(item.CountryID, item.StateID, district.DistrictID, district.DistrictName, district.PostalCodeIDs) : null;
-                        }
-                    }
-                }
-                
-                
-                if (data.ServiceBy == "District") {
-                    $('.chkServiceBy[data-value="District"]').trigger('change');
-                } else if (data.ServiceBy == "PostalCode") {
-                    $('.chkServiceBy[data-value="PostalCode"]').trigger('change');
-                }
-            }
-        }
         $(document).on('click','#btnGSearchPostalCode',async function(){
             $('#txtPostalCode-err').html('')
             let PostalCode=$('#txtPostalCode').val();
@@ -537,7 +511,7 @@
                                 <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#panel-${StateID}" aria-expanded="true" aria-controls="panel-${StateID}">
                                     ${StateName} 
                                     <span class="options">
-                                        ${(AddressStateID != StateID) ? `<span class="trash state-trash" data-state-id="${StateID}"><i class="fa fa-trash"></i></span>` : ''}
+                                        <span class="trash state-trash" data-state-id="${StateID}"><i class="fa fa-trash"></i></span>
                                     </span>
                                 </button>
                             </h2>
@@ -617,7 +591,7 @@
                                 <button class="accordion-button" type="button" data-district-id="${DistrictID}" data-bs-toggle="collapse" data-bs-target="#panel-${DistrictID}" aria-expanded="true" aria-controls="panel-${DistrictID}">
                                     ${DistrictName} 
                                     <span class="options">
-                                        ${(AddressDistrictID != DistrictID) ? `<span class="trash district-trash" data-district-id="${DistrictID}"><i class="fa fa-trash"></i></span>` : ''}
+                                        <span class="trash district-trash" data-district-id="${DistrictID}"><i class="fa fa-trash"></i></span>
                                     </span>
                                 </button>
                             </h2>
@@ -754,6 +728,7 @@
             if(Value == "District"){
                 let SLDCountry = $("#lstSLPCountry").val();
                 $("#lstSLDCountry").attr("data-selected",Country);
+                $("#lstSLDState").attr("data-selected",State);
                 getCountry({},"lstSLDCountry");
             }else if(Value == "PostalCode"){
                 let SLPCountry = $("#lstSLPCountry").val();
@@ -767,14 +742,42 @@
             }
         });
 
+        const loadData=async()=>{
+            $.ajax({
+                type:"post",
+                url:"{{url('/')}}/admin/master/vendor/stock-points/get/service-data",
+                headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
+                data:{StockPointID:"@if($isEdit) {{$EditData->StockPointID}} @endif"},
+                dataType:"json",
+                async:true,
+                error:function(e, x, settings, exception){ajaxErrors(e, x, settings, exception);},
+                complete: function(e, x, settings, exception){},
+                success:function(response){
+                    if(response.ServiceData.length>0){
+                        for(let item of response.ServiceData){
+                            let DistrictIDs = [];
+                            if(response.ServiceBy == "District"){
+                                for (let district of item.Districts) {
+                                    DistrictIDs.push(district.DistrictID);
+                                }
+                                $('#ServiceLocationDAccordion .accordion-item[data-state-id ="' + item.StateID + '"]').length == 0 ? AddDServiceLocations(item.CountryID,item.StateID,item.StateName,DistrictIDs) : null;
+                            }else if (response.ServiceBy == "PostalCode") {
+                                for (let district of item.Districts) {
+                                    $('#ServiceLocationPAccordion .accordion-item[data-district-id="' + district.DistrictID + '"]').length === 0 ? AddPServiceLocations(item.CountryID, item.StateID, district.DistrictID, district.DistrictName, district.PostalCodeIDs) : null;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+        }
         const appInit=async()=>{
             @if($isEdit)
             $('#btnGSearchPostalCode').trigger('click');
-            let Data = {
-                ServiceData : $('#divServiceData').val(),
-                ServiceBy : "{{$EditData->ServiceBy}}",
-            };
-            loadData(Data);
+            @if($EditData->ServiceBy != "Radius")
+            loadData();
+            @endif
             @endif
         }
         const formValidation=async()=>{

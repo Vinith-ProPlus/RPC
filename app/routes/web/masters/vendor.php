@@ -136,6 +136,6 @@ Route::group(['prefix'=>'stock-points'],function (){
         Route::POST('/restore/{ID}', 'Restore');
         Route::post('/trash-data', 'TrashTableView');
 
-        Route::post('/get/VendorType','getVendorType');
+        Route::post('/get/service-data','getServiceData');
     });
 });
