@@ -124,7 +124,7 @@ class VendorAuthController extends Controller{
             'VendorCoName' => ['required','max:50', new ValidUnique(array("TABLE" => "tbl_vendors", "WHERE" => " VendorCoName='" . $reqData['VendorCoName'] . "' "), "This Vendor Company Name is already taken.")],
             'VendorCoWebsite' => ['max:50', new ValidUnique(array("TABLE" => "tbl_vendors", "WHERE" => " VendorCoWebsite='" . $reqData['VendorCoWebsite'] . "' "), "This Vendor Company Website is already taken.")],
             'Email'=> ['required', 'email:filter', new ValidUnique(array("TABLE" => "tbl_vendors", "WHERE" => " Email='" . $reqData['Email'] . "' "), "This Email is already taken.")],
-            'GSTNo' => ['required', 'regex:/^\d{2}[A-Z]{5}\d{4}[A-Z]{1}\d[Z]{1}[0-9A-Z]{1}$/'],
+            // 'GSTNo' => ['required', 'regex:/^\d{2}[A-Z]{5}\d{4}[A-Z]{1}\d[Z]{1}[0-9A-Z]{1}$/'],
             'MobileNumber1' => ['required', 'regex:/^[0-9]{10}$/'],
             'MobileNumber2' => ['nullable', 'regex:/^[0-9]{10}$/'],
             'CountryID' => ['required', new ValidDB($ValidDB['Country'])],
@@ -141,8 +141,8 @@ class VendorAuthController extends Controller{
             'VendorCoName.required' => 'Vendor Company Name is required',
             'MobileNumber1.regex' => 'Mobile Number 1 should be 10 digits',
             'MobileNumber2.regex' => 'Mobile Number 2 should be 10 digits',
-            'GSTNo.regex' => 'Invalid GST Number Format',
-            'GSTNo.required' => 'GST Number is Required',
+            // 'GSTNo.regex' => 'Invalid GST Number Format',
+            // 'GSTNo.required' => 'GST Number is Required',
             'PCategories.array' => 'Invalid format for categories.',
             'PCategories.min' => 'Select at least one category.',
         ];
@@ -345,7 +345,7 @@ class VendorAuthController extends Controller{
             'VendorName' => ['required', 'max:50'],
             'VendorCoName' => ['required','max:50', new ValidUnique(array("TABLE" => "tbl_vendors", "WHERE" => " VendorCoName='" . $reqData['VendorCoName'] . "' and VendorID <>'".$VendorID."' "), "This Vendor Company Name is already taken.")],
             'VendorCoWebsite' => ['max:50', new ValidUnique(array("TABLE" => "tbl_vendors", "WHERE" => " VendorCoWebsite='" . $reqData['VendorCoWebsite'] . "' and VendorID <>'".$VendorID."' "), "This Vendor Company Website is already taken.")],
-            'GSTNo' => ['required', 'regex:/^\d{2}[A-Z]{5}\d{4}[A-Z]{1}\d[Z]{1}[0-9A-Z]{1}$/'],
+            // 'GSTNo' => ['required', 'regex:/^\d{2}[A-Z]{5}\d{4}[A-Z]{1}\d[Z]{1}[0-9A-Z]{1}$/'],
             'MobileNumber1' => ['required', 'regex:/^[0-9]{10}$/'],
             'MobileNumber2' => ['nullable', 'regex:/^[0-9]{10}$/'],
             'CountryID' => ['required', new ValidDB($ValidDB['Country'])],
@@ -362,8 +362,8 @@ class VendorAuthController extends Controller{
             'VendorCoName.required' => 'Vendor Company Name is required',
             'MobileNumber1.regex' => 'Mobile Number 1 should be 10 digits',
             'MobileNumber2.regex' => 'Mobile Number 2 should be 10 digits',
-            'GSTNo.regex' => 'Invalid GST Number Format',
-            'GSTNo.required' => 'GST Number is Required',
+            // 'GSTNo.regex' => 'Invalid GST Number Format',
+            // 'GSTNo.required' => 'GST Number is Required',
             'PCategories.array' => 'Invalid format for categories.',
             'PCategories.min' => 'Select at least one category.',
         ];
@@ -1489,7 +1489,7 @@ class VendorAuthController extends Controller{
                 'VendorName' => ['required', 'max:50', new ValidUnique(array("TABLE" => "tbl_vendors", "WHERE" => " VendorName='" . $GeneralData['VendorName'] . "' and VendorID<>'".$GeneralData['VendorID']."'  "), "This Vendor Name is already taken.")],
                 'VendorCoName' => ['required','max:50', new ValidUnique(array("TABLE" => "tbl_vendors", "WHERE" => " VendorCoName='" . $GeneralData['VendorCoName'] . "' "), "This Vendor Company Name is already taken.")],
                 'VendorCoWebsite' => ['max:50', new ValidUnique(array("TABLE" => "tbl_vendors", "WHERE" => " VendorCoWebsite='" . $GeneralData['VendorCoWebsite'] . "' "), "This Vendor Company Website is already taken.")],
-                'GSTNo' => ['required', 'regex:/^\d{2}[A-Z]{5}\d{4}[A-Z]{1}\d[Z]{1}[0-9A-Z]{1}$/'],
+                // 'GSTNo' => ['required', 'regex:/^\d{2}[A-Z]{5}\d{4}[A-Z]{1}\d[Z]{1}[0-9A-Z]{1}$/'],
                 'MobileNumber1' => ['required', 'regex:/^[0-9]{10}$/'],
                 'MobileNumber2' => ['nullable', 'regex:/^[0-9]{10}$/'],
                 'CountryID' => ['required', new ValidDB($ValidDB['Country'])],
@@ -1505,8 +1505,8 @@ class VendorAuthController extends Controller{
                 'VendorCoName.required' => 'Vendor Company Name is required',
                 'MobileNumber1.regex' => 'Mobile Number 1 should be 10 digits',
                 'MobileNumber2.regex' => 'Mobile Number 2 should be 10 digits',
-                'GSTNo.regex' => 'Invalid GST Number Format',
-                'GSTNo.required' => 'GST Number is Required',
+                // 'GSTNo.regex' => 'Invalid GST Number Format',
+                // 'GSTNo.required' => 'GST Number is Required',
             ];
 
             if (!empty($GeneralData['Email'])) {
@@ -1589,7 +1589,7 @@ class VendorAuthController extends Controller{
             ->where('PC.DFlag', 0)
             ->where('PSC.ActiveStatus', 'Active')
             ->where('PSC.DFlag', 0)
-            ->select('VPM.VendorID','P.ProductID','VPM.VendorPrice','P.ProductName','P.ProductID as ProductID','PC.PCName','PC.PCID','PSC.PSCID','PSC.PSCName','U.UName','U.UCode',DB::raw('IFNULL(VSP.TotalQty, 0) AS TotalQty'))
+            ->select('VPM.VendorID','P.ProductID','VPM.VendorPrice','P.ProductName','P.ProductID as ProductID','PC.PCName','PC.PCID','PSC.PSCID','PSC.PSCName','U.UName','U.UCode',DB::raw('IFNULL(VSP.TotalQty, 0) AS TotalQty'),DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'))
             ->paginate($perPage, ['*'], 'page', $pageNo);
         
         return response()->json([
@@ -1849,6 +1849,13 @@ class VendorAuthController extends Controller{
             'data' => $Notifications->items(),
             'CurrentPage' => $Notifications->currentPage(),
             'LastPage' => $Notifications->lastPage(),
+        ]);
+    }
+    public function getNotificationsCount(Request $req){
+        $NotificationsCount = DB::table($this->currfyDB.'tbl_notifications')->where('UserID', $this->UserID)->where('ReadStatus',0)->count();
+        return response()->json([
+            'status' => true,
+            'data' => $NotificationsCount,
         ]);
     }
     public function NotificationRead(Request $req){

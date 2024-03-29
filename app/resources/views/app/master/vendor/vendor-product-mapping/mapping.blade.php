@@ -53,7 +53,7 @@
 							<table class="table  table-bordered" id="tblVendProdMapping">
 								<thead>
 									<tr>
-										<th class="text-center align-middle">Products</th>
+										<th class="align-middle">Products</th>
 										<th class="text-center align-middle">Availablity</th>
 										<th class="text-center align-middle">Price</th>
 									</tr>

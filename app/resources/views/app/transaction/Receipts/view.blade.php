@@ -39,13 +39,13 @@
                             <table class="table" id="tblReceipts">
                                 <thead>
                                     <tr>
-                                        <th class="text-center">Receipt ID</th>
-                                        <th class="text-center">Receipt Date</th>
-										<th class="text-center">Customer</th>
-										<th class="text-center">MOP</th>
-										<th class="text-center">Ref No</th>
-										<th class="text-center">Receipt Type</th>
-                                        <th class="text-center">Receipt Amount</th>
+                                        <th>Receipt ID</th>
+                                        <th>Receipt Date</th>
+										<th>Customer</th>
+										<th>MOP</th>
+										<th>Ref No</th>
+										<th>Receipt Type</th>
+                                        <th class="text-right">Receipt Amount</th>
                                         <th class="text-center">Action</th>
                                     </tr>
                                 </thead>

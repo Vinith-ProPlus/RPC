@@ -225,7 +225,7 @@ class CustomerTransactionAPIController extends Controller{
         $CustomerID = $this->ReferID;
 		DB::beginTransaction();
         try {
-            $AcceptedQData = DB::table($this->currfyDB . 'tbl_quotation_details as QD')->leftJoin($this->currfyDB . 'tbl_quotation as Q','Q.QID','QD.QID')->where('QD.QID',$req->QID)->get();
+            /* $AcceptedQData = DB::table($this->currfyDB . 'tbl_quotation_details as QD')->leftJoin($this->currfyDB . 'tbl_quotation as Q','Q.QID','QD.QID')->where('QD.QID',$req->QID)->get();
             $isQIDExists = DB::table($this->currfyDB . 'tbl_order')->where('QID',$req->QID)->exists();
             if(!$isQIDExists){
                 $OrderID = DocNum::getDocNum(docTypes::Order->value, $this->currfyDB,Helper::getCurrentFy());
@@ -315,7 +315,7 @@ class CustomerTransactionAPIController extends Controller{
                         $VOrderID=DocNum::getDocNum(docTypes::VendorOrders->value, $this->currfyDB,Helper::getCurrentFy());
                         $VOrderNo=DocNum::getInvNo(docTypes::VendorOrders->value);
                         $defaultExpectedDeliveryDate = (int) DB::table('tbl_settings')->where('KeyName','Order-Delivery-Expected-days')->value('KeyValue');
-                        $expectedDelivery = $req->ExpectedDelivery ?? date('Y-m-d', strtotime('+'.$defaultExpectedDeliveryDate.' days'));
+                        $expectedDelivery = $req->ExpectedDeliveryDate ?? date('Y-m-d', strtotime('+'.$defaultExpectedDeliveryDate.' days'));
                         $tdata=[
                             "VOrderID"=>$VOrderID,
                             "OrderID"=>$OrderID,
@@ -373,14 +373,15 @@ class CustomerTransactionAPIController extends Controller{
             if($status){
                 $status = DB::Table($this->currfyDB.'tbl_quotation')->where('QID',$req->QID)->update(['Status'=>'Accepted','AcceptedOn'=>date('Y-m-d'),'UpdatedOn'=>date('Y-m-d H:i:s'),"UpdatedBy"=>$CustomerID]);
                 $status = DB::Table($this->currfyDB.'tbl_enquiry')->where('EnqID',$req->EnqID)->update(['Status'=>'Accepted','UpdatedOn'=>date('Y-m-d H:i:s'),"UpdatedBy"=>$CustomerID]);
-            }
+            } */
+            $status = true;
         }catch(Exception $e) {
             $status=false;
         }
         if($status==true){
             DB::commit();
-            DocNum::updateDocNum(docTypes::Order->value,$this->currfyDB);
-            DocNum::updateInvNo(docTypes::Order->value);
+            /* DocNum::updateDocNum(docTypes::Order->value,$this->currfyDB);
+            DocNum::updateInvNo(docTypes::Order->value); */
             return response()->json(['status' => true ,'message' => "Quote Accepted Successfully!"]);
         }else{
             DB::rollback();

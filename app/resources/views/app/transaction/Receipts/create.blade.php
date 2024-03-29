@@ -87,15 +87,15 @@
                             <table class="table table-sm min-padding" id="tblDetails">
                                 <thead>
                                     <tr>
-                                        <th class="text-center">Order No</th>
-                                        <th class="text-center">Order. Date</th>
-                                        <th class="text-center">Order Amount</th>
-                                        <th class="text-center  display-none">Paid Amount</th>
-                                        <th class="text-center">Balance</th>
+                                        <th>Order No</th>
+                                        <th>Order. Date</th>
+                                        <th>Order Amount</th>
+                                        <th class="text-center display-none">Paid Amount</th>
+                                        <th class="text-right">Balance</th>
                                         <th class="text-center @if($Settings['enable-advance-receipts']==false)  d-none @endif ">Less From Advance</th>
-                                        <th class="text-center">Pay Amount</th>
+                                        <th class="text-right">Pay Amount</th>
                                         <th class="text-center @if($Settings['enable-advance-receipts']==false)  d-none @endif ">Total Paid</th>
-                                        <th class="text-center">New Balance</th>
+                                        <th class="text-right">New Balance</th>
                                     </tr>
                                 </thead>
                                 <tbody>

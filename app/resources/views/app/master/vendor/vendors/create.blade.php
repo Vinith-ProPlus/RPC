@@ -1908,8 +1908,8 @@
                 }
                 if(data.Address==""){
                     $('#txtAddress-err').html('Address is required.');status=false;
-                }else if(data.Address.length<10){
-                    $('#txtAddress-err').html('Address must be greater than 10 characters');status=false;isAddress=true;
+                }else if(data.Address.length<5){
+                    $('#txtAddress-err').html('Address must be greater than 5 characters');status=false;isAddress=true;
                 }
                 let errorUUID=null;
                 $('#vehicleAccordion .accordion-item').each(function(index){/*

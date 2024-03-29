@@ -37,9 +37,9 @@
                             <table class="table {{$Theme['table-size']}}" id="tblTax">
                                 <thead>
                                     <tr>
-                                        <th class="text-center">ID</th>
-                                        <th class="text-center">Tax Name</th>
-										<th class="text-center">Percentage</th>
+                                        <th>ID</th>
+                                        <th>Tax Name</th>
+										<th>Percentage</th>
                                         <th class="text-center">Active Status</th>
                                         <th class="text-center noExport">action</th>
                                     </tr>

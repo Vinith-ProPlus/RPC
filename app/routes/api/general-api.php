@@ -22,6 +22,7 @@ Route::controller(GeneralAPIController::class)->group(function () {
     
     Route::post('/get/vendor-type','getVendorType');
     Route::post('/tmp/file-upload','tmpFileUpload');
+    Route::post('/get/max-file-size','getMaxFileSize');
 
     Route::post('/get/stages','getStages');
     Route::post('/get/building-measurements','getBuildingMeasurements');

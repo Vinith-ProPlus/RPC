@@ -37,9 +37,9 @@
 							<table class="table {{$Theme['table-size']}}" id="tblDistricts">
 								<thead>
 									<tr>
-										<th class="text-center">District ID</th>
-										<th class="text-center">District Name</th>
-										<th class="text-center">State Name</th>
+										<th>District ID</th>
+										<th>District Name</th>
+										<th>State Name</th>
 										<th class="text-center">Active Status</th>
 										<th class="text-center noExport">Action</th>
 									</tr>

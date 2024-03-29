@@ -60,12 +60,12 @@
                             <table class="table" id="tblQuotes">
                                 <thead>
                                     <tr>
-                                        <th class="text-center">Quote No</th>
-                                        <th class="text-center">Quote Date</th>
-										<th class="text-center">Customer Name</th>
-                                        <th class="text-center">Contact Number</th>
-                                        <th class="text-center">Email</th>
-                                        <th class="text-center">Expected Delivery</th>
+                                        <th>Quote No</th>
+                                        <th>Quote Date</th>
+										<th>Customer Name</th>
+                                        <th>Contact Number</th>
+                                        <th>Email</th>
+                                        <th>Expected Delivery</th>
                                         <th class="text-center">Status</th>
                                         <th class="text-center noExport">action</th>
                                     </tr>

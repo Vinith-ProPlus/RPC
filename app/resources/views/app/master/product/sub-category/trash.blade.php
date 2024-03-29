@@ -37,9 +37,9 @@
 							<table class="table {{$Theme['table-size']}}" id="tblProductSubCategory">
 								<thead>
 									<tr>
-										<th class="text-center">ID</th>
-										<th class="text-center">Sub Category</th>
-										<th class="text-center">Category</th>
+										<th>ID</th>
+										<th>Sub Category</th>
+										<th>Category</th>
 										<th class="text-center">Active Status</th>
 										<th class="text-center noExport">action</th>
 									</tr>

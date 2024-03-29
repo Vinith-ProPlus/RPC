@@ -39,12 +39,12 @@
                             <table class="table {{$Theme['table-size']}}" id="tblUsers">
                                 <thead>
                                     <tr>
-                                        <th class="text-center">Name</th>
-                                        <th class="text-center">Mobile Number</th>
-                                        <th class="text-center">Email</th>
-                                        <th class="text-center">Address</th>
-                                        <th class="text-center">Password</th>
-                                        <th class="text-center">User Role</th>
+                                        <th>Name</th>
+                                        <th>Mobile Number</th>
+                                        <th>Email</th>
+                                        <th>Address</th>
+                                        <th>Password</th>
+                                        <th>User Role</th>
                                         <th class="text-center">User Status</th>
                                         <th class="text-center noExport">action</th>
                                     </tr>

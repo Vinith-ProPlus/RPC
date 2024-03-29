@@ -37,8 +37,8 @@
 							<table class="table {{$Theme['table-size']}}" id="tblAttribute">
 								<thead>
 									<tr>
-										<th class="text-center">Attribute ID</th>
-										<th class="text-center">Attribute Name</th>
+										<th>Attribute ID</th>
+										<th>Attribute Name</th>
 										<th class="text-center">Active Status</th>
 										<th class="text-center noExport">Action</th>
 									</tr>

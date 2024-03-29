@@ -51,9 +51,9 @@
 							<table class="table {{$Theme['table-size']}}" id="tblStockPoints">
 								<thead>
 									<tr>
-										<th class="text-center">Stock Point ID</th>
-										<th class="text-center">Point Name</th>
-										<th class="text-center">Address</th>
+										<th>Stock Point ID</th>
+										<th>Point Name</th>
+										<th>Address</th>
 										<th class="text-center">Service By</th>
 										<th class="text-center noExport">action</th>
 									</tr>

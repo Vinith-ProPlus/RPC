@@ -12,7 +12,6 @@ use DB;
 use Auth;
 use Laravel\Passport\RefreshToken;
 use Laravel\Passport\Token;
-use activeMenuNames;
 use ValidUnique;
 use ValidDB;
 use DocNum;
@@ -26,7 +25,6 @@ class CustomerAuthController extends Controller{
     private $generalDB;
     private $tmpDB;
     private $currfyDB;
-    private $ActiveMenuName;
     private $FileTypes;
 	private $UserID;
 	private $ReferID;
@@ -35,7 +33,6 @@ class CustomerAuthController extends Controller{
 		$this->generalDB=Helper::getGeneralDB();
 		$this->tmpDB=Helper::getTmpDB();
         $this->currfyDB=Helper::getCurrFYDB();
-        $this->ActiveMenuName=activeMenuNames::ManageCustomers->value;
 		$this->FileTypes=Helper::getFileTypes(array("category"=>array("Images","Documents")));
         $this->middleware('auth:api');
         $this->middleware(function ($request, $next) {
@@ -539,8 +536,7 @@ class CustomerAuthController extends Controller{
         return $return;
 	}
 
-    public function GetCategory(Request $req)
-    {
+    public function GetCategory(Request $req){
         $pageNo = $req->PageNo ?? 1;
         $perPage = 15;
         if ($req->AID) {
@@ -842,7 +838,7 @@ class CustomerAuthController extends Controller{
         $perPage = 10;
 
         $Notifications = DB::table($this->currfyDB.'tbl_notifications')
-            // ->where('UserID', $this->UserID)
+            ->where('UserID', $this->UserID)
             ->orderBy('CreatedOn','desc')
             ->paginate($perPage, ['*'], 'page', $pageNo);
 
@@ -853,7 +849,13 @@ class CustomerAuthController extends Controller{
             'LastPage' => $Notifications->lastPage(),
         ]);
     }
-
+    public function getNotificationsCount(Request $req){
+        $NotificationsCount = DB::table($this->currfyDB.'tbl_notifications')->where('UserID', $this->UserID)->where('ReadStatus',0)->count();
+        return response()->json([
+            'status' => true,
+            'data' => $NotificationsCount,
+        ]);
+    }
     public function NotificationRead(Request $req){
 		DB::beginTransaction();
         try {
