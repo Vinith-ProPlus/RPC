@@ -160,6 +160,7 @@ Route::post('customer/products/category-list-html', [HomeAuthController::class, 
 Route::post('customer/products/sub-category-list-html', [HomeAuthController::class, 'customerSubCategoryListHtml'])->name('products.customer.subCategoriesListHtml');
 Route::post('customer/products/products-list-html', [HomeAuthController::class, 'customerProductsListHtml'])->name('products.customer.productsListHtml');
 Route::post('customer/order/review/save', [HomeAuthController::class, 'customerReviewSave'])->name('customer.order.review.save');
+Route::get('customer/product/view/{ID}', [HomeAuthController::class, 'customerProductView'])->name('customer.product.view');
 
 
 

@@ -2026,4 +2026,53 @@ class HomeAuthController extends Controller{
             'LastPage' => $Notifications->lastPage(),
         ]);
     }
+
+    public function customerProductView(Request $request, $ProductID)
+    {
+//        $FormData = $this->EnquiryDetails($EnqID);
+        $cartProducts = $this->getCart();
+        $customerID = $this->ReferID;
+        $product = DB::table('tbl_products as P')->leftJoin('tbl_product_subcategory as PSC','PSC.PSCID','P.SCID')
+            ->leftJoin('tbl_product_category as PC','PC.PCID','P.CID')
+            ->leftJoin('tbl_wishlists as W', function($join) use ($customerID) {
+                $join->on('W.product_id', '=', 'P.ProductID')
+                    ->where('W.customer_id', '=', $customerID);
+            })
+            ->where('P.ActiveStatus','Active')->where('P.DFlag',0)
+            ->where('P.ProductID', $ProductID)
+            ->select('P.ProductID','P.ProductName','P.Description','PC.PCName as CategoryName','PSC.PSCName as SubCategoryName',
+                DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(P.ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'),
+                DB::raw('IF(W.product_id IS NOT NULL, true, false) AS IsInWishlist'))
+            ->first();
+
+        $product->GalleryImages = DB::table('tbl_products_gallery')
+            ->where('ProductID', $ProductID)
+            ->pluck(DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(gImage, ""), "assets/images/no-image-b.png")) AS gImage'))
+            ->toArray();
+        $RelatedProducts = DB::table('tbl_products as P')
+            ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')
+            ->leftJoin('tbl_wishlists as W', function ($join) use ($customerID) {
+                $join->on('W.product_id', '=', 'P.ProductID')
+                    ->where('W.customer_id', '=', $customerID);
+            })
+            ->where('P.ActiveStatus', 'Active')
+            ->where('P.DFlag', 0)
+            ->select('P.ProductID', 'P.ProductName', 'P.ProductImage', 'PSC.PSCName',
+                DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(P.ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'),
+                DB::raw('IF(W.product_id IS NOT NULL, true, false) AS IsInWishlist'))
+            ->inRandomOrder()
+            ->take(10)
+            ->get();
+        $FormData['cartProducts'] = $cartProducts;
+        $FormData['product'] = $product;
+        $FormData['RelatedProducts'] = $RelatedProducts;
+        $FormData['Company'] = $this->Company;
+        $PCategories = $this->getRandomProductCategories();
+        $FormData['PCategories'] = $PCategories;
+        $FormData['isRegister'] = false;
+        $FormData['Cart'] = $this->getCart();
+        $FormData['ShippingAddress'] = $this->shippingAddress;
+
+        return view('home.product-view', $FormData);
+    }
 }
