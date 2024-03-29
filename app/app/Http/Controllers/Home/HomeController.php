@@ -38,6 +38,7 @@ class HomeController extends Controller
                 ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'VPM.PCID')
                 ->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)
                 ->where('VPM.Status', 1)->WhereIn('VPM.VendorID', $AllVendors)
+                ->groupBy('PC.PCName', 'PC.PCID', 'PC.PCImage')
                 ->select('PC.PCName', 'PC.PCID', 'PC.PCImage')
                 ->inRandomOrder()->take(10)->get();
 //            $PCatagories = DB::Table('tbl_product_category')->where('ActiveStatus', 'Active')->where('DFlag', 0)->select('PCName', 'PCID', 'PCImage')
