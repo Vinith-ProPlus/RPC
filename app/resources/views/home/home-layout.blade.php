@@ -481,7 +481,8 @@
                             <a href="{{ route('homepage') }}">Home</a>
                         </li>
                         <li>
-                            <a href="{{ route('products') }}">Products</a>
+                            <a href="{{ (Route::currentRouteName() == "customer-register") ? '#' : route('products') }}">Products</a>
+                            @if(Route::currentRouteName() != "customer-register")
                             <div class="megamenu megamenu-fixed-width">
                                 <div class="row">
                                     <div class="col-lg-12">
@@ -512,8 +513,9 @@
                                     </div>
                                 </div><!-- End .row -->
                             </div><!-- End .megamenu -->
+                            @endif
                         </li>
-                        @if(auth()->check())
+                        @if(auth()->check() && !$isRegister)
 {{--                            <li>--}}
 {{--                                <a href="{{ route('requested-quotations') }}">Quotations</a>--}}
 {{--                            </li>--}}
