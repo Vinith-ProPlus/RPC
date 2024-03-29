@@ -436,7 +436,8 @@
                                                 <th class="text-center align-middle">Product Name</th>
                                                 <th class="text-center align-middle">Qty</th>
                                                 <th class="text-center align-middle">Price<br> (₹)</th>
-                                                <th class="text-center align-middle">Tax Type</th>
+{{--                                                <th class="text-center align-middle">Tax Type</th>--}}
+                                                <th class="text-center align-middle">Tax Percentage</th>
                                                 <th class="text-center align-middle">Taxable<br> (₹)</th>
                                                 <!---->
 {{--                                                @if(count($OData->Details)>0)--}}
@@ -468,7 +469,8 @@
                                                     <td class="text-center align-middle">{{$item->ProductName}}</td>
                                                     <td class="text-center align-middle">{{$item->Qty}} {{$item->UCode}}</td>
                                                     <td class="text-center align-middle">{{NumberFormat($item->Price, 2)}}</td>
-                                                    <td class="text-center align-middle">{{$item->TaxType}}</td>
+{{--                                                    <td class="text-center align-middle">{{$item->TaxType}}</td>--}}
+                                                    <td class="text-center align-middle">{{$item->TaxPer}}</td>
                                                     <td class="text-center align-middle">{{ $item->Status == 'Cancelled' ? '--' : NumberFormat($item->Taxable, 2) }}</td>
                                                     {{--                                                    @if(count($OData->Details)>0)--}}
                                                     {{--                                                        @if(floatval($item->IGSTAmt)<=0)--}}
