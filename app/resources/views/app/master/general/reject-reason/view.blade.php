@@ -37,9 +37,9 @@
                             <table class="table {{$Theme['table-size']}}" id="tblRejectReason">
                                 <thead>
                                     <tr>
-                                        <th class="text-center">Reject Reason ID</th>
-                                        <th class="text-center">Reject Reason</th>
-                                        <th class="text-center">Reject Reason Type</th>
+                                        <th>Reject Reason ID</th>
+                                        <th>Reject Reason</th>
+                                        <th>Reject Reason Type</th>
                                         <th class="text-center">Active Status</th>
                                         <th class="text-center noExport">Action</th>
                                     </tr>

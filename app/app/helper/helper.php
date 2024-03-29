@@ -217,6 +217,7 @@ class helper{
 			return $fullAddress;
 		}
 	}
+
 	public static function formatAddress($address){
 		$parts = explode(',', $address);
 		$splittedAddress = [];
@@ -227,6 +228,7 @@ class helper{
 		$formattedAddress = array_merge($formattedAddress, array_slice($splittedAddress, -3));
 		return $formattedAddress;
 	}
+
 	public static function trimAddress($CompleteAddress){
 		$parts = explode(',', $CompleteAddress);
 		return trim($parts[0]) .", ". trim($parts[1]);
@@ -241,6 +243,7 @@ class helper{
 		}
 		return $VendorDB.'.';
 	}
+	
 	public static function getStockTable($VendorID) {
 		$StockDB = self::getStockDB();
 

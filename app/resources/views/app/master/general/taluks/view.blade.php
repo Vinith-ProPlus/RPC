@@ -76,11 +76,11 @@
                             <table class="table {{$Theme['table-size']}}" id="tblTaluks">
                                 <thead>
                                     <tr>
-                                        <th class="text-center">Taluk ID</th>
-                                        <th class="text-center">Taluk Name</th>
-                                        <th class="text-center">District Name</th>
-                                        <th class="text-center">State Name</th>
-                                        <th class="text-center">Country Name</th>
+                                        <th>Taluk ID</th>
+                                        <th>Taluk Name</th>
+                                        <th>District Name</th>
+                                        <th>State Name</th>
+                                        <th>Country Name</th>
                                         <th class="text-center">Active Status</th>
                                         <th class="text-center noExport">Action</th>
                                     </tr>

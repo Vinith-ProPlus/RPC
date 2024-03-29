@@ -39,12 +39,12 @@
                             <table class="table" id="tblPayments">
                                 <thead>
                                     <tr>
-                                        <th class="text-center">Payment ID</th>
-                                        <th class="text-center">Payment Date</th>
-										<th class="text-center">Vendor</th>
-										<th class="text-center">MOP</th>
-										<th class="text-center">Ref No</th>
-                                        <th class="text-center">Paid Amount</th>
+                                        <th>Payment ID</th>
+                                        <th>Payment Date</th>
+										<th>Vendor</th>
+										<th>MOP</th>
+										<th>Ref No</th>
+                                        <th class="text-right">Paid Amount</th>
                                         <th class="text-center">Action</th>
                                     </tr>
                                 </thead>

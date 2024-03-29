@@ -37,7 +37,7 @@ Route::group(['prefix'=>'quote-enquiry'],function (){
 
         Route::get('/image-quote/create', 'ImageQuoteCreate');
 
-        Route::post('/data', 'TableView');
+        Route::post('/data', 'TableView')->name('admin.transaction.enquiry.data');
         Route::post('/request-quote/{ID}', 'RequestQuote');
         Route::POST('/quote-convert/{ID}', 'QuoteConvert');
         Route::POST('/delete/{ID}', 'Delete');
@@ -57,6 +57,10 @@ Route::group(['prefix'=>'quote-enquiry'],function (){
         Route::post('/get/category', 'GetCategory');
         Route::post('/get/sub-category', 'GetSubCategory');
         Route::post('/get/products', 'GetProducts');
+        
+        Route::POST('/get/filters/status', 'getSearchStatus')->name('admin.transaction.enquiry.filter.status');
+        Route::POST('/get/filters/customers', 'getSearchCustomers')->name('admin.transaction.enquiry.filter.customers');
+        Route::POST('/get/filters/quote-dates', 'getSearchQuoteDates')->name('admin.transaction.enquiry.filter.quote-dates');
     });
 });
 

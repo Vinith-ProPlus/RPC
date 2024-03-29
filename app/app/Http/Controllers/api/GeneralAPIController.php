@@ -315,6 +315,14 @@ class GeneralAPIController extends Controller{
 		];
         return $return;
 	}
+	public function getMaxFileSize(request $req){
+		$MaxFileSize = DB::Table('tbl_settings')->where('KeyName','upload-limit')->value('KeyValue');
+		$return = [
+			'status' => true,
+			'data' => $MaxFileSize
+		];
+        return $return;
+	}
 	
 	public function getCoordinates(Request $req){ return 1;
 		$address = $req->Address;

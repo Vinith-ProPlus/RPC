@@ -49,7 +49,7 @@
 				<div class="card-body " >
 					<div id="order_filter" class="row d-flex justify-content-center m-5 mb-2">
 						<div class="col-sm-2 justify-content-Center">
-							<div class="form-group text-center mh-60"
+							<div class="form-group text-center mh-60">
 								<label style="margin-bottom:0px;">Status</label>
 								<div>
 									<select id="lstFStatus" class="form-control multiselect" multiple >
@@ -63,11 +63,11 @@
                             <table class="table table-sm" id="tblOrders">
                                 <thead>
                                     <tr class="valign-top">
-                                        <th class="text-center">Req. ID</th>
-                                        <th class="text-center">Req. Date</th>
-										<th class="text-center">Vendor Name</th>
-                                        <th class="text-center">Contact Number</th>
-                                        <th class="text-center">Req. Amount</th>
+                                        <th>Req. ID</th>
+                                        <th>Req. Date</th>
+										<th>Vendor Name</th>
+                                        <th>Contact Number</th>
+                                        <th>Req. Amount</th>
                                         <th class="text-center">Status</th>
                                     </tr>
                                 </thead>

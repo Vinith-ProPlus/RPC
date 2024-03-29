@@ -37,8 +37,8 @@
 							<table class="table {{$Theme['table-size']}}" id="tblStages">
 								<thead>
 									<tr>
-										<th class="text-center">Stage ID</th>
-										<th class="text-center">Stage Name</th>
+										<th>Stage ID</th>
+										<th>Stage Name</th>
 										<th class="text-center">Active Status</th>
 										<th class="text-center noExport">Action</th>
 									</tr>

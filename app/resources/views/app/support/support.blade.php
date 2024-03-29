@@ -104,14 +104,14 @@
                             <table class="table" id="tblrequests">
                                 <thead>
                                     <tr>
-                                        <th class="text-center">Ticket From</th>
-                                        <th class="text-center">User Name</th>
-                                        <th class="text-center">Subjects</th>
-                                        <th class="text-center">Type</th>
-                                        <th class="text-center">Priority</th>
-                                        <th class="text-center">Status</th>
-                                        <th class="text-center">Creation Date</th>
-                                        <th class="text-center"></th>
+                                        <th>Ticket From</th>
+                                        <th>User Name</th>
+                                        <th>Subjects</th>
+                                        <th>Type</th>
+                                        <th>Priority</th>
+                                        <th>Status</th>
+                                        <th>Creation Date</th>
+                                        <th></th>
                                         <th class="text-center d-none"></th>
                                     </tr>
                                 </thead>

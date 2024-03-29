@@ -81,13 +81,14 @@ class VendorStockPointController extends Controller{
         try {
                 $MapData = serialize(json_decode($req->MapData));
                 $StockPointID = DocNum::getDocNum(docTypes::VendorStockPoint->value,"",Helper::getCurrentFY());
+                $Address = Helper::trimAddress($req->Address);
                 $data=array(
                     "StockPointID"=>$StockPointID,
                     "VendorID"=>$this->VendorID,
                     "UUID"=>substr(str_shuffle(substr(uniqid(uniqid(), true), 0, 16)), 0, 12),
                     "PointName"=>$req->PointName,
                     "CompleteAddress"=>$req->CompleteAddress,
-                    "Address"=>$req->Address,
+                    "Address"=>$Address,
                     "PostalID"=>$req->PostalID,
                     "CityID"=>$req->CityID,
                     "TalukID"=>$req->TalukID,
@@ -200,10 +201,11 @@ class VendorStockPointController extends Controller{
             $OldData=$NewData=[];
             $OldData=DB::table('tbl_vendors_stock_point as VSP')->leftJoin('tbl_vendors_service_locations as VSL','VSL.StockPointID','VSP.StockPointID')->where('VSL.DFlag',0)->where('VSP.StockPointID',$req->StockPointID)->first();
             $MapData = serialize(json_decode($req->MapData));
+            $Address = Helper::trimAddress($req->Address);
             $data=array(
                 "PointName"=>$req->PointName,
                 "CompleteAddress"=>$req->CompleteAddress,
-                "Address"=>$req->Address,
+                "Address"=>$Address,
                 "PostalID"=>$req->PostalID,
                 "CityID"=>$req->CityID,
                 "TalukID"=>$req->TalukID,

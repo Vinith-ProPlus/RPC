@@ -32,18 +32,47 @@
 						</div>
 					</div>
 				</div>
-				<div class="card-body " >
-					<div class="row">
+				<div class="card-body">
+					<div id="order_filter" class="row d-flex justify-content-center m-5 mb-2">
+						<div class="col-sm-2 justify-content-Center">
+							<div class="form-group text-center mh-60">
+								<label style="margin-bottom:0px;">Status</label>
+								<div>
+									<select id="lstFStatus" class="form-control multiselect" multiple >
+									</select>
+								</div>
+							</div>
+						</div>
+						<div class="col-sm-2 justify-content-Center">
+							<div class="form-group text-center mh-60">
+								<label style="margin-bottom:0px;">Customers</label>
+								<div>
+									<select id="lstFCustomers" class="form-control multiselect" multiple >
+									</select>
+								</div>
+							</div>
+						</div>
+						<div class="col-sm-2 justify-content-Center">
+							<div class="form-group text-center mh-60">
+								<label style="margin-bottom:0px;">Quote Enquiry Dates</label>
+								<div>
+									<select id="lstFQuoteDates" class="form-control multiselect" multiple>
+									</select>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="row mt-20">
 						<div class="col-12 col-sm-12 col-lg-12">
                             <table class="table" id="tblQuoteEnquiry">
                                 <thead>
                                     <tr>
-                                        <th class="text-center">Enquiry No</th>
-                                        <th class="text-center">Enquiry Date</th>
-										<th class="text-center">Customer Name</th>
-                                        <th class="text-center">Contact Number</th>
-                                        <th class="text-center">Email</th>
-                                        <th class="text-center">Expected Delivery</th>
+                                        <th>Enquiry No</th>
+                                        <th>Enquiry Date</th>
+										<th>Customer Name</th>
+                                        <th>Contact Number</th>
+                                        <th>Email</th>
+                                        <th>Expected Delivery</th>
                                         <th class="text-center">Status</th>
                                         <th class="text-center noExport">action</th>
                                     </tr>
@@ -63,30 +92,187 @@
 <script>
     $(document).ready(function(){
         let RootUrl=$('#txtRootUrl').val();
+		let tblQuotes=null;
+		let filters={
+			status : [],
+            customers:[],
+			quoteDates:[]
+		}
+		var cancelReasons={};
+		const init=async()=>{
+			
+			makeStatus();
+			makeCustomers();
+			makeQuoteDates();
+			
+			getFilters();
+			getStatus();
+		}
+		const makeStatus=async()=>{
+			$('#lstFStatus').multiselect({
+				enableFiltering: true,
+				maxHeight: 250,
+				buttonClass: 'btn btn-link',
+				onChange: function (element, checked) {
+					getFilters();
+					getCustomers();
+				}
+			});
+		}
+		const makeCustomers=async()=>{
+			$('#lstFCustomers').multiselect({
+				enableFiltering: true,
+				maxHeight: 250,
+				buttonClass: 'btn btn-link',
+				onChange: function (element, checked) {
+					getFilters();
+					getQuoteDates();
+				}
+			});
+		}
+		const makeQuoteDates=async()=>{
+			$('#lstFQuoteDates').multiselect({
+				enableFiltering: true,
+				maxHeight: 250,
+				buttonClass: 'btn btn-link',
+				onChange: function (element, checked) {
+					getFilters();
+					LoadTable();
+				}
+			});
+		}
+		
+		const getFilters=()=>{
+			let status=$('#lstFStatus').val();
+			let customers=$('#lstFCustomers').val();
+			let quoteDates=$('#lstFQuoteDates').val();
+			status= $.isArray(status)?status:[];
+			customers= $.isArray(customers)?customers:[];
+			quoteDates= $.isArray(quoteDates)?quoteDates:[];
+
+
+			filters.status=JSON.stringify(status);
+			filters.customers=JSON.stringify(customers);
+			filters.quoteDates=JSON.stringify(quoteDates);
+		}
+		const getStatus=async()=>{
+			$.ajax({
+                type:"post",
+                url:"{{route('admin.transaction.enquiry.filter.status')}}",
+                headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
+				data:filters,
+                dataType:"json",
+                async:true,
+				beforeSend:function(){
+					$('#lstFStatus').parent().hide();
+					$('#lstFStatus').parent().parent().append('<div id="divFStatusLoader" class="Cloader"></div>');
+				},
+                complete: function(e, x, settings, exception){
+					$('#lstFStatus').parent().show();
+					$('#divFStatusLoader').remove();
+				},
+                success:function(response){ console.log(response)
+					$('#lstFStatus option').remove();
+					let tmp=JSON.parse(filters.status); 
+					for(let item of response){
+						let selected="";
+						if(tmp.indexOf(item.Status)>=0){selected="selected";}
+						$('#lstFStatus').append('<option '+selected+' value="'+item.Status+'">'+item.Status+'</option>');
+					}
+					$('#lstFStatus').multiselect('rebuild');
+                }
+            });
+			getCustomers();
+		}
+		const getCustomers=async()=>{
+			$.ajax({
+                type:"post",
+                url:"{{route('admin.transaction.enquiry.filter.customers')}}",
+                headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
+				data:filters,
+                dataType:"json",
+                async:true,
+				beforeSend:function(){
+					$('#lstFCustomers').parent().hide();
+					$('#lstFCustomers').parent().parent().append('<div id="divFCustomersLoader" class="Cloader"></div>');
+				},
+                complete: function(e, x, settings, exception){
+					$('#lstFCustomers').parent().show();
+					$('#divFCustomersLoader').remove();
+				},
+                success:function(response){ console.log(response)
+					$('#lstFCustomers option').remove();
+					let tmp=JSON.parse(filters.customers); 
+					for(let item of response){
+						let selected="";
+						if(tmp.indexOf(item.CustomerID)>=0){selected="selected";}
+						$('#lstFCustomers').append('<option '+selected+' value="'+item.CustomerID+'">'+item.CustomerName+'</option>');
+					}
+					$('#lstFCustomers').multiselect('rebuild');
+                }
+            });
+			getQuoteDates();
+		}
+		const getQuoteDates=async()=>{
+			$.ajax({
+                type:"post",
+                url:"{{route('admin.transaction.enquiry.filter.quote-dates')}}",
+                headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
+				data:filters,
+                dataType:"json",
+                async:true,
+				beforeSend:function(){
+					$('#lstFQuoteDates').parent().hide();
+					$('#lstFQuoteDates').parent().parent().append('<div id="divFQuoteDatesLoader" class="Cloader"></div>');
+				},
+                complete: function(e, x, settings, exception){
+					$('#lstFQuoteDates').parent().show();
+					$('#divFQuoteDatesLoader').remove();
+				},
+                success:function(response){ 
+					$('#lstFQuoteDates option').remove();
+					let tmp=JSON.parse(filters.customers); 
+					for(let item of response){
+						let selected="";
+						if(tmp.indexOf(item.QuoteDate.toCustomFormat("Y-m-d"))>=0){selected="selected";}
+						$('#lstFQuoteDates').append('<option '+selected+' value="'+item.QuoteDate.toCustomFormat("Y-m-d")+'">'+item.QuoteDate.toCustomFormat("{{$Settings['date-format']}}")+'</option>');
+					}
+					$('#lstFQuoteDates').multiselect('rebuild');
+                }
+            });
+			LoadTable();
+		}
         const LoadTable=async()=>{
 			@if($crud['view']==1)
-			$('#tblQuoteEnquiry').dataTable( {
-				"bProcessing": true,
-				"bServerSide": true,
-                "ajax": {"url": "{{url('/')}}/admin/transaction/quote-enquiry/data?_token="+$('meta[name=_token]').attr('content'),"headers":{ 'X-CSRF-Token' : $('meta[name=_token]').attr('content') } ,"type": "POST"},
-				deferRender: true,
-				responsive: true,
-				dom: 'Bfrtip',
-				"iDisplayLength": 10,
-				"order": [[1, "desc"]],
-				"lengthMenu": [[10, 25, 50,100,250,500, -1], [10, 25, 50,100,250,500, "All"]],
-				buttons: [
-					'pageLength' 
-					@if($crud['excel']==1) ,{extend: 'excel',className:"{{$Theme['button-size']}}",footer: true,title: "{{$PageTitle}}","action": DataTableExportOption,exportOptions: {columns: "thead th:not(.noExport)"}} @endif 
-					@if($crud['copy']==1) ,{extend: 'copy',className:"{{$Theme['button-size']}}",footer: true,title: "{{$PageTitle}}","action": DataTableExportOption,exportOptions: {columns: "thead th:not(.noExport)"}} @endif
-					@if($crud['csv']==1) ,{extend: 'csv',className:"{{$Theme['button-size']}}",footer: true,title: "{{$PageTitle}}","action": DataTableExportOption,exportOptions: {columns: "thead th:not(.noExport)"}} @endif
-					@if($crud['print']==1) ,{extend: 'print',className:"{{$Theme['button-size']}}",footer: true,title: "{{$PageTitle}}","action": DataTableExportOption,exportOptions: {columns: "thead th:not(.noExport)"}} @endif
-					@if($crud['pdf']==1) ,{extend: 'pdf',className:"{{$Theme['button-size']}}",footer: true,title: "{{$PageTitle}}","action": DataTableExportOption,exportOptions: {columns: "thead th:not(.noExport)"}} @endif
-				],
-				columnDefs: [
-					{"className": "dt-center", "targets":[6,7]},
-				]
-			});
+				if(tblQuotes!=null){
+					tblQuotes.fnDestroy();
+				}
+				tblQuotes=$('#tblQuoteEnquiry').dataTable( {
+					bProcessing: true,
+					bServerSide: true,
+					ajax: {
+						data:filters,
+						url: "{{route('admin.transaction.enquiry.data')}}?_token="+$('meta[name=_token]').attr('content'),
+						headers:{ 'X-CSRF-Token' : $('meta[name=_token]').attr('content') } ,
+						type: "POST"
+					},
+					deferRender: true,
+					responsive: true,
+					dom: 'Bfrtip',
+					iDisplayLength: 10,
+					lengthMenu: [[10, 25, 50,100,250,500, -1], [10, 25, 50,100,250,500, "All"]],
+					buttons: [
+						'pageLength' 
+						@if($crud['excel']==1) ,{extend: 'excel',className:"{{$Theme['button-size']}}",footer: true,title: "{{$PageTitle}}","action": DataTableExportOption,exportOptions: {columns: "thead th:not(.noExport)"}} @endif 
+						@if($crud['copy']==1) ,{extend: 'copy',className:"{{$Theme['button-size']}}",footer: true,title: "{{$PageTitle}}","action": DataTableExportOption,exportOptions: {columns: "thead th:not(.noExport)"}} @endif
+						@if($crud['csv']==1) ,{extend: 'csv',className:"{{$Theme['button-size']}}",footer: true,title: "{{$PageTitle}}","action": DataTableExportOption,exportOptions: {columns: "thead th:not(.noExport)"}} @endif
+						@if($crud['print']==1) ,{extend: 'print',className:"{{$Theme['button-size']}}",footer: true,title: "{{$PageTitle}}","action": DataTableExportOption,exportOptions: {columns: "thead th:not(.noExport)"}} @endif
+						@if($crud['pdf']==1) ,{extend: 'pdf',className:"{{$Theme['button-size']}}",footer: true,title: "{{$PageTitle}}","action": DataTableExportOption,exportOptions: {columns: "thead th:not(.noExport)"}} @endif
+					],
+					columnDefs: [
+						{"className": "dt-center", "targets":[6,7]},
+					]
+				});
 			@endif
         }
 		$(document).on('click','.btnView',function(){
@@ -137,7 +323,7 @@
             	});
             });
 		});
-        LoadTable();
+        init();
     });
 </script>
 @endsection

@@ -162,8 +162,8 @@
 
 							if (StockPointData.length > 0 && ProductData) {
 								let html = `<tr>
-												<th class="text-center align-middle" rowspan="2">Products</th>
-												<th class="text-center align-middle" rowspan="2">UOM</th>`;
+												<th class="align-middle" rowspan="2">Products</th>
+												<th class="align-middle" rowspan="2">UOM</th>`;
 
 								for (let item of StockPointData) {
 									html += `<th class="text-center align-middle" data-spid="${item.StockPointID}">${item.PointName}</th>`;
