@@ -483,36 +483,36 @@
                         <li>
                             <a href="{{ (Route::currentRouteName() == "customer-register") ? '#' : route('products') }}">Products</a>
                             @if(Route::currentRouteName() != "customer-register")
-{{--                            <div class="megamenu megamenu-fixed-width">--}}
-{{--                                <div class="row">--}}
-{{--                                    <div class="col-lg-12">--}}
-{{--                                        <a href="#" class="nolink">PRODUCT CATEGORIES</a>--}}
-{{--                                    </div>--}}
+                            <div class="megamenu megamenu-fixed-width">
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <a href="#" class="nolink">PRODUCT CATEGORIES</a>
+                                    </div>
 
-{{--                                    @php--}}
-{{--                                        $PCategories = $PCategories->take(9);--}}
-{{--                                        $chunks = $PCategories->chunk(3);--}}
-{{--                                    @endphp--}}
+                                    @php
+                                        $PCategories = $PCategories->take(9);
+                                        $chunks = $PCategories->chunk(3);
+                                    @endphp
 
-{{--                                    @foreach ($chunks as $chunk)--}}
-{{--                                        <div class="col-lg-4">--}}
-{{--                                            <ul class="submenu">--}}
-{{--                                                @foreach ($chunk as $category)--}}
-{{--                                                    <li><a href="{{ route('products.customer.subCategoryList', ['CID' => $category->PCID]) }}">{{ $category->PCName }}</a></li>--}}
-{{--                                                @endforeach--}}
-{{--                                            </ul>--}}
-{{--                                        </div>--}}
-{{--                                    @endforeach--}}
+                                    @foreach ($chunks as $chunk)
+                                        <div class="col-lg-4">
+                                            <ul class="submenu">
+                                                @foreach ($chunk as $category)
+                                                    <li><a href="{{ route('products.customer.subCategoryList', ['CID' => $category->PCID]) }}">{{ $category->PCName }}</a></li>
+                                                @endforeach
+                                            </ul>
+                                        </div>
+                                    @endforeach
 
-{{--                                    <div class="col-lg-12 p-1">--}}
-{{--                                        <div class="row justify-content-end">--}}
-{{--                                            <div class="col-lg-4">--}}
-{{--                                                <a href="{{ route('products') }}" class="btn btn-sm btn-dark mr-0">View More</a>--}}
-{{--                                            </div>--}}
-{{--                                        </div>--}}
-{{--                                    </div>--}}
-{{--                                </div><!-- End .row -->--}}
-{{--                            </div><!-- End .megamenu -->--}}
+                                    <div class="col-lg-12 p-1">
+                                        <div class="row justify-content-end">
+                                            <div class="col-lg-4">
+                                                <a href="{{ route('products') }}" class="btn btn-sm btn-dark mr-0">View More</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div><!-- End .row -->
+                            </div><!-- End .megamenu -->
                             @endif
                         </li>
                         @if(auth()->check() && !$isRegister)
