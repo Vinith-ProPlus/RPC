@@ -187,9 +187,10 @@
                                                         <b>{{ $item->Address }}</b>,<br>
                                                         {{ $item->CityName }}, {{ $item->PostalCode }}.
                                                     </td>
-                                                    <td class="d-flex text-center align-middle">
-{{--                                                        <button type="button" class="btn btn-sm btn-outline-success m-3 btnEditSAddress"><i class="fas fa-pencil-alt"></i></button>--}}
-                                                        <button type="button" class="btn btn-sm btn-outline-danger m-3 btnDeleteSAddress" data-aid="{{ $item->AID }}"><i class="fas fa-trash-alt"></i></button>
+                                                    <td class="align-middle">
+                                                        <div class="row justify-content-center">
+                                                            <button type="button" class="btn btn-sm btn-outline-danger m-3 btnDeleteSAddress" data-aid="{{ $item->AID }}"><i class="fas fa-trash-alt"></i></button>
+                                                        </div>
                                                     </td>
                                                     <td class="d-none">{{ json_encode($item) }}</td>
                                                 </tr>

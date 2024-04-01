@@ -2416,12 +2416,14 @@
                                     </div>
                                 </td>
                                 <td class="pointer align-middle">
-                                    <b>${formData.Address}</b>,<br>
+                                    <b>${response.data.Address}</b>,<br>
                                     ${formData.CityName},${formData.PostalCode}.
                                 </td>
-                                <td class="text-center align-middle">
-                                    <button type="button" class="btn btn-sm btn-outline-danger m-2 btnDeleteSAddress" data-aid="${response.AID}"><i class="fas fa-trash-alt"></i></button>
-                                </td>
+                                <td class="align-middle">
+                                        <div class="row justify-content-center">
+                                <button type="button" class="btn btn-sm btn-outline-danger m-2 btnDeleteSAddress" data-aid="${response.AID}"><i class="fas fa-trash-alt"></i></button>
+                                        </div>
+                                    </td>
                                 <td class="d-none">${JSON.stringify(formData)}</td>
                             </tr>`;
 

@@ -1667,11 +1667,12 @@ class HomeAuthController extends Controller{
                 DB::beginTransaction();
                 $MapData = serialize(json_decode($req->MapData));
                 $AID=DocNum::getDocNum(docTypes::CustomerAddress->value,"",Helper::getCurrentFY());
+                $address = helper::trimAddress($req->CompleteAddress);
                 $data=array(
                     "AID"=>$AID,
                     "CustomerID"=>$CustomerID,
                     "CompleteAddress"=>$req->CompleteAddress,
-                    "Address"=>$req->CompleteAddress,
+                    "Address"=>$address,
                     "AddressType"=>$req->AddressType,
                     "PostalCodeID"=>$CityData->PostalCodeID,
                     "CityID"=>$CityData->CityID,
@@ -1685,7 +1686,7 @@ class HomeAuthController extends Controller{
                     "isDefault"=>1,
                     "CreatedOn"=>date("Y-m-d H:i:s")
                 );
-                $status=DB::Table('tbl_customer_address')->insert($data);
+                $status = DB::Table('tbl_customer_address')->insert($data);
                 if($status==true){
                     DB::Table('tbl_customer_address')->where('CustomerID',$CustomerID)->whereNot('AID',$AID)->where('DFlag',0)->update(['isDefault' =>0]);
                     DocNum::updateDocNum(docTypes::CustomerAddress->value);
@@ -1701,7 +1702,7 @@ class HomeAuthController extends Controller{
             $NewData=DB::table('tbl_customer_address')->where('CustomerID',$CustomerID)->where('DFlag',0)->get();
             $logData=array("Description"=>"Shipping Address Updated","ModuleName"=>"Customer","Action"=>"Update","ReferID"=>$AID,"OldData"=>$OldData,"NewData"=>$NewData,"UserID"=>$this->UserID,"IP"=>$req->ip());
             logs::Store($logData);
-            return response()->json(['status' => true,'message' => "Shipping Address Updated Successfully", 'AID' => $AID]);
+            return response()->json(['status' => true,'message' => "Shipping Address Updated Successfully", 'AID' => $AID, 'data' => $data]);
         }else{
             DB::rollback();
             return response()->json(['status' => false,'message' => "Shipping Address Update Failed"]);
