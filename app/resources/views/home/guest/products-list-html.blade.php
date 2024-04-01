@@ -52,7 +52,7 @@
                 <div class="col-6 col-sm-4 col-lg-3">
                     <div class="product-default inner-quickview inner-icon product-div">
                         <figure>
-                            <a href="#">
+                            <a href="{{ route('guest.product.view', $product->ProductID) }}">
                                 <img src="{{ $product->ProductImage }}" width="300" height="300" alt="{{ $product->ProductName }}">
                             </a>
                             <div class="label-group"></div>
@@ -66,14 +66,14 @@
                         <div class="product-details">
                             <div class="category-wrap">
                                 <div class="category-list">
-                                    <a href="#">{{ $product->SubCategoryName }}</a>
+                                    <a href="{{ route('products.guest.productsList', ['SCID' => $product->PSCID]) }}">{{ $product->SubCategoryName }}</a>
                                 </div>
 {{--                                <a href="#" class="guest-btn-icon-wish redirectLogin" title="wishlist">--}}
 {{--                                    <i class="icon-heart"></i>--}}
 {{--                                </a>--}}
                             </div>
                             <h3 class="product-title">
-                                <a href="#">{{ $product->ProductName }}</a>
+                                <a href="{{ route('guest.product.view', $product->ProductID) }}">{{ $product->ProductName }}</a>
                             </h3>
                             <div class="ratings-container">
                                 <div class="product-ratings">
@@ -87,15 +87,15 @@
             @else
                 <div class="col-sm-12 col-6 product-default left-details product-list mb-2 product-div">
                     <figure>
-                        <a href="#">
+                        <a href="{{ route('guest.product.view', $product->ProductID) }}">
                             <img src="{{ $product->ProductImage }}" width="250" height="250" alt="product">
                         </a>
                     </figure>
                     <div class="product-details">
                         <div class="category-list">
-                            <a href="#" class="product-category">{{ $product->SubCategoryName }}</a>
+                            <a href="{{ route('products.guest.productsList', ['SCID' => $relatedProduct->PSCID]) }}" class="product-category">{{ $product->SubCategoryName }}</a>
                         </div>
-                        <h3 class="product-title"><a href="#"> {{ $product->ProductName }}</a></h3>
+                        <h3 class="product-title"><a href="{{ route('guest.product.view', $product->ProductID) }}"> {{ $product->ProductName }}</a></h3>
                         <div class="ratings-container">
                             <div class="product-ratings">
                                 <span class="ratings" style="width:{{ $rating }}%"></span>

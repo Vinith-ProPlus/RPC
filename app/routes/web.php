@@ -151,6 +151,7 @@ Route::get('guest/products/products-list', [HomeController::class, 'guestProduct
 Route::post('guest/products/category-list-html', [HomeController::class, 'guestCategoryListHtml'])->name('products.guest.categoriesListHtml');
 Route::post('guest/products/sub-category-list-html', [HomeController::class, 'guestSubCategoryListHtml'])->name('products.guest.subCategoriesListHtml');
 Route::post('guest/products/products-list-html', [HomeController::class, 'guestProductsListHtml'])->name('products.guest.productsListHtml');
+Route::get('guest/product/view/{ID}', [HomeController::class, 'guestProductView'])->name('guest.product.view');
 
 
 Route::get('customer/products/category-list', [HomeAuthController::class, 'customerCategoryList'])->name('products.customer.categoriesList');

@@ -46,13 +46,13 @@
                     <li>
                         CATEGORY:
                         <strong>
-                            <a href="#" class="product-category">{{ $product->CategoryName }}</a>
+                            <a href="{{ route('products.guest.subCategoryList', ['CID' => $product->PCID]) }}" class="product-category">{{ $product->CategoryName }}</a>
                         </strong>
                     </li>
                     <li>
                         SUB CATEGORY:
                         <strong>
-                            <a href="#" class="product-category">{{ $product->SubCategoryName }}</a>
+                            <a href="{{ route('products.guest.productsList', ['SCID' => $product->PSCID]) }}" class="product-category">{{ $product->SubCategoryName }}</a>
                         </strong>
                     </li>
                 </ul>

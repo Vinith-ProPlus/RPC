@@ -171,7 +171,7 @@ class HomeController extends Controller
             ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'P.CID')
             ->where('P.ActiveStatus', 'Active')->where('P.DFlag', 0)
             ->where('P.ProductID', $PID)
-            ->select('P.ProductID', 'P.ProductName', 'P.Description', 'PC.PCName as CategoryName', 'PSC.PSCName as SubCategoryName',
+            ->select('P.ProductID', 'P.ProductName', 'P.Description', 'PC.PCName as CategoryName', 'PSC.PCID', 'PSC.PSCID', 'PSC.PSCName as SubCategoryName',
                 DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(P.ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'),
                 DB::raw('false AS IsInWishlist'))
             ->first();
@@ -257,10 +257,10 @@ class HomeController extends Controller
             ->where('P.DFlag', 0)
             ->where('VPM.Status', 1)
             ->WhereIn('VPM.VendorID', $AllVendors)
-            ->when($request->has('SubCategoryID') && isset($request->SubCategoryID), function ($query) use ($request) {
+            ->when(isset($request->SubCategoryID), function ($query) use ($request) {
                 return $query->where('P.SCID', $request->SubCategoryID);
             })
-            ->groupBy('P.ProductID', 'P.ProductName', 'P.Description', 'P.ProductImage', 'PSC.PSCName')
+            ->groupBy('P.ProductID', 'P.ProductName', 'P.Description', 'P.ProductImage', 'PSC.PSCID', 'PSC.PSCName')
             ->select('P.ProductID')
             ->get();
 
@@ -270,8 +270,6 @@ class HomeController extends Controller
             ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')
             ->where('P.ActiveStatus', "Active")
             ->where('P.DFlag', 0)
-            ->where('VPM.Status', 1)
-            ->WhereIn('VPM.VendorID', $AllVendors)
             ->when(isset($request->SubCategoryID), function ($query) use ($request) {
                 return $query->where('P.SCID', $request->SubCategoryID);
             })
@@ -282,11 +280,11 @@ class HomeController extends Controller
                     return $query->orderBy('P.CreatedOn', 'asc');
                 }
             })
-            ->groupBy('P.ProductID', 'P.ProductName', 'P.Description', 'P.ProductImage', 'PSC.PSCName')
+            ->groupBy('P.ProductID', 'P.ProductName', 'P.Description', 'P.ProductImage', 'PSC.PSCID', 'PSC.PSCName')
             ->select('P.ProductID', 'P.ProductName', 'P.Description',
                 DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'),
                 DB::raw('false AS IsInWishlist'),
-                'PSC.PSCName as SubCategoryName')
+                'PSC.PSCID', 'PSC.PSCName as SubCategoryName')
             ->skip(($pageNo - 1) * $productCount)
             ->take($productCount)
             ->get();
@@ -537,7 +535,7 @@ class HomeController extends Controller
         $pageNo = ($request->pageNo != 'undefined') ? $request->pageNo : 1;
         $viewType = $request->viewType ?? 'Grid';
         $orderBy = $request->orderBy ?? '';
-        $PSubCatagories = DB::Table('tbl_product_subcategory')->where('ActiveStatus', 'Active')->where('DFlag', 0)
+        $PSubCatagories = DB::Table('tbl_product_subcategory')
             ->when($request->has('CID') && isset($request->CID), function ($query) use ($request) {
                 $query->where('PCID', $request->CID);
             })
@@ -640,5 +638,45 @@ class HomeController extends Controller
     public function productShortDescription($PID)
     {
         return DB::table('tbl_products')->where('ProductID', $PID)->pluck('ShortDescription')->first();
+    }
+
+    public function guestProductView(Request $request, $ProductID)
+    {
+//        $FormData = $this->EnquiryDetails($EnqID);
+        $product = DB::table('tbl_products as P')->leftJoin('tbl_product_subcategory as PSC','PSC.PSCID','P.SCID')
+            ->leftJoin('tbl_product_category as PC','PC.PCID','P.CID')
+            ->where('P.ActiveStatus','Active')->where('P.DFlag',0)
+            ->where('P.ProductID', $ProductID)
+            ->select('P.ProductID','P.ProductName','P.ShortDescription','P.Description', 'PC.PCID', 'PSC.PSCID', 'PC.PCName as CategoryName','PSC.PSCName as SubCategoryName',
+                DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(P.ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'))
+            ->first();
+
+        $product->GalleryImages = DB::table('tbl_products_gallery')
+            ->where('ProductID', $ProductID)
+            ->pluck(DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(gImage, ""), "assets/images/no-image-b.png")) AS gImage'))
+            ->toArray();
+        $RelatedProducts = DB::table('tbl_vendors_product_mapping as VPM')
+            ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'VPM.PCID')
+            ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PCID', 'PC.PCID')
+            ->leftJoin('tbl_products as P', 'P.SCID', 'PSC.PSCID')
+            ->where('P.ActiveStatus', 'Active')
+            ->where('P.DFlag', 0)
+            ->select('P.ProductID', 'P.ProductName', 'P.ProductImage', 'PSC.PSCID', 'PSC.PSCName',
+                DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(P.ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'))
+            ->inRandomOrder()
+            ->take(10)
+            ->get();
+        $FormData['product'] = $product;
+        $PCatagories = DB::Table('tbl_product_category')->where('ActiveStatus', 'Active')->where('DFlag', 0)
+            ->select('PCName', 'PCID',
+                DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PCImage, ""), "assets/images/no-image-b.png")) AS PCImage'))
+            ->inRandomOrder()->get();
+        $FormData['PCategories'] = $PCatagories;
+        $FormData['isRegister'] = false;
+        $FormData['Cart'] = [];
+        $FormData['RelatedProducts'] = $RelatedProducts;
+        $FormData['Company'] = DB::table('tbl_company_settings')->select('KeyName', 'KeyValue')->get()->pluck('KeyValue', 'KeyName')->toArray();
+
+        return view('home.guest-product-view', $FormData);
     }
 }
