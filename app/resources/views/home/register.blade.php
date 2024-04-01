@@ -189,6 +189,7 @@
                                                             </div>
                                                         </td>
                                                         <td class="pointer">
+                                                            <b>{{ $item->AddressType ?? '' }}</b><br>
                                                             <b>{{ $item->Address }}</b>,<br>
                                                             {{ $item->CityName }}, {{ $item->PostalCode }}.
                                                         </td>
@@ -512,6 +513,7 @@
             let DOB=$('#txtDOB').val();
             let CusType=$('#lstCusType').val();
             let ConType=$('#lstConTypeIDs').val();
+            let AddressType=$('#txtADAddressType').val();
             let Address=$('#txtAddress').val();
             let PostalCode=$('#lstCity option:selected').attr('data-postal');
             let CityID=$('#lstCity').val();
@@ -534,6 +536,9 @@
             }
             if (MobileNo2.length > 0 && !mobilePattern.test(MobileNo2)){
                 $("#txtMobileNo2-err").html("Alternate Mobile Number must be 10 digit");status=false;
+            }
+            if(AddressType === ""){
+                $('#txtADAddressType').html('Address Type is required.');status=false;
             }
             if(Gender === ""){
                 $('#lstGender-err').html('Gender is required.');status=false;
@@ -737,7 +742,8 @@
                                     </div>
                                 </td>
                                 <td class="pointer">
-                                    <b>${formData.Address}</b>,<br>
+                                    <b>${formData.AddressType}</b><br>
+                                    <b>${response.data.Address}</b>,<br>
                                     ${formData.CityName},${formData.PostalCode}.
                                 </td>
                                 <td class="text-center">
@@ -825,6 +831,7 @@
             var formData={};
             formData.EditID=$("#btnSaveAddress").attr('data-edit-id');
             formData.AID=$("#btnSaveAddress").attr('data-aid');
+            formData.AddressType=$('#txtADAddressType').val();
             formData.Address=$('#txtADAddress').val();
             formData.CompleteAddress=$('#txtADAddress').val();
             formData.Latitude=$('#txtADLatitude').val();
@@ -855,6 +862,10 @@
                 $('#lstADCity-err').html('City is required');status=false;
             }else{
                 Address+=",<br>"+formData.CityName;
+            }
+
+            if(formData.AddressType==""){
+                $('#txtADAddressType-err').html('Address type is required');status=false;
             }
             // if(formData.TalukID==""){
             //     $('#lstADTaluk-err').html('Taluk is required');status=false;
@@ -897,6 +908,7 @@
                 formData.append('DOB', $('#txtDOB').val());
                 formData.append('CusTypeID', $('#lstCusType').val());
                 formData.append('ConTypeIDs', $('#lstConTypeIDs').val());
+                formData.append('AddressType',$('#txtADAddressType').val());
                 formData.append('Address',$('#txtAddress').val());
                 formData.append('PostalCodeID',$('#lstCity option:selected').attr('data-postal'));
                 formData.append('CityID',$('#lstCity').val());

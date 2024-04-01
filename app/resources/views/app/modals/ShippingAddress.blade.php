@@ -5,6 +5,13 @@
     </div>
     <div class="col-sm-12 mt-20">
         <div class="form-group">
+            <label for="txtADAddressType">Address Type<span class="required"> * </span></label>
+            <input class="form-control" placeholder="Address Type" id="txtADAddressType" name="txtADAddressType"><?php if(array_key_exists("Address",$data)){ echo $data['AddressType']; } ?></input>
+            <span class="errors Address err-sm" id="txtADAddressType-err"></span>
+        </div>
+    </div>
+    <div class="col-sm-12 mt-20">
+        <div class="form-group">
             <label for="txtADAddress">Address <span class="required"> * </span></label>
             <textarea class="form-control" placeholder="Address" id="txtADAddress" name="txtADAddress" rows="2"><?php if(array_key_exists("Address",$data)){ echo $data['Address']; } ?></textarea>
             <span class="errors Address err-sm" id="txtADAddress-err"></span>

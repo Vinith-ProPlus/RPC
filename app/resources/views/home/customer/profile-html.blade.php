@@ -184,6 +184,7 @@
                                                         </div>
                                                     </td>
                                                     <td class="pointer align-middle">
+                                                        <b>{{ $item->AddressType ?? '' }}</b><br>
                                                         <b>{{ $item->Address }}</b>,<br>
                                                         {{ $item->CityName }}, {{ $item->PostalCode }}.
                                                     </td>

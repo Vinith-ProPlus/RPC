@@ -2416,6 +2416,7 @@
                                     </div>
                                 </td>
                                 <td class="pointer align-middle">
+                                    <b>${response.data.AddressType}</b><br>
                                     <b>${response.data.Address}</b>,<br>
                                     ${formData.CityName},${formData.PostalCode}.
                                 </td>
@@ -2505,6 +2506,7 @@
                 var formData={};
                 formData.EditID=$("#btnSaveAddress").attr('data-edit-id');
                 formData.AID=$("#btnSaveAddress").attr('data-aid');
+                formData.AddressType=$('#txtADAddressType').val();
                 formData.Address=$('#txtADAddress').val();
                 formData.CompleteAddress=$('#txtADAddress').val();
                 formData.Latitude=$('#txtADLatitude').val();
@@ -2535,6 +2537,9 @@
                     $('#lstADCity-err').html('City is required');status=false;
                 }else{
                     Address+=",<br>"+formData.CityName;
+                }
+                if(formData.AddressType==""){
+                    $('#txtADAddressType-err').html('Address Type is required');status=false;
                 }
                 // if(formData.TalukID==""){
                 //     $('#lstADTaluk-err').html('Taluk is required');status=false;
@@ -2609,6 +2614,7 @@
                 let DOB=$('#txtDOB').val();
                 let CusType=$('#lstCusType').val();
                 let ConType=$('#lstConTypeIDs').val();
+                let AddressType=$('#txtADAddressType').val();
                 let Address=$('#txtAddress').val();
                 let PostalCode=$('#lstCity option:selected').attr('data-postal');
                 let CityID=$('#lstCity').val();
@@ -2637,6 +2643,9 @@
                 }
                 if(DOB === ""){
                     $('#txtDOB-err').html('DOB is required.');status=false;
+                }
+                if(AddressType === ""){
+                    $('#txtADAddressType-err').html('Address Type is required.');status=false;
                 }
                 if(CusType === ""){
                     $('#lstCusType-err').html('Customer type is required.');status=false;

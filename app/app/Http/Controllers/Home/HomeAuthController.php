@@ -206,7 +206,7 @@ class HomeAuthController extends Controller{
 		$FormData['UserData']=$this->UserData['data'];
 		$FormData['PCategories']=$this->PCategories;
 		$FormData['isEdit']=true;
-		$FormData['isRegister']=true;
+		$FormData['isRegister']=false;
 		$FormData['Cart']=$this->getCart();
 		$FormData['EditData'] = DB::table('tbl_customer')->where('DFlag',0)->Where('CustomerID',$CustomerID)->first();
 		$FormData['defaultAddressAID'] = DB::table('tbl_customer_address')->where('DFlag',0)->Where('CustomerID',$CustomerID)->where('isDefault', 1)->pluck('AID')->first();
