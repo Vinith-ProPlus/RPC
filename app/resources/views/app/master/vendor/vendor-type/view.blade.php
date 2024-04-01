@@ -37,8 +37,8 @@
 							<table class="table {{$Theme['table-size']}}" id="tblVendorType">
 								<thead>
 									<tr>
-										<th class="text-center">ID</th>
-										<th class="text-center">Vendor Type</th>
+										<th>ID</th>
+										<th>Vendor Type</th>
 										<th class="text-center">Active Status</th>
 										<th class="text-center noExport">action</th>
 									</tr>

@@ -29,6 +29,7 @@ Route::controller(VendorAuthController::class)->group(function () {
     
     Route::post('/get/vendor-home','getVendorHome');
     Route::post('/get/notifications','getNotifications');
+    Route::post('/get/notifications-count','getNotificationsCount');
     Route::post('/notification-read','NotificationRead');
 
     Route::post('/get/vendor-products-search','getVendorProductSearch');

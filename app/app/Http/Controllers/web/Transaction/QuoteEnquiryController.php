@@ -43,7 +43,7 @@ class QuoteEnquiryController extends Controller{
 			$this->CRUD=$this->general->getCrudOperations($this->ActiveMenuName);
 			$this->Settings=$this->general->getSettings();
 			$this->generalDB=Helper::getGeneralDB();
-			$this->currfyDB=Helper::getCurrFYDB();
+			$this->currfyDB=Helper::getcurrfyDB();
 			$this->logDB=Helper::getLogDB();
 			return $next($request);
 		});
@@ -108,26 +108,6 @@ class QuoteEnquiryController extends Controller{
             return view('app.transaction.quote-enquiry.image-quote',$FormData);
         }elseif($this->general->isCrudAllow($this->CRUD,"view")==true){
             return Redirect::to('/admin/transaction/quote-enquiry/');
-        }else{
-            return view('errors.403');
-        }
-    }
-    public function edit(Request $req,$QID){
-        if($this->general->isCrudAllow($this->CRUD,"edit")==true){
-            $FormData=$this->general->UserInfo;
-            $FormData['menus']=$this->Menus;
-            $FormData['crud']=$this->CRUD;
-			$FormData['ActiveMenuName']=$this->ActiveMenuName;
-			$FormData['PageTitle']=$this->PageTitle;
-			$FormData['isEdit']=true;
-			$FormData['EditData']=DB::Table('tbl_quotation')->where('DFlag',0)->Where('QID',$QID)->get();
-			if(count($FormData['EditData'])>0){
-				return view('app.transaction.quote-enquiry.quote',$FormData);
-			}else{
-				return view('errors.403');
-			}
-        }elseif($this->general->isCrudAllow($this->CRUD,"view")==true){
-            return Redirect::to('admin/transaction/quote-enquiry/');
         }else{
             return view('errors.403');
         }
@@ -331,7 +311,7 @@ class QuoteEnquiryController extends Controller{
 						$row->AvailableVendors=[];
 						$AvailableVendors = Helper::getAvailableVendors($EnqData->AID);
 						// return $AvailableVendors;
-						$AllVendors = DB::table('tbl_vendors as V')->leftJoin('tbl_vendor_ratings as VR','VR.VendorID','V.VendorID')->whereIn('V.VendorID',$AvailableVendors)->select('V.VendorID','V.VendorName','VR.OverAll')->get();
+						$AllVendors = DB::table('tbl_vendors as V')->whereIn('V.VendorID',$AvailableVendors)->select('V.VendorID','V.VendorName')->get();
 						if(count($AllVendors)>0){
 							foreach($AllVendors as $item){
 								$isProductAvailable= DB::Table('tbl_vendors_product_mapping')->where('Status',1)->Where('VendorID',$item->VendorID)->where('ProductID',$row->ProductID)->first();
@@ -339,7 +319,7 @@ class QuoteEnquiryController extends Controller{
 										$row->AvailableVendors[] = [
 											"VendorID" => $item->VendorID,
 											"VendorName" => $item->VendorName,
-											"OverAll" => $item->OverAll,
+											"OverAll" => "0/10",
 											"ProductID" => $isProductAvailable->ProductID,
 										];
 									}
@@ -848,6 +828,25 @@ class QuoteEnquiryController extends Controller{
 						}
 				)
 			);
+			$Where=" Status != 'Cancelled' ";
+			if($request->status){
+				$status=json_decode($request->status,true);
+				if(count($status)>0){
+					$Where.=" and Status in('".implode("','",$status)."')";
+				}
+			}
+			if($request->customers){
+				$customers=json_decode($request->customers,true);
+				if(count($customers)>0){
+					$Where.=" and C.CustomerID in('".implode("','",$customers)."')";
+				}
+			}
+			if($request->quoteDates){
+				$quoteDates=json_decode($request->quoteDates,true);
+				if(count($quoteDates)>0){
+					$Where.=" and EnqDate in('".implode("','",$quoteDates)."')";
+				}
+			}
 			$data=array();
 			$data['POSTDATA']=$request;
 			$data['TABLE']=$this->currfyDB . 'tbl_enquiry as E LEFT JOIN tbl_customer as C ON C.CustomerID = E.CustomerID LEFT JOIN '.$this->generalDB.'tbl_countries as CO On CO.CountryID=C.CountryID';
@@ -856,7 +855,7 @@ class QuoteEnquiryController extends Controller{
 			$data['COLUMNS1']=$columns1;
 			$data['GROUPBY']=null;
 			$data['WHERERESULT']=null;
-			$data['WHEREALL']="Status != 'Cancelled'";
+			$data['WHEREALL']=$Where;
 			return SSP::SSP( $data);
 		}else{
 			return response(array('status'=>false,'message'=>"Access Denied"), 403);
@@ -1004,29 +1003,26 @@ class QuoteEnquiryController extends Controller{
 				$years = floor($difference / (365 * 24 * 60 * 60));
 				$months = floor(($difference - $years * 365 * 24 * 60 * 60) / (30 * 24 * 60 * 60));
 
-				if ($years > 0) {
-					$yearLabel = ($years > 1) ? 'Years' : 'Year';
-					$formattedOutput = date('M Y', $createdDate) . ' (' . $years . ' ' . $yearLabel;
+				$yearLabel = ($years > 1) ? 'Years' : 'Year';
+				$formattedOutput = date('M Y', $createdDate) . ' (' . $years . ' ' . $yearLabel;
 
-					if ($months > 0) {
-						$monthLabel = ($months > 1) ? 'Months' : 'Month';
-						$formattedOutput .= ' ' . $months . ' ' . $monthLabel . ')';
-					} else {
-						$formattedOutput .= ')';
-					}
+				if ($months > 0) {
+					$monthLabel = ($months > 1) ? 'Months' : 'Month';
+					$formattedOutput .= ' ' . $months . ' ' . $monthLabel . ')';
 				} else {
-					$formattedOutput = '';
+					$formattedOutput .= ')';
 				}
 
 				$VendorRatings->TotalYears = $formattedOutput;
 
 
 		$VendorRatings->TotalYears = $formattedOutput;
+		$VendorRatings->OverAll = "0/10";
 		$VendorRatings->TotalOrders = DB::table($this->currfyDB.'tbl_vendor_orders')->where('VendorID',$VendorRatings->VendorID)->where('Status','Delivered')->count();
 		$VendorRatings->OrderValue = DB::table($this->currfyDB.'tbl_vendor_orders')->where('VendorID',$VendorRatings->VendorID)->where('Status','Delivered')->sum('NetAmount');
 		$VendorRatings->Outstanding = DB::table($this->currfyDB.'tbl_vendor_orders')->where('VendorID',$VendorRatings->VendorID)->where('Status','Delivered')->sum('BalanceAmount');
 		$VendorRatings->AdminRating = DB::table($this->currfyDB.'tbl_vendor_orders')->where('VendorID',$VendorRatings->VendorID)->where('Status','Delivered')->sum('Ratings');
-		// $VendorRatings->CustomerRating = DB::table($this->currfyDB.'tbl_vendor_orders as VO')->leftJoin($this->currfyDB.'tbl_order as O')->where('VO.VendorID',$VendorRatings->VendorID)->where('VO.Status','Delivered')->sum('Ratings');
+		$VendorRatings->CustomerRating = DB::table($this->currfyDB.'tbl_vendor_orders')->where('VendorID',$VendorRatings->VendorID)->where('Status','Delivered')->sum('CustomerRatings');
 		return $VendorRatings;
 	}
 
@@ -1068,5 +1064,35 @@ class QuoteEnquiryController extends Controller{
 			->select('PSC.PSCID', 'PSCName','PC.PCID', 'PCName', 'P.ProductID', 'ProductName','UName','UCode','U.UID')
 			->get();
     }
+	public function getSearchStatus(Request $req){
+		$sql="Select DISTINCT(Status) as Status From ".$this->currfyDB."tbl_enquiry Where 1=1 ";
+		return DB::SELECT($sql);
+	}
+	public function getSearchCustomers(Request $req){
+		$sql="Select DISTINCT(Q.CustomerID) as CustomerID,C.CustomerName From ".$this->currfyDB."tbl_enquiry as Q LEFT JOIN tbl_customer as C ON C.CustomerID=Q.CustomerID Where 1=1 ";
+		if($req->status){
+			$status=json_decode($req->status,true);
+			if(count($status)>0){
+				$sql.=" and Q.Status in('".implode("','",$status)."')";
+			}
+		}
+		return DB::SELECT($sql);
+	}
+	public function getSearchQuoteDates(Request $req){
+		$sql="Select DISTINCT(Q.EnqDate) as QuoteDate From ".$this->currfyDB."tbl_enquiry as Q LEFT JOIN tbl_customer as C ON C.CustomerID=Q.CustomerID Where 1=1 ";
+		if($req->status){
+			$status=json_decode($req->status,true);
+			if(count($status)>0){
+				$sql.=" and Q.Status in('".implode("','",$status)."')";
+			}
+		}
+		if($req->customers){
+			$customers=json_decode($req->customers,true);
+			if(count($customers)>0){
+				$sql.=" and Q.CustomerID in('".implode("','",$customers)."')";
+			}
+		}
+		return DB::SELECT($sql);
+	}
 
 }

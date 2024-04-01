@@ -37,12 +37,12 @@
 							<table class="table {{$Theme['table-size']}}" id="tblVendors">
 								<thead>
 									<tr>
-										<th class="text-center">Company Name</th>
-										<th class="text-center">Vendor Name</th>
-										<th class="text-center">Mobile Number</th>
-										<th class="text-center">Vendor Type</th>
-										<th class="text-center">District Name</th>
-										<th class="text-center">Created Date</th>
+										<th>Company Name</th>
+										<th>Vendor Name</th>
+										<th>Mobile Number</th>
+										<th>Vendor Type</th>
+										<th>District Name</th>
+										<th>Created Date</th>
 										<th class="text-center">Active Status</th>
 										<th class="text-center noExport">action</th>
 									</tr>
@@ -103,6 +103,7 @@
                 data: { VendorID: $(this).attr('data-id') },
                 headers: { 'X-CSRF-Token': $('meta[name=_token]').attr('content') },
                 success: function (response) {
+					// debugger
                     let modalContent = $('<div></div>');
                     let row = $('<div class="row my-3 justify-content-center">').html(
                             `<div class="row">
@@ -135,6 +136,11 @@
                                             <div class="col-sm-6 fs-15 fw-600">Mobile No</div>
                                             <div class="col-sm-1 fs-15 fw-600 text-center">:</div>
                                             <div class="col-sm-5 fs-15">${response.MobileNumber1}</div>
+                                        </div>
+                                        <div class="row my-2">
+                                            <div class="col-sm-6 fs-15 fw-600">Stock Point</div>
+                                            <div class="col-sm-1 fs-15 fw-600 text-center">:</div>
+                                            <div class="col-sm-5 fs-15">${response.StockPoints[0].Address}, ${response.StockPoints[0].CityName}<br>${response.StockPoints[0].TalukName}, ${response.StockPoints[0].DistrictName}<br>${response.StockPoints[0].StateName}-${response.StockPoints[0].PostalCode}</div>
                                         </div>
                                     </div>
                                 </div>                               

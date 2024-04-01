@@ -61,7 +61,7 @@
 				<div class="card-body " >
 					<div id="order_filter" class="row d-flex justify-content-center m-5 mb-2">
 						<div class="col-sm-2 justify-content-Center">
-							<div class="form-group text-center mh-60"
+							<div class="form-group text-center mh-60">
 								<label style="margin-bottom:0px;">Order Status</label>
 								<div>
 									<select id="lstFOrderStatus" class="form-control multiselect" multiple >
@@ -70,7 +70,7 @@
 							</div>
 						</div>
 						<div class="col-sm-2 justify-content-Center">
-							<div class="form-group text-center mh-60"
+							<div class="form-group text-center mh-60">
 								<label style="margin-bottom:0px;">Payment Status</label>
 								<div>
 									<select id="lstFPaymentStatus" class="form-control multiselect" multiple >
@@ -79,7 +79,7 @@
 							</div>
 						</div>
 						<div class="col-sm-2 justify-content-Center">
-							<div class="form-group text-center mh-60"
+							<div class="form-group text-center mh-60">
 								<label style="margin-bottom:0px;">Customers</label>
 								<div>
 									<select id="lstFCustomers" class="form-control multiselect" multiple >
@@ -88,7 +88,7 @@
 							</div>
 						</div>
 						<div class="col-sm-2 justify-content-Center">
-							<div class="form-group text-center mh-60"
+							<div class="form-group text-center mh-60">
 								<label style="margin-bottom:0px;">Order Dates</label>
 								<div>
 									<select id="lstFOrderDates" class="form-control multiselect" multiple >
@@ -97,7 +97,7 @@
 							</div>
 						</div>
 						<div class="col-sm-2 justify-content-Center">
-							<div class="form-group text-center mh-60"
+							<div class="form-group text-center mh-60">
 								<label style="margin-bottom:0px;">Delivery Expected</label>
 								<div>
 									<select id="lstFDeliveryDates" class="form-control multiselect" multiple >
@@ -111,15 +111,15 @@
                             <table class="table table-sm" id="tblOrders">
                                 <thead>
                                     <tr class="valign-top">
-                                        <th class="text-center">Order No</th>
-                                        <th class="text-center">Order Date</th>
-										<th class="text-center">Customer Name</th>
-                                        <th class="text-center">Contact Number</th>
-                                        <th class="text-center">Expected Date</th>
-                                        <th class="text-center">Order Amount</th>
-                                        <th class="text-center">Paid Amount</th>
-                                        <th class="text-center">Balance</th>
-                                        <th class="text-center">Order Status</th>
+                                        <th>Order No</th>
+                                        <th>Order Date</th>
+										<th>Customer Name</th>
+                                        <th>Contact Number</th>
+                                        <th>Expected Date</th>
+                                        <th class="text-right">Order Amount</th>
+                                        <th class="text-right">Paid Amount</th>
+                                        <th class="text-right">Balance</th>
+                                        <th class="text-right">Order Status</th>
                                         <th class="text-center">Payment Status</th>
                                         <th class="text-center noExport">action</th>
                                     </tr>

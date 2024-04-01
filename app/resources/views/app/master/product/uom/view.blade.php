@@ -38,9 +38,9 @@
                             <table class="table  {{$Theme['table-size']}}" id="tblUOM">
                                 <thead>
                                     <tr>
-                                        <th class="text-center">ID</th>
-                                        <th class="text-center">Unit Name</th>
-                                        <th class="text-center">Unit Code</th>
+                                        <th>ID</th>
+                                        <th>Unit Name</th>
+                                        <th>Unit Code</th>
                                         <th class="text-center">Active Status</th>
                                         <th class="text-center noExport">action</th>
                                     </tr>

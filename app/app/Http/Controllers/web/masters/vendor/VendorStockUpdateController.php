@@ -148,7 +148,7 @@ class VendorStockUpdateController extends Controller{
 				$result[$row->PSCName][]=$row;
 			}
 		}
-		$VendorStockPoints= DB::table('tbl_vendors_stock_point')->where('DFlag',0)->where('VendorID',$req->VendorID)->select('DetailID as StockPointID','PointName')->get();
+		$VendorStockPoints= DB::table('tbl_vendors_stock_point')->where('DFlag',0)->where('VendorID',$req->VendorID)->select('StockPointID','PointName')->get();
 		return ['StockPointData'=>$VendorStockPoints,'ProductData'=>$result];
 	}
 	public function getVendorStockData(Request $req){

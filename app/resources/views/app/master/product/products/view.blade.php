@@ -37,11 +37,11 @@
 							<table class="table {{$Theme['table-size']}}" id="tblProducts">
 								<thead>
 									<tr>
-										<th class="text-center">Product Name</th>
-										<th class="text-center">Category</th>
-										<th class="text-center">Sub Category</th>
-										<th class="text-center">Regular Price (₹)</th>
-										<th class="text-center">Sales Price (₹)</th>
+										<th>Product Name</th>
+										<th>Category</th>
+										<th>Sub Category</th>
+										<th class="text-right">Regular Price (₹)</th>
+										<th class="text-right">Sales Price (₹)</th>
 										<th class="text-center">Active Status</th>
 										<th class="text-center noExport">action</th>
 									</tr>

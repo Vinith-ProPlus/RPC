@@ -32,8 +32,8 @@
                     <table class="table  {{$Theme['table-size']}}" id="tblUserRoles">
                     	<thead>
                             <tr>
-                            	<th class="text-center">Role ID</th>
-                                <th class="text-center">Role Name</th>
+                            	<th>Role ID</th>
+                                <th>Role Name</th>
                                 <th class="text-center noExport">action</th>
                             </tr>
                         </thead>

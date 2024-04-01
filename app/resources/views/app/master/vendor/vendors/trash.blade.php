@@ -36,14 +36,14 @@
 								<table class="table {{$Theme['table-size']}}" id="tblVendors">
 									<thead>
 										<tr>
-											<th class="text-center">Vendor Name</th>
-											<th class="text-center">Mobile Number</th>
-											<th class="text-center">GST Number</th>
-											<th class="text-center">Vendor Type</th>
-											<th class="text-center">Address</th>
-											<th class="text-center">City</th>
-											<th class="text-center">District</th>
-											<th class="text-center">Postal Code</th>
+											<th>Vendor Name</th>
+											<th>Mobile Number</th>
+											<th>GST Number</th>
+											<th>Vendor Type</th>
+											<th>Address</th>
+											<th>City</th>
+											<th>District</th>
+											<th>Postal Code</th>
 											<th class="text-center">Active Status</th>
 											<th class="text-center noExport">action</th>
 										</tr>

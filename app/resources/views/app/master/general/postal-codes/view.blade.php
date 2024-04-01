@@ -76,11 +76,11 @@
                             <table class="table {{$Theme['table-size']}}" id="tblPostalCodes">
                                 <thead>
                                     <tr>
-                                        <th class="text-center">Postal Code ID</th>
-                                        <th class="text-center">Postal Code</th>
-                                        <th class="text-center">District Name</th>
-                                        <th class="text-center">State Name</th>
-                                        <th class="text-center">Country Name</th>
+                                        <th>Postal Code ID</th>
+                                        <th>Postal Code</th>
+                                        <th>District Name</th>
+                                        <th>State Name</th>
+                                        <th>Country Name</th>
                                         <th class="text-center">Active Status</th>
                                         <th class="text-center noExport">Action</th>
                                     </tr>

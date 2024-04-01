@@ -49,8 +49,8 @@
                             <table class="table {{$Theme['table-size']}}" id="tblCountry">
                                 <thead>
                                     <tr>
-                                        <th class="text-center">Country ID</th>
-                                        <th class="text-center">Country Name</th>
+                                        <th>Country ID</th>
+                                        <th>Country Name</th>
                                         <th class="text-center">Active Status</th>
                                         <th class="text-center noExport">Action</th>
                                     </tr>

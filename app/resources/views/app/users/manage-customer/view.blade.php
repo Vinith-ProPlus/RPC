@@ -39,10 +39,10 @@
                             <table class="table" id="tblCustomer">
                                 <thead>
                                     <tr>
-                                        <th class="text-center">Customer Name</th>
-                                        <th class="text-center">Mobile Number</th>
-                                        <th class="text-center">Alternate Mobile Number</th>
-										<th class="text-center">E-Mail</th>
+                                        <th>Customer Name</th>
+                                        <th>Mobile Number</th>
+                                        <th>Alternate Mobile Number</th>
+										<th>E-Mail</th>
 										<th class="text-center">Active Status</th>
 										<th class="text-center">Action</th>
                                     </tr>
