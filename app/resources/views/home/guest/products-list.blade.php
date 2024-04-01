@@ -13301,7 +13301,7 @@
     });
 
     $(document).ready(function () {
-        var sub_category_id = $('SCID').val();
+        var sub_category_id = $('#SCID').val();
         var current_page_no = 1;
         var viewType = 'Grid';
         {{--const LoadCategories = async () => {--}}

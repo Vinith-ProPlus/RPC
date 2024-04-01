@@ -31,8 +31,17 @@ class HomeController extends Controller
                 return redirect()->route('customer-register');
             }
             $customerAid = Session::get('selected_aid');
-            $customerDefaultAid = DB::table('tbl_customer_address')->where('CustomerID', $CustomerID)->where('isDefault', true)->first();
-            $AID = isset($customerAid) ? $customerAid : $customerDefaultAid->AID;
+            $customerDefaultAid = DB::table('tbl_customer_address')
+                ->where('CustomerID', $CustomerID)
+                ->where('isDefault', 1)
+                ->where('DFlag',0)
+                ->value('AID');
+
+            if ($customerAid && DB::table('tbl_customer_address')->where('CustomerID', $CustomerID)->where('AID', $customerAid)->where('isDefault', 1)->where('DFlag',0)->exists()) {
+                $AID = $customerAid;
+            } else {
+                $AID = $customerDefaultAid;
+            }
             $AllVendors = Helper::getAvailableVendorsForCustomer($AID);
             $PCatagories = DB::table('tbl_vendors_product_mapping as VPM')
                 ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'VPM.PCID')
@@ -47,15 +56,18 @@ class HomeController extends Controller
                 $row->PCImage = $row->PCImage ? url('/') . '/' . $row->PCImage : url('/') . '/' . 'assets/images/no-image-b.png';
                 $row->PSCData = DB::table('tbl_product_subcategory')->where('ActiveStatus', 'Active')->where('DFlag', 0)->where('PCID', $row->PCID)->select('PSCID', 'PSCName', 'PSCImage')->get();
             }
-            $RecentProducts = DB::table('tbl_products as P')
-                ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')
+            $RecentProducts = DB::table('tbl_vendors_product_mapping as VPM')
+                ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'VPM.PCID')
+                ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PCID', 'PC.PCID')
+                ->leftJoin('tbl_products as P', 'P.SCID', 'PSC.PSCID')
                 ->leftJoin('tbl_wishlists as W', function ($join) use ($CustomerID) {
                     $join->on('W.product_id', '=', 'P.ProductID')
                         ->where('W.customer_id', '=', $CustomerID);
                 })
+                ->where('VPM.Status', 1)->WhereIn('VPM.VendorID', $AllVendors)
                 ->where('P.ActiveStatus', 'Active')
                 ->where('P.DFlag', 0)
-                ->select('P.ProductID', 'P.ProductName', 'P.ProductImage', 'PSC.PSCName',
+                ->select('P.ProductID', 'P.ProductName', 'P.ProductImage', 'PSC.PSCID', 'PSC.PSCName',
                     DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(P.ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'),
                     DB::raw('IF(W.product_id IS NOT NULL, true, false) AS IsInWishlist'))
                 ->inRandomOrder()

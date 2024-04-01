@@ -65,7 +65,7 @@
                         <div class="product-details">
                             <div class="category-wrap">
                                 <div class="category-list">
-                                    <a href="#">{{ $product->SubCategoryName }}</a>
+                                    <a href="{{ route('products.customer.productsList', ['SCID' => $product->PSCID]) }}">{{ $product->SubCategoryName }}</a>
                                 </div>
 {{--                                <a href="#" class="btn-icon-wish {{ $product->IsInWishlist ? 'added-wishlist' : '' }}" title="wishlist">--}}
 {{--                                    <i class="icon-heart"></i>--}}
@@ -92,7 +92,7 @@
                     </figure>
                     <div class="product-details">
                         <div class="category-list">
-                            <a href="#" class="product-category">{{ $product->SubCategoryName }}</a>
+                            <a href="{{ route('products.customer.productsList', ['SCID' => $product->PSCID]) }}" class="product-category">{{ $product->SubCategoryName }}</a>
                         </div>
                         <h3 class="product-title"><a href="{{ route('customer.product.view', $product->ProductID) }}"> {{ $product->ProductName }}</a></h3>
                         <div class="ratings-container">

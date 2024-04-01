@@ -145,7 +145,7 @@
             @foreach ($HotProducts->shuffle()->take(6) as $hotProduct)
                 <div class="product-default inner-quickview inner-icon product-div">
                     <figure>
-                        <a href="#">
+                        <a href="{{ route('customer.product.view', $hotProduct->ProductID) }}">
                             <img src="{{ $hotProduct->ProductImage }}" width="300" height="300" alt="product">
                         </a>
                         <div class="label-group">
@@ -160,12 +160,12 @@
                     <div class="product-details">
                         <div class="category-wrap">
                             <div class="category-list">
-                                <a href="#">{{ $hotProduct->PSCName }}</a>
+                                <a href="{{ route('products.customer.productsList', ['SCID' => $hotProduct->PSCID]) }}">{{ $hotProduct->PSCName }}</a>
                             </div>
                             {{--                        <a href="#" class="btn-icon-wish {{ $hotProduct->IsInWishlist ? 'added-wishlist' : '' }}" title="wishlist"><i class="icon-heart"></i></a>--}}
                         </div>
                         <h3 class="product-title">
-                            <a href="#">{{ $hotProduct->ProductName }}</a>
+                            <a href="{{ route('customer.product.view', $hotProduct->ProductID) }}">{{ $hotProduct->ProductName }}</a>
                         </h3>
                         <div class="ratings-container">
                             <div class="product-ratings">
@@ -236,7 +236,7 @@
             @foreach ($RecentProducts->shuffle()->take(6) as $recentProduct)
                 <div class="product-default inner-quickview inner-icon product-div">
                     <figure>
-                        <a href="#">
+                        <a href="{{ route('customer.product.view', $recentProduct->ProductID) }}">
                             <img src="{{ $recentProduct->ProductImage }}" width="300" height="300" alt="product">
                         </a>
                         <div class="label-group">
@@ -251,12 +251,12 @@
                     <div class="product-details">
                         <div class="category-wrap">
                             <div class="category-list">
-                                <a href="#">{{ $recentProduct->PSCName }}</a>
+                                <a href="{{ route('products.customer.productsList', ['SCID' => $recentProduct->PSCID]) }}">{{ $recentProduct->PSCName }}</a>
                             </div>
                             {{--                    <a href="#" class="btn-icon-wish {{ $recentProduct->IsInWishlist ? 'added-wishlist' : '' }}" title="wishlist"><i class="icon-heart"></i></a>--}}
                         </div>
                         <h3 class="product-title">
-                            <a href="#">{{ $recentProduct->ProductName }}</a>
+                            <a href="{{ route('customer.product.view', $recentProduct->ProductID) }}">{{ $recentProduct->ProductName }}</a>
                         </h3>
                         <div class="ratings-container">
                             <div class="product-ratings">

@@ -1,9 +1,9 @@
 <?php
 namespace App\helper;
-use DB;
-use DocNum;
+use Illuminate\Support\Facades\DB;
+use App\Models\DocNum;
 use Illuminate\Support\Facades\Config;
-use Session;
+use Illuminate\Support\Facades\Session;
 use GuzzleHttp\Client;
 class helper{
 	public static function getMainDB(){
@@ -243,7 +243,7 @@ class helper{
 		}
 		return $VendorDB.'.';
 	}
-	
+
 	public static function getStockTable($VendorID) {
 		$StockDB = self::getStockDB();
 
