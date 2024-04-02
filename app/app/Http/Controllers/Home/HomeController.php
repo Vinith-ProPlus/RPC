@@ -30,6 +30,7 @@ class HomeController extends Controller
             if (empty($CustomerID)) {
                 return redirect()->route('customer-register');
             }
+            logger($CustomerID);
             $customerAid = Session::get('selected_aid');
             $customerDefaultAid = DB::table('tbl_customer_address')
                 ->where('CustomerID', $CustomerID)

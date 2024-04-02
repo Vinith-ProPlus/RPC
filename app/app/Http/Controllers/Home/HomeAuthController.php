@@ -1639,6 +1639,8 @@ class HomeAuthController extends Controller{
     }
     public function UpdateShippingAddress(Request $req){
         $CustomerID = $this->ReferID;
+        logger("sx CustomerID");
+        logger($CustomerID);
         $OldData=$NewData=[];
         $OldData=DB::table('tbl_customer_address')->where('CustomerID',$CustomerID)->where('DFlag',0)->get();
         $status=false;
