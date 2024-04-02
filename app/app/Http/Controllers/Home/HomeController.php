@@ -96,7 +96,7 @@ class HomeController extends Controller
         } else {
             $RecentProducts = DB::table('tbl_products as P')
                 ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')
-                ->select('P.ProductID', 'P.ProductName', 'P.ProductImage', 'PSC.PSCName',
+                ->select('P.ProductID', 'P.ProductName', 'P.ProductImage', 'PSC.PSCName', 'PSC.PSCID', 'PSC.PCID',
                     DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(P.ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'))
                 ->inRandomOrder()->take(10)
                 ->get();
