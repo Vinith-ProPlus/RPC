@@ -297,6 +297,7 @@ class HomeAuthController extends Controller{
 				"CreatedOn"=>date("Y-m-d H:i:s")
 			);
 			$status=DB::Table('tbl_customer')->insert($data);
+            DB::Table('tbl_customer_address')->where('CustomerID', $this->UserID)->update(['CustomerID' => $CustomerID]);
 //			if($status){
 //				$SAddress=json_decode($req->SAddress,true);
 //				foreach($SAddress as $row){
@@ -1639,8 +1640,9 @@ class HomeAuthController extends Controller{
     }
     public function UpdateShippingAddress(Request $req){
         $CustomerID = $this->ReferID;
-        logger("sx CustomerID");
-        logger($CustomerID);
+        if(!$CustomerID){
+            $CustomerID = auth()->user()->UserID;
+        }
         $OldData=$NewData=[];
         $OldData=DB::table('tbl_customer_address')->where('CustomerID',$CustomerID)->where('DFlag',0)->get();
         $status=false;
@@ -1721,6 +1723,9 @@ class HomeAuthController extends Controller{
     }
     public function SetAddressDefault(Request $req){
         $CustomerID = $this->ReferID;
+        if(!$CustomerID){
+            $CustomerID = auth()->user()->UserID;
+        }
         DB::beginTransaction();
         $status=false;
         try {
@@ -1741,6 +1746,9 @@ class HomeAuthController extends Controller{
 
     public function DeleteShippingAddress(Request $req){
         $CustomerID = $this->ReferID;
+        if(!$CustomerID){
+            $CustomerID = auth()->user()->UserID;
+        }
         DB::beginTransaction();
         $status=false;
         try {

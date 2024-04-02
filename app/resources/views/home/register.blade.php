@@ -713,10 +713,7 @@
         });
         const SaveAddress = async () => {
             let { status, formData, Address } = await ValidateGetAddress();
-            console.log(formData);
-
             if (status) {
-
                 $.ajax({
                     type:"post",
                     url:"{{ route('UpdateShippingAddress') }}",
@@ -761,11 +758,9 @@
                                     }
                                 });
                             } else {
-                                debugger
                                 $('#tblShippingAddress tbody').append(html);
                                 if($('#tblShippingAddress tbody tr').length === 1){
-                                    let firstTableRow = $('#tblShippingAddress tbody tr').first().find('.defaultAddress');
-                                    firstTableRow.click();
+                                    $('#tblShippingAddress tbody tr').first().find('.defaultAddress').click();
                                 }
                             }
                             toastr.success("Address added successfully!.");
