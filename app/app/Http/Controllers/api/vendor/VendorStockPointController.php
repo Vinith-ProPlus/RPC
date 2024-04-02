@@ -101,7 +101,7 @@ class VendorStockPointController extends Controller{
                     "ServiceBy"=>$req->ServiceBy,
                     "Range"=>$req->ServiceBy == 'Radius' ? $req->Range : 0,
                     "CreatedBy"=>$this->VendorID,
-                    "CreatedOn"=>date("Y-m-d H:i:s"),
+                    "CreatedOn"=>date("Y-m-d H:i:s"), 
                 );
                 $status=DB::Table('tbl_vendors_stock_point')->insert($data);
                 if($status && $req->ServiceBy != 'Radius'){

@@ -348,23 +348,32 @@ class VendorTransactionAPIController extends Controller{
                 ->leftJoin($this->currfyDB.'tbl_order_details as OD','OD.VOrderID','VO.VOrderID')
                 ->leftJoin($this->currfyDB.'tbl_order as O','O.OrderID','VO.OrderID')
                 ->leftJoin('tbl_products as P','P.ProductID','OD.ProductID')
-                ->where('VO.VOrderID',$req->VOrderID)->where('OD.Status','New')
+                ->where('VO.VOrderID',$req->VOrderID)
+                ->where('OD.Status','New')
                 ->select('O.OrderNo','O.CustomerID','P.ProductName')
                 ->get();
-
-            $OTP=Helper::getOTP(6);
-            $status=DB::Table($this->currfyDB."tbl_order_details")->where('VOrderID',$req->VOrderID)->Where('Status','New')->update(['OTP'=>$OTP,"UpdatedOn"=>now(),"UpdatedBy"=>$VendorID]);
-            if($status){
-                $Title = "OTP for Order Delivery for Order No " . $OrderData[0]->OrderNo;
-                $Message = "Your OTP for order delivery is ".$OTP.". Please use this code to confirm your delivery. Delivered Products: ";
+            $existingOTP=DB::Table($this->currfyDB."tbl_order_details")->where('VOrderID',$req->VOrderID)->Where('Status','New')->value('OTP');
+            if (!$existingOTP) {
+                $otp = Helper::getOTP(6);
+                $status = DB::table($this->currfyDB."tbl_order_details")
+                    ->where('VOrderID', $req->VOrderID)
+                    ->where('Status', 'New')
+                    ->update(['OTP' => $otp, "UpdatedOn" => now(), "UpdatedBy" => $VendorID]);
+                if ($status) {
+                    $existingOTP = $otp;
+                }
+            }
+            if ($existingOTP) {
+                $title = "OTP for Order Delivery for Order No " . $OrderData[0]->OrderNo;
+                $message = "Your OTP for order delivery is " . $existingOTP . ". Please use this code to confirm your delivery. Delivered Products: ";
                 foreach($OrderData as $index => $item) {
-                    $Message .= $item->ProductName;
+                    $message .= $item->ProductName;
                     if ($index < count($OrderData) - 1) {
-                        $Message .= ", ";
+                        $message .= ", ";
                     }
                 }
-                $Message .= ". Thank you.";
-                Helper::saveNotification($OrderData[0]->CustomerID,$Title,$Message,'Order',$req->VOrderID);
+                $message .= ". Thank you.";
+                Helper::saveNotification($OrderData[0]->CustomerID, $title, $message, 'Order', $req->VOrderID);
             }
         }catch(Exception $e) {
             $status=false;
@@ -389,20 +398,21 @@ class VendorTransactionAPIController extends Controller{
                 if($status){
                     $status=DB::Table($this->currfyDB."tbl_vendor_orders")->where('VOrderID',$req->VOrderID)->update(['Status'=>'Delivered','DeliveredOn'=>now(),"UpdatedOn"=>now(),"UpdatedBy"=>$VendorID]);
                 }
+
                 $AllProducts = DB::table($this->currfyDB.'tbl_order_details')->where('OrderID',$req->OrderID)->whereNot('Status','Cancelled')->count();
                 $DeliveredProducts = DB::table($this->currfyDB.'tbl_order_details')->where('OrderID',$req->OrderID)->where('Status','Delivered')->count();
+
                 $CustomerID = DB::table($this->currfyDB.'tbl_order')->where('OrderID',$req->OrderID)->value('CustomerID');
                 if($AllProducts == $DeliveredProducts){
                     $status = DB::table($this->currfyDB.'tbl_order')->where('OrderID',$req->OrderID)->update(['Status'=>'Delivered','DeliveredOn'=>now(),'UpdatedOn'=>now(),'UpdatedBy'=>$VendorID]);
                     $Title = "Your Order Completed";
                     $Message = "Your order has been successfully completed. Thank you for choosing us";
-                    Helper::saveNotification($CustomerID,$Title,$Message,'Order',$req->OrderID);
                 }else{
                     $status = DB::table($this->currfyDB.'tbl_order')->where('OrderID',$req->OrderID)->update(['Status'=>'Partially Delivered','UpdatedOn'=>now(),'UpdatedBy'=>$VendorID]);
                     $Title = "Your Order Partially Delivered";
                     $Message = "Your order has been successfully delivered. Kindly review the order";
-                    Helper::saveNotification($CustomerID,$Title,$Message,'Order',$req->VOrderID);
                 }
+                Helper::saveNotification($CustomerID,$Title,$Message,'Ratings',$req->VOrderID);
             }
         }catch(Exception $e) {
             $status=false;
