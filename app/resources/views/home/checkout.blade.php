@@ -12,6 +12,10 @@
         #receiver_mobile_no {
             -moz-appearance: textfield; /* Firefox */
         }
+
+        select.form-control:not([size]):not([multiple]) {
+            height: 4rem !important;
+        }
     </style>
     <div class="container">
     <ul class="checkout-progress-bar d-flex justify-content-center flex-wrap">
@@ -41,7 +45,7 @@
                                 <tr class="product">
                                     <td>
                                         <figure class="product-image-container">
-                                            <a href="#" class="product-image">
+                                            <a href="{{ route('customer.product.view', $item->ProductID) }}" class="product-image">
                                                 <img src="{{$item->ProductImage}}" alt="product" height="100px" width="100px">
                                             </a>
 
@@ -50,7 +54,7 @@
                                     </td>
                                     <td class="product-col align-middle">
                                         <h5 class="product-title">
-                                            <a href="#">{{$item->ProductName}}</a>
+                                            <a href="{{ route('customer.product.view', $item->ProductID) }}">{{$item->ProductName}}</a>
                                         </h5>
                                     </td>
 
@@ -122,6 +126,46 @@
                         </tr>
                         <tr>
                             <td colspan="2" class="text-left">
+                                <form action="#">
+                                    <div class="form-group form-group-sm">
+                                        <h5 class="text-center mb-1">BUILDER DETAILS</h5>
+
+                                        <label for="stage_id"><strong>Current Stage</strong></label>
+                                        <select class="form-control" id="stage_id">
+                                            @foreach($stages as $stage)
+                                                <option value="{{ $stage->StageID }}">{{ $stage->StageName }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="form-group form-group-sm">
+                                        <label for="BuildingMeasurementID"><strong>Building Measurement</strong></label>
+                                        <div class="row col-sm-12">
+                                            <div class="col-sm-8">
+                                                <input type="number" min="1" class="form-control" style="height: 4rem !important;"
+                                                       id="BuildingMeasurement" placeholder="Enter Measurement"
+                                                       value="">
+                                            </div>
+                                            <div class="col-sm-4">
+                                                <select class="form-control" id="BuildingMeasurementID">
+                                                    @foreach($BuildingMeasurements as $BuildingMeasurement)
+                                                        <option
+                                                            value="{{ $BuildingMeasurement->MeasurementID }}">{{ $BuildingMeasurement->MeasurementName }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group form-group-sm">
+                                        <label for="BuildingImage"><strong>Building Image</strong></label>
+                                        <input type="file" class="form-control" id="BuildingImage">
+{{--                                        <input type="date" class="form-control" id="expected_date" placeholder="Expected date" value="{{date('Y-m-d', strtotime('+15 days'))}}">--}}
+                                    </div>
+                                </form>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="2" class="text-left">
                                 <h5 class="text-center">BILLING ADDRESS</h5>
 
                                 <b>{{ $CustomerData->CustomerName }}</b>,<br>
@@ -162,7 +206,6 @@
             <button id="btnMCancel" class="btn btn-secondary">Cancel</button>
         </div>
     </div>
-
 </div>
 
 @endsection
@@ -232,6 +275,10 @@
                 formData.append('ReceiverName', $('#receiver_name').val());
                 formData.append('ReceiverMobNo', $('#receiver_mobile_no').val());
                 formData.append('ExpectedDeliveryDate', $('#expected_date').val());
+                formData.append('StageID', $('#stage_id').val());
+                formData.append('BuildingMeasurement', $('#BuildingMeasurement').val());
+                formData.append('BuildingMeasurementID', $('#BuildingMeasurementID').val());
+                formData.append('BuildingImage', $('#BuildingImage')[0].files[0]);
                 $.ajax({
                     type: "post",
                     url: "{{url('/')}}/place-order",

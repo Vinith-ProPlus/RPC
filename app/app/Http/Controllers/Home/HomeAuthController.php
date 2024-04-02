@@ -624,6 +624,12 @@ class HomeAuthController extends Controller{
 		$FormData['PCategories']=$this->PCategories;
 		$FormData['isEdit']=false;
 		$FormData['isRegister']=false;
+		$FormData['stages'] = DB::Table($this->generalDB.'tbl_stages')
+            ->where('DFlag', 0)->where('ActiveStatus', 'Active')
+            ->select('StageID', 'StageName')->get();
+		$FormData['BuildingMeasurements'] = DB::Table($this->generalDB.'tbl_building_measurements')
+            ->where('DFlag', 0)->where('ActiveStatus', 'Active')
+            ->select('MeasurementID', 'MeasurementName')->get();
         $customerAid = Session::get('selected_aid');
         $customerDefaultAid = DB::table('tbl_customer_address')
             ->where('CustomerID', $CustomerID)
@@ -697,7 +703,7 @@ class HomeAuthController extends Controller{
                         $fileName1 = $Img->fileName != "" ? $Img->fileName : Helper::RandomString(10) . "png";
                         copy($Img->uploadPath, $dir . $fileName1);
                         $BuildingImage = $dir . $fileName1;
-                        // unlink($Img->uploadPath);
+                         unlink($Img->uploadPath);
                     }
                 }
             }
@@ -731,7 +737,7 @@ class HomeAuthController extends Controller{
                 "DDistrictID"=>$AddressData->DistrictID,
                 "DStateID"=>$AddressData->StateID,
                 "DCountryID"=>$AddressData->CountryID,
-                'StageID' => $req->StageID ?? '',
+                'StageID' => $req->StageID,
                 'BuildingMeasurementID' => $req->BuildingMeasurementID,
                 'BuildingMeasurement' => $req->BuildingMeasurement,
                 'BuildingImage' => $BuildingImage,
