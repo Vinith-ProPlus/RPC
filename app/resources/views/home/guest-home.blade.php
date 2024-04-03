@@ -252,33 +252,19 @@
                     </div>
                 </div>
             </section>
+
             <section class="building-modeling">
                 <div class="container">
                     <div class="row my-5">
-                        <div class="col-sm-4 d-flex justify-content-center align-items-center">
-                            <div class="circle">1</div>
-                            <div class="step">STEP 1</div>
-                        </div>
-                        <div class="col-sm-4 d-flex justify-content-center align-items-center">
-                            <div class="circle">2</div>
-                            <div class="step">STEP 2</div>
-
-                        </div>
-                        <div class="col-sm-4 d-flex justify-content-center align-items-center">
-                            <div class="circle">3</div>
-                            <div class="step">STEP 3</div>
-                        </div>
-                    </div>
-                    <div class="row my-5">
-                        <div class="col-sm-4">
-                            <img src="{{url('/')}}/home/assets/images/step/step1.png" alt="" height="176px" width="418px">
-                        </div>
-                        <div class="col-sm-4">
-                            <img src="{{url('/')}}/home/assets/images/step/step2.png" alt="" height="176px" width="418px">
-                        </div>
-                        <div class="col-sm-4">
-                            <img src="{{url('/')}}/home/assets/images/step/step3.png" alt="" height="176px" width="418px">
-                        </div>
+                        @foreach($steppers as $index => $stepper)
+                            <div class="col-sm-4">
+                                <div class="row d-flex justify-content-center align-items-center m-4">
+                                    <div class="circle">{{ $index + 1 }}</div>
+                                    <div class="step">{{ $stepper->StepperTitle }}</div>
+                                </div>
+                                <img src="{{ $stepper->StepperImage }}" alt="Step {{ $index + 1 }}" height="176px" width="418px">
+                            </div>
+                        @endforeach
                     </div>
                 </div>
             </section>

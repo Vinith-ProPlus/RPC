@@ -51,8 +51,8 @@ class StepperController extends Controller
             $FormData['PageTitle'] = $this->PageTitle;
             $FormData['menus'] = $this->Menus;
             $FormData['crud'] = $this->CRUD;
-            $FormData['stepperImages'] = DB::Table('tbl_stepper_images')->where('StepperType', 'Web')->where('DFlag', 0)->orderBy('TranNo', 'asc')->get();
-            $FormData['MStepperImages'] = DB::Table('tbl_stepper_images')->where('StepperType', 'Mobile')->where('DFlag', 0)->orderBy('TranNo', 'asc')->get();
+            $FormData['stepperImages'] = DB::Table('tbl_stepper_images')->where('StepperType', 'Web')->where('DFlag', 0)->orderBy('TranNo')->get();
+            $FormData['MStepperImages'] = DB::Table('tbl_stepper_images')->where('StepperType', 'Mobile')->where('DFlag', 0)->orderBy('TranNo')->get();
             return view('app.settings.steppers.view', $FormData);
         } elseif ($this->general->isCrudAllow($this->CRUD, "Add") == true) {
             return Redirect::to('/admin/settings/steppers/create');
