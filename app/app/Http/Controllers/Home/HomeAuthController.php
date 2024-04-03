@@ -637,7 +637,7 @@ class HomeAuthController extends Controller{
             ->where('isDefault', 1)
             ->value('AID');
 
-        if ($customerAid && DB::table('tbl_customer_address')->where('CustomerID', $CustomerID)->where('AID', $customerAid)->where('DFlag',0)->where('isDefault', 1)->exists()) {
+        if ($customerAid && DB::table('tbl_customer_address')->where('CustomerID', $CustomerID)->where('AID', $customerAid)->where('DFlag',0)->exists()) {
             $AID = $customerAid;
         } else {
             $AID = $customerDefaultAid;
