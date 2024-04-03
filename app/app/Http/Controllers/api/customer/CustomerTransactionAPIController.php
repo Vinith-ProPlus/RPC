@@ -207,9 +207,8 @@ class CustomerTransactionAPIController extends Controller{
         ->select('E.EnqID','E.EnqNo','E.EnqDate','E.EnqExpiryDate','E.ReceiverName','E.ReceiverMobNo','E.ExpectedDeliveryDate','E.Status AS EnqStatus','Q.Status AS QStatus','Q.QID','Q.QNo','Q.QExpiryDate','Q.QDate','Q.TaxAmount','Q.SubTotal','Q.CGSTAmount','Q.SGSTAmount','Q.IGSTAmount','Q.TotalAmount','Q.AdditionalCost','Q.OverAllAmount','CU.CustomerName as CancelledBy')
         ->get();
         $CustomerCreditLimit = DB::table('tbl_customer')->where('CustomerID',$this->ReferID)->value('CreditLimit');
-        $CustomerNetValue = DB::table($this->currfyDB.'tbl_order as O')->where('O.CustomerID',$this->ReferID)->where('Status','Delivered')->sum('NetAmount');
         $CustomerBalanceAmount = DB::table($this->currfyDB.'tbl_order as O')->where('O.CustomerID',$this->ReferID)->where('Status','Delivered')->sum('BalanceAmount');
-        $isCreditLimitExceeds = ($CustomerNetValue - $CustomerBalanceAmount) > $CustomerCreditLimit ? true : false;
+        $isCreditLimitExceeds = $CustomerBalanceAmount > $CustomerCreditLimit ? true : false;
         foreach($QuoteEnq as $quote){
             $quote->isCreditLimitExceeds = $isCreditLimitExceeds;
             if($quote->EnqStatus == "New"){

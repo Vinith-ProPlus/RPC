@@ -1,9 +1,9 @@
 <?php
 namespace App\helper;
-use Illuminate\Support\Facades\DB;
-use App\Models\DocNum;
+use DB;
+use DocNum;
 use Illuminate\Support\Facades\Config;
-use Illuminate\Support\Facades\Session;
+use Session;
 use GuzzleHttp\Client;
 class helper{
 	public static function getMainDB(){
@@ -13,14 +13,15 @@ class helper{
 		return config('app.db_general').".";
 	}
 	public static function getLogDB(){
-		return config('app.db_log').".";
+		return config('app.db_log') .".";
 	}
 	public static function getCurrFYDB(){
 		$FY = self::getCurrentFY();
 		return "rpc_fy_" . $FY.".";
 	}
 	public static function getStockDB(){
-		return "rpc_stock_fy_2324.";
+		$FY = self::getCurrentFY();
+		return "rpc_stock_fy_".$FY.".";
 	}
 	public static function getTmpDB(){
 		return config('app.db_tmp').".";
@@ -32,8 +33,7 @@ class helper{
 		return config('app.db_prefix');
 	}
 
-    public static function getAvailableVendors($AID)
-    {
+    public static function getAvailableVendors($AID){
         $AddressData = DB::table('tbl_customer_address')->where('AID', $AID)->first();
         if ($AddressData) {
             $AllVendors = DB::table('tbl_vendors as V')
@@ -66,8 +66,7 @@ class helper{
         return $AllVendors;
     }
 
-    public static function getAvailableVendorsForCustomer($AID)
-    {
+    public static function getAvailableVendorsForCustomer($AID){
         $AddressData = DB::table('tbl_customer_address')->where('AID', $AID)->first();
         if ($AddressData) {
             $AllVendors = DB::table('tbl_vendors as V')
@@ -120,6 +119,7 @@ class helper{
             return false;
         }
     }
+
 	public static function findNearestStockPointsss($Customer, $VendorStockPoints) {
 		$customerLat = $Customer->Latitude;
 		$customerLng = $Customer->Longitude;
@@ -145,6 +145,7 @@ class helper{
 
 		return $nearestStockPoints;
 	}
+
 	public static function findNearestStockPoint($Customer, $VendorStockPoints) {
 		$customerLat = $Customer->Latitude;
 		$customerLng = $Customer->Longitude;
@@ -178,7 +179,6 @@ class helper{
         $customerLng = $Customer->Longitude;
         $vendorLat = $Vendor->Latitude;
         $vendorLng = $Vendor->Longitude;
-
 		$response = $client->get('https://maps.googleapis.com/maps/api/distancematrix/json', [
 			'query' => [
 				'origins' => "$customerLat,$customerLng",
@@ -188,11 +188,12 @@ class helper{
 			]
 		]);
 		$data = json_decode($response->getBody(), true);
-		$distance = $data['rows'][0]['elements'][0]['distance']['value'];
+		$distance = $data['rows'][0] ? $data['rows'][0]['elements'][0]['distance']['value'] : 1000;
 		$distanceInKm = $distance / 1000;
 		// return response()->json(['distance_km' => $distanceInKm]);
 		return $distanceInKm;
 	}
+
 	public static function formAddress($Address,$CityID){
 		$addressParts = DB::table(self::getGeneralDB().'tbl_cities as CI')
 			->leftJoin(self::getGeneralDB().'tbl_postalcodes as PC', 'PC.PID', 'CI.PostalID')
@@ -243,7 +244,7 @@ class helper{
 		}
 		return $VendorDB.'.';
 	}
-
+	
 	public static function getStockTable($VendorID) {
 		$StockDB = self::getStockDB();
 
@@ -336,8 +337,9 @@ class helper{
 	}
 
 	public static function generateFinancialYearName($FromDate,$ToDate){
-		return "FY-".date("y",strtotime($FromDate)).date("y",strtotime($ToDate));
+		return "fy-".date("y",strtotime($FromDate)).date("y",strtotime($ToDate));
 	}
+
 	public static function getLogTableName(){
 		$LogDB=self::getLogDB();
 		$MainDB=self::getMainDB();
@@ -359,13 +361,15 @@ class helper{
 		}
 		return $LogDB.$TableName;
 	}
+
 	public static function getFinancialYears(){
 		$sql="Select SLNo,DBName,FromDate,ToDate,FYName,isCurrent From tbl_financial_year Where ActiveStatus='Active' Order By FromDate";
 		return DB::SELECT($sql);
 	}
+
 	public static function getCurrentFYDates(){
 		$FromDate="";$ToDate="";
-		if(date("m")<=4){
+		if(date("m")<4){
 			$FromDate="01-Apr-".date("Y",strtotime('-1 year'));
 			$ToDate="31-Mar-".date("Y");
 		}else{
@@ -379,7 +383,7 @@ class helper{
 	}
 	public static function getCurrentFY(){
 		$FromDate="";$ToDate="";
-		if(date("m")<=4){
+		if(date("m")<4){
 			$FromDate="01-Apr-".date("Y",strtotime('-1 year'));
 			$ToDate="31-Mar-".date("Y");
 		}else{
@@ -398,7 +402,7 @@ class helper{
 			$ToDate=date("Y-m-d",strtotime($t->ToDate));
 		}
 		$data=array("DBName"=>"","FromDate"=>"","ToDate"=>"","FYName"=>"","FYID"=>"");
-		$sql="Select SLNo,DBName,FromDate,ToDate,FYName,isCurrent From  tbl_financial_year Where SLNO='".$FYID."'";
+		$sql="Select SLNo,DBName,FromDate,ToDate,FYName,isCurrent From tbl_financial_year Where SLNO='".$FYID."'";
 		$result=DB::SELECT($sql);
 		if(count($result)>0){
 			$data['DBName']=$result[0]->DBName;
