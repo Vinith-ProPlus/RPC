@@ -276,9 +276,17 @@ class ProductCategoryController extends Controller{
 				$NewData=DB::table('tbl_product_category')->where('PCID',$PCID)->get();
 				$logData=array("Description"=>"Product Category Updated ","ModuleName"=>$this->ActiveMenuName,"Action"=>cruds::UPDATE->value,"ReferID"=>$PCID,"OldData"=>$OldData,"NewData"=>$NewData,"UserID"=>$this->UserID,"IP"=>$req->ip());
 				logs::Store($logData);
+				//Helper::removeFile($currCImage);
+				
+				foreach($currCImage as $KeyName=>$Img){
+					Helper::removeFile($Img['url']);
+				}
 				return array('status'=>true,'message'=>"Product Category Updated Successfully");
 			}else{
 				DB::rollback();
+				foreach($images as $KeyName=>$Img){
+					Helper::removeFile($Img['url']);
+				}
 				return array('status'=>false,'message'=>"Product Category Update Failed");
 			}
 		}else{

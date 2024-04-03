@@ -440,6 +440,10 @@ class QuotationController extends Controller{
 						
 					}
 				}
+				if($status){
+					DocNum::updateDocNum(docTypes::VendorOrders->value, $this->CurrFYDB);
+					DocNum::updateInvNo(docTypes::VendorOrders->value);
+				}
 			}
 		}
 		return $status;
@@ -453,6 +457,8 @@ class QuotationController extends Controller{
 			try {
 				if(count($data)>0){
 					$data=$data[0];
+					
+
 					$OrderID=DocNum::getDocNum(docTypes::Order->value, $this->CurrFYDB,Helper::getCurrentFy());
 					$OrderNo=DocNum::getInvNo(docTypes::Order->value);
 					$tdata=[

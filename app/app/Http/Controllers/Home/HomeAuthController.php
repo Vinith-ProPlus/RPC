@@ -152,7 +152,7 @@ class HomeAuthController extends Controller{
             })
             ->where('P.ActiveStatus','Active')->where('P.DFlag',0)
             ->where('P.ProductID', $PID)
-            ->select('P.ProductID','P.ProductName','P.Description','PC.PCName as CategoryName','PSC.PSCName as SubCategoryName',
+            ->select('P.ProductID','P.ProductName','P.Description', 'PC.PCID', 'PSC.PSCID', 'PC.PCName as CategoryName','PSC.PSCName as SubCategoryName',
                 DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(P.ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'),
                 DB::raw('IF(W.product_id IS NOT NULL, true, false) AS IsInWishlist'))
             ->first();
@@ -206,13 +206,22 @@ class HomeAuthController extends Controller{
 		$FormData['UserData']=$this->UserData['data'];
 		$FormData['PCategories']=$this->PCategories;
 		$FormData['isEdit']=true;
-		$FormData['isRegister']=true;
+		$FormData['isRegister']=false;
 		$FormData['Cart']=$this->getCart();
 		$FormData['EditData'] = DB::table('tbl_customer')->where('DFlag',0)->Where('CustomerID',$CustomerID)->first();
 		$FormData['defaultAddressAID'] = DB::table('tbl_customer_address')->where('DFlag',0)->Where('CustomerID',$CustomerID)->where('isDefault', 1)->pluck('AID')->first();
 		if($FormData['EditData']){
 			$FormData['EditData']->CustomerImage = $FormData['EditData']->CustomerImage ? url('/').'/'.$FormData['EditData']->CustomerImage : url('/') . '/'.'assets/images/no-image-b.png';
 			$FormData['EditData']->PostalCode = DB::table($this->generalDB.'tbl_postalcodes as P')->where('PID',$FormData['EditData']->PostalCodeID)->value('PostalCode');
+            $FormData['ShippingAddress']=DB::table('tbl_customer_address as CA')->where('CustomerID',$CustomerID)->where('CA.DFlag',0)
+                ->join($this->generalDB.'tbl_countries as C','C.CountryID','CA.CountryID')
+                ->join($this->generalDB.'tbl_states as S', 'S.StateID', 'CA.StateID')
+                ->join($this->generalDB.'tbl_districts as D', 'D.DistrictID', 'CA.DistrictID')
+                ->join($this->generalDB.'tbl_taluks as T', 'T.TalukID', 'CA.TalukID')
+                ->join($this->generalDB.'tbl_cities as CI', 'CI.CityID', 'CA.CityID')
+                ->join($this->generalDB.'tbl_postalcodes as PC', 'PC.PID', 'CA.PostalCodeID')
+                ->select('CA.AID', 'CA.Address', 'CA.isDefault', 'CA.CountryID', 'C.CountryName', 'CA.StateID', 'S.StateName', 'CA.DistrictID', 'D.DistrictName', 'CA.TalukID', 'T.TalukName', 'CA.CityID', 'CI.CityName', 'CA.PostalCodeID', 'PC.PostalCode')
+                ->get();
 			$FormData['EditData']->SAddress = DB::table('tbl_customer_address as CA')->where('CustomerID',$CustomerID)->where('CA.DFlag', 0)
 			->join($this->generalDB.'tbl_countries as C','C.CountryID','CA.CountryID')
 			->join($this->generalDB.'tbl_states as S', 'S.StateID', 'CA.StateID')
@@ -222,6 +231,15 @@ class HomeAuthController extends Controller{
 			->join($this->generalDB.'tbl_postalcodes as PC', 'PC.PID', 'CA.PostalCodeID')
 			->select('CA.AID', 'CA.Address', 'CA.isDefault', 'CA.CountryID', 'C.CountryName', 'CA.StateID', 'S.StateName', 'CA.DistrictID', 'D.DistrictName', 'CA.TalukID', 'T.TalukName', 'CA.CityID', 'CI.CityName', 'CA.PostalCodeID', 'PC.PostalCode')
 			->get();
+            $FormData['ShippingAddress']=DB::table('tbl_customer_address as CA')->where('CustomerID',$CustomerID)->where('CA.DFlag',0)
+                ->join($this->generalDB.'tbl_countries as C','C.CountryID','CA.CountryID')
+                ->join($this->generalDB.'tbl_states as S', 'S.StateID', 'CA.StateID')
+                ->join($this->generalDB.'tbl_districts as D', 'D.DistrictID', 'CA.DistrictID')
+                ->join($this->generalDB.'tbl_taluks as T', 'T.TalukID', 'CA.TalukID')
+                ->join($this->generalDB.'tbl_cities as CI', 'CI.CityID', 'CA.CityID')
+                ->join($this->generalDB.'tbl_postalcodes as PC', 'PC.PID', 'CA.PostalCodeID')
+                ->select('CA.AID', 'CA.Address', 'CA.isDefault', 'CA.CountryID', 'C.CountryName', 'CA.StateID', 'S.StateName', 'CA.DistrictID', 'D.DistrictName', 'CA.TalukID', 'T.TalukName', 'CA.CityID', 'CI.CityName', 'CA.PostalCodeID', 'PC.PostalCode')
+                ->get();
 			// return $FormData['EditData'];
 			return view('home.register',$FormData);
 		}else{
@@ -288,6 +306,7 @@ class HomeAuthController extends Controller{
 				"CreatedOn"=>date("Y-m-d H:i:s")
 			);
 			$status=DB::Table('tbl_customer')->insert($data);
+            DB::Table('tbl_customer_address')->where('CustomerID', $this->UserID)->update(['CustomerID' => $CustomerID]);
 //			if($status){
 //				$SAddress=json_decode($req->SAddress,true);
 //				foreach($SAddress as $row){
@@ -559,7 +578,7 @@ class HomeAuthController extends Controller{
                 ->when(isset($request->SubCategoryID), function ($query) use ($request) {
                     return $query->where('P.SCID', $request->SubCategoryID);
                 })
-                ->groupBy('P.ProductID', 'P.ProductName', 'P.Description', 'P.ProductImage', 'PSC.PSCName')
+                ->groupBy('P.ProductID', 'P.ProductName', 'P.Description', 'P.ProductImage', 'PSC.PSCID', 'PSC.PSCName')
                 ->select('P.ProductID')
                 ->get();
 
@@ -585,10 +604,11 @@ class HomeAuthController extends Controller{
                         return $query->orderBy('P.CreatedOn', 'asc');
                     }
                 })
-                ->groupBy('P.ProductID', 'P.ProductName', 'P.Description', 'P.ProductImage', 'PSC.PSCName', 'W.product_id')
+                ->groupBy('P.ProductID', 'P.ProductName', 'P.Description', 'P.ProductImage', 'PSC.PSCName', 'PSC.PSCID', 'W.product_id')
                 ->select('P.ProductID', 'P.ProductName', 'P.Description',
                     DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'),
                     DB::raw('IF(W.product_id IS NOT NULL, true, false) AS IsInWishlist'),
+                    'PSC.PSCID',
                     'PSC.PSCName as SubCategoryName')
                 ->skip(($pageNo - 1) * $productCount)
                 ->take($productCount)
@@ -613,6 +633,12 @@ class HomeAuthController extends Controller{
 		$FormData['PCategories']=$this->PCategories;
 		$FormData['isEdit']=false;
 		$FormData['isRegister']=false;
+		$FormData['stages'] = DB::Table($this->generalDB.'tbl_stages')
+            ->where('DFlag', 0)->where('ActiveStatus', 'Active')
+            ->select('StageID', 'StageName')->get();
+		$FormData['BuildingMeasurements'] = DB::Table($this->generalDB.'tbl_building_measurements')
+            ->where('DFlag', 0)->where('ActiveStatus', 'Active')
+            ->select('MeasurementID', 'MeasurementName')->get();
         $customerAid = Session::get('selected_aid');
         $customerDefaultAid = DB::table('tbl_customer_address')
             ->where('CustomerID', $CustomerID)
@@ -620,7 +646,7 @@ class HomeAuthController extends Controller{
             ->where('isDefault', 1)
             ->value('AID');
 
-        if ($customerAid && DB::table('tbl_customer_address')->where('CustomerID', $CustomerID)->where('AID', $customerAid)->where('DFlag',0)->where('isDefault', 1)->exists()) {
+        if ($customerAid && DB::table('tbl_customer_address')->where('CustomerID', $CustomerID)->where('AID', $customerAid)->where('DFlag',0)->exists()) {
             $AID = $customerAid;
         } else {
             $AID = $customerDefaultAid;
@@ -686,7 +712,7 @@ class HomeAuthController extends Controller{
                         $fileName1 = $Img->fileName != "" ? $Img->fileName : Helper::RandomString(10) . "png";
                         copy($Img->uploadPath, $dir . $fileName1);
                         $BuildingImage = $dir . $fileName1;
-                        // unlink($Img->uploadPath);
+                         unlink($Img->uploadPath);
                     }
                 }
             }
@@ -720,7 +746,7 @@ class HomeAuthController extends Controller{
                 "DDistrictID"=>$AddressData->DistrictID,
                 "DStateID"=>$AddressData->StateID,
                 "DCountryID"=>$AddressData->CountryID,
-                'StageID' => $req->StageID ?? '',
+                'StageID' => $req->StageID,
                 'BuildingMeasurementID' => $req->BuildingMeasurementID,
                 'BuildingMeasurement' => $req->BuildingMeasurement,
                 'BuildingImage' => $BuildingImage,
@@ -1629,6 +1655,9 @@ class HomeAuthController extends Controller{
     }
     public function UpdateShippingAddress(Request $req){
         $CustomerID = $this->ReferID;
+        if(!$CustomerID){
+            $CustomerID = auth()->user()->UserID;
+        }
         $OldData=$NewData=[];
         $OldData=DB::table('tbl_customer_address')->where('CustomerID',$CustomerID)->where('DFlag',0)->get();
         $status=false;
@@ -1666,11 +1695,12 @@ class HomeAuthController extends Controller{
                 DB::beginTransaction();
                 $MapData = serialize(json_decode($req->MapData));
                 $AID=DocNum::getDocNum(docTypes::CustomerAddress->value,"",Helper::getCurrentFY());
+                $address = helper::trimAddress($req->CompleteAddress);
                 $data=array(
                     "AID"=>$AID,
                     "CustomerID"=>$CustomerID,
                     "CompleteAddress"=>$req->CompleteAddress,
-                    "Address"=>$req->CompleteAddress,
+                    "Address"=>$address,
                     "AddressType"=>$req->AddressType,
                     "PostalCodeID"=>$CityData->PostalCodeID,
                     "CityID"=>$CityData->CityID,
@@ -1684,7 +1714,7 @@ class HomeAuthController extends Controller{
                     "isDefault"=>1,
                     "CreatedOn"=>date("Y-m-d H:i:s")
                 );
-                $status=DB::Table('tbl_customer_address')->insert($data);
+                $status = DB::Table('tbl_customer_address')->insert($data);
                 if($status==true){
                     DB::Table('tbl_customer_address')->where('CustomerID',$CustomerID)->whereNot('AID',$AID)->where('DFlag',0)->update(['isDefault' =>0]);
                     DocNum::updateDocNum(docTypes::CustomerAddress->value);
@@ -1700,7 +1730,7 @@ class HomeAuthController extends Controller{
             $NewData=DB::table('tbl_customer_address')->where('CustomerID',$CustomerID)->where('DFlag',0)->get();
             $logData=array("Description"=>"Shipping Address Updated","ModuleName"=>"Customer","Action"=>"Update","ReferID"=>$AID,"OldData"=>$OldData,"NewData"=>$NewData,"UserID"=>$this->UserID,"IP"=>$req->ip());
             logs::Store($logData);
-            return response()->json(['status' => true,'message' => "Shipping Address Updated Successfully", 'AID' => $AID]);
+            return response()->json(['status' => true,'message' => "Shipping Address Updated Successfully", 'AID' => $AID, 'data' => $data]);
         }else{
             DB::rollback();
             return response()->json(['status' => false,'message' => "Shipping Address Update Failed"]);
@@ -1708,6 +1738,9 @@ class HomeAuthController extends Controller{
     }
     public function SetAddressDefault(Request $req){
         $CustomerID = $this->ReferID;
+        if(!$CustomerID){
+            $CustomerID = auth()->user()->UserID;
+        }
         DB::beginTransaction();
         $status=false;
         try {
@@ -1728,6 +1761,9 @@ class HomeAuthController extends Controller{
 
     public function DeleteShippingAddress(Request $req){
         $CustomerID = $this->ReferID;
+        if(!$CustomerID){
+            $CustomerID = auth()->user()->UserID;
+        }
         DB::beginTransaction();
         $status=false;
         try {
@@ -2032,6 +2068,19 @@ class HomeAuthController extends Controller{
 //        $FormData = $this->EnquiryDetails($EnqID);
         $cartProducts = $this->getCart();
         $customerID = $this->ReferID;
+        $customerAid = Session::get('selected_aid');
+        $customerDefaultAid = DB::table('tbl_customer_address')
+            ->where('CustomerID', $customerID)
+            ->where('isDefault', 1)
+            ->where('DFlag',0)
+            ->value('AID');
+
+        if ($customerAid && DB::table('tbl_customer_address')->where('CustomerID', $customerID)->where('AID', $customerAid)->where('isDefault', 1)->where('DFlag',0)->exists()) {
+            $AID = $customerAid;
+        } else {
+            $AID = $customerDefaultAid;
+        }
+        $AllVendors = Helper::getAvailableVendorsForCustomer($AID);
         $product = DB::table('tbl_products as P')->leftJoin('tbl_product_subcategory as PSC','PSC.PSCID','P.SCID')
             ->leftJoin('tbl_product_category as PC','PC.PCID','P.CID')
             ->leftJoin('tbl_wishlists as W', function($join) use ($customerID) {
@@ -2040,7 +2089,7 @@ class HomeAuthController extends Controller{
             })
             ->where('P.ActiveStatus','Active')->where('P.DFlag',0)
             ->where('P.ProductID', $ProductID)
-            ->select('P.ProductID','P.ProductName','P.ShortDescription','P.Description','PC.PCName as CategoryName','PSC.PSCName as SubCategoryName',
+            ->select('P.ProductID','P.ProductName','P.ShortDescription','P.Description', 'PC.PCID', 'PSC.PSCID', 'PC.PCName as CategoryName','PSC.PSCName as SubCategoryName',
                 DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(P.ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'),
                 DB::raw('IF(W.product_id IS NOT NULL, true, false) AS IsInWishlist'))
             ->first();
@@ -2049,15 +2098,18 @@ class HomeAuthController extends Controller{
             ->where('ProductID', $ProductID)
             ->pluck(DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(gImage, ""), "assets/images/no-image-b.png")) AS gImage'))
             ->toArray();
-        $RelatedProducts = DB::table('tbl_products as P')
-            ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')
+        $RelatedProducts = DB::table('tbl_vendors_product_mapping as VPM')
+            ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'VPM.PCID')
+            ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PCID', 'PC.PCID')
+            ->leftJoin('tbl_products as P', 'P.SCID', 'PSC.PSCID')
             ->leftJoin('tbl_wishlists as W', function ($join) use ($customerID) {
                 $join->on('W.product_id', '=', 'P.ProductID')
                     ->where('W.customer_id', '=', $customerID);
             })
+            ->where('VPM.Status', 1)->WhereIn('VPM.VendorID', $AllVendors)
             ->where('P.ActiveStatus', 'Active')
             ->where('P.DFlag', 0)
-            ->select('P.ProductID', 'P.ProductName', 'P.ProductImage', 'PSC.PSCName',
+            ->select('P.ProductID', 'P.ProductName', 'P.ProductImage', 'PSC.PSCID', 'PSC.PSCName',
                 DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(P.ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'),
                 DB::raw('IF(W.product_id IS NOT NULL, true, false) AS IsInWishlist'))
             ->inRandomOrder()

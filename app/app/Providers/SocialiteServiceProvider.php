@@ -20,7 +20,7 @@ class SocialiteServiceProvider extends ServiceProvider{
         //
     }
     protected function configureSocialiteProviders(){
-        /* $providers = DB::Table('tbl_socialite_providers')->where('ActiveStatus','Active')->get();
+        $providers = DB::Table('tbl_socialite_providers')->where('ActiveStatus','Active')->get();
 
         foreach ($providers as $provider) {
             Socialite::extend($provider->ProviderName, function ($app) use ($provider) {
@@ -34,6 +34,6 @@ class SocialiteServiceProvider extends ServiceProvider{
                     ]
                 );
             });
-        } */
+        }
     }
 }

@@ -308,14 +308,7 @@ class GeneralAPIController extends Controller{
         return $return;
 	}
 	public function getStepperImages(request $req){
-		$query = DB::Table('tbl_stepper_images')
-		->where('StepperType','Mobile')
-		->where('DFlag',0);
-		if($req->StepperType == 'Mobile'){
-
-		}
-		$StepperImages = $query->select('StepperType','Description','StepperTitle', DB::raw('CONCAT("' . url('/') . '/", StepperImage) AS StepperImage'))
-		->get();
+		$StepperImages = DB::Table('tbl_stepper_images')->where('StepperType','Mobile')->where('DFlag',0)->select('StepperType','StepperTitle','Description','StepperTitle', DB::raw('CONCAT("' . url('/') . '/", StepperImage) AS StepperImage'))->get();
 		$return = [
 			'status' => true,
 			'data' => $StepperImages,
@@ -330,7 +323,7 @@ class GeneralAPIController extends Controller{
 		];
         return $return;
 	}
-
+	
 	public function getCoordinates(Request $req){ return 1;
 		$address = $req->Address;
         $response = Http::get('https://maps.googleapis.com/maps/api/geocode/json', [

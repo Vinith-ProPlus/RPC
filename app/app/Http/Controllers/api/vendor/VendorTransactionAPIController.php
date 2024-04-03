@@ -280,7 +280,6 @@ class VendorTransactionAPIController extends Controller{
             $query->whereIn('VQ.Status',$Status);
         }
         $QuoteReqData = $query->select('VQ.VQuoteID','E.EnqID','E.EnqNo','VQ.QReqOn','VQ.TotalAmount','VQ.SubTotal','VQ.TaxAmount','VQ.LabourCost','VQ.TransportCost','VQ.AdditionalCost','VQ.QSentOn','VQ.Status','VQ.isImageQuote',DB::raw('CONCAT("' . url('/') . '/", VQ.QuoteImage) AS QuoteImage'),'V.CommissionPercentage','VQ.Distance')
-        ->orderBy('VQ.CreatedOn','desc')
         ->paginate($perPage, ['*'], 'page', $pageNo);
 
         foreach($QuoteReqData as $row){
@@ -315,9 +314,7 @@ class VendorTransactionAPIController extends Controller{
         if(count($Status)>0){
             $query->whereIn('VO.Status',$Status);
         }
-        $OrderData = $query->select('VO.VOrderID','O.OrderID','O.OrderNo','O.OrderDate','O.ExpectedDelivery','VO.DeliveredOn','VO.AID','O.ReceiverName','O.ReceiverMobNo','VO.TotalAmount','VO.SubTotal','VO.TaxAmount','VO.NetAmount','VO.AdditionalCost','VO.Status','CA.CompleteAddress','CA.Latitude','CA.Longitude','VO.PaymentStatus')
-        ->orderBy('VO.CreatedOn','desc')
-        ->paginate($perPage, ['*'], 'page', $pageNo);
+        $OrderData = $query->select('VO.VOrderID','O.OrderID','O.OrderNo','O.OrderDate','O.ExpectedDelivery','VO.DeliveredOn','VO.AID','O.ReceiverName','O.ReceiverMobNo','VO.TotalAmount','VO.SubTotal','VO.TaxAmount','VO.NetAmount','VO.AdditionalCost','VO.Status','CA.CompleteAddress','CA.Latitude','CA.Longitude','VO.PaymentStatus')->paginate($perPage, ['*'], 'page', $pageNo);
 
         foreach($OrderData as $row){
             $row->TotalUnit = DB::table($this->currfyDB.'tbl_order_details')->whereNot('Status','Cancelled')->where('OrderID',$row->OrderID)->sum('Qty');
@@ -351,7 +348,8 @@ class VendorTransactionAPIController extends Controller{
                 ->leftJoin($this->currfyDB.'tbl_order_details as OD','OD.VOrderID','VO.VOrderID')
                 ->leftJoin($this->currfyDB.'tbl_order as O','O.OrderID','VO.OrderID')
                 ->leftJoin('tbl_products as P','P.ProductID','OD.ProductID')
-                ->where('VO.VOrderID',$req->VOrderID)->where('OD.Status','New')
+                ->where('VO.VOrderID',$req->VOrderID)
+                ->where('OD.Status','New')
                 ->select('O.OrderNo','O.CustomerID','P.ProductName')
                 ->get();
             $existingOTP=DB::Table($this->currfyDB."tbl_order_details")->where('VOrderID',$req->VOrderID)->Where('Status','New')->value('OTP');
@@ -400,6 +398,7 @@ class VendorTransactionAPIController extends Controller{
                 if($status){
                     $status=DB::Table($this->currfyDB."tbl_vendor_orders")->where('VOrderID',$req->VOrderID)->update(['Status'=>'Delivered','DeliveredOn'=>now(),"UpdatedOn"=>now(),"UpdatedBy"=>$VendorID]);
                 }
+
                 $AllProducts = DB::table($this->currfyDB.'tbl_order_details')->where('OrderID',$req->OrderID)->whereNot('Status','Cancelled')->count();
                 $DeliveredProducts = DB::table($this->currfyDB.'tbl_order_details')->where('OrderID',$req->OrderID)->where('Status','Delivered')->count();
 
@@ -466,7 +465,6 @@ class VendorTransactionAPIController extends Controller{
         ->where('VO.VendorID',$VendorID)
         ->where('VO.Status','Delivered')
         ->select('VO.VOrderID','O.OrderNo','VO.OrderDate','VO.DeliveredOn','VO.NetAmount')
-        ->orderBy('VO.CreatedOn','desc')
         ->get();
         $Overall = DB::table($this->currfyDB.'tbl_vendor_orders as VO')->where('VO.VendorID',$VendorID)->where('Status','Delivered')->sum('NetAmount');
         return response()->json([
@@ -476,6 +474,7 @@ class VendorTransactionAPIController extends Controller{
     }
     public function getWithdrawalRequest(Request $req){
         $VendorID = $this->ReferID;
+
         $query = DB::table($this->currfyDB.'tbl_withdraw_request')->where('VendorID',$VendorID);
         if($req->Status){
             $query->whereIn('Status',$req->Status);
@@ -489,34 +488,12 @@ class VendorTransactionAPIController extends Controller{
             'data' => $WithdrawalRequest,
         ]);
     }
-    public function getStatement(Request $req){
-        $VendorID = $this->ReferID;
-        $query1 = DB::table($this->currfyDB . 'tbl_vendor_orders as VO')
-            ->leftJoin($this->currfyDB . 'tbl_order as O', 'O.OrderID', 'VO.OrderID')
-            ->where('VO.VendorID', $VendorID)
-            ->where('VO.Status', 'Delivered')
-            ->select('VO.VOrderID','VO.VendorID as VendorID', 'VO.NetAmount as Amount', 'VO.CreatedOn as Date', DB::raw('"Order" as AmountType'));
-
-        $query2 = DB::table($this->currfyDB . 'tbl_payments')
-            ->where('LedgerID', $VendorID)
-            ->select('TranNo','LedgerID as VendorID', 'TotalAmount as Amount', 'CreatedOn as Date', DB::raw('"Paid" as AmountType'));
-
-        $Statement = $query1->union($query2)
-            ->orderBy('Date', 'desc')
-            ->get();
-        $PendingAmount = DB::table($this->currfyDB.'tbl_vendor_orders as VO')->where('VO.VendorID', $VendorID)->where('VO.Status','Delivered')->sum('BalanceAmount');
-        return response()->json([
-            'status' => true,
-            'data' => ['RecentTransaction' => $Statement,'PendingAmount' =>$PendingAmount],
-        ]);
-    }
-
     public function getSettlementHistory(Request $req){ 
         $VendorID = $this->ReferID;
 
         $SettlementHistory = DB::table($this->currfyDB.'tbl_payments')
-        ->where('LedgerID',$VendorID)
-        ->orderBy('CreatedOn','Desc')
+        // ->where('LedgerID',$VendorID)
+        // ->orderBy('ReqOn','Desc')
         ->get();
 
         return response()->json([

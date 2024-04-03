@@ -172,7 +172,7 @@ class VendorsController extends Controller{
     }
 	public function getVendor($VendorID){
 		$generalDB=Helper::getGeneralDB();
-		$sql =" SELECT V.VendorID, V.VendorName,V.VendorCoName, V.Reference, V.GSTNo, V.CID, VC.VCName, V.VendorType as VendorTypeID, VT.VendorType, V.Email, V.MobileNumber1, V.MobileNumber2, V.Address, V.PostalCode as PostalCodeID, V.ServiceBy, ";
+		$sql =" SELECT V.VendorID, V.VendorName, V.Reference, V.GSTNo, V.CID, VC.VCName, V.VendorType as VendorTypeID, VT.VendorType, V.Email, V.MobileNumber1, V.MobileNumber2, V.Address, V.PostalCode as PostalCodeID, V.ServiceBy, ";
 		$sql.=" P.PostalCode, V.CityID, CI.CityName, V.TalukID, T.TalukName, V.DistrictID, D.DistrictName, V.StateID, S.StateName, V.CountryID, C.CountryName, V.CreditLimit, V.CommissionPercentage, V.CreditDays,  V.Logo, V.ActiveStatus, V.DFlag FROM tbl_vendors as V ";
 		$sql.=" LEFT JOIN tbl_vendor_category as VC ON VC.VCID=V.CID LEFT JOIN tbl_vendor_type as VT ON VT.VendorTypeID=V.VendorType LEFT JOIN ".$generalDB."tbl_postalcodes as P ON P.PID=V.PostalCode ";
 		$sql.=" LEFT JOIN ".$generalDB."tbl_cities as CI ON CI.CityID=V.CityID LEFT JOIN ".$generalDB."tbl_taluks as T ON T.TalukID=V.TalukID LEFT JOIN ".$generalDB."tbl_districts as D ON D.DistrictID=V.DistrictID ";
@@ -209,7 +209,7 @@ class VendorsController extends Controller{
 			$SupplyDetails=DB::SELECT($sql);
 
 			//Stock points
-			$sql="SELECT H.StockPointID, H.VendorID, IFNULL(H.UUID,'') as UUID, H.ServiceBy , H.PointName, H.Address, H.PostalID, P.PostalCode, H.CityID, CI.CityName, H.TalukID, T.TalukName, H.DistrictID, D.DistrictName, H.StateID, ";
+			$sql="SELECT H.StockPointID, H.VendorID, IFNULL(H.UUID,'') as UUID, H.PointName, H.Address, H.PostalID, P.PostalCode, H.CityID, CI.CityName, H.TalukID, T.TalukName, H.DistrictID, D.DistrictName, H.StateID, ";
 			$sql.=" S.StateName, H.CountryID, C.CountryName FROM tbl_vendors_stock_point as H LEFT JOIN ".$generalDB."tbl_postalcodes as P ON P.PID=H.PostalID ";
 			$sql.=" LEFT JOIN ".$generalDB."tbl_cities as CI ON CI.CityID=H.CityID LEFT JOIN ".$generalDB."tbl_taluks as T ON T.TalukID=H.TalukID LEFT JOIN ".$generalDB."tbl_districts as D ON D.DistrictID=H.DistrictID ";
 			$sql.=" LEFT JOIN ".$generalDB."tbl_states as S ON S.StateID=H.StateID LEFT JOIN ".$generalDB."tbl_countries as C ON C.CountryID=H.CountryID Where H.VendorID='".$result[$i]->VendorID."' ";
@@ -361,7 +361,6 @@ class VendorsController extends Controller{
 				$data=array(
 					"VendorID"=>$VendorID,
 					"VendorName"=>$req->VendorName,
-					"VendorCoName"=>$req->VendorCoName,
 					"GSTNo"=>$req->GSTNo,
 					"CID"=>$req->CID,
 					"VendorType"=>$req->VendorType,
@@ -744,7 +743,6 @@ class VendorsController extends Controller{
 				}
 				$data=array(
 					"VendorName"=>$req->VendorName,
-					"VendorCoName"=>$req->VendorCoName,
 					"GSTNo"=>$req->GSTNo,
 					"CID"=>$req->CID,
 					"VendorType"=>$req->VendorType,
@@ -1264,11 +1262,8 @@ class VendorsController extends Controller{
 			}
 			if($status==true){
 				DB::commit();
-				$Title = "Vendor Application Accepted";
-				$Message = "Your vendor details has been approved by the admin. You can now access your vendor home.";
-				Helper::saveNotification($VendorID,$Title,$Message,'Approve',$VendorID);
-				$logData=array("Description"=>"Vendor has been Approved","ModuleName"=>$this->ActiveMenuName,"Action"=>cruds::UPDATE->value,"ReferID"=>$VendorID,"OldData"=>$OldData,"NewData"=>$NewData,"UserID"=>$this->UserID,"IP"=>$req->ip());
-				logs::Store($logData);
+				$logData=array("Description"=>"Vendor has been Approved ","ModuleName"=>$this->ActiveMenuName,"Action"=>cruds::DELETE->value,"ReferID"=>$VendorID,"OldData"=>$OldData,"NewData"=>$NewData,"UserID"=>$this->UserID,"IP"=>$req->ip());
+				// logs::Store($logData);
 				return array('status'=>true,'message'=>"Vendor Approved Successfully");
 			}else{
 				DB::rollback();
@@ -1457,24 +1452,6 @@ class VendorsController extends Controller{
 	public function getVendorType(Request $req){
 		return DB::Table('tbl_vendor_type')->where('ActiveStatus','Active')->where('DFlag',0)->get();
 	}
-	public function UniqueValidation(Request $req){
-		$query = DB::Table('tbl_vendors');
-		if ($req->MobNo) {
-			$query->where('MobileNumber1', 'like', '%' . $req->MobNo . '%');
-		} elseif ($req->CoName) {
-			$query->where('VendorCoName', 'like', '%' . $req->CoName . '%');
-		} elseif ($req->Email) {
-			$query->where('Email', 'like', '%' . $req->Email . '%');
-		}
-	
-		if ($req->VendorID) {
-			$query->where('VendorID', '!=', $req->VendorID);
-		}
-	
-		$status = $query->first();
-		return !$status ? "false" : "true";
-	}
-	
 	public function GetVendorInfo(request $req){
 		$VendorInfo = $this->getVendor($req->VendorID);
 		return $VendorInfo[0];

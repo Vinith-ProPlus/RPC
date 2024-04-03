@@ -43,7 +43,7 @@ class QuoteEnquiryController extends Controller{
 			$this->CRUD=$this->general->getCrudOperations($this->ActiveMenuName);
 			$this->Settings=$this->general->getSettings();
 			$this->generalDB=Helper::getGeneralDB();
-			$this->currfyDB=Helper::getCurrFYDB();
+			$this->currfyDB=Helper::getcurrfyDB();
 			$this->logDB=Helper::getLogDB();
 			return $next($request);
 		});
@@ -360,6 +360,8 @@ class QuoteEnquiryController extends Controller{
 			$status=false;
 			try {
 				$SelectedVendors = json_decode($req->SelectedVendors, true);
+                logger("SelectedVendors");
+                logger($SelectedVendors);
 				foreach ($SelectedVendors as $VendorID) {
 					$isQuoteRequested =  DB::table($this->currfyDB . 'tbl_vendor_quotation')->where('VendorID',$VendorID)->where('EnqID',$EnqID)->first();
 					if(!$isQuoteRequested){
@@ -646,13 +648,13 @@ class QuoteEnquiryController extends Controller{
 							'CreatedOn'=>date('Y-m-d H:i:s'),
 							'CreatedBy'=>$this->UserID,
 						];
-						$status = DB::table($this->currfyDB.'tbl_quotation_details')->insert($data1);
 						$isNotifiedVendor = DB::table($this->currfyDB.'tbl_quotation_details')->where('QID',$QID)->where('VendorID',$item->VendorID)->exists();
 						if(!$isNotifiedVendor){
 							$Title = "Quotation Accepted";
 							$Message = "Great news! Your quotation has been accepted. We'll proceed accordingly. Thank you.";
-							Helper::saveNotification($item->VendorID,$Title,$Message,'Quotation',$item->DetailID);
+							Helper::saveNotification($EnqData[0]->CustomerID,$Title,$Message,'Quotation',$QID);
 						}
+						$status = DB::table($this->currfyDB.'tbl_quotation_details')->insert($data1);
 						if($status){
 							DocNum::updateDocNum(docTypes::QuotationDetails->value, $this->currfyDB);
 						}
