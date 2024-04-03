@@ -231,6 +231,15 @@ class HomeAuthController extends Controller{
 			->join($this->generalDB.'tbl_postalcodes as PC', 'PC.PID', 'CA.PostalCodeID')
 			->select('CA.AID', 'CA.Address', 'CA.isDefault', 'CA.CountryID', 'C.CountryName', 'CA.StateID', 'S.StateName', 'CA.DistrictID', 'D.DistrictName', 'CA.TalukID', 'T.TalukName', 'CA.CityID', 'CI.CityName', 'CA.PostalCodeID', 'PC.PostalCode')
 			->get();
+            $FormData['ShippingAddress']=DB::table('tbl_customer_address as CA')->where('CustomerID',$CustomerID)->where('CA.DFlag',0)
+                ->join($this->generalDB.'tbl_countries as C','C.CountryID','CA.CountryID')
+                ->join($this->generalDB.'tbl_states as S', 'S.StateID', 'CA.StateID')
+                ->join($this->generalDB.'tbl_districts as D', 'D.DistrictID', 'CA.DistrictID')
+                ->join($this->generalDB.'tbl_taluks as T', 'T.TalukID', 'CA.TalukID')
+                ->join($this->generalDB.'tbl_cities as CI', 'CI.CityID', 'CA.CityID')
+                ->join($this->generalDB.'tbl_postalcodes as PC', 'PC.PID', 'CA.PostalCodeID')
+                ->select('CA.AID', 'CA.Address', 'CA.isDefault', 'CA.CountryID', 'C.CountryName', 'CA.StateID', 'S.StateName', 'CA.DistrictID', 'D.DistrictName', 'CA.TalukID', 'T.TalukName', 'CA.CityID', 'CI.CityName', 'CA.PostalCodeID', 'PC.PostalCode')
+                ->get();
 			// return $FormData['EditData'];
 			return view('home.register',$FormData);
 		}else{
@@ -297,6 +306,7 @@ class HomeAuthController extends Controller{
 				"CreatedOn"=>date("Y-m-d H:i:s")
 			);
 			$status=DB::Table('tbl_customer')->insert($data);
+            DB::Table('tbl_customer_address')->where('CustomerID', $this->UserID)->update(['CustomerID' => $CustomerID]);
 //			if($status){
 //				$SAddress=json_decode($req->SAddress,true);
 //				foreach($SAddress as $row){
@@ -623,6 +633,12 @@ class HomeAuthController extends Controller{
 		$FormData['PCategories']=$this->PCategories;
 		$FormData['isEdit']=false;
 		$FormData['isRegister']=false;
+		$FormData['stages'] = DB::Table($this->generalDB.'tbl_stages')
+            ->where('DFlag', 0)->where('ActiveStatus', 'Active')
+            ->select('StageID', 'StageName')->get();
+		$FormData['BuildingMeasurements'] = DB::Table($this->generalDB.'tbl_building_measurements')
+            ->where('DFlag', 0)->where('ActiveStatus', 'Active')
+            ->select('MeasurementID', 'MeasurementName')->get();
         $customerAid = Session::get('selected_aid');
         $customerDefaultAid = DB::table('tbl_customer_address')
             ->where('CustomerID', $CustomerID)
@@ -630,7 +646,7 @@ class HomeAuthController extends Controller{
             ->where('isDefault', 1)
             ->value('AID');
 
-        if ($customerAid && DB::table('tbl_customer_address')->where('CustomerID', $CustomerID)->where('AID', $customerAid)->where('DFlag',0)->where('isDefault', 1)->exists()) {
+        if ($customerAid && DB::table('tbl_customer_address')->where('CustomerID', $CustomerID)->where('AID', $customerAid)->where('DFlag',0)->exists()) {
             $AID = $customerAid;
         } else {
             $AID = $customerDefaultAid;
@@ -696,7 +712,7 @@ class HomeAuthController extends Controller{
                         $fileName1 = $Img->fileName != "" ? $Img->fileName : Helper::RandomString(10) . "png";
                         copy($Img->uploadPath, $dir . $fileName1);
                         $BuildingImage = $dir . $fileName1;
-                        // unlink($Img->uploadPath);
+                         unlink($Img->uploadPath);
                     }
                 }
             }
@@ -730,7 +746,7 @@ class HomeAuthController extends Controller{
                 "DDistrictID"=>$AddressData->DistrictID,
                 "DStateID"=>$AddressData->StateID,
                 "DCountryID"=>$AddressData->CountryID,
-                'StageID' => $req->StageID ?? '',
+                'StageID' => $req->StageID,
                 'BuildingMeasurementID' => $req->BuildingMeasurementID,
                 'BuildingMeasurement' => $req->BuildingMeasurement,
                 'BuildingImage' => $BuildingImage,
@@ -1639,6 +1655,9 @@ class HomeAuthController extends Controller{
     }
     public function UpdateShippingAddress(Request $req){
         $CustomerID = $this->ReferID;
+        if(!$CustomerID){
+            $CustomerID = auth()->user()->UserID;
+        }
         $OldData=$NewData=[];
         $OldData=DB::table('tbl_customer_address')->where('CustomerID',$CustomerID)->where('DFlag',0)->get();
         $status=false;
@@ -1719,6 +1738,9 @@ class HomeAuthController extends Controller{
     }
     public function SetAddressDefault(Request $req){
         $CustomerID = $this->ReferID;
+        if(!$CustomerID){
+            $CustomerID = auth()->user()->UserID;
+        }
         DB::beginTransaction();
         $status=false;
         try {
@@ -1739,6 +1761,9 @@ class HomeAuthController extends Controller{
 
     public function DeleteShippingAddress(Request $req){
         $CustomerID = $this->ReferID;
+        if(!$CustomerID){
+            $CustomerID = auth()->user()->UserID;
+        }
         DB::beginTransaction();
         $status=false;
         try {

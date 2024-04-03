@@ -276,12 +276,13 @@
 
                         <div class="header-dropdown" style="display: inline-block;margin-left:0">
                             @if(isset($ShippingAddress) && (count($ShippingAddress) > 0))
+                                @php $defaultAddress = $ShippingAddress->firstWhere('isDefault', 1) @endphp
                                 <a href="#" style="margin-top:10px" id="customerSelectedAddress"
-                                   data-selected-postal-id="{{ $ShippingAddress[0]->PostalCodeID }}" data-aid="{{ $ShippingAddress[0]->AID }}" data-selected-latitude="{{ '11.048274' }}" data-selected-longitude="{{ '76.9885352' }}">
-                                    {{ $ShippingAddress[0]->Address ?? '' }}
-                                    , {{ $ShippingAddress[0]->CityName }}, {{ $ShippingAddress[0]->TalukName }}
-                                    , {{ $ShippingAddress[0]->DistrictName }}, {{ $ShippingAddress[0]->StateName }}
-                                    ,{{ $ShippingAddress[0]->CountryName }} - {{ $ShippingAddress[0]->PostalCode }}.
+                                   data-selected-postal-id="{{ $defaultAddress->PostalCodeID }}" data-aid="{{ $defaultAddress->AID }}" data-selected-latitude="{{ '11.048274' }}" data-selected-longitude="{{ '76.9885352' }}">
+                                    {{ $defaultAddress->Address ?? '' }}
+                                    , {{ $defaultAddress->CityName }}, {{ $defaultAddress->TalukName }}
+                                    , {{ $defaultAddress->DistrictName }}, {{ $defaultAddress->StateName }}
+                                    ,{{ $defaultAddress->CountryName }} - {{ $defaultAddress->PostalCode }}.
                                 </a>
                                 @if(Route::currentRouteName() !== 'checkout')
                                     <ul id="changeCustomerAddressUl">
