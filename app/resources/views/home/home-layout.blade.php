@@ -371,9 +371,14 @@
                             <i class="icon-mail" style="font-size: 2.8rem;"></i>
                         </button>
                         <span class="unread-badge"></span>
-                        {{--                        on clicking the button set unread-badge as hidden--}}
-                        <ul class="dropdown-menu notifications" role="menu" aria-labelledby="dLabel">
+                        <input style="display: none !important;" id="notificationPageNo" data-value="1">
+                        <ul class="dropdown-menu notifications" role="menu" aria-labelledby="dLabel" id="notificationUl">
                             <div class="notification-heading"><h4 class="menu-title">Notifications</h4></div>
+                            <a class="content" href="#">
+                                <div class="notification-item">
+                                    <p class="item-info">No notifications available</p>
+                                </div>
+                            </a>
                             <li class="divider"></li>
                             <div class="notifications-wrapper" id="customerNotification"></div>
                         </ul>
@@ -754,6 +759,17 @@
 
 <script>
     $(document).ready(function () {
+
+        $('.dropdown-menu.notifications').on('click', function (e) {
+            e.stopPropagation();
+        });
+
+        $(document.body).on('click', function (e) {
+            if (!$('.dropdown-menu.notifications').is(e.target) && $('.dropdown-menu.notifications').has(e.target).length === 0) {
+                $('.dropdown-menu.notifications').removeClass('show');
+            }
+        });
+
         const UpdateItemQtyCount = (count) => {
             const itemCountSpan = $('#divCartItemCount');
             if (count > 0) {
@@ -809,7 +825,7 @@
                 type: "post",
                 data: FormData,
                 url: "{{ route('add-cart') }}",
-                headers: {'X-CSRF-Token': $('meta[name=_token]').attr('content')},
+                headers: {'X-CSRF-Token': '{{ csrf_token() }}' },
                 dataType: "json",
                 error: function (e, x, settings, exception) {
                     ajaxErrors(e, x, settings, exception);
@@ -848,7 +864,7 @@
                     type:"post",
                     data: FormData,
                     url:"{{url('/')}}/update-cart",
-                    headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
+                    headers: { 'X-CSRF-Token' : '{{ csrf_token() }}' },
                     dataType:"json",
                     error:function(e, x, settings, exception){ajaxErrors(e, x, settings, exception);},
                     complete: function(e, x, settings, exception){},
@@ -871,7 +887,7 @@
                 type:"post",
                 data: FormData,
                 url:"{{url('/')}}/delete-cart",
-                headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
+                headers: { 'X-CSRF-Token' : '{{ csrf_token() }}' },
                 dataType:"json",
                 error:function(e, x, settings, exception){ajaxErrors(e, x, settings, exception);},
                 complete: function(e, x, settings, exception){},
@@ -965,53 +981,27 @@
             $('#changeCustomerAddressUl li a[data-aid="' + selected_aid + '"]').click();
         }
 
-        let currentNotificationPage = 1;
-
-        function updateNotifications(data) {
-            var dropdownMenu = $('#customerNotification');
-            dropdownMenu.css('top', '160px !important');
-            dropdownMenu.html("");
-            for (var i = 0; i < data.length; i++) {
-                var notification = data[i];
-                // var notificationItem = $('<li><a href="#" class="top-text-block"><div class="top-text-heading">' + notification.Title + '</div><div class="top-text-light">' + notification.Message + '</div></a></li>');
-
-                var notificationItem = $('<a class="content" href="#"><div class="notification-item"><h4 class="item-title">' + notification.Title + '</h4>' +
-                    '<p class="item-info">' + notification.Message + '</p></div></a>');
-                dropdownMenu.append(notificationItem);
-            }
-            dropdownMenu.attr('style', 'top: 160px !important;');
-        }
-
-        function fetchNotifications(currentNotificationPage) {
+        function fetchNotifications() {
             $.ajax({
                 type: "POST",
                 url: "{{ route('getNotifications') }}",
-                dataType: "json",
-                headers: { 'X-CSRF-Token' : '{{ csrf_token() }}' },
-                data: { page: currentNotificationPage },
-                success: function(response) {
-                    if (response.status === true) {
-                        updateNotifications(response.data);
-                        currentNotificationPage = response.currentPage;
-                    } else {
-                        console.error('Failed to fetch notifications:', response.message);
-                    }
+                headers: {'X-CSRF-Token': '{{ csrf_token() }}' },
+                data: {PageNo: $('#notificationPageNo').attr('data-value')},
+                success: function (response) {
+                    $('#notificationUl').html(response);
                 },
-                error: function(xhr, status, error) {
+                error: function (xhr, status, error) {
                     console.error('AJAX Error:', error);
                 }
             });
         }
 
-        fetchNotifications(currentNotificationPage);
+        fetchNotifications();
 
-        $('#paginationNext').on('click', function() {
-            fetchNotifications(currentNotificationPage + 1);
+        $('#notificationPageNo').on('change', function() {
+            fetchNotifications();
         });
 
-        $('#paginationPrev').on('click', function() {
-            fetchNotifications(currentNotificationPage - 1);
-        });
         $('#customerNotificationBtn').on('click', function () {
             $('#customerNotification').attr('style', 'top: 160px !important;');
         });

@@ -2036,22 +2036,17 @@ class HomeAuthController extends Controller{
         return DB::Select($sql);
     }
 
-    public function getNotifications(Request $req){
-
+    public function getNotifications(Request $req)
+    {
         $pageNo = $req->PageNo ?? 1;
         $perPage = 10;
 
         $Notifications = DB::table($this->CurrFyDB.'tbl_notifications')
-             ->where('ReferID', $this->ReferID)
-            ->orderBy('CreatedOn','desc')
+            ->where('ReferID', $this->ReferID)
+            ->orderBy('CreatedOn', 'desc')
             ->paginate($perPage, ['*'], 'page', $pageNo);
 
-        return response()->json([
-            'status' => true,
-            'data' => $Notifications->items(),
-            'CurrentPage' => $Notifications->currentPage(),
-            'LastPage' => $Notifications->lastPage(),
-        ]);
+        return view('home.customer.notification-template', compact('Notifications', 'pageNo'))->render();
     }
 
     public function customerProductView(Request $request, $ProductID)
