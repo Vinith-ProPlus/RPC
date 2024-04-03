@@ -837,9 +837,10 @@ class CustomerAuthController extends Controller{
         $pageNo = $req->PageNo ?? 1;
         $perPage = 10;
 
-        $Notifications = DB::table($this->currfyDB.'tbl_notifications')
-            ->where('UserID', $this->UserID)
-            ->orderBy('CreatedOn','desc')
+        $Notifications = DB::Table($this->currfyDB.'tbl_notifications as N')->leftJoin($this->currfyDB.'tbl_vendor_orders as VO','VO.VOrderID','N.RouteID')
+            ->where('N.UserID', $this->UserID)
+            ->orderBy('N.CreatedOn','desc')
+            ->select('N.*','VO.isCustomerRated')
             ->paginate($perPage, ['*'], 'page', $pageNo);
 
         return response()->json([
@@ -860,8 +861,8 @@ class CustomerAuthController extends Controller{
 		DB::beginTransaction();
         try {
             $status = DB::Table($this->currfyDB.'tbl_notifications')
-            // ->where('UserID',$this->UserID)
-            ->where('NID',$req->NID)->update(['ReadStatus' => 1,'ReadOn'=>date('Y-m-d H:i:s')]);
+            ->where('UserID',$this->UserID)
+            ->where('NID',$req->NID)->update(['ReadStatus' => 1,'ReadOn'=>date('Y-m-d H:i:s')]); 
         }catch(Exception $e) {
             $status=false;
         }

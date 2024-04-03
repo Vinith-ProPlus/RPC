@@ -26,13 +26,13 @@ class VendorAPIController extends Controller{
     private $ActiveMenuName;
     private $FileTypes;
 
-
     public function __construct(){
 		$this->generalDB=Helper::getGeneralDB();
 		$this->tmpDB=Helper::getTmpDB();
         $this->ActiveMenuName=activeMenuNames::Vendors->value;
 		$this->FileTypes=Helper::getFileTypes(array("category"=>array("Images","Documents")));
     }
+
     public function Login(Request $req){
 		$rules=array(
 			'email' => 'required|email:filter',
@@ -89,6 +89,7 @@ class VendorAPIController extends Controller{
         }
         return $return;
     }
+    
     public function GoogleRegister(request $req){
         $UserData=DB::Table('users')->where('UserName',$req->Email)->first();
         if($UserData){

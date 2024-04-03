@@ -117,7 +117,6 @@ class VendorAuthController extends Controller{
         if (isset($reqData['Documents'])) {
             $reqData['Documents'] = json_decode($reqData['Documents'], true);
         }
-        // return $reqData['Documents'];
 
         $rules = [
             'VendorName' => ['required', 'max:50'],
@@ -163,8 +162,9 @@ class VendorAuthController extends Controller{
 
         if (!empty($DocErrors) || !empty($errors)) {
             $resultErrors = !empty($DocErrors) ? ['Documents' => $DocErrors] + $errors : $errors;
-            return array('status' => false, 'message' => "Vendor Register Failed", 'errors' => $resultErrors);
+            return array('status' =>false, 'message' => "Vendor Register Failed", 'errors' => $resultErrors);
         }
+        
         DB::beginTransaction();
         try{
             $Logo="";
@@ -589,6 +589,7 @@ class VendorAuthController extends Controller{
             } else {
                 DB::table($this->tmpDB . 'tbl_vendors_stock_point')->where('VendorID', $VendorID)->delete();
                 foreach ($StockPointsData as $item) {
+                    $Address = Helper::trimAddress($item->Address);
                     $data = array(
                         "VendorID" => $VendorID,
                         "UUID" => substr(str_shuffle(substr(uniqid(uniqid(), true), 0, 16)), 0, 12),
@@ -596,7 +597,7 @@ class VendorAuthController extends Controller{
                         "Latitude"=>$item->Latitude,
                         "Longitude"=>$item->Longitude,
                         "PointName" => $item->PointName,
-                        "Address" => $item->Address,
+                        "Address"=>$Address,
                         "PostalID" => $item->PostalID,
                         "CityID" => $item->CityID,
                         "TalukID" => $item->TalukID,
