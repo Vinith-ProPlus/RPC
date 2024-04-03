@@ -33,7 +33,8 @@
                             <label for="lstStepperType">Stepper Type</label>
                             <select id="lstStepperType" class="form-control">
                                 <option @if($isEdit && $EditData[0]->StepperType == "Web") selected @endif value="Web">Web</option>
-                                <option @if($isEdit && $EditData[0]->StepperType == "Mobile") selected @endif value="Mobile">Mobile</option>
+                                <option @if($isEdit && $EditData[0]->StepperType == "Customer Mobile") selected @endif value="Customer Mobile">Customer Mobile</option>
+                                <option @if($isEdit && $EditData[0]->StepperType == "Vendor Mobile") selected @endif value="Vendor Mobile">Vendor Mobile</option>
                             </select>
                         </div>
                         <div class="col-sm-12 text-center mt-10">
@@ -111,7 +112,7 @@
     $(document).ready(function(){
         $(document).on('change','#lstStepperType',function(){
             let StepperType = $("#lstStepperType").val();
-            if(StepperType == 'Mobile'){
+            if(['Customer Mobile', 'Vendor Mobile'].includes(StepperType)){
                 $('#divWeb').addClass('d-none');
                 $('#divMobile').removeClass('d-none');
             }else{
@@ -164,17 +165,17 @@
             if(validation){
                 swal({
                     title: "Are you sure?",
-                    text: "You want @if($isEdit==true)Update @else Save @endif this stepper!",
+                    text: "You want Update this stepper!",
                     type: "warning",
                     showCancelButton: true,
                     confirmButtonClass: "btn-outline-success",
-                    confirmButtonText: "Yes, @if($isEdit==true)Update @else Save @endif it!",
+                    confirmButtonText: "Yes, Update it!",
                     closeOnConfirm: false
                 },function(){
                     swal.close();
                     btnLoading($('#btnUpload'));
                     let formData=getData();
-                    let posturl = "{{ url('/') }}/admin/settings/steppers/{{ $isEdit ? 'edit/'.$TranNo : 'upload' }}";
+                    let posturl = "{{ url('/') }}/admin/settings/steppers/edit/{{ $TranNo }}";
                     $.ajax({
                         type:"post",
                         url:posturl,
