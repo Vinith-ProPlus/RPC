@@ -82,6 +82,7 @@ class VendorStockUpdateController extends Controller{
 				$StockTableName= Helper::getStockTable($req->VendorID);
 				$OldData=DB::table($StockTableName)->where('VendorID',$req->VendorID)->where('Date',date("Y-m-d"))->get();
 				$StockData=json_decode($req->StockData,true);
+				
 				$ProductIDs=[];
 				foreach($StockData as $data){
 					$ProductIDs[]=$data['ProductID'];

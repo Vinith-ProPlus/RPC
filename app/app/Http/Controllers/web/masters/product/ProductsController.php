@@ -199,7 +199,7 @@ class ProductsController extends Controller{
 				}
 				$tmpAttributes[$AID]['AName']=$AName;
 			}
-			$RelatedProductIDs = $result[$i]->RelatedProducts ? unserialize($result[$i]->RelatedProducts) : [];
+			$RelatedProductIDs = is_array(unserialize($result[$i]->RelatedProducts)) ? unserialize($result[$i]->RelatedProducts) : [];
 			$result[$i]->Attributes=$tmpAttributes;
 			$result[$i]->Images=unserialize($result[$i]->Images);
 			$result[$i]->variation=$variaton;

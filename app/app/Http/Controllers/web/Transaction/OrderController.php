@@ -103,32 +103,40 @@ class OrderController extends Controller{
 			return array('status'=>false,'message'=>"Rating save failed");
 		}
 	}
+	
 	public function sendOTP(Request $req){
 		$OTP=Helper::getOTP(6);
 		if($req->detailID!="" && $req->OrderID!=""){
-			$result=DB::Table($this->CurrFYDB."tbl_order_details")->where('OrderID',$req->OrderID)->where('DetailID',$req->detailID)->Where('Status','New')->get();
-			if(count($result)>0){
-				if($result[0]->OTP==""){
-					DB::Table($this->CurrFYDB."tbl_order_details")->where('OrderID',$req->OrderID)->where('DetailID',$req->detailID)->update(["otp"=>$OTP,"UpdatedOn"=>now(),"UpdatedBy"=>$this->UserID]);
+			$result=DB::Table($this->CurrFYDB."tbl_order_details as OD")->leftJoin($this->CurrFYDB."tbl_order as O","O.OrderID","OD.OrderID")->leftJoin("tbl_products as P","OD.ProductID","P.ProductID")->where('OD.OrderID',$req->OrderID)->where('OD.DetailID',$req->detailID)->Where('OD.Status','New')->first();
+			if($result){
+				$status = DB::Table($this->CurrFYDB."tbl_order_details")->where('OrderID',$req->OrderID)->where('DetailID',$req->detailID)->update(["otp"=>$OTP,"UpdatedOn"=>now(),"UpdatedBy"=>$this->UserID]);
+				if($status){
+					$Title = "OTP for Order Delivery for Order No " . $result->OrderNo;
+					$Message = "Your OTP for order delivery is ".$OTP.". Please use this code to confirm your delivery. Delivered Products: ".$result->ProductName.".";
+					Helper::saveNotification($result->CustomerID,$Title,$Message,'Order',$result->VOrderID);
 				}
 			}
 		}elseif($req->OrderID!=""){
-			$result=DB::Table($this->CurrFYDB."tbl_order_details")->where('OrderID',$req->OrderID)->where('DetailID',$req->detailID)->Where('Status','New')->get();
+			$result=DB::Table($this->CurrFYDB."tbl_order_details as OD")->leftJoin($this->CurrFYDB."tbl_order as O","O.OrderID","OD.OrderID")->leftJoin("tbl_products as P","OD.ProductID","P.ProductID")->where('OD.OrderID',$req->OrderID)->Where('OD.Status','New')->get();
 			if(count($result)>0){
-				if($result[0]->OTP==""){
-					DB::Table($this->CurrFYDB."tbl_order_details")->where('OrderID',$req->OrderID)->where('DetailID',$req->detailID)->update(["otp"=>$OTP,"UpdatedOn"=>now(),"UpdatedBy"=>$this->UserID]);
-				}
-			}
-			$sql="SELECT * FROM ".$this->CurrFYDB."tbl_order Where OrderID='".$req->OrderID."' and Status in('New','Partially Delivered')";
-			$result=DB::SELECT($sql);
-			if(count($result)>0){
-				if($result[0]->OTP==""){
-					DB::Table($this->CurrFYDB."tbl_order")->where('OrderID',$req->OrderID)->update(["otp"=>$OTP,"UpdatedOn"=>now(),"UpdatedBy"=>$this->UserID]);
+				$status = DB::Table($this->CurrFYDB."tbl_order")->where('OrderID',$req->OrderID)->update(["otp"=>$OTP,"UpdatedOn"=>now(),"UpdatedBy"=>$this->UserID]);
+				if($status){
+					$Title = "OTP for Order Delivery for Order No " . $result[0]->OrderNo;
+					$Message = "Your OTP for order delivery is ".$OTP.". Please use this code to confirm your delivery. Delivered Products: ";
+					foreach($result as $index => $item) {
+						$Message .= $item->ProductName;
+						if ($index < count($result) - 1) {
+							$Message .= ", ";
+						}
+					}
+					$Message .= ".";
+					Helper::saveNotification($result[0]->CustomerID,$Title,$Message,'Order',$result[0]->OrderID);
 				}
 			}
 		}
 		return ["status"=>true];
 	}
+
 	public function ItemMarkAsDelivered(request $req){
 		if($this->general->isCrudAllow($this->CRUD,"edit")==true){
 			DB::beginTransaction();
