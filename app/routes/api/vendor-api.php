@@ -25,6 +25,7 @@ Route::controller(VendorAuthController::class)->group(function () {
     Route::post('/delete-product','DeleteProduct');
 
     Route::post('/get/vendor-stock-data','getVendorStockData');
+    Route::post('/get/vendor-stock-products','getVendorStockProducts');
     Route::post('/update-stock-data','UpdateStockData');
     
     Route::post('/get/vendor-home','getVendorHome');
@@ -65,6 +66,7 @@ Route::controller(VendorTransactionAPIController::class)->group(function () {
     Route::post('/get/transaction-history','getTransactionHistory');
     Route::post('/get/withdrawal-request','getWithdrawalRequest');
     Route::post('/get/settlement-history','getSettlementHistory');
+    Route::post('/get/statement','getStatement');
 
 });
 

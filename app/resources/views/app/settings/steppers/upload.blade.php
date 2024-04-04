@@ -15,6 +15,7 @@
 				<ol class="breadcrumb">
 					<li class="breadcrumb-item"><a href="{{ url('/') }}/admin"><i class="f-16 fa fa-home"></i></a></li>
 					<li class="breadcrumb-item">Home</li>
+                    <li class="breadcrumb-item">Settings</li>
 					<li class="breadcrumb-item"><a href="{{ url('/') }}/admin/settings/steppers">{{$PageTitle}}</a></li>
 					<li class="breadcrumb-item">Edit</li>
 				</ol>
@@ -31,28 +32,36 @@
                     <div class="row" id="divAdd">
                         <div class="col-sm-12 text-center">
                             <label for="lstStepperType">Stepper Type</label>
-                            <select id="lstStepperType" class="form-control">
+                            <select id="lstStepperType" class="form-control" @if($isEdit) disabled @endif>
                                 <option @if($isEdit && $EditData[0]->StepperType == "Web") selected @endif value="Web">Web</option>
-                                <option @if($isEdit && $EditData[0]->StepperType == "Customer Mobile") selected @endif value="Customer Mobile">Customer Mobile</option>
-                                <option @if($isEdit && $EditData[0]->StepperType == "Vendor Mobile") selected @endif value="Vendor Mobile">Vendor Mobile</option>
+                                <option @if($isEdit && $EditData[0]->StepperType == "Vendor App") selected @endif value="Vendor App">Vendor App</option>
+                                <option @if($isEdit && $EditData[0]->StepperType == "Customer App") selected @endif value="Customer App">Customer App</option>
+                                <option @if($isEdit && $EditData[0]->StepperType == "Customer OG") selected @endif value="Customer OG">Customer Order Guidance</option>
                             </select>
                         </div>
                         <div class="col-sm-12 text-center mt-10">
                             <label for="txtTitle">Stepper Title</label>
-                            <input type="text" class="form-control" id="txtTitle" value="{{ isset($EditData[0]->StepperTitle) ? $EditData[0]->StepperTitle : '' }}" required>
+                            <input type="text" class="form-control" id="txtTitle" value="{{ isset($EditData[0]->StepperTitle) ? $EditData[0]->StepperTitle : '' }}" required @if($isEdit && $EditData[0]->StepperType == "Web") disabled @endif>
                         </div>
-                        <div class="col-sm-12 text-center mt-20 @if($isEdit && $EditData[0]->StepperType == "Mobile") d-none @endif" id="divWeb">
+                        <div class="col-sm-12 text-center mt-20 @if($isEdit && $EditData[0]->StepperType != "Web") d-none @endif" id="divWeb">
                             <label class="mt-20">Web Stepper Image <span class="fs-13" style="color:rgba(0,0,0,0.75)" id="lblStepper"> (Upload Size=1580px X 700px, Radio=12:5)</span></label>
-                            <input type="file" class="dropify imageScrop" id="txtStepper" data-min-width=1580 data-min-height=700 data-max-width=1580 data-max-height=700 data-default-file="@if($isEdit && $EditData[0]->StepperType == "Web") {{url('/')."/".$EditData[0]->StepperImage}} @endif"  data-allowed-file-extensions="jpeg jpg png gif">
+                            <input type="file" class="dropify imageScrop" id="txtStepper" data-remove="0" data-min-width=1580 data-min-height=700 data-max-width=1580 data-max-height=700 data-default-file="@if($isEdit && $EditData[0]->StepperType == "Web") {{url('/')."/".$EditData[0]->StepperImage}} @endif"  data-allowed-file-extensions="jpeg jpg png gif">
                         </div>
-                        <div class="col-sm-12 text-center mt-20 @if($isEdit && $EditData[0]->StepperType == "Web") d-none @elseif(!$isEdit) d-none @endif" id="divMobile">
+                        <div class="col-sm-12 text-center mt-20 @if($isEdit && $EditData[0]->StepperType == "Web" || $EditData[0]->StepperType == "Customer OG" ) d-none @elseif(!$isEdit) d-none @endif" id="divMobile">
                             <label for="txtDescription">Description</label>
                             <textarea class="form-control" id="txtDescription" required>{{ isset($EditData[0]->Description) ? $EditData[0]->Description : '' }}</textarea>
                             <label for="txtMStepper" class="mt-10">Mobile Stepper Image <span class="fs-13" style="color:rgba(0,0,0,0.75)" id="lblStepper"></span></label>
-                            <input type="file" class="dropify imageScrop" id="txtMStepper" data-default-file="@if($isEdit && $EditData[0]->StepperType == "Mobile") {{url('/')."/".$EditData[0]->StepperImage}} @endif"  data-allowed-file-extensions="jpeg jpg png gif">
+                            <input type="file" class="dropify imageScrop" id="txtMStepper" data-remove="0" data-default-file="@if($isEdit && $EditData[0]->StepperType != "Web" || $EditData[0]->StepperType != "Customer OG") {{url('/')."/".$EditData[0]->StepperImage}} @endif"  data-allowed-file-extensions="jpeg jpg png gif">
+                        </div>
+                        <div class="col-sm-12 text-center mt-20 @if($isEdit && $EditData[0]->StepperType != "Customer OG" ) d-none @elseif(!$isEdit) d-none @endif" id="divCusOG">
+                            <label for="txtOGDescription">Description</label>
+                            <textarea class="form-control" id="txtOGDescription" required>{{ isset($EditData[0]->Description) ? $EditData[0]->Description : '' }}</textarea>
+                            <label for="txtOGStepper" class="mt-10">Customer Order Guidance Stepper Image <span class="fs-13" style="color:rgba(0,0,0,0.75)" id="lblStepper"></span></label>
+                            <input type="file" class="dropify imageScrop" id="txtOGStepper" data-remove="0" data-default-file="@if($isEdit && $EditData[0]->StepperType == "Customer OG") {{url('/')."/".$EditData[0]->StepperImage}} @endif"  data-allowed-file-extensions="jpeg jpg png gif">
                         </div>
                     </div>
                 </div>
+                <input type="number" class="d-none" id="isImageExists" value="1">
                 <div class="card-footer">
                     <div class="row">
                         <div class="col-sm-12 text-right">
@@ -60,7 +69,7 @@
                                 <a href="{{ url('/') }}/admin/settings/steppers" class="btn btn-sm btn-outline-dark mr-10">Cancel</a>
                             @endif
                             @if($crud['edit']==1 || $crud['add']==1)
-                                <button class="btn btn-sm btn-outline-success btn-air-success" id="btnUpload">Update </button>
+                                <button class="btn btn-sm btn-outline-success btn-air-success" id="btnUpload">Update</button>
                             @endif
                         </div>
                     </div>
@@ -108,11 +117,158 @@
 </div>
 @endsection
 @section('scripts')
+<!-- Image Crop Script Start -->
+{{-- <script>
+    $(document).ready(function() {
+        var uploadedImageURL;
+        var URL = window.URL || window.webkitURL;
+        var $dataRotate = $('#dataRotate');
+        var $dataScaleX = $('#dataScaleX');
+        var $dataScaleY = $('#dataScaleY');
+        var options = {
+            aspectRatio: 16/9,
+            preview: '.img-preview'
+        };
+        var $image = $('#ImageCrop').cropper(options);
+        $('#ImgCrop').modal({backdrop: 'static',keyboard: false});
+        $('#ImgCrop').modal('hide');
+        $(document).on('change', '.imageScrop', function() {
+            let id = $(this).attr('id');
+            $('#'+id).attr('data-remove',0); 
+            if($('#'+id).attr('data-aspect-ratio')!=undefined){
+                options.aspectRatio=$('#'+id).attr('data-aspect-ratio')
+            }
+            $image.attr('data-id', id);
+            $('#ImgCrop').modal('show');
+            var files = this.files;
+            if (files && files.length) {
+                file = files[0];
+                if (/^image\/\w+$/.test(file.type)) {
+                    uploadedImageName = file.name;
+                    uploadedImageType = file.type;
+                    if (uploadedImageURL) {
+                        URL.revokeObjectURL(uploadedImageURL);
+                    }
+                    uploadedImageURL = URL.createObjectURL(file); console.log(options)
+                    $image.cropper('destroy').attr('src', uploadedImageURL).cropper(options);
+                } else {
+                    window.alert('Please choose an image file.');
+                }
+            }
+        });
+        $('.docs-buttons').on('click', '[data-method]', function() {
+            var $this = $(this);
+            var data = $this.data();
+            var cropper = $image.data('cropper');
+            var cropped;
+            var $target;
+            var result;
+            if (cropper && data.method) {
+                data = $.extend({}, data);
+                if (typeof data.target !== 'undefined') {
+                    $target = $(data.target);
+                    if (typeof data.option === 'undefined') {
+                        try {
+                            data.option = JSON.parse($target.val());
+                        } catch (e) {
+                            console.log(e.message);
+                        }
+                    }
+                }
+                cropped = cropper.cropped;
+                switch (data.method) {
+                    case 'rotate':
+                        if (cropped && options.viewMode > 0) {
+                            $image.cropper('clear');
+                        }
+                        break;
+                    case 'getCroppedCanvas':
+                        if (uploadedImageType === 'image/jpeg') {
+                            if (!data.option) {
+                                data.option = {};
+                            }
+                            data.option.fillColor = '#fff';
+                        }
+                        break;
+                }
+                result = $image.cropper(data.method, data.option, data.secondOption);
+                switch (data.method) {
+                    case 'rotate':
+                        if (cropped && options.viewMode > 0) {
+                            $image.cropper('crop');
+                        }
+                        break;
+                    case 'scaleX':
+                    case 'scaleY':
+                        $(this).data('option', -data.option);
+                        break;
+                    case 'getCroppedCanvas':
+                        if (result) {
+                            $('#getCroppedCanvasModal').modal().find('.modal-body').html(result);
+                            if (!$download.hasClass('disabled')) {
+                                download.download = uploadedImageName;
+                                $download.attr('href', result.toDataURL(uploadedImageType));
+                            }
+                        }
+                        break;
+                }
+            }
+        });
+        $('#inputImage').change(function() {
+            var files = this.files;
+            var file;
+            if (!$image.data('cropper')) {
+                return;
+            }
+            if (files && files.length) {
+                file = files[0];
+                if (/^image\/\w+$/.test(file.type)) {
+                    uploadedImageName = file.name;
+                    uploadedImageType = file.type;
+                    if (uploadedImageURL) {
+                        URL.revokeObjectURL(uploadedImageURL);
+                    }
+                    uploadedImageURL = URL.createObjectURL(file);
+                    $image.cropper('destroy').attr('src', uploadedImageURL).cropper(options);
+                    $('#inputImage').val('');
+                } else {
+                    window.alert('Please choose an image file.');
+                }
+            }
+        });
+        $(document).on('click', '#btnUploadImage', function() {
+            $('#inputImage').trigger('click')
+        });
+        $("#btnCropApply").on('click', function() {
+            btnLoading($('#btnCropApply'));
+            setTimeout(() => {
+                var base64 = $image.cropper('getCroppedCanvas').toDataURL();
+                var id = $image.attr('data-id');
+                $('#' + id).attr('src', base64);
+                $('#' + id).parent().find('img').attr('src', base64)
+                $('#ImgCrop').modal('hide');
+                setTimeout(() => {
+                    btnReset($('#btnCropApply'));
+                }, 100);
+            }, 100);
+        });
+        $(document).on('click','#btnCropModelClose',function(){
+            var id = $image.attr('data-id');
+            $('#' + id).val("");
+            $('#' + id).attr('src', "");
+            $('#' + id).parent().find('img').attr('src', "");
+            $('#' + id).parent().find('.dropify-clear').trigger('click');
+            $('#ImgCrop').modal('hide');
+        });
+    });
+</script> --}}
+<!-- Image Crop Script End -->
 <script>
     $(document).ready(function(){
         $(document).on('change','#lstStepperType',function(){
             let StepperType = $("#lstStepperType").val();
-            if(['Customer Mobile', 'Vendor Mobile'].includes(StepperType)){
+
+            if(['Customer App', 'Vendor App'].includes(StepperType)){
                 $('#divWeb').addClass('d-none');
                 $('#divMobile').removeClass('d-none');
             }else{
@@ -120,17 +276,25 @@
                 $('#divWeb').removeClass('d-none');
             }
         });
-        $("#lstStepperType").change();
+        // $("#lstStepperType").change();
 
         const getData=()=>{
             let StepperType = $("#lstStepperType").val();
+            let StepperImage = "";
+            if(StepperType == 'Web'){
+                StepperImage = $('#txtStepper')[0].files[0];
+            }else if(StepperType == 'Customer OG'){
+                StepperImage = $('#txtOGStepper')[0].files[0];
+            }else{
+                StepperImage = $('#txtMStepper')[0].files[0];
+            }
             let formData=new FormData();
             formData.append('StepperTitle', $('#txtTitle').val());
             formData.append('StepperType', StepperType);
             if(StepperType !== "Web"){
                 formData.append('Description', $("#txtDescription").val());
             }
-            formData.append('StepperImage', StepperType == "Web" ? $('#txtStepper')[0].files[0] : $('#txtMStepper')[0].files[0]);
+            formData.append('StepperImage', StepperImage );
             return formData;
         }
 
@@ -139,6 +303,8 @@
             let validation = true;
             let title = $('#txtTitle').val();
             let description = $("#txtDescription").val();
+            let OGdescription = $("#txtOGDescription").val();
+            let isRemoved = Number($('#isImageExists').val());
 
             if(!title){
                 toastr.error('Stepper title is required', "Failed", {positionClass: "toast-top-right",containerId: "toast-top-right",showMethod: "slideDown",hideMethod: "slideUp",progressBar: !0})
@@ -146,8 +312,18 @@
             }
             if(StepperType === "Web"){
                 let webImage = $('#txtStepper').val();
-                if(!webImage){
+                if(!isRemoved && !webImage){
                     toastr.error('Image not selected', "Failed", {positionClass: "toast-top-right",containerId: "toast-top-right",showMethod: "slideDown",hideMethod: "slideUp",progressBar: !0})
+                    validation = false;
+                }
+            }else if(StepperType === "Customer OG"){
+                let webImage = $('#txtOGStepper').val();
+                if(!isRemoved && !webImage){
+                    toastr.error('Image not selected', "Failed", {positionClass: "toast-top-right",containerId: "toast-top-right",showMethod: "slideDown",hideMethod: "slideUp",progressBar: !0})
+                    validation = false;
+                }
+                if(!OGdescription){
+                    toastr.error('Description is required', "Failed", {positionClass: "toast-top-right",containerId: "toast-top-right",showMethod: "slideDown",hideMethod: "slideUp",progressBar: !0})
                     validation = false;
                 }
             } else {
@@ -156,7 +332,7 @@
                     validation = false;
                 }
                 let mobileImage = $('#txtMStepper').val();
-                if(!mobileImage){
+                if(!isRemoved && !mobileImage){
                     toastr.error('Image not selected', "Failed", {positionClass: "toast-top-right",containerId: "toast-top-right",showMethod: "slideDown",hideMethod: "slideUp",progressBar: !0})
                     validation = false;
                 }
@@ -236,6 +412,10 @@
                     });
                 })
             }
+        });
+
+        $(document).on('click','.dropify-clear',function(){
+            $('#isImageExists').val(0);
         });
     });
 </script>

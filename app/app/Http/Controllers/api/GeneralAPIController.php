@@ -309,11 +309,8 @@ class GeneralAPIController extends Controller{
 	}
 	public function getStepperImages(request $req){
 		$query = DB::Table('tbl_stepper_images')
-		->where('StepperType','Mobile')
+		->where('StepperType',$req->StepperType)
 		->where('DFlag',0);
-		if($req->StepperType == 'Mobile'){
-
-		}
 		$StepperImages = $query->select('StepperType','Description','StepperTitle', DB::raw('CONCAT("' . url('/') . '/", StepperImage) AS StepperImage'))
 		->get();
 		$return = [

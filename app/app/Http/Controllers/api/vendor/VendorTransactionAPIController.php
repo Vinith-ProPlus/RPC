@@ -320,19 +320,18 @@ class VendorTransactionAPIController extends Controller{
         ->paginate($perPage, ['*'], 'page', $pageNo);
 
         foreach($OrderData as $row){
-            $row->TotalUnit = DB::table($this->currfyDB.'tbl_order_details')->whereNot('Status','Cancelled')->where('OrderID',$row->OrderID)->sum('Qty');
-            $row->ProductData = DB::table($this->currfyDB.'tbl_order_details as OD')
-            ->leftJoin('tbl_products as P','P.ProductID','OD.ProductID')
+            $row->TotalUnit = DB::table($this->currfyDB.'tbl_vendor_order_details')->whereNot('Status','Cancelled')->where('VOrderID',$row->VOrderID)->sum('Qty');
+            $row->ProductData = DB::table($this->currfyDB.'tbl_vendor_order_details as VOD')
+            ->leftJoin('tbl_products as P','P.ProductID','VOD.ProductID')
             ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'P.CID')
             ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')
             ->leftJoin('tbl_uom as U', 'U.UID', 'P.UID')
             ->where('P.ActiveStatus', 'Active')->where('P.DFlag', 0)
             ->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)
             ->where('PSC.ActiveStatus', 'Active')->where('PSC.DFlag', 0)
-            ->where('OD.OrderID',$row->OrderID)
-            ->where('OD.VOrderID',$row->VOrderID)
+            ->where('VOD.VOrderID',$row->VOrderID)
             ->whereNot('Status','Cancelled')
-            ->select('OD.DetailID','OD.Taxable','OD.TaxAmt','OD.TotalAmt','P.ProductName','P.ProductID','OD.Qty', 'PC.PCName', 'PC.PCID', 'PSC.PSCName','U.UName','U.UCode','U.UID', 'PSC.PSCID','OD.Price','OD.Status')
+            ->select('VOD.DetailID','VOD.Taxable','VOD.TaxAmt','VOD.TotalAmt','P.ProductName','P.ProductID','VOD.Qty', 'PC.PCName', 'PC.PCID', 'PSC.PSCName','U.UName','U.UCode','U.UID', 'PSC.PSCID','VOD.Price','VOD.Status')
             ->get();
         }
         
