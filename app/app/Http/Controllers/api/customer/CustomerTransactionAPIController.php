@@ -205,6 +205,7 @@ class CustomerTransactionAPIController extends Controller{
         }
         $QuoteEnq=$query
         ->select('E.EnqID','E.EnqNo','E.EnqDate','E.EnqExpiryDate','E.ReceiverName','E.ReceiverMobNo','E.ExpectedDeliveryDate','E.Status AS EnqStatus','Q.Status AS QStatus','Q.QID','Q.QNo','Q.QExpiryDate','Q.QDate','Q.TaxAmount','Q.SubTotal','Q.CGSTAmount','Q.SGSTAmount','Q.IGSTAmount','Q.TotalAmount','Q.AdditionalCost','Q.OverAllAmount','CU.CustomerName as CancelledBy')
+        ->orderBy('E.CreatedOn','desc')
         ->get();
         $CustomerCreditLimit = DB::table('tbl_customer')->where('CustomerID',$this->ReferID)->value('CreditLimit');
         $CustomerBalanceAmount = DB::table($this->currfyDB.'tbl_order as O')->where('O.CustomerID',$this->ReferID)->where('Status','Delivered')->sum('BalanceAmount');
@@ -658,6 +659,7 @@ class CustomerTransactionAPIController extends Controller{
         }
         $OrderData=$query
         ->select('O.OrderID','O.OrderNo','O.OrderDate','O.ReceiverName','O.ReceiverMobNo','O.Status','O.TaxAmount','O.SubTotal','O.CGSTAmount','O.SGSTAmount','O.IGSTAmount','O.TotalAmount','O.AdditionalCost','O.NetAmount','O.isRated','O.DeliveredOn','O.ExpectedDelivery','O.PaymentStatus','CU.CompleteAddress as BillingAddress','CA.CompleteAddress as ShippingAddress')
+        ->orderBy('O.CreatedOn','desc')
         ->get();
 
         foreach($OrderData as $order){
@@ -699,7 +701,6 @@ class CustomerTransactionAPIController extends Controller{
     public function getCategory(Request $req){
         if($req->PostalID){
             $AllVendors = DB::table('tbl_vendors as V')->leftJoin('tbl_vendors_service_locations as VSL','V.VendorID','VSL.VendorID')->where('V.ActiveStatus',"Active")->where('V.DFlag',0)->where('VSL.PostalCodeID',$req->PostalID)->groupBy('VSL.VendorID')->pluck('VSL.VendorID')->toArray();
-
             $PCatagories= DB::table('tbl_vendors_product_mapping as VPM')
             ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'VPM.PCID')
             ->where('VPM.Status',1)->WhereIn('VPM.VendorID',$AllVendors)
