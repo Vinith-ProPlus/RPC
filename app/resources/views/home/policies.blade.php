@@ -321,7 +321,8 @@
                                 <a href="{{ route('requested-quotations') }}">Quotations</a>
                             </li>
                             <li>
-                                <a href="{{ route('customer-orders') }}">Orders</a>
+                                {{-- <a href="{{ route('customer-orders') }}">Orders</a> --}}
+                                <a href="#">Orders</a>
                             </li>
                         @endif
                     </ul>
