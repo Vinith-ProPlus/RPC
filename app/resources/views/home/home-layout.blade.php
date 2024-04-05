@@ -354,7 +354,7 @@
                         </div>
                         <div class="sicon-header">
                             <h4 class="sicon-title ls-n-25">CALL US NOW</h4>
-                            <p>0422 234688</p>
+                            <p>+91 {{$Company['Phone-Number']}}</p>
                         </div>
                     </div>
 
@@ -554,7 +554,7 @@
                                     <span class="contact-info-label">Address:</span>{{$Company['Address']}}<br>{{$Company['AddressData']->CityName}}, {{$Company['AddressData']->DistrictName}}, {{$Company['AddressData']->StateName}}, {{$Company['AddressData']->CountryName}} - {{$Company['AddressData']->PostalCode}}.
                                 </li>
                                 <li>
-                                    <span class="contact-info-label">Phone:</span><a href="tel:0422-4567890">{{$Company['Phone-Number']}}@if($Company['Mobile-Number']), {{$Company['Mobile-Number']}} @endif</a>
+                                    <span class="contact-info-label">Phone:</span><a href="#">{{$Company['Phone-Number']}}@if($Company['Mobile-Number']), {{$Company['Mobile-Number']}} @endif</a>
                                 </li>
                                 <li>
                                     <span class="contact-info-label">Email:</span>
