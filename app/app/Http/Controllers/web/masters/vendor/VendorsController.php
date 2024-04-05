@@ -529,6 +529,7 @@ class VendorsController extends Controller{
 			}
 			if($status==true){
 				DocNum::updateDocNum(docTypes::Vendor->value);
+				DocNum::updateDocNum(docTypes::Users->value);
 				$NewData=$this->getVendor($VendorID);
 				DB::commit();
 				$logData=array("Description"=>"New Vendor Created ","ModuleName"=>$this->ActiveMenuName,"Action"=>cruds::ADD->value,"ReferID"=>$VendorID,"OldData"=>$OldData,"NewData"=>$NewData,"UserID"=>$this->UserID,"IP"=>$req->ip());
@@ -910,8 +911,6 @@ class VendorsController extends Controller{
                     "DistrictID"=>$req->DistrictID,
                     "StateID"=>$req->StateID,
                     "CountryID"=>$req->CountryID,
-					"isLogin"=>1,
-					"LoginType"=>"Vendor",
 					"UpdatedOn"=>date("Y-m-d H:i:s"),
 					"UpdatedBy"=>$this->UserID
 				);
