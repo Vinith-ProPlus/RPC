@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\firebaseController;
 use App\Http\Controllers\Home\HomeAuthController;
 use App\Http\Controllers\Home\HomeTransactionController;
 use App\Http\Controllers\Home\WishlistController;
@@ -208,6 +209,11 @@ Route::post('/get/cancel-reasons', [HomeAuthController::class, 'getCancelReasons
 Route::controller(SocialController::class)->group(function () {
     Route::get('/social/auth/{provider}', 'redirect');
     Route::get('/social/callback/{provider}', 'callback');
+});
+
+Route::controller(firebaseController::class)->group(function () {
+    Route::post('/get/firebase-config', 'getFirebaseConfig');
+    Route::post('/fcm-token/save', 'saveFCMToken');
 });
 Route::group(['prefix'=>'admin'],function (){
     Route::controller(loginController::class)->group(function () {

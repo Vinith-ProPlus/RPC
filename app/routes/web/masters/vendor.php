@@ -68,6 +68,8 @@ Route::group(['prefix'=>'manage-vendors'],function (){
         Route::post('/get/vendor-category', 'getVendorCategory');
         Route::post('/get/vendor-type', 'getVendorType');
         Route::post('/get/vendor-info', 'getVendorInfo');
+        Route::post('/unique-validation', 'UniqueValidation');
+
         /*
         Route::get('/edit/{SupplierID}', 'Edit');
 

@@ -18,6 +18,8 @@ use Helper;
 use activeMenuNames;
 use docTypes;
 use cruds;
+use Illuminate\Support\Facades\Hash;
+
 class VendorsController extends Controller{
 	private $general;
 	private $DocNum;
@@ -464,122 +466,7 @@ class VendorsController extends Controller{
 						}
 					}
 				}
-				//stock points details
-				/* $StockPoints=json_decode($req->StockPoints);
-				foreach($StockPoints as $RowIndex=>$data){
-					if($status){
-						$StockPointID = DocNum::getDocNum(docTypes::VendorStockPoint->value,"",Helper::getCurrentFY());
-						$tdata=array(
-							"StockPointID"=>$StockPointID,
-							"VendorID"=>$VendorID,
-							"UUID"=>$data->UUID,
-							"PointName"=>$data->Name,
-							"Address"=>$data->Address,
-							"PostalID"=>$data->PostalID,
-							"CityID"=>$data->CityID,
-							"TalukID"=>$data->TalukID,
-							"DistrictID"=>$data->DistrictID,
-							"StateID"=>$data->StateID,
-							"CountryID"=>$data->CountryID,
-							"CreatedBy"=>$this->UserID,
-							"CreatedOn"=>date("Y-m-d H:i:s")
-						);
-						$status=DB::Table('tbl_vendors_stock_point')->insert($tdata);
-						if($status){
-							DocNum::updateDocNum(docTypes::VendorStockPoint->value);
-						}
-					}
-				} */
-				//service location details
-				/* $ServiceLocations=json_decode($req->ServiceLocations);
-				$ServiceBy = $ServiceLocations->ServiceBy;
-				$ServiceData = $ServiceLocations->ServiceData;
-				if($ServiceBy == "District"){
-					$DistrictIDs=[];
-					foreach($ServiceData as $data){
-						foreach($data->Districts as $item){
-							$DistrictIDs[] = $item->DistrictID;
-							$t=DB::Table('tbl_vendors_service_locations')->where('VendorID',$VendorID)->where('ServiceBy',$ServiceBy)->Where('DistrictID',$item->DistrictID)->first();
-							if(!$t){
-								$PostalCodeIDs = DB::table($this->generalDB.'tbl_postalcodes')->where('DistrictID',$item->DistrictID)->where('ActiveStatus','Active')->where('DFlag',0)->pluck('PID')->toArray();
-								if (!empty($PostalCodeIDs)) {
-									foreach($PostalCodeIDs as $row){
-										$DetailID = DocNum::getDocNum(docTypes::VendorServiceLocation->value,"",Helper::getCurrentFY());
-										$tdata=array(
-											"DetailID"=>$DetailID,
-											"VendorID"=>$VendorID,
-											"ServiceBy"=>$ServiceBy,
-											"StateID" => $data->StateID,
-											"DistrictID"=>$item->DistrictID,
-											"PostalCodeID"=>$row,
-											"CreatedBy"=>$this->UserID,
-											"CreatedOn"=>date("Y-m-d H:i:s")
-										);
-										$status=DB::Table('tbl_vendors_service_locations')->insert($tdata);
-										if($status){
-											DocNum::updateDocNum(docTypes::VendorServiceLocation->value);
-										}
-									}
-								}else{
-									$DetailID = DocNum::getDocNum(docTypes::VendorServiceLocation->value,"",Helper::getCurrentFY());
-									$tdata=array(
-										"DetailID"=>$DetailID,
-										"VendorID"=>$VendorID,
-										"ServiceBy"=>$ServiceBy,
-										"StateID" => $data->StateID,
-										"DistrictID"=>$item->DistrictID,
-										"CreatedBy"=>$this->UserID,
-										"CreatedOn"=>date("Y-m-d H:i:s")
-									);
-									$status=DB::Table('tbl_vendors_service_locations')->insert($tdata);
-									if($status){
-										DocNum::updateDocNum(docTypes::VendorServiceLocation->value);
-									}
-								}
-							}
-						}
-					}
-					if (!empty($DistrictIDs)) {
-						DB::Table('tbl_vendors_service_locations')->where('VendorID',$VendorID)->where('ServiceBy',$ServiceBy)->WhereIn('DistrictID',$DistrictIDs)->update(['DFlag'=>0,'UpdatedOn'=>date('Y-m-d H:i:s'),'UpdatedBy'=>$this->UserID]);
-						DB::Table('tbl_vendors_service_locations')->where('VendorID',$VendorID)->where('ServiceBy',$ServiceBy)->WhereNotIn('DistrictID',$DistrictIDs)->update(['DFlag'=>1,'UpdatedOn'=>date('Y-m-d H:i:s'),'UpdatedBy'=>$this->UserID]);
-						$status=true;
-					}
-				}elseif($ServiceBy == "PostalCode"){
-					$PostalCodeIDs=[];
-					foreach($ServiceData as $data){
-						foreach($data->Districts as $item){
-							foreach($item->PostalCodeIDs as $row){
-								$PostalCodeIDs[] = $row;
-								$t=DB::Table('tbl_vendors_service_locations')->where('VendorID',$VendorID)->where('ServiceBy',$ServiceBy)->Where('PostalCodeID',$row)->first();
-								if(!$t){
-									$DetailID = DocNum::getDocNum(docTypes::VendorServiceLocation->value,"",Helper::getCurrentFY());
-									$tdata=array(
-										"DetailID"=>$DetailID,
-										"VendorID"=>$VendorID,
-										"ServiceBy"=>$ServiceBy,
-										"StateID" => $data->StateID,
-										"DistrictID"=>$item->DistrictID,
-										"PostalCodeID"=>$row,
-										"CreatedBy"=>$this->UserID,
-										"CreatedOn"=>date("Y-m-d H:i:s")
-									);
-									$status=DB::Table('tbl_vendors_service_locations')->insert($tdata);
-									if($status){
-										DocNum::updateDocNum(docTypes::VendorServiceLocation->value);
-									}
-								}
-							}
-						}
-					}
-					if (!empty($PostalCodeIDs)) {
-						DB::Table('tbl_vendors_service_locations')->where('VendorID',$VendorID)->where('ServiceBy',$ServiceBy)->WhereIn('PostalCodeID',$PostalCodeIDs)->update(['DFlag'=>0,'UpdatedOn'=>date('Y-m-d H:i:s'),'UpdatedBy'=>$this->UserID]);
-						DB::Table('tbl_vendors_service_locations')->where('VendorID',$VendorID)->where('ServiceBy',$ServiceBy)->WhereNotIn('PostalCodeID',$PostalCodeIDs)->update(['DFlag'=>1,'UpdatedOn'=>date('Y-m-d H:i:s'),'UpdatedBy'=>$this->UserID]);
-						$status=true;
-					}
-				}else{
-					$status = false;
-				}
-				DB::table('tbl_vendors')->where('VendorID',$VendorID)->update(['ServiceBy'=>$ServiceBy]); */
+				
 				//Documents
 				$Documents=json_decode($req->Documents);
 				foreach($Documents as $ImgID=>$Document){
@@ -605,6 +492,38 @@ class VendorsController extends Controller{
 						}
 					}
 				}
+				$UserID=DocNum::getDocNum(docTypes::Users->value,'',Helper::getCurrentFY());
+
+				$VendorName = $req->VendorName;
+                $nameParts = explode(' ', $VendorName, 2);
+                $firstName = $nameParts[0] ?? '';
+                $lastName = $nameParts[1] ?? '';
+				$pwd1=Hash::make($req->Email);
+				$pwd2=Helper::EncryptDecrypt("encrypt",$req->Email);
+				$data=array(
+					"UserID"=>$UserID,
+					"ReferID"=>$VendorID,
+					"Name"=>$req->VendorName,
+					"FirstName"=>$firstName,
+					"LastName"=>$lastName,
+					"UserName"=>$req->Email,
+					"MobileNumber"=>$req->MobileNumber1,
+					"Password"=>$pwd1,
+					"Password1"=>$pwd2,
+					"EMail"=>$req->Email,
+					"Address"=>$req->Address,
+                    "PostalCodeID"=>$req->PostalCode,
+                    "CityID"=>$req->CityID,
+                    "TalukID"=>$req->TalukID,
+                    "DistrictID"=>$req->DistrictID,
+                    "StateID"=>$req->StateID,
+                    "CountryID"=>$req->CountryID,
+					"isLogin"=>1,
+					"LoginType"=>"Vendor",
+					"CreatedOn"=>date("Y-m-d H:i:s"),
+					"CreatedBy"=>$this->UserID
+				);
+				$status=DB::Table('users')->insert($data);
 			}catch(Exception $e) {
 				$status=false;
 			}
@@ -919,151 +838,7 @@ class VendorsController extends Controller{
 						}
 					}
 				}
-				//service location details
-				/* $ServiceLocations=json_decode($req->ServiceLocations);
-				$ServiceBy = $ServiceLocations->ServiceBy;
-				$ServiceData = $ServiceLocations->ServiceData;
-				if($ServiceBy == "District"){
-					$DistrictIDs=[];
-					foreach($ServiceData as $data){
-						foreach($data->Districts as $item){
-							$DistrictIDs[] = $item->DistrictID;
-							$t=DB::Table('tbl_vendors_service_locations')->where('VendorID',$VendorID)->where('ServiceBy',$ServiceBy)->Where('DistrictID',$item->DistrictID)->first();
-							if(!$t){
-								$PostalCodeIDs = DB::table($this->generalDB.'tbl_postalcodes')->where('DistrictID',$item->DistrictID)->where('ActiveStatus','Active')->where('DFlag',0)->pluck('PID')->toArray();
-								if (!empty($PostalCodeIDs)) {
-									foreach($PostalCodeIDs as $row){
-										$DetailID = DocNum::getDocNum(docTypes::VendorServiceLocation->value,"",Helper::getCurrentFY());
-										$tdata=array(
-											"DetailID"=>$DetailID,
-											"VendorID"=>$VendorID,
-											"ServiceBy"=>$ServiceBy,
-											"StateID" => $data->StateID,
-											"DistrictID"=>$item->DistrictID,
-											"PostalCodeID"=>$row,
-											"CreatedBy"=>$this->UserID,
-											"CreatedOn"=>date("Y-m-d H:i:s")
-										);
-										$status=DB::Table('tbl_vendors_service_locations')->insert($tdata);
-										if($status){
-											DocNum::updateDocNum(docTypes::VendorServiceLocation->value);
-										}
-									}
-								}else{
-									$DetailID = DocNum::getDocNum(docTypes::VendorServiceLocation->value,"",Helper::getCurrentFY());
-									$tdata=array(
-										"DetailID"=>$DetailID,
-										"VendorID"=>$VendorID,
-										"ServiceBy"=>$ServiceBy,
-										"StateID" => $data->StateID,
-										"DistrictID"=>$item->DistrictID,
-										"CreatedBy"=>$this->UserID,
-										"CreatedOn"=>date("Y-m-d H:i:s")
-									);
-									$status=DB::Table('tbl_vendors_service_locations')->insert($tdata);
-									if($status){
-										DocNum::updateDocNum(docTypes::VendorServiceLocation->value);
-									}
-								}
-							}
-						}
-					}
-					if (!empty($DistrictIDs)) {
-						DB::Table('tbl_vendors_service_locations')->where('VendorID',$VendorID)->where('ServiceBy',$ServiceBy)->WhereIn('DistrictID',$DistrictIDs)->update(['DFlag'=>0,'UpdatedOn'=>date('Y-m-d H:i:s'),'UpdatedBy'=>$this->UserID]);
-						DB::Table('tbl_vendors_service_locations')->where('VendorID',$VendorID)->where('ServiceBy',$ServiceBy)->WhereNotIn('DistrictID',$DistrictIDs)->update(['DFlag'=>1,'UpdatedOn'=>date('Y-m-d H:i:s'),'UpdatedBy'=>$this->UserID]);
-						$status=true;
-					}
-				}elseif($ServiceBy == "PostalCode"){
-					$PostalCodeIDs=[];
-					foreach($ServiceData as $data){
-						foreach($data->Districts as $item){
-							foreach($item->PostalCodeIDs as $row){
-								$PostalCodeIDs[] = $row;
-								$t=DB::Table('tbl_vendors_service_locations')->where('VendorID',$VendorID)->where('ServiceBy',$ServiceBy)->Where('PostalCodeID',$row)->first();
-								if(!$t){
-									$DetailID = DocNum::getDocNum(docTypes::VendorServiceLocation->value,"",Helper::getCurrentFY());
-									$tdata=array(
-										"DetailID"=>$DetailID,
-										"VendorID"=>$VendorID,
-										"ServiceBy"=>$ServiceBy,
-										"StateID" => $data->StateID,
-										"DistrictID"=>$item->DistrictID,
-										"PostalCodeID"=>$row,
-										"CreatedBy"=>$this->UserID,
-										"CreatedOn"=>date("Y-m-d H:i:s")
-									);
-									$status=DB::Table('tbl_vendors_service_locations')->insert($tdata);
-									if($status){
-										DocNum::updateDocNum(docTypes::VendorServiceLocation->value);
-									}
-								}
-							}
-						}
-					}
-					if (!empty($PostalCodeIDs)) {
-						DB::Table('tbl_vendors_service_locations')->where('VendorID',$VendorID)->where('ServiceBy',$ServiceBy)->WhereIn('PostalCodeID',$PostalCodeIDs)->update(['DFlag'=>0,'UpdatedOn'=>date('Y-m-d H:i:s'),'UpdatedBy'=>$this->UserID]);
-						DB::Table('tbl_vendors_service_locations')->where('VendorID',$VendorID)->where('ServiceBy',$ServiceBy)->WhereNotIn('PostalCodeID',$PostalCodeIDs)->update(['DFlag'=>1,'UpdatedOn'=>date('Y-m-d H:i:s'),'UpdatedBy'=>$this->UserID]);
-						$status=true;
-					}
-				}else{
-					$status = false;
-				}
-				DB::table('tbl_vendors')->where('VendorID',$VendorID)->update(['ServiceBy'=>$ServiceBy]);
-				DB::Table('tbl_vendors_service_locations')->where('VendorID',$VendorID)->whereNot('ServiceBy',$ServiceBy)->update(['DFlag'=>1,'UpdatedOn'=>date('Y-m-d H:i:s'),'UpdatedBy'=>$this->UserID]); */
-				//stock points details
-				/* $StockPoints=json_decode($req->StockPoints);
-				$tStockPoints=array();
-				foreach($StockPoints as $RowIndex=>$data){
-					if($status){
-						$tStockPoints[]=$data->UUID;
-						$t=DB::Table('tbl_vendors_stock_point')->where('VendorID',$VendorID)->Where('UUID',$data->UUID)->get();
-						if(count($t)>0){
-							$tdata=array(
-								"PointName"=>$data->Name,
-								"Address"=>$data->Address,
-								"PostalID"=>$data->PostalID,
-								"CityID"=>$data->CityID,
-								"TalukID"=>$data->TalukID,
-								"DistrictID"=>$data->DistrictID,
-								"StateID"=>$data->StateID,
-								"CountryID"=>$data->CountryID,
-								"UpdatedBy"=>$this->UserID,
-								"UpdatedOn"=>date("Y-m-d H:i:s")
-							);
-							$status=DB::Table('tbl_vendors_stock_point')->where('VendorID',$VendorID)->Where('UUID',$data->UUID)->update($tdata);
-						}else{
-							$StockPointID = DocNum::getDocNum(docTypes::VendorStockPoint->value,"",Helper::getCurrentFY());
-							$tdata=array(
-								"StockPointID"=>$StockPointID,
-								"VendorID"=>$VendorID,
-								"UUID"=>$data->UUID,
-								"PointName"=>$data->Name,
-								"Address"=>$data->Address,
-								"PostalID"=>$data->PostalID,
-								"CityID"=>$data->CityID,
-								"TalukID"=>$data->TalukID,
-								"DistrictID"=>$data->DistrictID,
-								"StateID"=>$data->StateID,
-								"CountryID"=>$data->CountryID,
-								"CreatedBy"=>$this->UserID,
-								"CreatedOn"=>date("Y-m-d H:i:s")
-							);
-							$status=DB::Table('tbl_vendors_stock_point')->insert($tdata);
-							if($status){
-								DocNum::updateDocNum(docTypes::VendorStockPoint->value);
-							}
-						}
-					}
-				}
-				if($status && count($tStockPoints)>0){
-					$sql="Select UUID From tbl_vendors_stock_point Where VendorID='".$VendorID."' and UUID not in('".implode("','",$tStockPoints)."')";
-					$result=DB::SELECT($sql);
-					for($m=0;$m<count($result);$m++){
-						if($status){
-							$status=DB::Table('tbl_vendors_stock_point')->where('VendorID',$VendorID)->where('UUID',$result[$m]->UUID)->update(array("DFlag"=>1,"DeletedBy"=>$this->UserID,"DeletedOn"=>date("Y-m-d H:i:s")));
-						}
-					}
-				} */
+				
 				//Documents
 				$Documents=json_decode($req->Documents);
 				$tDocuments=array();
@@ -1111,7 +886,36 @@ class VendorsController extends Controller{
 						}
 					}
 				}
-				$status = true;
+				$VendorName = $req->VendorName;
+                $nameParts = explode(' ', $VendorName, 2);
+                $firstName = $nameParts[0] ?? '';
+                $lastName = $nameParts[1] ?? '';
+
+				$pwd1=Hash::make($req->Email);
+				$pwd2=Helper::EncryptDecrypt("encrypt",$req->Email);
+
+				$data=array(
+					"Name"=>$req->VendorName,
+					"FirstName"=>$firstName,
+					"LastName"=>$lastName,
+					"UserName"=>$req->Email,
+					"MobileNumber"=>$req->MobileNumber1,
+					"Password"=>$pwd1,
+					"Password1"=>$pwd2,
+					"EMail"=>$req->Email,
+					"Address"=>$req->Address,
+                    "PostalCodeID"=>$req->PostalCode,
+                    "CityID"=>$req->CityID,
+                    "TalukID"=>$req->TalukID,
+                    "DistrictID"=>$req->DistrictID,
+                    "StateID"=>$req->StateID,
+                    "CountryID"=>$req->CountryID,
+					"isLogin"=>1,
+					"LoginType"=>"Vendor",
+					"UpdatedOn"=>date("Y-m-d H:i:s"),
+					"UpdatedBy"=>$this->UserID
+				);
+				$status=DB::Table('users')->where('ReferID',$VendorID)->update($data);
 			}catch(Exception $e) {
 				$status=false;
 			}
@@ -1460,11 +1264,11 @@ class VendorsController extends Controller{
 	public function UniqueValidation(Request $req){
 		$query = DB::Table('tbl_vendors');
 		if ($req->MobNo) {
-			$query->where('MobileNumber1', 'like', '%' . $req->MobNo . '%');
+			$query->where('MobileNumber1', $req->MobNo);
 		} elseif ($req->CoName) {
-			$query->where('VendorCoName', 'like', '%' . $req->CoName . '%');
+			$query->where('VendorCoName',$req->CoName);
 		} elseif ($req->Email) {
-			$query->where('Email', 'like', '%' . $req->Email . '%');
+			$query->where('Email', 'like',$req->Email);
 		}
 	
 		if ($req->VendorID) {
