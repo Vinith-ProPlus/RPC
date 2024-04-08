@@ -244,7 +244,7 @@
 
                 <div class="home-slider-sidebar d-none d-sm-block">
                     <div class="container">
-                        <ul>
+                        <ul id="homeBannerList">
                             @foreach($Banners as $index => $Banner)
                                 <li {{ ($index == 0) ? "class=active" : '' }}>{{ $Banner->BannerTitle }}</li>
                             @endforeach
@@ -804,6 +804,17 @@
     <script src="{{url('/')}}/home/assets/js/main.js"></script>
     <script>
          $(document).ready(function() {
+             var bannerCurrentIndex = 0;
+             var totalBannerSlides = $('#homeBannerList li').length;
+
+             function showNextSlide() {
+                 bannerCurrentIndex = (bannerCurrentIndex + 1) % totalBannerSlides;
+                 console.log(bannerCurrentIndex);
+                 $('#homeBannerList li').eq(bannerCurrentIndex).click();
+             }
+
+             setInterval(showNextSlide, 5000);
+
              $('.redirectLogin').on('click', function(){
                  window.location.replace($('#loginBtn').attr('href'));
              });
