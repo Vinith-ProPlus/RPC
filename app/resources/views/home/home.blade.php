@@ -177,8 +177,8 @@
             <div class="col-lg-5 call-action">
                 <div class="d-inline-flex align-items-center text-left divider">
                     <i class="icon-phone-1 text-white mr-2"></i>
-                    <h6 class="pt-1 line-height-1 text-uppercase text-white">Call us now<a href="tel:#"
-                            class="d-block text-white ls-10 pt-2">+91 8058975232</a></h6>
+                    <h6 class="pt-1 line-height-1 text-uppercase text-white">Call us now<a href="tel:{{ $Company['Phone-Number'] ?? ($Company['Mobile-Number'] ?? '') }}"
+                            class="d-block text-white ls-10 pt-2">+91 {{ $Company['Phone-Number'] ?? ($Company['Mobile-Number'] ?? '') }}</a></h6>
                 </div>
                 <a href="#" class="btn btn-borders btn-rounded btn-outline-white ls-25">Send Us a
                     Message</a>

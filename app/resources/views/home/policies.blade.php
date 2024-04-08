@@ -316,12 +316,9 @@
                                 </div><!-- End .row -->
                             </div><!-- End .megamenu -->
                         </li>
-                        @if(auth()->check())
+                        @if(auth()->check() && !$isRegister)
                             <li>
-                                <a href="{{ route('requested-quotations') }}">Quotations</a>
-                            </li>
-                            <li>
-                                <a href="{{ route('customer-orders') }}">Orders</a>
+                                <a href="{{ route('my-account') }}">My Account</a>
                             </li>
                         @endif
                     </ul>
@@ -358,7 +355,7 @@
                                     <span class="contact-info-label">Address:</span>45, RPC Building, Erode,<br>TamilNadu.638001.
                                 </li>
                                 <li>
-                                    <span class="contact-info-label">Phone:</span><a href="tel:0422-4567890">0422-4567890</a>
+                                    <span class="contact-info-label">Phone:</span><a href="tel:{{ $Company['Phone-Number'] ?? ($Company['Mobile-Number'] ?? '') }}">{{ $Company['Phone-Number'] ?? ($Company['Mobile-Number'] ?? '') }}</a>
                                 </li>
                                   <li>
                                     <span class="contact-info-label">Email:</span>

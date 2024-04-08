@@ -348,15 +348,17 @@
 
                     <span class="separator d-none d-lg-block"></span>
 
-                    <div class="sicon-box mb-0 d-none d-lg-flex align-items-center pr-3 mr-1">
-                        <div class=" sicon-default">
-                            <i class="icon-phone-1"></i>
+                    <a href="tel:{{ $Company['Phone-Number'] ?? ($Company['Mobile-Number'] ?? '') }}">
+                        <div class="sicon-box mb-0 d-none d-lg-flex align-items-center pr-3 mr-1">
+                            <div class=" sicon-default">
+                                <i class="icon-phone-1"></i>
+                            </div>
+                            <div class="sicon-header">
+                                <h4 class="sicon-title ls-n-25">CALL US NOW</h4>
+                                <p>{{ $Company['Phone-Number'] ?? ($Company['Mobile-Number'] ?? '') }}</p>
+                            </div>
                         </div>
-                        <div class="sicon-header">
-                            <h4 class="sicon-title ls-n-25">CALL US NOW</h4>
-                            <p>0422 234688</p>
-                        </div>
-                    </div>
+                    </a>
 
                     <span class="separator d-none d-lg-block mr-4"></span>
 {{--                        <a id="dLabel" role="button" data-toggle="dropdown" class="btn btn-default bg-white" data-target="#" href="#">--}}
@@ -559,7 +561,7 @@
                                     <span class="contact-info-label">Address:</span>45, RPC Building, Erode,<br>TamilNadu.638001.
                                 </li>
                                 <li>
-                                    <span class="contact-info-label">Phone:</span><a href="tel:0422-4567890">0422-4567890</a>
+                                    <span class="contact-info-label">Phone:</span><a href="tel:{{ $Company['Phone-Number'] ?? ($Company['Mobile-Number'] ?? '') }}">{{ $Company['Phone-Number'] ?? ($Company['Mobile-Number'] ?? '') }}</a>
                                 </li>
                                   <li>
                                     <span class="contact-info-label">Email:</span>
