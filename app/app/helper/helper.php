@@ -263,15 +263,15 @@ class helper{
 		)");
 
 		$status = DB::statement("CREATE TABLE IF NOT EXISTS ".$StockDB.$tableName." (
-			`DetailID` VARCHAR(50) PRIMARY KEY,
+			`DetailID` VARCHAR(50) PRIMARY KEY COLLATE utf8mb4_general_ci,
 			`Date` DATE,
-			`VendorID` VARCHAR(50) NULL,
-			`StockPointID` VARCHAR(50) NULL,
-			`ProductID` VARCHAR(50) NULL,
+			`VendorID` VARCHAR(50) COLLATE utf8mb4_general_ci NULL,
+			`StockPointID` VARCHAR(50) COLLATE utf8mb4_general_ci NULL,
+			`ProductID` VARCHAR(50) COLLATE utf8mb4_general_ci NULL,
 			`Qty` DOUBLE,
-			`CreatedBy` VARCHAR(50) NULL,
+			`CreatedBy` VARCHAR(50) COLLATE utf8mb4_general_ci NULL,
 			`CreatedOn` TIMESTAMP NULL
-		)");
+		)");		
 
 		$VendorIDexists=DB::table($StockDB.'tbl_docnum')->where('DocType', $VendorID)->exists();
 		if(!$VendorIDexists){
