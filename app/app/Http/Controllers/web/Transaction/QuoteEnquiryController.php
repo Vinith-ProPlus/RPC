@@ -1001,7 +1001,7 @@ class QuoteEnquiryController extends Controller{
 				$difference = $currentDate - $createdDate;
 				$years = floor($difference / (365 * 24 * 60 * 60));
 				$months = floor(($difference - $years * 365 * 24 * 60 * 60) / (30 * 24 * 60 * 60));
-
+				return $months;
 				$yearLabel = ($years > 1) ? 'Years' : 'Year';
 				$formattedOutput = date('M Y', $createdDate) . ' (' . $years . ' ' . $yearLabel;
 
@@ -1016,7 +1016,7 @@ class QuoteEnquiryController extends Controller{
 
 
 		$VendorRatings->TotalYears = $formattedOutput;
-		$VendorRatings->OverAll = "0/10";
+		$VendorRatings->OverAll = "";
 		$VendorRatings->TotalOrders = DB::table($this->currfyDB.'tbl_vendor_orders')->where('VendorID',$VendorRatings->VendorID)->where('Status','Delivered')->count();
 		$VendorRatings->OrderValue = DB::table($this->currfyDB.'tbl_vendor_orders')->where('VendorID',$VendorRatings->VendorID)->where('Status','Delivered')->sum('NetAmount');
 		$VendorRatings->Outstanding = DB::table($this->currfyDB.'tbl_vendor_orders')->where('VendorID',$VendorRatings->VendorID)->where('Status','Delivered')->sum('BalanceAmount');

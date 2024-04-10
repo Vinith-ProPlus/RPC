@@ -63,7 +63,7 @@
 			<div class="container-fluid p-0">
 				<!-- login page with video background start-->
 				<div class="auth-bg-video">
-					<video id="bgvid" poster="{{url('/')}}/assets/images/other-images/coming-soon-bg.jpg" playsinline="" autoplay="" muted="" loop=""><source src="http://admin.pixelstrap.com/xolo/assets/video/auth-bg.mp4" type="video/mp4"></video>
+					<video id="bgvid" poster="{{url('/')}}/assets/images/other-images/coming-soon-bg.jpg" playsinline="" autoplay="" muted="" loop=""><source src="{{url('/')}}/assets/images/auth-bg.mp4" type="video/mp4"></video>
 					<div class="authentication-box">
 						<div class="mt-4">
                         <div class="card shadow">
