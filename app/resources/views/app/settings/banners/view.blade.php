@@ -8,7 +8,8 @@
 				<ol class="breadcrumb">
 					<li class="breadcrumb-item"><a href="{{ url('/') }}/admin"><i class="f-16 fa fa-home"></i></a></li>
 					<li class="breadcrumb-item">Home</li>
-					<li class="breadcrumb-item">{{$PageTitle}}</li>
+                    <li class="breadcrumb-item">Settings</li>
+					<li class="breadcrumb-item">{{$PageTitle}}</li>	
 				</ol>
 			</div>
 			<div class="col-sm-6">
@@ -66,7 +67,6 @@
 							</div>
 						</figure>
 					@endforeach
-
 				</div>
 			</div>
 		</div>

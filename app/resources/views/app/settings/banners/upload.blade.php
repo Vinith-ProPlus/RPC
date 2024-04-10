@@ -15,6 +15,7 @@
 				<ol class="breadcrumb">
 					<li class="breadcrumb-item"><a href="{{ url('/') }}/admin"><i class="f-16 fa fa-home"></i></a></li>
 					<li class="breadcrumb-item">Home</li>
+                    <li class="breadcrumb-item">Settings</li>
 					<li class="breadcrumb-item"><a href="{{ url('/') }}/admin/settings/banners">{{$PageTitle}}</a></li>
 					<li class="breadcrumb-item">Upload</li>
 				</ol>

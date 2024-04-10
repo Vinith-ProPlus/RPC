@@ -16,7 +16,16 @@ class HomeController extends Controller
 {
     public function GuestView(Request $req)
     {
+        $generalDB = Helper::getGeneralDB();
         $FormData['Company'] = DB::table('tbl_company_settings')->select('KeyName', 'KeyValue')->get()->pluck('KeyValue', 'KeyName')->toArray();
+        $FormData['Company']['AddressData'] = DB::table($generalDB.'tbl_cities as CI')
+        ->leftJoin($generalDB.'tbl_postalcodes as PC', 'PC.PID', 'CI.PostalID')
+        ->leftJoin($generalDB.'tbl_taluks as T', 'T.TalukID', 'CI.TalukID')
+        ->leftJoin($generalDB.'tbl_districts as D', 'D.DistrictID', 'CI.DistrictID')
+        ->leftJoin($generalDB.'tbl_states as S', 'S.StateID', 'CI.StateID')
+        ->leftJoin($generalDB.'tbl_countries as C','C.CountryID','CI.CountryID')->where('CI.CityID',$FormData['Company']['CityID'])
+        ->select('C.CountryName','S.StateName','D.DistrictName','T.TalukName','CI.CityName', 'PC.PostalCode')
+        ->first();
         $FormData['Banners'] = DB::Table('tbl_banner_images')->where('BannerType', 'Web')->where('DFlag', 0)
             ->select('BannerTitle', 'BannerType', DB::raw('CONCAT("' . url('/') . '/", BannerImage) AS BannerImage'))->get();
         $FormData['steppers'] = DB::Table('tbl_stepper_images')->where('StepperType', 'Web')->where('DFlag', 0)->orderBy('TranNo')
@@ -83,7 +92,6 @@ class HomeController extends Controller
             $FormData['Cart'] = DB::table('tbl_customer_cart as C')->join('tbl_products as P', 'P.ProductID', 'C.ProductID')->join('tbl_product_category as PC', 'PC.PCID', 'P.CID')->join('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')->join('tbl_uom as U', 'U.UID', 'P.UID')
                 ->where('C.CustomerID', $CustomerID)->where('P.ActiveStatus', 'Active')->where('P.DFlag', 0)->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)->where('PSC.ActiveStatus', 'Active')->where('PSC.DFlag', 0)
                 ->select('P.ProductName', 'P.ProductID', 'C.Qty', 'PC.PCName', 'PC.PCID', 'PSC.PSCName', 'U.UName', 'U.UCode', 'U.UID', 'PSC.PSCID', DB::raw('CONCAT(IF(ProductImage != "", "https://rpc.prodemo.in/", "' . url('/') . '/"), COALESCE(NULLIF(ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'))->get();
-            $generalDB = Helper::getGeneralDB();
             $FormData['ShippingAddress'] = DB::table('tbl_customer_address as CA')->where('CustomerID', $CustomerID)->where('CA.DFlag',0)
                 ->join($generalDB . 'tbl_countries as C', 'C.CountryID', 'CA.CountryID')
                 ->join($generalDB . 'tbl_states as S', 'S.StateID', 'CA.StateID')

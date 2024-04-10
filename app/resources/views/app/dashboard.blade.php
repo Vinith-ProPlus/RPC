@@ -898,6 +898,9 @@
                 });
                 calendar.render();
             }
+            $(document).on('click','.btnView',function(){
+                window.location.replace("{{url('/')}}/admin/transaction/quote-enquiry/view/"+ $(this).attr('data-id'));
+            });
             google.charts.load('current', {packages: ['corechart', 'bar']});
             google.charts.load('current', {'packages':['line']});
             google.charts.load('current', {'packages':['corechart']});

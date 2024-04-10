@@ -463,7 +463,6 @@ class QuoteEnquiryController extends Controller{
 					$totalSGST += $sgstAmount;
 					$totalQuoteValue += $totalAmount;
 
-
 					$data=[
 						'Taxable'=>$taxableAmount,
 						'TaxAmt'=>$taxAmount,

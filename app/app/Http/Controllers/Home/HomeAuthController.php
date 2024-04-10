@@ -48,12 +48,16 @@ class HomeAuthController extends Controller{
                 DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PCImage, ""), "assets/images/no-image-b.png")) AS PCImage'))
             ->inRandomOrder()->take(10)->get();
 		$this->FileTypes=Helper::getFileTypes(array("category"=>array("Images","Documents")));
-		$CompanyData= DB::table('tbl_company_settings')->select('KeyName','KeyValue')->get();
-		$Company= [];
-		foreach ($CompanyData as $item) {
-			$Company[$item->KeyName] = $item->KeyValue;
-		}
-		$this->Company = $Company;
+		$this->Company = DB::table('tbl_company_settings')->select('KeyName', 'KeyValue')->get()->pluck('KeyValue', 'KeyName')->toArray();
+        $this->Company['AddressData'] = DB::table($this->generalDB.'tbl_cities as CI')
+        ->leftJoin($this->generalDB.'tbl_postalcodes as PC', 'PC.PID', 'CI.PostalID')
+        ->leftJoin($this->generalDB.'tbl_taluks as T', 'T.TalukID', 'CI.TalukID')
+        ->leftJoin($this->generalDB.'tbl_districts as D', 'D.DistrictID', 'CI.DistrictID')
+        ->leftJoin($this->generalDB.'tbl_states as S', 'S.StateID', 'CI.StateID')
+        ->leftJoin($this->generalDB.'tbl_countries as C','C.CountryID','CI.CountryID')->where('CI.CityID',$this->Company['CityID'])
+        ->select('C.CountryName','S.StateName','D.DistrictName','T.TalukName','CI.CityName', 'PC.PostalCode')
+        ->first();
+        
         $this->middleware('auth');
         $this->middleware(function ($request, $next) {
 			$this->UserData = Helper::getUserInfo(Auth()->user()->UserID);
@@ -213,6 +217,15 @@ class HomeAuthController extends Controller{
 		if($FormData['EditData']){
 			$FormData['EditData']->CustomerImage = $FormData['EditData']->CustomerImage ? url('/').'/'.$FormData['EditData']->CustomerImage : url('/') . '/'.'assets/images/no-image-b.png';
 			$FormData['EditData']->PostalCode = DB::table($this->generalDB.'tbl_postalcodes as P')->where('PID',$FormData['EditData']->PostalCodeID)->value('PostalCode');
+            $FormData['ShippingAddress']=DB::table('tbl_customer_address as CA')->where('CustomerID',$CustomerID)->where('CA.DFlag',0)
+                ->join($this->generalDB.'tbl_countries as C','C.CountryID','CA.CountryID')
+                ->join($this->generalDB.'tbl_states as S', 'S.StateID', 'CA.StateID')
+                ->join($this->generalDB.'tbl_districts as D', 'D.DistrictID', 'CA.DistrictID')
+                ->join($this->generalDB.'tbl_taluks as T', 'T.TalukID', 'CA.TalukID')
+                ->join($this->generalDB.'tbl_cities as CI', 'CI.CityID', 'CA.CityID')
+                ->join($this->generalDB.'tbl_postalcodes as PC', 'PC.PID', 'CA.PostalCodeID')
+                ->select('CA.AID', 'CA.Address', 'CA.isDefault', 'CA.CountryID', 'C.CountryName', 'CA.StateID', 'S.StateName', 'CA.DistrictID', 'D.DistrictName', 'CA.TalukID', 'T.TalukName', 'CA.CityID', 'CI.CityName', 'CA.PostalCodeID', 'PC.PostalCode')
+                ->get();
 			$FormData['EditData']->SAddress = DB::table('tbl_customer_address as CA')->where('CustomerID',$CustomerID)->where('CA.DFlag', 0)
 			->join($this->generalDB.'tbl_countries as C','C.CountryID','CA.CountryID')
 			->join($this->generalDB.'tbl_states as S', 'S.StateID', 'CA.StateID')

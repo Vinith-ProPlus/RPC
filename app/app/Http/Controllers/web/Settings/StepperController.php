@@ -13,6 +13,7 @@ use App\Models\support;
 use Illuminate\Support\Facades\DB;
 use App\enums\cruds;
 use logs;
+use Mockery\Undefined;
 
 class StepperController extends Controller
 {
@@ -51,9 +52,10 @@ class StepperController extends Controller
             $FormData['PageTitle'] = $this->PageTitle;
             $FormData['menus'] = $this->Menus;
             $FormData['crud'] = $this->CRUD;
-            $FormData['stepperImages'] = DB::Table('tbl_stepper_images')->where('StepperType', 'Web')->where('DFlag', 0)->orderBy('TranNo')->get();
-            $FormData['MStepperImages'] = DB::Table('tbl_stepper_images')->where('StepperType', 'Customer Mobile')->where('DFlag', 0)->orderBy('TranNo')->get();
-            $FormData['VStepperImages'] = DB::Table('tbl_stepper_images')->where('StepperType', 'Vendor Mobile')->where('DFlag', 0)->orderBy('TranNo')->get();
+            $FormData['StepperImages'] = DB::Table('tbl_stepper_images')->where('StepperType', 'Web')->where('DFlag', 0)->orderBy('StepperTitle')->get();
+            $FormData['MStepperImages'] = DB::Table('tbl_stepper_images')->where('StepperType', 'Customer App')->where('DFlag', 0)->orderBy('TranNo')->get();
+            $FormData['OGStepperImages'] = DB::Table('tbl_stepper_images')->where('StepperType', 'Customer OG')->where('DFlag', 0)->orderBy('TranNo')->get();
+            $FormData['VStepperImages'] = DB::Table('tbl_stepper_images')->where('StepperType', 'Vendor App')->where('DFlag', 0)->orderBy('TranNo')->get();
             return view('app.settings.steppers.view', $FormData);
         } elseif ($this->general->isCrudAllow($this->CRUD, "Add") == true) {
             return Redirect::to('/admin/settings/steppers/create');
@@ -97,7 +99,7 @@ class StepperController extends Controller
             DB::beginTransaction();
             $StepperImage = "";
             try {
-                $dir = "uploads/settings/banner/";
+                $dir = "uploads/settings/stepper/";
                 if (!file_exists($dir)) {
                     mkdir($dir, 0777, true);
                 }
@@ -107,7 +109,7 @@ class StepperController extends Controller
                     $fileName1 = $fileName . "." . $file->getClientOriginalExtension();
                     $file->move($dir, $fileName1);
                     $StepperImage = $dir . $fileName1;
-                } else if ($req->StepperImage != "") {
+                } else if ($req->StepperImage != "undefined") {
                     $rnd = $this->support->RandomString(10) . "_" . date("YmdHis");
                     $fileName = $rnd . ".png";
                     $imgData = $this->getImageData($req->StepperImage);
@@ -115,13 +117,15 @@ class StepperController extends Controller
                     $StepperImage = $dir . $fileName;
                 }
                 $data = array(
-                    "StepperImage" => $StepperImage,
                     "StepperTitle" => $req->StepperTitle,
                     "Description" => $req->Description ?? '',
                     "StepperType" => $req->StepperType,
                     "updatedOn" => date("Y-m-d H:i:s"),
                     "updatedBy" => $this->UserID
                 );
+                if($StepperImage){
+                    $data['StepperImage'] = $StepperImage;
+                }
                 $status = DB::Table('tbl_stepper_images')->where('TranNo', $TranNo)->update($data);
             } catch (Exception $e) {
                 $status = false;

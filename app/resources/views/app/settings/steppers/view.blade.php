@@ -7,6 +7,7 @@
 				<ol class="breadcrumb">
 					<li class="breadcrumb-item"><a href="{{ url('/') }}/admin"><i class="f-16 fa fa-home"></i></a></li>
 					<li class="breadcrumb-item">Home</li>
+					<li class="breadcrumb-item">Settings</li>
 					<li class="breadcrumb-item">{{$PageTitle}}</li>
 				</ol>
 			</div>
@@ -22,7 +23,7 @@
 					<h5>Web Stepper Images</h5>
 				</div>
 				<div class="my-gallery card-body row gallery-with-description">
-					@foreach($stepperImages as $image)
+					@foreach($StepperImages as $image)
 						<figure class="col-xl-4 col-sm-6" data-tran-no="{{$image->TranNo}}">
 							<a href="{{url('/')}}/{{$image->StepperImage}}" data-lightbox="stepper-images">
 								<img src="{{url('/')}}/{{$image->StepperImage}}" alt="Image {{$loop->index}}">
@@ -37,10 +38,31 @@
 				</div>
 			</div>
 		</div>
+        <div class="col-sm-12 mt-20">
+			<div class="card">
+				<div class="card-header">
+					<h5>Vendor App Stepper Images</h5>
+				</div>
+				<div class="my-gallery card-body row gallery-with-description">
+					@foreach($VStepperImages as $image)
+						<figure class="col-xl-4 col-sm-6" data-tran-no="{{$image->TranNo}}">
+							<a href="{{url('/')}}/{{$image->StepperImage}}" data-lightbox="stepper-images">
+								<img src="{{url('/')}}/{{$image->StepperImage}}" alt="Stepper {{$loop->index + 1}}">
+							</a>
+							<div class="caption text-center">
+								@if($crud['edit']==1)
+									<button type="button" data-id="{{$image->TranNo}}" class="btn btn-sm btn-outline-warning btnEdit mr-10"><i class="fa fa-pencil"></i></button>
+								@endif
+							</div>
+						</figure>
+					@endforeach
+				</div>
+			</div>
+		</div>
 		<div class="col-sm-12 mt-20">
 			<div class="card">
 				<div class="card-header">
-					<h5>Customer Mobile Stepper Images</h5>
+					<h5>Customer App Stepper Images</h5>
 				</div>
 				<div class="my-gallery card-body row gallery-with-description">
 					@foreach($MStepperImages as $image)
@@ -55,17 +77,16 @@
 							</div>
 						</figure>
 					@endforeach
-
 				</div>
 			</div>
 		</div>
-        <div class="col-sm-12 mt-20">
+		<div class="col-sm-12 mt-20">
 			<div class="card">
 				<div class="card-header">
-					<h5>Vendor Mobile Stepper Images</h5>
+					<h5>Customer App Order Guidance</h5>
 				</div>
 				<div class="my-gallery card-body row gallery-with-description">
-					@foreach($VStepperImages as $image)
+					@foreach($OGStepperImages as $image)
 						<figure class="col-xl-4 col-sm-6" data-tran-no="{{$image->TranNo}}">
 							<a href="{{url('/')}}/{{$image->StepperImage}}" data-lightbox="stepper-images">
 								<img src="{{url('/')}}/{{$image->StepperImage}}" alt="Stepper {{$loop->index + 1}}">

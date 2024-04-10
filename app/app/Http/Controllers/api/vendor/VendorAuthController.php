@@ -117,7 +117,6 @@ class VendorAuthController extends Controller{
         if (isset($reqData['Documents'])) {
             $reqData['Documents'] = json_decode($reqData['Documents'], true);
         }
-        // return $reqData['Documents'];
 
         $rules = [
             'VendorName' => ['required', 'max:50'],
@@ -589,6 +588,7 @@ class VendorAuthController extends Controller{
             } else {
                 DB::table($this->tmpDB . 'tbl_vendors_stock_point')->where('VendorID', $VendorID)->delete();
                 foreach ($StockPointsData as $item) {
+                    $Address = Helper::trimAddress($item->Address);
                     $data = array(
                         "VendorID" => $VendorID,
                         "UUID" => substr(str_shuffle(substr(uniqid(uniqid(), true), 0, 16)), 0, 12),
@@ -596,7 +596,7 @@ class VendorAuthController extends Controller{
                         "Latitude"=>$item->Latitude,
                         "Longitude"=>$item->Longitude,
                         "PointName" => $item->PointName,
-                        "Address" => $item->Address,
+                        "Address"=>$Address,
                         "PostalID" => $item->PostalID,
                         "CityID" => $item->CityID,
                         "TalukID" => $item->TalukID,
@@ -1273,6 +1273,7 @@ class VendorAuthController extends Controller{
             return response()->json(['status' => false,'message' => "Vendor Vehicle Update Failed!"]);
         }
 	}
+
     public function DeleteVehicle(Request $req){
         $VendorID = $this->ReferID;
         $VehicleID = $req->VehicleID;
@@ -1331,6 +1332,7 @@ class VendorAuthController extends Controller{
             return $VendorData;
         }
 	}
+
     public function CreateTmpVendorTables() {
         $status = DB::statement("CREATE TABLE IF NOT EXISTS {$this->tmpDB}`tbl_vendors` (
             `VendorID` varchar(50) PRIMARY KEY NOT NULL,
@@ -1524,47 +1526,6 @@ class VendorAuthController extends Controller{
             }
         }
     }
-    
-    /* public function getVendorProductsWithoutPagination(Request $req){
-        $VendorID = $this->ReferID;
-        $pageNo = $req->PageNo ?? null;
-        $perPage = 10;
-    
-        $StockTableName = Helper::getStockTable($VendorID);
-        $query = DB::table('tbl_vendors_product_mapping as VPM')
-            ->join('tbl_products as P', 'P.ProductID', 'VPM.ProductID')
-            ->join('tbl_product_category as PC', 'PC.PCID', 'P.CID')
-            ->join('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')
-            ->join('tbl_uom as U', 'U.UID', 'P.UID')
-            ->leftJoin(DB::raw("(SELECT ProductID, SUM(Qty) AS TotalQty FROM $StockTableName WHERE Date = '".date('Y-m-d')."' GROUP BY ProductID) AS VSP"), 'VSP.ProductID', 'P.ProductID')
-            ->where('VPM.Status', 1)
-            ->where('VPM.VendorID', $VendorID)
-            ->where('VPM.PCID', $req->PCID)
-            ->where('VPM.PSCID', $req->PSCID)
-            ->where('P.ActiveStatus', 'Active')
-            ->where('P.DFlag', 0)
-            ->where('PC.ActiveStatus', 'Active')
-            ->where('PC.DFlag', 0)
-            ->where('PSC.ActiveStatus', 'Active')
-            ->where('PSC.DFlag', 0)
-            ->select('VPM.VendorID','P.ProductID','VPM.VendorPrice','P.ProductName','P.ProductID as ProductID','PC.PCName','PC.PCID','PSC.PSCID','PSC.PSCName','U.UName','U.UCode',DB::raw('IFNULL(VSP.TotalQty, 0) AS TotalQty'));
-    
-        $VendorProductData = ($pageNo !== null) ? $query->paginate($perPage, ['*'], 'page', $pageNo) : $query->get();
-    
-        $response = [
-            'status' => true,
-            'data' => ($pageNo !== null) ? $VendorProductData->items() : $VendorProductData,
-        ];
-        
-        if ($pageNo !== null) {
-            $response['CurrentPage'] = $VendorProductData->currentPage();
-            $response['LastPage'] = $VendorProductData->lastPage();
-        }
-        
-        return response()->json($response);
-        
-    } */
-
 
     //Product Mapping
     
@@ -1599,6 +1560,7 @@ class VendorAuthController extends Controller{
             'LastPage' => $VendorProductData->lastPage(),
         ]);
     }
+
     public function AddProduct(Request $req){
         $VendorID = $this->ReferID;
 		DB::beginTransaction();
@@ -1640,6 +1602,7 @@ class VendorAuthController extends Controller{
             return response()->json(['status' => false,'message' => "Product Mapping Failed!"]);
         }
 	}
+
     public function UpdateProduct(Request $req){
         $VendorID = $this->ReferID;
 		DB::beginTransaction();
@@ -1660,6 +1623,7 @@ class VendorAuthController extends Controller{
             return response()->json(['status' => false,'message' => "Product Price Update Failed!"]);
         }
 	}
+
     public function DeleteProduct(Request $req){
         $VendorID = $this->ReferID;
 		DB::beginTransaction();
@@ -1680,7 +1644,73 @@ class VendorAuthController extends Controller{
             return response()->json(['status' => false,'message' => "Product Delete Failed!"]);
         }
 	}
+
+    // Stock Points
+
     public function getVendorStockData(Request $req){
+        $VendorID = $this->ReferID;
+        $StockTableName = Helper::getStockTable($VendorID);
+        $VendorStockPoints= DB::table('tbl_vendors_stock_point')->where('DFlag',0)->where('VendorID',$VendorID)->select('StockPointID','PointName')->get();
+        foreach ($VendorStockPoints as $point) {
+            $point->LastUpdatedDate = DB::table($StockTableName)
+                ->where('StockPointID', $point->StockPointID)
+                ->max('Date');
+        }
+		return response()->json(['status' => true, 'data' => $VendorStockPoints ]);
+	}
+
+    public function getVendorStockProducts(Request $req){
+        $pageNo = $req->PageNo ?? 1;
+        $perPage = 15;
+
+        $VendorID = $this->ReferID;
+        $StockTableName = Helper::getStockTable($VendorID);
+        $LastUpdatedDate = DB::table($StockTableName)->where('StockPointID', $req->StockPointID)->max('Date');
+
+        $query = DB::table('tbl_vendors_product_mapping as VPM')
+            ->leftJoin('tbl_vendors_stock_point as VSP','VSP.VendorID', 'VPM.VendorID')
+            ->leftJoin($StockTableName . ' as SP', function ($join) use ($LastUpdatedDate) {
+                $join->on('SP.StockPointID', '=', 'VSP.StockPointID')
+                ->on('SP.ProductID', '=', 'VPM.ProductID');
+                if ($LastUpdatedDate) {
+                    $join->where('SP.Date', '=', $LastUpdatedDate);
+                }
+            })
+            ->leftJoin('tbl_products as P', 'P.ProductID', '=', 'VPM.ProductID')
+            ->leftJoin('tbl_product_category as PC', 'PC.PCID', '=', 'P.CID')
+            ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', '=', 'P.SCID')
+            ->leftJoin('tbl_uom as U', 'U.UID', '=', 'P.UID')
+            ->where('VSP.StockPointID', $req->StockPointID)
+            ->where('VSP.DFlag', 0)
+            ->where('VPM.Status', 1)
+            ->where('VPM.VendorID', $VendorID);
+        if ($req->SearchText) {
+            $query->where('P.ProductName', 'like', '%' . $req->SearchText . '%');
+        }
+        $query->select('VSP.StockPointID', 'P.ProductID', 'P.ProductName', 'PC.PCName', 'PC.PCID', 'PSC.PSCID', 'PSC.PSCName', 'U.UName', 'U.UCode', DB::raw('IFNULL(SP.Qty, 0) AS Qty'));
+        
+        if ($req->SortType) {
+            if ($req->SortType == 'NameAsc') {
+                $query->orderBy('P.ProductName', 'asc');
+            } elseif ($req->SortType == 'NameDesc') {
+                $query->orderBy('P.ProductName', 'desc');
+            } elseif ($req->SortType == 'QtyAsc') {
+                $query->orderBy('SP.Qty', 'asc');
+            } elseif ($req->SortType == 'QtyDesc') {
+                $query->orderBy('SP.Qty', 'desc');
+            }
+        }
+        $VendorStockProducts = $query->paginate($perPage, ['*'], 'page', $pageNo);
+    
+        return response()->json([
+            'status' => true,
+            'data' => $VendorStockProducts->items(),
+            'CurrentPage' => $VendorStockProducts->currentPage(),
+            'LastPage' => $VendorStockProducts->lastPage(),
+        ]);
+	}
+
+    public function getVendorStockData1(Request $req){
         $VendorID = $this->ReferID;
         $StockTableName = Helper::getStockTable($VendorID);
         $VendorStockPoints= DB::table('tbl_vendors_stock_point')->where('DFlag',0)->where('VendorID',$VendorID)->select('StockPointID','PointName')->get();
@@ -1708,6 +1738,7 @@ class VendorAuthController extends Controller{
         
 		return response()->json(['status' => true, 'data' => $VendorStockPoints ]);
 	}
+
     public function UpdateStockData(Request $req){
         $VendorID = $this->ReferID;
 		$OldData=$NewData=[];
@@ -1717,25 +1748,48 @@ class VendorAuthController extends Controller{
             $StockTableName= Helper::getStockTable($VendorID);
             $OldData=DB::table($StockTableName)->where('VendorID',$VendorID)->where('Date',date("Y-m-d"))->get();
 
-            $ProductData = json_decode($req->ProductData,true);
-            foreach($ProductData as $data){
-                $t=DB::Table($StockTableName)->where('VendorID',$VendorID)->Where('ProductID',$data['ProductID'])->Where('StockPointID',$req->StockPointID)->where('Date',date("Y-m-d"))->first();
-                if(!$t){
-                    $DetailID = DocNum::getDocNum($VendorID,$StockDB,Helper::getCurrentFY());
-                    $tdata=array(
-                        "DetailID"=>$DetailID,
-                        "Date"=>date("Y-m-d"),
-                        "VendorID"=>$VendorID,
-                        "StockPointID"=>$req->StockPointID,
-                        "ProductID"=>$data['ProductID'],
-                        "Qty"=>$data['Qty'],
-                    );
-                    $status=DB::Table($StockTableName)->insert($tdata);
-                    if($status){
-                        DocNum::updateDocNum($VendorID,$StockDB);
+            $ProductData = json_decode($req->ProductData);
+            $LastUpdatedDate = DB::table($StockTableName)->where('StockPointID', $req->StockPointID)->max('Date');
+            
+            $query= DB::table('tbl_vendors_product_mapping as VPM')
+                ->leftJoin('tbl_vendors_stock_point as VSP','VSP.VendorID', 'VPM.VendorID')
+                ->leftJoin($StockTableName . ' as SP', function ($join) use ($LastUpdatedDate) {
+                    $join->on('SP.StockPointID', '=', 'VSP.StockPointID')
+                    ->on('SP.ProductID', '=', 'VPM.ProductID');
+                    if ($LastUpdatedDate) {
+                        $join->where('SP.Date', '=', $LastUpdatedDate);
                     }
-                }else{
-                    DB::Table($StockTableName)->where('VendorID',$VendorID)->Where('ProductID',$data['ProductID'])->Where('StockPointID',$req->StockPointID)->where('Date',date("Y-m-d"))->update(['Qty' => $data['Qty']]);
+                })
+            ->where('VSP.StockPointID', $req->StockPointID)
+            ->where('VPM.Status', 1)
+            ->where('VPM.VendorID', $VendorID);
+            $MappedProducts = $query->select('VPM.ProductID',DB::raw('IFNULL(SP.Qty, 0) AS Qty'))->get();
+            // return $MappedProducts;
+            $productDataMap = [];
+            foreach ($ProductData as $Uproduct) {
+                $productDataMap[$Uproduct->ProductID] = $Uproduct->Qty;
+            }
+            foreach ($MappedProducts as $Mproduct) {
+                $finalQty = isset($productDataMap[$Mproduct->ProductID]) ? $productDataMap[$Mproduct->ProductID] : $Mproduct->Qty;
+
+                $t = DB::Table($StockTableName)->where('VendorID', $VendorID)->Where('ProductID', $Mproduct->ProductID)->Where('StockPointID', $req->StockPointID)->where('Date', date("Y-m-d"))->first();
+                if (!$t) {
+                    $detailID = DocNum::getDocNum($VendorID, $StockDB, Helper::getCurrentFY());
+                    $tdata = [
+                        "DetailID" => $detailID,
+                        "Date" => date("Y-m-d"),
+                        "VendorID" => $VendorID,
+                        "StockPointID" => $req->StockPointID,
+                        "ProductID" => $Mproduct->ProductID,
+                        "Qty" => $finalQty,
+                        "CreatedBy" => $VendorID,
+                    ];
+                    $status = DB::Table($StockTableName)->insert($tdata);
+                    if ($status) {
+                        DocNum::updateDocNum($VendorID, $StockDB);
+                    }
+                } else {
+                    DB::Table($StockTableName)->where('VendorID', $VendorID)->Where('StockPointID', $req->StockPointID)->Where('ProductID', $Mproduct->ProductID)->where('Date', date("Y-m-d"))->update(['Qty' => $finalQty]);
                 }
             }
             $status=true;
@@ -1753,6 +1807,8 @@ class VendorAuthController extends Controller{
             return response()->json(['status' => false,'message' => "Vendor Stock Update Failed!"]);
         }
 	}
+
+    // Vendor Home
 
     public function getVendorHome(Request $req){
         $VendorID = $this->ReferID;
@@ -1782,8 +1838,8 @@ class VendorAuthController extends Controller{
         }
         $VendorHome['CurrentOrders'] = DB::table($this->currfyDB.'tbl_vendor_orders as VO')->leftJoin($this->currfyDB.'tbl_order as O','O.OrderID','VO.OrderID')
         ->where('VO.VendorID',$VendorID)->whereIn('VO.Status',['New','Partially Delivered'])
-        ->orderBy('VO.CreatedOn','desc')
         ->select('VO.VOrderID','O.OrderID','O.OrderNo','O.OrderDate','O.ExpectedDelivery','O.ReceiverName','O.ReceiverMobNo','VO.TotalAmount','VO.SubTotal','VO.TaxAmount','VO.NetAmount','VO.AdditionalCost','VO.Status')
+        ->orderBy('VO.CreatedOn','desc')
         ->take(3)->get();
         foreach($VendorHome['CurrentOrders'] as $row){
             $row->TotalUnit = DB::table($this->currfyDB.'tbl_order_details')->whereNot('Status','Cancelled')->where('OrderID',$row->OrderID)->sum('Qty');
@@ -1801,7 +1857,7 @@ class VendorAuthController extends Controller{
             ->get();
         }
         $VendorHome['CompletedOrders'] = DB::table($this->currfyDB.'tbl_vendor_orders as VO')->leftJoin($this->currfyDB.'tbl_order as O','O.OrderID','VO.OrderID')
-        ->where('VO.VendorID',$VendorID)/* ->where('VO.Status','Delivered') */
+        ->where('VO.VendorID',$VendorID)->where('VO.Status','Delivered')
         ->orderBy('VO.CreatedOn','desc')
         ->select('VO.VOrderID','O.OrderID','O.OrderNo','O.OrderDate','O.ExpectedDelivery','O.ReceiverName','O.ReceiverMobNo','VO.TotalAmount','VO.SubTotal','VO.TaxAmount','VO.NetAmount','VO.AdditionalCost','VO.Status')
         ->take(3)->get();
@@ -1834,6 +1890,7 @@ class VendorAuthController extends Controller{
         
 		return response()->json(['status' => true, 'data' => $VendorHome ]);
 	}
+
     public function getNotifications(Request $req){
 
         $pageNo = $req->PageNo ?? 1;
@@ -1851,6 +1908,7 @@ class VendorAuthController extends Controller{
             'LastPage' => $Notifications->lastPage(),
         ]);
     }
+
     public function getNotificationsCount(Request $req){
         $NotificationsCount = DB::table($this->currfyDB.'tbl_notifications')->where('UserID', $this->UserID)->where('ReadStatus',0)->count();
         return response()->json([
@@ -1858,6 +1916,7 @@ class VendorAuthController extends Controller{
             'data' => $NotificationsCount,
         ]);
     }
+
     public function NotificationRead(Request $req){
 		DB::beginTransaction();
         try {
@@ -1875,6 +1934,7 @@ class VendorAuthController extends Controller{
             return response()->json(['status' => false,'message' => "Notification Read Failed!"]);
         }
 	}
+
     public function getVendorProductSearch(Request $req){
         $VendorID = $this->ReferID;
 

@@ -17,6 +17,7 @@ use logs;
 use activeMenuNames;
 use docTypes;
 use Helper;
+use Illuminate\Support\Facades\Hash;
 
 class CustomerController extends Controller{
 	private $general;
@@ -215,19 +216,37 @@ class CustomerController extends Controller{
 				$status=DB::Table('tbl_customer')->insert($data);
 				if($status){
 					foreach($SAddress as $row){
+						$CityData = DB::table($this->generalDB.'tbl_postalcodes as P')
+						->join($this->generalDB.'tbl_cities as CI', 'CI.PostalID', 'P.PID')
+						->join($this->generalDB.'tbl_taluks as T', 'T.TalukID', 'CI.TalukID')
+						->join($this->generalDB.'tbl_districts as D', 'D.DistrictID', 'P.DistrictID')
+						->join($this->generalDB.'tbl_states as S', 'S.StateID', 'D.StateID')
+						->join($this->generalDB.'tbl_countries as C','C.CountryID','S.CountryID')
+						->where('CI.CityID',$row['CityID'])
+						->where('P.ActiveStatus','Active')->where('P.DFlag',0)
+						->where('CI.ActiveStatus','Active')->where('CI.DFlag',0)
+						->where('T.ActiveStatus','Active')->where('T.DFlag',0)
+						->where('D.ActiveStatus','Active')->where('D.DFlag',0)
+						->where('S.ActiveStatus','Active')->where('S.DFlag',0)
+						->where('C.ActiveStatus','Active')->where('C.DFlag',0)
+						->select('P.PID as PostalCodeID','CI.CityID','T.TalukID','D.DistrictID','S.StateID','C.CountryID')->first();
 						$CompleteAddress = Helper::formAddress($row['Address'],$row['CityID']);
 						$AID=DocNum::getDocNum(docTypes::CustomerAddress->value,"",Helper::getCurrentFY());
 						$tmp=array(
 							"AID"=>$AID,
 							"CustomerID"=>$CustomerID,
-							"Address"=>$row['Address'],
+							"Address"=>Helper::trimAddress($row['Address']),
 							"CompleteAddress"=>$CompleteAddress,
-							"PostalCodeID"=>$row['PostalCodeID'],
-							"CityID"=>$row['CityID'],
-							"TalukID"=>$row['TalukID'],
-							"DistrictID"=>$row['DistrictID'],
-							"StateID"=>$row['StateID'],
-							"CountryID"=>$row['CountryID'],
+							"AddressType"=>$req->AddressType,
+							"PostalCodeID"=>$CityData->PostalCodeID,
+							"CityID"=>$CityData->CityID,
+							"TalukID"=>$CityData->TalukID,
+							"DistrictID"=>$CityData->DistrictID,
+							"StateID"=>$CityData->StateID,
+							"CountryID"=>$CityData->CountryID,
+							"Latitude"=>$req->Latitude,
+							"Longitude"=>$req->Longitude,
+							"MapData"=>$req->MapData,
 							"isDefault"=>$row['isDefault'],
 							"CreatedOn"=>date("Y-m-d H:i:s")
 						);
@@ -237,11 +256,44 @@ class CustomerController extends Controller{
 						}
 					}
 				}
+				$UserID=DocNum::getDocNum(docTypes::Users->value,'',Helper::getCurrentFY());
+
+				$customerName = $req->CustomerName;
+                $nameParts = explode(' ', $customerName, 2);
+                $firstName = $nameParts[0] ?? '';
+                $lastName = $nameParts[1] ?? '';
+				$pwd1=Hash::make($req->Email);
+				$pwd2=Helper::EncryptDecrypt("encrypt",$req->Email);
+				$data=array(
+					"UserID"=>$UserID,
+					"ReferID"=>$CustomerID,
+					"Name"=>$req->CustomerName,
+					"FirstName"=>$firstName,
+					"LastName"=>$lastName,
+					"UserName"=>$req->Email,
+					"MobileNumber"=>$req->MobileNo1,
+					"Password"=>$pwd1,
+					"Password1"=>$pwd2,
+					"EMail"=>$req->Email,
+					"Address"=>$req->Address,
+					"PostalCodeID"=>$req->PostalCodeID,
+					"CityID"=>$req->CityID,
+					"TalukID"=>$req->TalukID,
+					"DistrictID"=>$req->DistrictID,
+					"StateID"=>$req->StateID,
+					"CountryID"=>$req->CountryID,
+					"isLogin"=>1,
+					"LoginType"=>"Customer",
+					"CreatedOn"=>date("Y-m-d H:i:s"),
+					"CreatedBy"=>$this->UserID
+				);
+				$status=DB::Table('users')->insert($data);
 			}catch(Exception $e) {
 				$status=false;
 			}
 			if($status==true){
 				DocNum::updateDocNum(docTypes::Customer->value);
+				DocNum::updateDocNum(docTypes::Users->value);
 				$NewData=(array)DB::table('tbl_customer as C')->join('tbl_customer_address as CA','CA.CustomerID','C.CustomerID')->where('CA.CustomerID',$CustomerID)->get();
 				$logData=array("Description"=>"New Customer Created","ModuleName"=>"Customer","Action"=>"Add","ReferID"=>$CustomerID,"OldData"=>$OldData,"NewData"=>$NewData,"UserID"=>$this->UserID,"IP"=>$req->ip());
 				logs::Store($logData);
@@ -338,45 +390,92 @@ class CustomerController extends Controller{
 				if($status){
 					$AIDs=[];
 					foreach($SAddress as $row){
+						$CityData = DB::table($this->generalDB.'tbl_postalcodes as P')
+						->join($this->generalDB.'tbl_cities as CI', 'CI.PostalID', 'P.PID')
+						->join($this->generalDB.'tbl_taluks as T', 'T.TalukID', 'CI.TalukID')
+						->join($this->generalDB.'tbl_districts as D', 'D.DistrictID', 'P.DistrictID')
+						->join($this->generalDB.'tbl_states as S', 'S.StateID', 'D.StateID')
+						->join($this->generalDB.'tbl_countries as C','C.CountryID','S.CountryID')
+						->where('CI.CityID',$row['CityID'])
+						->where('P.ActiveStatus','Active')->where('P.DFlag',0)
+						->where('CI.ActiveStatus','Active')->where('CI.DFlag',0)
+						->where('T.ActiveStatus','Active')->where('T.DFlag',0)
+						->where('D.ActiveStatus','Active')->where('D.DFlag',0)
+						->where('S.ActiveStatus','Active')->where('S.DFlag',0)
+						->where('C.ActiveStatus','Active')->where('C.DFlag',0)
+						->select('P.PID as PostalCodeID','CI.CityID','T.TalukID','D.DistrictID','S.StateID','C.CountryID')->first();
 						$CompleteAddress = Helper::formAddress($row['Address'],$row['CityID']);
 						if($row['AID']){
 							$AIDs[] = $row['AID'];
 							$data=array(
-								"Address"=>$row['Address'],
+								"Address"=>Helper::trimAddress($row['Address']),
 								"CompleteAddress"=>$CompleteAddress,
-								"PostalCodeID"=>$row['PostalCodeID'],
-								"CityID"=>$row['CityID'],
-								"TalukID"=>$row['TalukID'],
-								"DistrictID"=>$row['DistrictID'],
-								"StateID"=>$row['StateID'],
-								"CountryID"=>$row['CountryID'],
+								"AddressType"=>$req->AddressType,
+								"PostalCodeID"=>$CityData->PostalCodeID,
+								"CityID"=>$CityData->CityID,
+								"TalukID"=>$CityData->TalukID,
+								"DistrictID"=>$CityData->DistrictID,
+								"StateID"=>$CityData->StateID,
+								"CountryID"=>$CityData->CountryID,
+								"Latitude"=>$req->Latitude,
+								"Longitude"=>$req->Longitude,
+								"MapData"=>$req->MapData,
 								"isDefault"=>$row['isDefault'],
 								"UpdatedOn"=>date("Y-m-d H:i:s")
 							);
 							$status=DB::Table('tbl_customer_address')->where('CustomerID',$CustomerID)->where('AID',$row['AID'])->update($data);
 						}else{
 							$AID=DocNum::getDocNum(docTypes::CustomerAddress->value,"",Helper::getCurrentFY());
-							$AIDs[] = $AID;
 							$tmp=array(
 								"AID"=>$AID,
 								"CustomerID"=>$CustomerID,
-								"Address"=>$row['Address'],
+								"Address"=>Helper::trimAddress($row['Address']),
 								"CompleteAddress"=>$CompleteAddress,
-								"PostalCodeID"=>$row['PostalCodeID'],
-								"CityID"=>$row['CityID'],
-								"TalukID"=>$row['TalukID'],
-								"DistrictID"=>$row['DistrictID'],
-								"StateID"=>$row['StateID'],
-								"CountryID"=>$row['CountryID'],
+								"AddressType"=>$req->AddressType,
+								"PostalCodeID"=>$CityData->PostalCodeID,
+								"CityID"=>$CityData->CityID,
+								"TalukID"=>$CityData->TalukID,
+								"DistrictID"=>$CityData->DistrictID,
+								"StateID"=>$CityData->StateID,
+								"CountryID"=>$CityData->CountryID,
+								"Latitude"=>$req->Latitude,
+								"Longitude"=>$req->Longitude,
+								"MapData"=>$req->MapData,
 								"isDefault"=>$row['isDefault'],
 								"CreatedOn"=>date("Y-m-d H:i:s")
 							);
 							$status=DB::Table('tbl_customer_address')->insert($tmp);
 							if($status==true){
+								$AIDs[] = $AID;
 								DocNum::updateDocNum(docTypes::CustomerAddress->value);
 							}
 						}
 					}
+					$customerName = $req->CustomerName;
+					$nameParts = explode(' ', $customerName, 2);
+					$firstName = $nameParts[0] ?? '';
+					$lastName = $nameParts[1] ?? '';
+					$pwd1=Hash::make($req->Email);
+					$pwd2=Helper::EncryptDecrypt("encrypt",$req->Email);
+					$data=array(
+						"Name"=>$req->CustomerName,
+						"FirstName"=>$firstName,
+						"LastName"=>$lastName,
+						"UserName"=>$req->Email,
+						"MobileNumber"=>$req->MobileNo1,
+						"Password"=>$pwd1,
+						"Password1"=>$pwd2,
+						"EMail"=>$req->Email,
+						"Address"=>$req->Address,
+						"PostalCodeID"=>$req->PostalCodeID,
+						"CityID"=>$req->CityID,
+						"TalukID"=>$req->TalukID,
+						"DistrictID"=>$req->DistrictID,
+						"StateID"=>$req->StateID,
+						"CountryID"=>$req->CountryID,
+						"UpdatedOn"=>date("Y-m-d H:i:s"),
+						"UpdatedBy"=>$this->UserID
+					);
 				}
 
 				if(count($AIDs)>0){

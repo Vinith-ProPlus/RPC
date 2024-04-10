@@ -26,13 +26,13 @@ class VendorAPIController extends Controller{
     private $ActiveMenuName;
     private $FileTypes;
 
-
     public function __construct(){
 		$this->generalDB=Helper::getGeneralDB();
 		$this->tmpDB=Helper::getTmpDB();
         $this->ActiveMenuName=activeMenuNames::Vendors->value;
 		$this->FileTypes=Helper::getFileTypes(array("category"=>array("Images","Documents")));
     }
+
     public function Login(Request $req){
 		$rules=array(
 			'email' => 'required|email:filter',
@@ -89,6 +89,7 @@ class VendorAPIController extends Controller{
         }
         return $return;
     }
+    
     public function GoogleRegister(request $req){
         $UserData=DB::Table('users')->where('UserName',$req->Email)->first();
         if($UserData){
@@ -96,7 +97,7 @@ class VendorAPIController extends Controller{
             if($isCustomer){
                 $request = new Request([
                     'email' => $req->Email,
-                    'password' => $req->UID,
+                    'password' => $req->Email,
                     'fcmToken' => $req->fcmToken
                 ]);
                 return $this->Login($request);
@@ -124,8 +125,8 @@ class VendorAPIController extends Controller{
                     // unlink($Img->uploadPath);
                 }
             }
-            $pwd1=Hash::make($req->UID);
-            $pwd2=Helper::EncryptDecrypt("encrypt",$req->UID);
+            $pwd1=Hash::make($req->Email);
+            $pwd2=Helper::EncryptDecrypt("encrypt",$req->Email);
             $data=array(
                 "UserID"=>$UserID,
                 "Name"=>$req->Name,
@@ -148,7 +149,7 @@ class VendorAPIController extends Controller{
                 DocNum::updateDocNum(docTypes::Users->value);
                 $request = new Request([
                     'email' => $req->Email,
-                    'password' => $req->UID,
+                    'password' => $req->Email,
                     'fcmToken' => $req->fcmToken
                 ]);
                 return $this->Login($request);

@@ -33,6 +33,7 @@ class CustomerTransactionAPIController extends Controller{
         $this->logDB=Helper::getLogDB();
 		$this->currfyDB=Helper::getcurrfyDB();
 		$this->tmpDB=Helper::getTmpDB();
+        $this->Settings=$this->getSettings();
 		$this->FileTypes=Helper::getFileTypes(array("category"=>array("Images","Documents")));
         $this->middleware('auth:api');
         $this->middleware(function ($request, $next) {
@@ -41,6 +42,21 @@ class CustomerTransactionAPIController extends Controller{
 			return $next($request);
 		});
     }
+    
+    public function getSettings(){
+		$settings=array();
+		$result=DB::Table('tbl_settings')->get();
+		for($i=0;$i<count($result);$i++){
+			if(strtolower($result[$i]->SType)=="serialize"){
+				$settings[$result[$i]->KeyName]=unserialize($result[$i]->KeyValue);
+			}elseif(strtolower($result[$i]->SType)=="json"){
+				$settings[$result[$i]->KeyName]=json_decode($result[$i]->KeyValue,true);
+			}else{
+				$settings[$result[$i]->KeyName]=$result[$i]->KeyValue;
+			}
+		}
+		return $settings;
+	}
 
     public function PlaceOrder(Request $req){
         DB::beginTransaction();
@@ -189,9 +205,13 @@ class CustomerTransactionAPIController extends Controller{
         }
         $QuoteEnq=$query
         ->select('E.EnqID','E.EnqNo','E.EnqDate','E.EnqExpiryDate','E.ReceiverName','E.ReceiverMobNo','E.ExpectedDeliveryDate','E.Status AS EnqStatus','Q.Status AS QStatus','Q.QID','Q.QNo','Q.QExpiryDate','Q.QDate','Q.TaxAmount','Q.SubTotal','Q.CGSTAmount','Q.SGSTAmount','Q.IGSTAmount','Q.TotalAmount','Q.AdditionalCost','Q.OverAllAmount','CU.CustomerName as CancelledBy')
+        ->orderBy('E.CreatedOn','desc')
         ->get();
-
+        $CustomerCreditLimit = DB::table('tbl_customer')->where('CustomerID',$this->ReferID)->value('CreditLimit');
+        $CustomerBalanceAmount = DB::table($this->currfyDB.'tbl_order as O')->where('O.CustomerID',$this->ReferID)->where('Status','Delivered')->sum('BalanceAmount');
+        $isCreditLimitExceeds = $CustomerBalanceAmount > $CustomerCreditLimit ? true : false;
         foreach($QuoteEnq as $quote){
+            $quote->isCreditLimitExceeds = $isCreditLimitExceeds;
             if($quote->EnqStatus == "New"){
                 $quote->Status = "New";
             }elseif($quote->EnqStatus == "Cancelled" || $quote->QStatus == "Rejected"){
@@ -225,9 +245,11 @@ class CustomerTransactionAPIController extends Controller{
         $CustomerID = $this->ReferID;
 		DB::beginTransaction();
         try {
-            /* $AcceptedQData = DB::table($this->currfyDB . 'tbl_quotation_details as QD')->leftJoin($this->currfyDB . 'tbl_quotation as Q','Q.QID','QD.QID')->where('QD.QID',$req->QID)->get();
+            $AcceptedQData = DB::table($this->currfyDB . 'tbl_quotation_details as QD')->leftJoin($this->currfyDB . 'tbl_quotation as Q','Q.QID','QD.QID')->where('QD.QID',$req->QID)->get();
             $isQIDExists = DB::table($this->currfyDB . 'tbl_order')->where('QID',$req->QID)->exists();
             if(!$isQIDExists){
+                $defaultExpectedDeliveryDate = (int) DB::table('tbl_settings')->where('KeyName','Order-Delivery-Expected-days')->value('KeyValue');
+                $expectedDelivery = $req->ExpectedDeliveryDate ?? date('Y-m-d', strtotime('+'.$defaultExpectedDeliveryDate.' days'));
                 $OrderID = DocNum::getDocNum(docTypes::Order->value, $this->currfyDB,Helper::getCurrentFy());
                 $data=[
                     'OrderID' => $OrderID,
@@ -238,6 +260,7 @@ class CustomerTransactionAPIController extends Controller{
                     'CustomerID' => $AcceptedQData[0]->CustomerID,
                     'ReceiverName' => $AcceptedQData[0]->ReceiverName,
                     'ReceiverMobNo' => $AcceptedQData[0]->ReceiverMobNo,
+                    "ExpectedDelivery"=>$expectedDelivery,
                     'AID' => $AcceptedQData[0]->AID,
                     'DAddress' => $AcceptedQData[0]->DAddress,
                     'DCountryID' => $AcceptedQData[0]->DCountryID,
@@ -302,7 +325,7 @@ class CustomerTransactionAPIController extends Controller{
                 }
 
                 //save orders to vendors;
-                $sql="SELECT OrderID,QID,VendorID,Sum(Taxable) as SubTotal,Sum(TaxAmt) as TaxAmount, Sum(CGSTAmt) as CGSTAmount, Sum(SGSTAmt) as SGSTAmount, Sum(IGSTAmt) as IGSTAmount, Sum(TotalAmt) as TotalAmount  FROM ".$this->currfyDB."tbl_order_details Where OrderID='".$OrderID."' Group By OrderID,QID,VendorID";
+                /* $sql="SELECT OrderID,QID,VendorID,Sum(Taxable) as SubTotal,Sum(TaxAmt) as TaxAmount, Sum(CGSTAmt) as CGSTAmount, Sum(SGSTAmt) as SGSTAmount, Sum(IGSTAmt) as IGSTAmount, Sum(TotalAmt) as TotalAmount  FROM ".$this->currfyDB."tbl_order_details Where OrderID='".$OrderID."' Group By OrderID,QID,VendorID";
                 $result=DB::SELECT($sql);
                 foreach($result as $item){
                     if($status){
@@ -361,9 +384,13 @@ class CustomerTransactionAPIController extends Controller{
                             $Title = "New Order Arrived. Order No ".$VOrderNo;
                             $Message = "You have a new order! Check now for details and fulfill it promptly.";
                             Helper::saveNotification($item->VendorID,$Title,$Message,'Orders',$VOrderID);
-                            $status=DB::table($this->currfyDB.'tbl_order_details')->where('VendorID',$item->VendorID)->where('QID',$item->QID)->update(["VOrderID"=>$VOrderID,"UpdatedOn"=>now(),"updatedBy"=>$this->UserID]);
+                            $status=DB::table($this->currfyDB.'tbl_order_details')->where('VendorID',$item->VendorID)->where('QID',$item->QID)->update(["VOrderID"=>$VOrderID,"UpdatedOn"=>now(),"updatedBy"=>$this->ReferID]);
                         }
                     }
+                } */
+                $data=$this->getQuotes(["QID"=>$req->QID]);
+                if($status){
+                    $status=$this->SaveVendorOrders($data[0],$OrderID,$req->QID,$req->ExpectedDeliveryDate);
                 }
 
             }else{
@@ -373,20 +400,188 @@ class CustomerTransactionAPIController extends Controller{
             if($status){
                 $status = DB::Table($this->currfyDB.'tbl_quotation')->where('QID',$req->QID)->update(['Status'=>'Accepted','AcceptedOn'=>date('Y-m-d'),'UpdatedOn'=>date('Y-m-d H:i:s'),"UpdatedBy"=>$CustomerID]);
                 $status = DB::Table($this->currfyDB.'tbl_enquiry')->where('EnqID',$req->EnqID)->update(['Status'=>'Accepted','UpdatedOn'=>date('Y-m-d H:i:s'),"UpdatedBy"=>$CustomerID]);
-            } */
+            }
             $status = true;
         }catch(Exception $e) {
             $status=false;
         }
         if($status==true){
             DB::commit();
-            /* DocNum::updateDocNum(docTypes::Order->value,$this->currfyDB);
-            DocNum::updateInvNo(docTypes::Order->value); */
+            DocNum::updateDocNum(docTypes::Order->value,$this->currfyDB);
+            DocNum::updateInvNo(docTypes::Order->value);
             return response()->json(['status' => true ,'message' => "Quote Accepted Successfully!"]);
         }else{
             DB::rollback();
             return response()->json(['status' => false,'message' => "Quote Accept Failed!"]);
         }
+	}
+
+    public function SaveVendorOrders($QData,$OrderID,$QID,$ExpectedDelivery){
+		$status=true;
+		$QDetails=DB::Select("Select DISTINCT(VendorID) as VendorID From ".$this->currfyDB."tbl_order_details Where OrderID='".$OrderID."' and Status<>'Cancelled'");
+		//SELECT OD.DetailID as ODetailID, OD.QID, OD.QDID, OD.OrderID, OD.ProductID, VQD.Qty, VQD.Price FROM tbl_order_details as OD LEFT JOIN tbl_quotation_details as QD ON QD.DetailID=OD.QDID AND QD.QID=OD.QID LEFT JOIN tbl_vendor_quotation_details as VQD ON VQD.DetailID=QD.VQDetailID AND VQD.ProductID=QD.ProductID;
+		foreach($QDetails as $QItem){
+			$VendorID=$QItem->VendorID;
+			$CommissionPercentage=0;
+			$t=DB::Table('tbl_vendors')->where('VendorID',$VendorID)->get();
+			if(count($t)>0){
+				$CommissionPercentage=$t[0]->CommissionPercentage;
+			}
+			$VOrderID=DocNum::getDocNum(docTypes::VendorOrders->value, $this->currfyDB,Helper::getCurrentFy());
+			$VOrderNo=DocNum::getInvNo(docTypes::VendorOrders->value);
+			if($status){
+				$sql =" SELECT OD.DetailID as ODetailID, OD.QID, OD.QDID, OD.OrderID, OD.ProductID, VQD.Qty, VQD.Price, VQD.TaxType, VQD.TaxID, VQD.TaxPer, VQD.Taxable, VQD.DiscountType, VQD.DiscountPer, VQD.DiscountAmt, VQD.TaxAmt, VQD.CGSTPer, VQD.SGSTPer, VQD.IGSTPer, VQD.CGSTAmt, VQD.SGSTAmt, VQD.IGSTAmt, VQD.TotalAmt ";
+				$sql.=" FROM ".$this->currfyDB."tbl_order_details as OD LEFT JOIN ".$this->currfyDB."tbl_quotation_details as QD ON QD.DetailID=OD.QDID AND QD.QID=OD.QID LEFT JOIN ".$this->currfyDB."tbl_vendor_quotation_details as VQD ON VQD.DetailID=QD.VQDetailID AND VQD.ProductID=QD.ProductID ";
+				$sql.=" Where OD.OrderID='".$OrderID."' and OD.VendorID='".$VendorID."'"; 
+				$result=DB::SELECT($sql);
+				$totals=json_decode(json_encode(["TaxAmount"=>0,"SubTotal"=>0,"CGSTAmount"=>0,"SGSTAmount"=>0,"IGSTAmount"=>0,"additionalCharges"=>0,"TotalAmount"=>0]));
+				foreach($result as $tdata){
+					if($status){
+						$DetailID=DocNum::getDocNum(docTypes::VendorOrderDetails->value, $this->currfyDB,Helper::getCurrentFy());
+						$data=[
+							"DetailID"=>$DetailID,
+							"QID"=>$tdata->QID,
+							"QDID"=>$tdata->QDID,
+							"OrderID"=>$tdata->OrderID,
+							"ODetailID"=>$tdata->ODetailID,
+							"VOrderID"=>$VOrderID,
+							"ProductID"=>$tdata->ProductID,
+							"Qty"=>$tdata->Qty,
+							"Price"=>$tdata->Price,
+							"TaxType"=>$tdata->TaxType,
+							"TaxPer"=>$tdata->TaxPer,
+							"Taxable"=>$tdata->Taxable,
+							"DiscountType"=>$tdata->DiscountType,
+							"DiscountPer"=>$tdata->DiscountPer,
+							"DiscountAmt"=>$tdata->DiscountAmt,
+							"TaxAmt"=>$tdata->TaxAmt,
+							"CGSTPer"=>$tdata->CGSTPer,
+							"SGSTPer"=>$tdata->SGSTPer,
+							"IGSTPer"=>$tdata->IGSTPer,
+							"CGSTAmt"=>$tdata->CGSTAmt,
+							"SGSTAmt"=>$tdata->SGSTAmt,
+							"IGSTAmt"=>$tdata->IGSTAmt,
+							"TotalAmt"=>$tdata->TotalAmt,
+							"CreatedOn"=>now(),
+							"CreatedBy"=>$this->ReferID
+						];
+
+						$totals->TaxAmount+=$tdata->TaxAmt;
+						$totals->SubTotal+=$tdata->Taxable;
+						$totals->CGSTAmount+=$tdata->CGSTAmt;
+						$totals->SGSTAmount+=$tdata->SGSTAmt;
+						$totals->IGSTAmount+=$tdata->IGSTAmt;
+						$status=DB::Table($this->currfyDB.'tbl_vendor_order_details')->insert($data);
+						if($status){
+							DocNum::updateDocNum(docTypes::VendorOrderDetails->value, $this->currfyDB);
+							$status=DB::table($this->currfyDB.'tbl_order_details')->where('DetailID',$tdata->ODetailID)->update(["VOrderID"=>$VOrderID,"VOrderDetailID"=>$DetailID,"UpdatedOn"=>now(),"updatedBy"=>$this->ReferID]);
+						}
+					}
+				}
+				if($status){
+					$sql="SELECT AdditionalCost FROM ".$this->currfyDB."tbl_vendor_quotation Where VendorID='".$VendorID."' and EnqID in(Select EnqID From ".$this->currfyDB."tbl_quotation Where QID='".$QID."')";
+					$tmp=DB::SELECT($sql);
+					foreach($tmp as $t){
+						$totals->additionalCharges+=floatval($t->AdditionalCost);
+					}
+					$totals->TotalAmount=floatval($totals->SubTotal)+floatval($totals->CGSTAmount)+floatval($totals->SGSTAmount)+floatval($totals->IGSTAmount);
+					$CommissionAmount=(($totals->TotalAmount*$CommissionPercentage)/100);
+					$NetAmount=(($totals->TotalAmount-$CommissionAmount)+$totals->additionalCharges);
+					$tdata=[
+						"VOrderID"=>$VOrderID,
+						"OrderID"=>$OrderID,
+						"OrderNo"=>$VOrderNo,
+						"OrderDate"=>date("Y-m-d"),
+						"ExpectedDelivery"=>date("Y-m-d",strtotime($ExpectedDelivery)),
+						"QID"=>$QID,
+						"CustomerID"=>$QData->CustomerID,
+						"AID"=>$QData->AID,
+						"VendorID"=>$VendorID,
+						"ReceiverName"=>$QData->ReceiverName,
+						"ReceiverMobNo"=>$QData->ReceiverMobNo,
+						"DAddress"=>$QData->DAddress,
+						"DCountryID"=>$QData->DCountryID,
+						"DStateID"=>$QData->DStateID,
+						"DDistrictID"=>$QData->DDistrictID,
+						"DTalukID"=>$QData->DTalukID,
+						"DCityID"=>$QData->DCityID,
+						"DPostalCodeID"=>$QData->DPostalCodeID,
+						"Status"=>"New",
+						"TaxAmount"=>$totals->TaxAmount,
+						"SubTotal"=>$totals->SubTotal,
+						"DiscountType"=>"",
+						"DiscountPercentage"=>0,
+						"DiscountAmount"=>0,
+						"CGSTAmount"=>$totals->CGSTAmount,
+						"SGSTAmount"=>$totals->SGSTAmount,
+						"IGSTAmount"=>$totals->IGSTAmount,
+						"TotalAmount"=>$totals->TotalAmount,
+						"CommissionAmount"=>$CommissionAmount,
+						"CommissionPercentage"=>$CommissionPercentage,
+						"AdditionalCost"=>$totals->additionalCharges,
+						"NetAmount"=>$NetAmount,
+						"PaidAmount"=>0,
+						"BalanceAmount"=>$NetAmount,
+						"PaymentStatus"=>"Unpaid",
+						"AdditionalCostData"=> serialize([]),
+						"CreatedOn"=>now(),
+						"CreatedBy"=>$this->ReferID
+					];
+					$status=DB::table($this->currfyDB.'tbl_vendor_orders')->insert($tdata);
+					if($status){
+						DocNum::updateDocNum(docTypes::VendorOrders->value, $this->currfyDB);
+						DocNum::updateInvNo(docTypes::VendorOrders->value);
+						$Title = "New Order Arrived. Order No " . $VOrderNo . ".";
+						$Message = "You have a new order! Check now for details and fulfill it promptly.";
+						Helper::saveNotification($VendorID,$Title,$Message,'Orders',$VOrderID);
+					}
+				}
+			}
+		}
+		return $status;
+	}
+    
+    public function getQuotes($data=array()){
+		$sql ="SELECT Q.QID, Q.EnqID, Q.QNo, Q.QDate, Q.QExpiryDate, Q.CustomerID, Q.AID, C.CustomerName, C.MobileNo1, C.MobileNo2, C.Email, C.Address as BAddress, C.CountryID as BCountryID, BC.CountryName as BCountryName, ";
+		$sql.=" C.StateID as BStateID, BS.StateName as BStateName, C.DistrictID as BDistrictID, BD.DistrictName as BDistrictName, C.TalukID, BT.TalukName as BTalukName, C.CityID as BCityID, BCI.CityName as BCityName, C.PostalCodeID as BPostalCodeID, ";
+		$sql.=" BPC.PostalCode as BPostalCode, BC.PhoneCode, Q.ReceiverName, Q.ReceiverMobNo, Q.DAddress, Q.DCountryID, CO.CountryName as DCountryName, Q.DStateID, S.StateName as DStateName, Q.DDistrictID, D.DistrictName as DDistrictName, Q.DTalukID, ";
+		$sql.=" T.TalukName as DTalukName, Q.DCityID, CI.CityName as DCityName, Q.DPostalCodeID, PC.PostalCode as DPostalCode, Q.TaxAmount, Q.SubTotal, Q.DiscountType, Q.DiscountPercent as DiscountPercentage, Q.DiscountAmount, Q.CGSTAmount, ";
+		$sql.=" Q.SGSTAmount, Q.IGSTAmount, Q.TotalAmount, Q.AdditionalCost, Q.OverAllAmount as NetAmount, Q.AdditionalCostData, Q.Status, Q.AcceptedOn, Q.RejectedOn, Q.ApprovedBy, Q.RejectedBy, Q.RReasonID, RR.RReason, Q.RRDescription ";
+		$sql.=" FROM ".$this->currfyDB."tbl_quotation as Q LEFT JOIN tbl_customer as C ON C.CustomerID=Q.CustomerID LEFT JOIN ".$this->generalDB."tbl_countries as BC ON BC.CountryID=C.CountryID  ";
+		$sql.=" LEFT JOIN ".$this->generalDB."tbl_states as BS ON BS.StateID=C.StateID LEFT JOIN ".$this->generalDB."tbl_districts as BD ON BD.DistrictID=C.DistrictID  ";
+		$sql.=" LEFT JOIN ".$this->generalDB."tbl_taluks as BT ON BT.TalukID=C.TalukID LEFT JOIN ".$this->generalDB."tbl_cities as BCI ON BCI.CityID=C.CityID ";
+		$sql.=" LEFT JOIN ".$this->generalDB."tbl_postalcodes as BPC ON BPC.PID=C.PostalCodeID LEFT JOIN ".$this->generalDB."tbl_countries as CO ON CO.CountryID=Q.DCountryID  ";
+		$sql.=" LEFT JOIN ".$this->generalDB."tbl_states as S ON S.StateID=Q.DStateID LEFT JOIN ".$this->generalDB."tbl_districts as D ON D.DistrictID=Q.DDistrictID ";
+		$sql.=" LEFT JOIN ".$this->generalDB."tbl_taluks as T ON T.TalukID=Q.DTalukID LEFT JOIN ".$this->generalDB."tbl_cities as CI ON CI.CityID=Q.DCityID ";
+		$sql.=" LEFT JOIN ".$this->generalDB."tbl_postalcodes as PC ON PC.PID=Q.DPostalCodeID LEFT JOIN tbl_reject_reason as RR ON RR.RReasonID=Q.RReasonID ";
+		$sql.=" Where 1=1 ";
+		if(is_array($data)){
+			if(array_key_exists("QID",$data)){$sql.=" AND Q.QID='".$data['QID']."'";}
+		}
+		$result=DB::SELECT($sql);
+
+		for($i=0;$i<count($result);$i++){
+			$result[$i]->AdditionalCostData=unserialize($result[$i]->AdditionalCostData);
+			$sql="SELECT QD.DetailID, QD.QID, QD.VQDetailID, QD.ProductID, P.ProductName, P.Decimals, P.HSNSAC, P.UID, U.UCode, U.UName, QD.Qty, QD.Price, QD.TaxType, QD.TaxPer, QD.Taxable, QD.DiscountType, QD.DiscountPer, QD.DiscountAmt, QD.TaxAmt, QD.CGSTPer, QD.SGSTPer, QD.IGSTPer, QD.CGSTAmt, QD.SGSTAmt, QD.IGSTAmt, QD.TotalAmt, QD.VendorID, V.VendorName, QD.isCancelled, QD.CancelledBy, QD.CancelledOn, QD.ReasonID, RR.RReason, QD.RDescription  ";
+			$sql.=" FROM ".$this->currfyDB."tbl_quotation_details as QD LEFT JOIN tbl_products as P ON P.ProductID=QD.ProductID LEFT JOIN tbl_uom as U ON U.UID=P.UID LEFT JOIN tbl_reject_reason as RR ON RR.RReasonID=QD.ReasonID LEFT JOIN tbl_vendors as V ON V.VendorID=QD.VendorID ";
+			$sql.=" Where QD.QID='".$result[$i]->QID."' and QD.isCancelled = 0";
+			$result[$i]->Details=DB::SELECT($sql);
+			for($j=0;$j<count($result[$i]->Details);$j++){
+				$result[$i]->Details[$j]->VQuoteID="";
+				$result1=DB::Table($this->currfyDB.'tbl_vendor_quotation')->Where('EnqID',$result[$i]->EnqID)->where('VendorID',$result[$i]->Details[$j]->VendorID)->get();
+				if(count($result1)>0){
+					$result[$i]->Details[$j]->VQuoteID=$result1[0]->VQuoteID;
+				}
+			}
+			$addCharges=[];
+			$result1=DB::Table($this->currfyDB.'tbl_vendor_quotation')->Where('EnqID',$result[$i]->EnqID)->get();
+
+			foreach($result1 as $tmp){
+				$addCharges[$tmp->VendorID]=Helper::NumberFormat($tmp->AdditionalCost,$this->Settings['price-decimals']);
+			}
+			$result[$i]->AdditionalCharges=$addCharges;
+		}
+		return $result;
 	}
 
     public function RejectQuote(Request $req){
@@ -413,7 +608,7 @@ class CustomerTransactionAPIController extends Controller{
         $CustomerID = $this->ReferID;
 		DB::beginTransaction();
         try {
-            $status = DB::Table($this->currfyDB.'tbl_quotation_details')->where('DetailID',$req->DetailID)->update(['isCancelled'=>1,'CancelledBy'=>$this->UserID,'CancelledOn'=>date('Y-m-d'),'UpdatedOn'=>date('Y-m-d H:i:s')]);
+            $status = DB::Table($this->currfyDB.'tbl_quotation_details')->where('DetailID',$req->DetailID)->update(['isCancelled'=>1,'CancelledBy'=>$this->ReferID,'CancelledOn'=>date('Y-m-d'),'UpdatedOn'=>date('Y-m-d H:i:s')]);
             if($status){
                 $QData = DB::table($this->currfyDB.'tbl_quotation_details as QD')->leftJoin($this->currfyDB.'tbl_quotation as Q','Q.QID','QD.QID')->where('QD.QID',$req->QID)->where('QD.isCancelled',0)->get();
 					$totalTaxable = 0;
@@ -458,12 +653,13 @@ class CustomerTransactionAPIController extends Controller{
     public function getOrder(Request $req){
         $query = DB::table($this->currfyDB.'tbl_order as O')
         ->leftJoin('tbl_customer as CU','CU.CustomerID','O.CustomerID')
-        ->leftJoin('tbl_customer_address as CA','CA.AID','O.AID');
+        ->leftJoin('tbl_customer_address as CA','CA.AID','O.AID')->where('O.CustomerID',$this->ReferID);
         if($req->Status){
             $query->where('O.Status',$req->Status);
         }
         $OrderData=$query
         ->select('O.OrderID','O.OrderNo','O.OrderDate','O.ReceiverName','O.ReceiverMobNo','O.Status','O.TaxAmount','O.SubTotal','O.CGSTAmount','O.SGSTAmount','O.IGSTAmount','O.TotalAmount','O.AdditionalCost','O.NetAmount','O.isRated','O.DeliveredOn','O.ExpectedDelivery','O.PaymentStatus','CU.CompleteAddress as BillingAddress','CA.CompleteAddress as ShippingAddress')
+        ->orderBy('O.CreatedOn','desc')
         ->get();
 
         foreach($OrderData as $order){
@@ -505,7 +701,6 @@ class CustomerTransactionAPIController extends Controller{
     public function getCategory(Request $req){
         if($req->PostalID){
             $AllVendors = DB::table('tbl_vendors as V')->leftJoin('tbl_vendors_service_locations as VSL','V.VendorID','VSL.VendorID')->where('V.ActiveStatus',"Active")->where('V.DFlag',0)->where('VSL.PostalCodeID',$req->PostalID)->groupBy('VSL.VendorID')->pluck('VSL.VendorID')->toArray();
-
             $PCatagories= DB::table('tbl_vendors_product_mapping as VPM')
             ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'VPM.PCID')
             ->where('VPM.Status',1)->WhereIn('VPM.VendorID',$AllVendors)

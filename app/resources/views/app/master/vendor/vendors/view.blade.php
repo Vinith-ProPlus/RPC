@@ -103,48 +103,51 @@
                 data: { VendorID: $(this).attr('data-id') },
                 headers: { 'X-CSRF-Token': $('meta[name=_token]').attr('content') },
                 success: function (response) {
-					// debugger
                     let modalContent = $('<div></div>');
-                    let row = $('<div class="row my-3 justify-content-center">').html(
-                            `<div class="row">
-                                <div class="col-sm-12 text-center">
-                                    <img src="{{ url('/') }}/${response.Logo}" alt="Vendor Logo" class="img-fluid rounded" height="150" width="150">
-                                </div>
-                                <div class="row mt-20 justify-content-center">
-                                    <div class="col-sm-5">
-                                        <div class="row">
-                                            <div class="col-sm-6 fs-15 fw-600">Vendor Name</div>
-                                            <div class="col-sm-1 fs-15 fw-600 text-center">:</div>
-                                            <div class="col-sm-5 fs-15">${response.VendorName}</div>
-                                        </div>
-                                        <div class="row my-2">
-                                            <div class="col-sm-6 fs-15 fw-600">Email</div>
-                                            <div class="col-sm-1 fs-15 fw-600 text-center	">:</div>
-                                            <div class="col-sm-5 fs-15">${response.Email}</div>
-                                        </div>
-                                        <div class="row my-2">
-                                            <div class="col-sm-6 fs-15 fw-600">Address</div>
-                                            <div class="col-sm-1 fs-15 fw-600 text-center">:</div>
-                                            <div class="col-sm-5 fs-15">${response.Address}, ${response.CityName}<br>${response.TalukName}, ${response.DistrictName}<br>${response.StateName}-${response.PostalCode}</div>
-                                        </div>
-                                        <div class="row my-2">
-                                            <div class="col-sm-6 fs-15 fw-600">GST No</div>
-                                            <div class="col-sm-1 fs-15 fw-600 text-center">:</div>
-                                            <div class="col-sm-5 fs-15">${response.GSTNo}</div>
-                                        </div>
-                                        <div class="row my-2">
-                                            <div class="col-sm-6 fs-15 fw-600">Mobile No</div>
-                                            <div class="col-sm-1 fs-15 fw-600 text-center">:</div>
-                                            <div class="col-sm-5 fs-15">${response.MobileNumber1}</div>
-                                        </div>
-                                        <div class="row my-2">
-                                            <div class="col-sm-6 fs-15 fw-600">Stock Point</div>
-                                            <div class="col-sm-1 fs-15 fw-600 text-center">:</div>
-                                            <div class="col-sm-5 fs-15">${response.StockPoints[0].Address}, ${response.StockPoints[0].CityName}<br>${response.StockPoints[0].TalukName}, ${response.StockPoints[0].DistrictName}<br>${response.StockPoints[0].StateName}-${response.StockPoints[0].PostalCode}</div>
-                                        </div>
-                                    </div>
-                                </div>                               
-                            </div>`);
+                    let row = $('<div class="row my-3 justify-content-center">').html(`
+								<div class="row">
+									<div class="col-sm-12 text-center">
+										<img src="{{ url('/') }}/${response.Logo}" alt="Vendor Logo" class="img-fluid rounded" height="150" width="150">
+									</div>
+									<div class="row mt-20 justify-content-center">
+										<div class="col-sm-5">
+											<div class="row">
+												<div class="col-sm-6 fs-15 fw-600">Vendor Name</div>
+												<div class="col-sm-1 fs-15 fw-600 text-center">:</div>
+												<div class="col-sm-5 fs-15">${response.VendorName}</div>
+											</div>
+											<div class="row my-2">
+												<div class="col-sm-6 fs-15 fw-600">Email</div>
+												<div class="col-sm-1 fs-15 fw-600 text-center">:</div>
+												<div class="col-sm-5 fs-15">${response.Email}</div>
+											</div>
+											<div class="row my-2">
+												<div class="col-sm-6 fs-15 fw-600">Address</div>
+												<div class="col-sm-1 fs-15 fw-600 text-center">:</div>
+												<div class="col-sm-5 fs-15">${response.Address}, ${response.CityName}<br>${response.TalukName}, ${response.DistrictName}<br>${response.StateName}-${response.PostalCode}</div>
+											</div>
+											<div class="row my-2">
+												<div class="col-sm-6 fs-15 fw-600">GST No</div>
+												<div class="col-sm-1 fs-15 fw-600 text-center">:</div>
+												<div class="col-sm-5 fs-15">${response.GSTNo}</div>
+											</div>
+											<div class="row my-2">
+												<div class="col-sm-6 fs-15 fw-600">Mobile No</div>
+												<div class="col-sm-1 fs-15 fw-600 text-center">:</div>
+												<div class="col-sm-5 fs-15">${response.MobileNumber1}</div>
+											</div>
+											${response.StockPoints.length > 0 ?
+												`<div class="row my-2">
+													<div class="col-sm-6 fs-15 fw-600">Primary Stock Point</div>
+													<div class="col-sm-1 fs-15 fw-600 text-center">:</div>
+													<div class="col-sm-5 fs-15">${response.StockPoints[0].Address}, ${response.StockPoints[0].CityName}<br>${response.StockPoints[0].TalukName}, ${response.StockPoints[0].DistrictName}<br>${response.StockPoints[0].StateName}-${response.StockPoints[0].PostalCode}.<br><span class></span></div>
+												</div>` :
+												''
+											}
+										</div>
+									</div>                               
+								</div>`);
+
                         modalContent.append(row);
 						let documentsRow = $('<div class="row my-3 justify-content-center">');
 							documentsRow.append(`<div class="col-sm-12 my-2"><h5 class="text-center text-info">Vendor Documents</h5></div>`);

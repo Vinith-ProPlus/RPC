@@ -348,17 +348,15 @@
 
                     <span class="separator d-none d-lg-block"></span>
 
-                    <a href="tel:{{ $Company['Phone-Number'] ?? ($Company['Mobile-Number'] ?? '') }}">
-                        <div class="sicon-box mb-0 d-none d-lg-flex align-items-center pr-3 mr-1">
-                            <div class=" sicon-default">
-                                <i class="icon-phone-1"></i>
-                            </div>
-                            <div class="sicon-header">
-                                <h4 class="sicon-title ls-n-25">CALL US NOW</h4>
-                                <p>{{ $Company['Phone-Number'] ?? ($Company['Mobile-Number'] ?? '') }}</p>
-                            </div>
+                    <div class="sicon-box mb-0 d-none d-lg-flex align-items-center pr-3 mr-1">
+                        <div class=" sicon-default">
+                            <i class="icon-phone-1"></i>
                         </div>
-                    </a>
+                        <div class="sicon-header">
+                            <h4 class="sicon-title ls-n-25">CALL US NOW</h4>
+                            <p>+91 {{$Company['Phone-Number']}}</p>
+                        </div>
+                    </div>
 
                     <span class="separator d-none d-lg-block mr-4"></span>
 {{--                        <a id="dLabel" role="button" data-toggle="dropdown" class="btn btn-default bg-white" data-target="#" href="#">--}}
@@ -558,12 +556,12 @@
                             <h4 class="widget-title mb-1 pb-1">Get In Touch</h4>
                             <ul class="contact-info">
                                 <li>
-                                    <span class="contact-info-label">Address:</span>45, RPC Building, Erode,<br>TamilNadu.638001.
+                                    <span class="contact-info-label">Address:</span>{{$Company['Address']}}<br>{{$Company['AddressData']->CityName}}, {{$Company['AddressData']->DistrictName}}, {{$Company['AddressData']->StateName}}, {{$Company['AddressData']->CountryName}} - {{$Company['AddressData']->PostalCode}}.
                                 </li>
                                 <li>
-                                    <span class="contact-info-label">Phone:</span><a href="tel:{{ $Company['Phone-Number'] ?? ($Company['Mobile-Number'] ?? '') }}">{{ $Company['Phone-Number'] ?? ($Company['Mobile-Number'] ?? '') }}</a>
+                                    <span class="contact-info-label">Phone:</span><a href="#">{{$Company['Phone-Number']}}@if($Company['Mobile-Number']), {{$Company['Mobile-Number']}} @endif</a>
                                 </li>
-                                  <li>
+                                <li>
                                     <span class="contact-info-label">Email:</span>
                                     <a href="mailto:{{$Company['E-Mail']}}"><span
                                             class="__cf_email__"
