@@ -1155,7 +1155,9 @@ class VendorsController extends Controller{
 					'db' => 'ActiveStatus', 
 					'dt' => '6',
 					'formatter' => function( $d, $row ) {
-						if($d=="Active"){
+						if($row['isApproved']==0){
+							return "<span class='badge badge-info m-1'>Not Approved</span>";
+						}elseif($d=="Active"){
 							return "<span class='badge badge-success m-1'>Active</span>";
 						}else{
 							return "<span class='badge badge-danger m-1'>Inactive</span>";

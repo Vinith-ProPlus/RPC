@@ -103,7 +103,6 @@
                 data: { VendorID: $(this).attr('data-id') },
                 headers: { 'X-CSRF-Token': $('meta[name=_token]').attr('content') },
                 success: function (response) {
-					// debugger
                     let modalContent = $('<div></div>');
                     let row = $('<div class="row my-3 justify-content-center">').html(
                             `<div class="row">
@@ -138,9 +137,9 @@
                                             <div class="col-sm-5 fs-15">${response.MobileNumber1}</div>
                                         </div>
                                         <div class="row my-2">
-                                            <div class="col-sm-6 fs-15 fw-600">Stock Point</div>
+                                            <div class="col-sm-6 fs-15 fw-600">Primary Stock Point</div>
                                             <div class="col-sm-1 fs-15 fw-600 text-center">:</div>
-                                            <div class="col-sm-5 fs-15">${response.StockPoints[0].Address}, ${response.StockPoints[0].CityName}<br>${response.StockPoints[0].TalukName}, ${response.StockPoints[0].DistrictName}<br>${response.StockPoints[0].StateName}-${response.StockPoints[0].PostalCode}</div>
+                                            <div class="col-sm-5 fs-15">${response.StockPoints[0].Address}, ${response.StockPoints[0].CityName}<br>${response.StockPoints[0].TalukName}, ${response.StockPoints[0].DistrictName}<br>${response.StockPoints[0].StateName}-${response.StockPoints[0].PostalCode}.<br><span class></span></div>
                                         </div>
                                     </div>
                                 </div>                               
