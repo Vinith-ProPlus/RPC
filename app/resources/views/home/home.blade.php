@@ -1,8 +1,9 @@
 @extends('home.home-layout')
 @section('content')
 
-<section class="intro-section">
-    <div class="home-slider slide-animate owl-carousel owl-theme owl-carousel-lazy dot-inside" data-owl-options="{
+    <div class="container">
+        <section class="intro-section">
+            <div class="home-slider slide-animate owl-carousel owl-theme owl-carousel-lazy dot-inside" data-owl-options="{
         'nav': false,
         'dots': true,
         'responsive': {
@@ -11,21 +12,22 @@
             }
         }
     }">
-        @foreach($Banners as $Banner)
-            <div class="home-slide banner" style="background-image: url('{{ $Banner->BannerImage }}');"></div>
-        @endforeach
-    </div>
-
-    <div class="home-slider-sidebar d-none d-sm-block">
-        <div class="container">
-            <ul id="homeBannerList">
-                @foreach($Banners as $index => $Banner)
-                    <li {{ ($index == 0) ? "class=active" : '' }}>{{ $Banner->BannerTitle }}</li>
+                @foreach($Banners as $Banner)
+                    <div class="home-slide banner" style="background-image: url('{{ $Banner->BannerImage }}');"></div>
                 @endforeach
-            </ul>
-        </div>
+            </div>
+
+            <div class="home-slider-sidebar d-none d-sm-block">
+                <div class="container">
+                    <ul id="homeBannerList">
+                        @foreach($Banners as $index => $Banner)
+                            <li {{ ($index == 0) ? "class=active" : '' }}>{{ $Banner->BannerTitle }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
+        </section>
     </div>
-</section>
 
 <section class="building-modeling">
     <div class="container">

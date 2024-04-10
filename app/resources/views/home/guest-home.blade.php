@@ -225,6 +225,7 @@
             </div><!-- End .header-bottom -->
         </header><!-- End .header -->
 
+        <div class="container">
         <main class="main">
 
             <section class="intro-section">
@@ -494,6 +495,7 @@
             </section>
 
         </main>
+        </div>
         <!-- End .main -->
 
         <footer class="footer bg-dark position-relative">
