@@ -115,7 +115,6 @@
 									</span>
 								</span>
 								<ul class="profile-dropdown onhover-show-div">
-                                    <li><a href="{{url('/')}}/admin/users-and-permissions/profile"><i data-feather="user"> </i>Profile</a></li>
                                     <li><a href="{{url('/')}}/admin/users-and-permissions/change-password/"><i data-feather="user"> </i>Password Change</a></li>
                                     <li class="btnLogout"><i data-feather="log-in"></i>Logout </li>
 								</ul>
