@@ -316,10 +316,13 @@ class QuoteEnquiryController extends Controller{
 							foreach($AllVendors as $item){
 								$isProductAvailable= DB::Table('tbl_vendors_product_mapping')->where('Status',1)->Where('VendorID',$item->VendorID)->where('ProductID',$row->ProductID)->first();
 									if($isProductAvailable){
+										$AdminRating = DB::table($this->currfyDB.'tbl_vendor_orders')->where('VendorID',$item->VendorID)->where('Status','Delivered')->value(DB::raw('ROUND(AVG(Ratings))'));
+										$CustomerRating = DB::table($this->currfyDB.'tbl_vendor_orders')->where('VendorID',$item->VendorID)->where('Status','Delivered')->value(DB::raw('ROUND(AVG(CustomerRatings))'));
+										$OverAll = $AdminRating + $CustomerRating;
 										$row->AvailableVendors[] = [
 											"VendorID" => $item->VendorID,
 											"VendorName" => $item->VendorName,
-											"OverAll" => "0/10",
+											"OverAll" => $OverAll."/10",
 											"ProductID" => $isProductAvailable->ProductID,
 										];
 									}
@@ -996,32 +999,33 @@ class QuoteEnquiryController extends Controller{
 				->join($this->generalDB.'tbl_cities as C','C.CityID','V.CityID')
 				->join($this->generalDB.'tbl_postalcodes as P','P.PID','V.PostalCode')
 				->where('V.VendorID',$req->VendorID)->first();
-				$createdDate = strtotime($VendorRatings->CreatedOn);
-				$currentDate = time();
-				$difference = $currentDate - $createdDate;
-				$years = floor($difference / (365 * 24 * 60 * 60));
-				$months = floor(($difference - $years * 365 * 24 * 60 * 60) / (30 * 24 * 60 * 60));
-				return $months;
-				$yearLabel = ($years > 1) ? 'Years' : 'Year';
-				$formattedOutput = date('M Y', $createdDate) . ' (' . $years . ' ' . $yearLabel;
+	
+		$createdDate = strtotime($VendorRatings->CreatedOn);
+		$currentDate = time();
+		$difference = $currentDate - $createdDate;
+		$years = floor($difference / (365 * 24 * 60 * 60));
+		$months = floor(($difference - $years * 365 * 24 * 60 * 60) / (30 * 24 * 60 * 60));
+	
+		$yearLabel = ($years > 1) ? 'Years' : 'Year';
+		$formattedOutput = date('M Y', $createdDate).' (';
 
-				if ($months > 0) {
-					$monthLabel = ($months > 1) ? 'Months' : 'Month';
-					$formattedOutput .= ' ' . $months . ' ' . $monthLabel . ')';
-				} else {
-					$formattedOutput .= ')';
-				}
-
-				$VendorRatings->TotalYears = $formattedOutput;
-
-
+		$formattedOutput .= ($years > 0) ? $years . ' ' . $yearLabel : '';
+		if ($months > 0) {
+			$monthLabel = ($months > 1) ? 'Months' : 'Month';
+			$formattedOutput .= ' ' . $months . ' ' . $monthLabel . ' )';
+		} else {
+			$formattedOutput .= ')';
+		}
 		$VendorRatings->TotalYears = $formattedOutput;
-		$VendorRatings->OverAll = "";
+	
 		$VendorRatings->TotalOrders = DB::table($this->currfyDB.'tbl_vendor_orders')->where('VendorID',$VendorRatings->VendorID)->where('Status','Delivered')->count();
 		$VendorRatings->OrderValue = DB::table($this->currfyDB.'tbl_vendor_orders')->where('VendorID',$VendorRatings->VendorID)->where('Status','Delivered')->sum('NetAmount');
 		$VendorRatings->Outstanding = DB::table($this->currfyDB.'tbl_vendor_orders')->where('VendorID',$VendorRatings->VendorID)->where('Status','Delivered')->sum('BalanceAmount');
-		$VendorRatings->AdminRating = DB::table($this->currfyDB.'tbl_vendor_orders')->where('VendorID',$VendorRatings->VendorID)->where('Status','Delivered')->sum('Ratings');
-		$VendorRatings->CustomerRating = DB::table($this->currfyDB.'tbl_vendor_orders')->where('VendorID',$VendorRatings->VendorID)->where('Status','Delivered')->sum('CustomerRatings');
+		$AdminRating = DB::table($this->currfyDB.'tbl_vendor_orders')->where('VendorID',$VendorRatings->VendorID)->where('Status','Delivered')->avg('Ratings');
+		$VendorRatings->AdminRating = round($AdminRating);
+		$CustomerRating = DB::table($this->currfyDB.'tbl_vendor_orders')->where('VendorID',$VendorRatings->VendorID)->where('Status','Delivered')->avg('CustomerRatings');
+		$VendorRatings->CustomerRating = round($CustomerRating);
+		$VendorRatings->OverAll = round($VendorRatings->AdminRating + $VendorRatings->CustomerRating);
 		return $VendorRatings;
 	}
 

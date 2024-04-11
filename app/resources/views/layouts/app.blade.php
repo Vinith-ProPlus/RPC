@@ -43,7 +43,7 @@
 		<link rel="stylesheet" type="text/css" href="{{url('/')}}/assets/plugins/image-cropper/cropper.css?r={{date('YmdHis')}}">
 		<link rel="stylesheet" type="text/css" href="{{url('/')}}/assets/plugins/dynamic-form/v3/dynamicForm.min.css?r={{date('YmdHis')}}">
 
-		<link rel="stylesheet" type="text/css" href="{{url('/')}}/assets/css/color-1.css?r={{date('YmdHis')}}" media="screen" id="color" >
+		<link rel="stylesheet" type="text/css" href="{{url('/')}}/assets/css/color-1.css?r={{date('YmdHis')}}" media="screen" id="color">
 		<link rel="stylesheet" type="text/css" href="{{url('/')}}/assets/css/responsive.css?r={{date('YmdHis')}}">
 		<link rel="stylesheet" type="text/css" href="{{url('/')}}/assets/css/loader.css?r={{date('YmdHis')}}">
 		<link rel="stylesheet" type="text/css" href="{{url('/')}}/assets/css/custom.css?r={{date('YmdHis')}}">
