@@ -318,8 +318,8 @@
 
                     <div class="social-icons">
                         <a href="{{$Company['facebook']}}" class="social-icon social-facebook icon-facebook" target="_blank" title="facebook"></a>
-                        <a href="{{$Company['twitter']}}" class="social-icon social-twitter icon-twitter" target="_blank" title="twitter"></a>
-                        <a href="{{$Company['instagram']}}" class="social-icon social-instagram icon-instagram mr-0" target="_blank" title="instagram"></a>
+                        <a href="{{$Company['instagram']}}" class="social-icon social-instagram icon-instagram" target="_blank" title="instagram"></a>
+                        <a href="{{$Company['youtube']}}" class="social-icon social-youtube fab fa-youtube" target="_blank" title="YouTube"></a>
                     </div><!-- End .social-icons -->
                 </div><!-- End .header-right -->
             </div><!-- End .container -->
@@ -573,11 +573,25 @@
                                 </li>
                             </ul>
                             <div class="social-icons">
-                                <a href="{{$Company['facebook']}}" class="social-icon social-facebook icon-facebook" target="_blank" title="Facebook"></a>
-
-                                <a href="{{$Company['instagram']}}" class="social-icon social-instagram icon-instagram" target="_blank" title="Instagram"></a>
-
-                                <a href="{{$Company['linkedin']}}" class="social-icon social-linkedin fab fa-linkedin-in" target="_blank" title="Linkedin"></a>
+                                @if(array_key_exists('facebook', $Company) && $Company['facebook'])
+                                    <a href="{{$Company['facebook']}}" class="social-icon social-facebook icon-facebook" target="_blank" title="Facebook"></a>
+                                @endif
+                            
+                                @if(array_key_exists('instagram', $Company) && $Company['instagram'])
+                                    <a href="{{$Company['instagram']}}" class="social-icon social-instagram icon-instagram" target="_blank" title="Instagram"></a>
+                                @endif
+                            
+                                @if(array_key_exists('youtube', $Company) && $Company['youtube'])
+                                    <a href="{{$Company['youtube']}}" class="social-icon social-youtube fab fa-youtube" target="_blank" title="YouTube"></a>
+                                @endif
+                            
+                                @if(array_key_exists('twitter', $Company) && $Company['twitter'])
+                                    <a href="{{$Company['twitter']}}" class="social-icon social-twitter fab fa-twitter" target="_blank" title="Twitter"></a>
+                                @endif
+                            
+                                @if(array_key_exists('linkedin', $Company) && $Company['linkedin'])
+                                    <a href="{{$Company['linkedin']}}" class="social-icon social-linkedin fab fa-linkedin-in" target="_blank" title="Linkedin"></a>
+                                @endif
                             </div><!-- End .social-icons -->
                         </div><!-- End .widget -->
                     </div><!-- End .col-lg-3 -->
