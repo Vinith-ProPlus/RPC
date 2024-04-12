@@ -219,7 +219,7 @@ class userController extends Controller{
 					"Name"=>$Name,
 					"FirstName"=>$req->FirstName,
 					"LastName"=>$req->LastName,
-					"UserName"=>$req->MobileNumber,
+					"UserName"=>$req->EMail,
 					"MobileNumber"=>$req->MobileNumber,
 					"Password"=>$pwd1,
 					"Password1"=>$pwd2,
@@ -370,7 +370,7 @@ class userController extends Controller{
 					"Name"=>$Name,
 					"FirstName"=>$req->FirstName,
 					"LastName"=>$req->LastName,
-					"UserName"=>$req->MobileNumber,
+					"UserName"=>$req->EMail,
 					"MobileNumber"=>$req->MobileNumber,
 					"RoleID"=>$req->UserRole,
 					"GenderID"=>$req->Gender,
@@ -474,61 +474,13 @@ class userController extends Controller{
 		if($this->general->isCrudAllow($this->CRUD,"view")==true){
 			$columns = array(
                 array( 'db' => 'U.Name', 'dt' => '0' ),
-                array( 'db' => 'U.MobileNumber', 'dt' => '1',
-					'formatter' => function( $d, $row ) {
-						$MobileNumber=$row['PhoneCode']!=""?"+".$row['PhoneCode']." ":"";
-						$MobileNumber.=$d;
-						return $MobileNumber;
-					} 
-				),
+                array( 'db' => 'U.MobileNumber', 'dt' => '1'),
                 array( 'db' => 'U.EMail', 'dt' => '2' ),
-                array( 
-					'db' => 'U.Address', 
-					'dt' => '3',
-					'formatter' => function( $d, $row ) {
-						$Address=trim($d);
-						$Address.=substr($Address,strlen($Address)-1)!=","?", ":" ";
-						$Address.=$row['CityName'];
-						$Address.=substr($Address,strlen($Address)-1)!=","?", ":" ";
-						$Address.=$row['StateName'];
-						$Address.=substr($Address,strlen($Address)-1)!=","?", ":" ";
-						$Address.=$row['CountryName'];
-						$Address.=$Address!=""?" - ":"";
-						$Address.=$row['PostalCode'];
-
-						return $Address;
-					}
-				),
-                array( 'db' => 'U.Password', 'dt' => '4','formatter' => function( $d, $row ) { return '<span id="pwd-'.$row['UserID'].'">**********</span>';} ),
+                array( 'db' => 'U.Address', 'dt' => '3'),
+                array( 'db' => 'U.Password', 'dt' => '4'),
                 array( 'db' => 'UR.RoleName', 'dt' => '5' ),
-				array( 
-						'db' => 'U.ActiveStatus', 
-						'dt' => '6',
-						'formatter' => function( $d, $row ) {
-							if($d=="Active"){
-								return "<span class='badge badge-success m-1'>Active</span>";
-							}else{
-								return "<span class='badge badge-danger m-1'>Inactive</span>";
-							}
-						} 
-                    ),
-				array(
-						'db' => 'U.UserID', 
-						'dt' => '7',
-						'formatter' => function( $d, $row ) {
-							$html='';
-							if($this->general->isCrudAllow($this->CRUD,"ShowPwd")==true){
-								$html.='<button type="button" data-id="'.$d.'" class="btn  btn-outline-info  '.$this->general->UserInfo['Theme']['button-size'].' m-5 btnPassword" data-original-title="Show Password"><i class="fa fa-key" aria-hidden="true"></i></button>';
-							}
-							if($this->general->isCrudAllow($this->CRUD,"edit")==true){
-								$html.='<button type="button" data-id="'.$d.'" class="btn  btn-outline-success  '.$this->general->UserInfo['Theme']['button-size'].' m-5 btnEdit" data-original-title="Edit"><i class="fa fa-pencil"></i></button>';
-							}
-							if($this->general->isCrudAllow($this->CRUD,"delete")==true){
-								$html.='<button type="button" data-id="'.$d.'" class="btn  btn-outline-danger  '.$this->general->UserInfo['Theme']['button-size'].' m-5 btnDelete" data-original-title="Delete"><i class="fa fa-trash" aria-hidden="true"></i></button>';
-							}
-							return $html;
-						} 
-					),
+				array( 'db' => 'U.ActiveStatus', 'dt' => '6'),
+				array('db' => 'U.UserID', 'dt' => '7'),
 				array( 'db' => 'CI.CityName', 'dt' => '8' ),
 				array( 'db' => 'S.StateName', 'dt' => '9' ),
 				array( 'db' => 'C.CountryName', 'dt' => '10' ),
@@ -608,7 +560,7 @@ class userController extends Controller{
 			$data['COLUMNS1']=$columns1;
 			$data['GROUPBY']=null;
 			$data['WHERERESULT']=null;
-			$data['WHEREALL']=" U.DFlag=0 and LoginType <> 'Vendor' and LoginType <> 'Customer' ";
+			$data['WHEREALL']=" U.DFlag=0 and U.isShow = 1 and LoginType = 'Admin'";
 			return SSP::SSP( $data);
 		}else{
 			return response(array('status'=>false,'message'=>"Access Denied"), 403);
@@ -737,7 +689,7 @@ class userController extends Controller{
 			$data['COLUMNS1']=$columns1;
 			$data['GROUPBY']=null;
 			$data['WHERERESULT']=null;
-			$data['WHEREALL']=" U.DFlag=1    and U.isShow=1";
+			$data['WHEREALL']=" U.DFlag=1 and U.isShow = 1 and LoginType = 'Admin'";
 			return SSP::SSP( $data);
 		}else{
 			return response(array('status'=>false,'message'=>"Access Denied"), 403);
