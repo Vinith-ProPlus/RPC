@@ -7,10 +7,10 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <title>RPC Construction</title>
+    <title>{{$Company['CompanyName']}}</title>
 
     <meta name="keywords" content="HTML5 Template"/>
-    <meta name="description" content="RPC Construction">
+    <meta name="description" content="{{$Company['CompanyName']}}">
     <meta name="author" content="SW-THEMES">
 
     <!-- Favicon -->
@@ -108,10 +108,10 @@
                     <button class="mobile-menu-toggler text-dark mr-2" type="button">
                         <i class="fas fa-bars"></i>
                     </button>
-                    <a href="demo42.html" class="logo">
+                    <a href="#" class="logo">
                         <img src="{{url('/')}}/{{$Company['Logo']}}" width="50" height="50" alt="RPC">
                     </a>
-                    <span class="ml-3 font-weight-bold">RPC Construction</span>
+                    <span class="ml-3 font-weight-bold">{{$Company['CompanyName']}}</span>
                 </div><!-- End .header-left -->
 
                 <div class="header-right w-lg-max">
@@ -520,7 +520,7 @@
         <div class="container">
             <div class="footer-bottom d-sm-flex align-items-center bg-dark">
                 <div class="footer-left">
-                    <span class="footer-copyright">RPC Construction. © 2024. All Rights Reserved</span>
+                    <span class="footer-copyright">{{$Company['CompanyName']}}. © 2024. All Rights Reserved</span>
                 </div>
 
                 <div class="footer-right ml-auto mt-1 mt-sm-0">

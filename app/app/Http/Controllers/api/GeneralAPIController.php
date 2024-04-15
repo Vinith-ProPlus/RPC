@@ -153,7 +153,7 @@ class GeneralAPIController extends Controller{
 	public function tmpFileUpload(Request $req){
 		
 		//remove yesterday folder
-		/* $dir="uploads/tmp/".date("Ymd",strtotime("-1 days"))."/";
+		$dir="uploads/tmp/".date("Ymd",strtotime("-1 days"))."/";
 		if (file_exists( $dir)) {
 			$files = glob($dir."*"); // get all file names
 			foreach($files as $file){ // iterate files
@@ -162,7 +162,7 @@ class GeneralAPIController extends Controller{
 				}
 			}
 			rmdir($dir);
-		} */
+		}
 		$dir="uploads/tmp/".date("Ymd")."/";
 		if (!file_exists( $dir)) {mkdir( $dir, 0777, true);}
 		
@@ -174,7 +174,6 @@ class GeneralAPIController extends Controller{
 			$file = $req->file('image');
 			$ext = strtolower($file->getClientOriginalExtension());
 			$size = $file->getSize();
-			// return $size;
 
 			if (!in_array(strtolower($ext), $allowedImageExtensions)) {
 				return array('status' => false, 'message' => 'Image upload failed', 'errors' => 'Invalid image extension. Allowed extensions: ' . implode(', ', $allowedImageExtensions));

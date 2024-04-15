@@ -61,8 +61,6 @@ class HomeController extends Controller
                 ->groupBy('PC.PCName', 'PC.PCID', 'PC.PCImage')
                 ->select('PC.PCName', 'PC.PCID', 'PC.PCImage')
                 ->inRandomOrder()->take(10)->get();
-//            $PCatagories = DB::Table('tbl_product_category')->where('ActiveStatus', 'Active')->where('DFlag', 0)->select('PCName', 'PCID', 'PCImage')
-//                ->inRandomOrder()->take(10)->get();
             foreach ($PCatagories as $row) {
                 $row->PCImage = $row->PCImage ? url('/') . '/' . $row->PCImage : url('/') . '/' . 'assets/images/no-image-b.png';
                 $row->PSCData = DB::table('tbl_product_subcategory')->where('ActiveStatus', 'Active')->where('DFlag', 0)->where('PCID', $row->PCID)->select('PSCID', 'PSCName', 'PSCImage')->get();

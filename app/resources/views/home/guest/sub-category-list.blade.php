@@ -99,7 +99,7 @@
                     <button class="mobile-menu-toggler text-dark mr-2" type="button">
                         <i class="fas fa-bars"></i>
                     </button>
-                    <a href="demo42.html" class="logo">
+                    <a href="{{url('/')}}" class="logo">
                         <img src="{{url('/')}}/{{$Company['Logo']}}" width="50" height="50" alt="RPC">
                     </a>
                     <span class="ml-3 font-weight-bold">RPC Construction</span>

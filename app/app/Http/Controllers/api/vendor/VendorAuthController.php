@@ -524,6 +524,7 @@ class VendorAuthController extends Controller{
             $Data->PostalCodeID =$Data->PostalCode;
             $Data->PostalCode =DB::table($this->generalDB.'tbl_postalcodes')->where('PID',$Data->PostalCodeID)->value('PostalCode');
             $Data->PCategories =$Data->PCategories ? unserialize($Data->PCategories) : "";
+            $Data->SupplyDetails =DB::table('tbl_vendors_supply')->where('VendorID',$this->ReferID)->select('PCID','PSCID')->get();
         }
         return response()->json([ 'status' => true, 'data' => $Data ]);
 	}

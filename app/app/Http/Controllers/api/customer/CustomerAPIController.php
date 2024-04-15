@@ -50,7 +50,7 @@ class CustomerAPIController extends Controller{
         $result=DB::Table('users')->where('UserName',$req->email)->get();
         if(count($result)>0){
             if(($result[0]->DFlag==0)&&($result[0]->ActiveStatus=='Active')&&($result[0]->isLogin==1)){
-                if(Auth::attempt(['UserName'=>$req->email,'password'=>$req->password,'ActiveStatus' => 1,'DFlag' => 0,'isLogin' => 1])){
+                if(Auth::attempt(['UserName'=>$req->email,'password'=>$req->password,'LoginType'=>$req->LoginType,'ActiveStatus' => 1,'DFlag' => 0,'isLogin' => 1])){
                     
                     $token=auth()->user()->createToken('Token')->accessToken;
 					DB::Table('users')->where('UserID',Auth()->user()->UserID)->update(array("fcmToken"=>$req->fcmToken));
@@ -89,19 +89,15 @@ class CustomerAPIController extends Controller{
         return $return;
     }
     public function GoogleRegister(request $req){
-        $UserData=DB::Table('users')->where('UserName',$req->Email)->first();
+        $UserData=DB::Table('users')->where('UserName',$req->Email)->where('LoginType',$req->LoginType)->first();
         if($UserData){
-            $isVendor = DB::Table('users')->where('UserName',$req->Email)->where('LoginType',$req->LoginType)->exists();
-            if($isVendor){
-                $request = new Request([
-                    'email' => $req->Email,
-                    'password' => $req->Email,
-                    'fcmToken' => $req->fcmToken
-                ]);
-                return $this->Login($request);
-            }else{
-                return response()->json(['status' => false,'message' => "This email is registered as Vendor!"]);
-            }
+            $request = new Request([
+                'email' => $req->Email,
+                'password' => $req->Email,
+                'LoginType' => $req->LoginType,
+                'fcmToken' => $req->fcmToken
+            ]);
+            return $this->Login($request);
         }else{
             DB::beginTransaction();
             $UserID=DocNum::getDocNum(docTypes::Users->value,'',Helper::getCurrentFY());
@@ -148,6 +144,7 @@ class CustomerAPIController extends Controller{
                 $request = new Request([
                     'email' => $req->Email,
                     'password' => $req->Email,
+                    'LoginType' => $req->LoginType,
                     'fcmToken' => $req->fcmToken
                 ]);
                 return $this->Login($request);

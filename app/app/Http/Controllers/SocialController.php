@@ -39,7 +39,7 @@ class SocialController extends Controller{
                 "UserID"=>$UserID,
                 "Name"=>$getInfo->user->name,
                 "FirstName"=>$getInfo->user->given_name,
-                "LastName"=>$getInfo->user->family_name,
+                "LastName" => isset($getInfo->user->family_name) ? $getInfo->user->family_name : "",
                 "UserName"=>$getInfo->user->email,
                 "password"=>$pwd1,
                 "password1"=>$pwd2,

@@ -7,10 +7,10 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <title>RPC Construction</title>
+    <title>{{$Company['CompanyName']}}</title>
 
     <meta name="keywords" content="HTML5 Template" />
-    <meta name="description" content="RPC Construction">
+    <meta name="description" content="{{$Company['CompanyName']}}">
     <meta name="author" content="SW-THEMES">
 
     <!-- Favicon -->
@@ -93,22 +93,22 @@
                         <a href="{{ route('homepage') }}" class="logo">
 							<img src="{{url('/')}}/{{$Company['Logo']}}" width="50" height="50" alt="RPC">
                         </a>
-						<span class="ml-3 font-weight-bold">RPC Construction</span>
+						<span class="ml-3 font-weight-bold">{{$Company['CompanyName']}}</span>
                     </div><!-- End .header-left -->
 
                     <div class="header-right w-lg-max">
-{{--                        <div--}}
-{{--                            class="header-icon header-search header-search-inline header-search-category w-lg-max text-right mb-0">--}}
-{{--                            <a href="#" class="search-toggle" role="button"><i class="icon-search-3"></i></a>--}}
-{{--                            <form action="#" method="get">--}}
-{{--                                <div class="header-search-wrapper">--}}
-{{--                                    <input type="search" class="form-control" name="q" id="q" placeholder="Search..."--}}
-{{--                                        required>--}}
+                       {{-- <div
+                           class="header-icon header-search header-search-inline header-search-category w-lg-max text-right mb-0">
+                           <a href="#" class="search-toggle" role="button"><i class="icon-search-3"></i></a>
+                           <form action="#" method="get">
+                               <div class="header-search-wrapper">
+                                   <input type="search" class="form-control" name="q" id="q" placeholder="Search..."
+                                       required>
 
-{{--                                    <button class="btn icon-magnifier p-0" title="search" type="submit"></button>--}}
-{{--                                </div><!-- End .header-search-wrapper -->--}}
-{{--                            </form>--}}
-{{--                        </div><!-- End .header-search -->--}}
+                                   <button class="btn icon-magnifier p-0" title="search" type="submit"></button>
+                               </div><!-- End .header-search-wrapper -->
+                           </form>
+                       </div><!-- End .header-search --> --}}
 
                         <div class="header-icon header-search header-search-inline header-search-category w-lg-max text-right mb-0">
                             <a href="#" class="search-toggle" role="button"><i class="icon-search-3"></i></a>
@@ -341,7 +341,7 @@
                                         <a href="#" class="btn-icon redirectLogin product-type-simple"><i
                                                 class="icon-shopping-cart"></i></a>
                                     </div>
-                                    <a href="{{ route('products.quickView', $hotProduct->ProductID) }}" class="btn-quickview" title="Quick View">Quick View</a>
+                                    <a href="{{ route('guest.products.quickView', $hotProduct->ProductID) }}" class="btn-quickview" title="Quick View">Quick View</a>
                                 </figure>
                                 <div class="product-details">
                                     <div class="category-wrap">
@@ -434,7 +434,7 @@
                                         <a href="#" class="btn-icon redirectLogin product-type-simple"><i
                                                 class="icon-shopping-cart"></i></a>
                                     </div>
-                                    <a href="{{ route('products.quickView', $recentProduct->ProductID) }}" class="btn-quickview" title="Quick View">Quick View</a>
+                                    <a href="{{ route('guest.products.quickView', $recentProduct->ProductID) }}" class="btn-quickview" title="Quick View">Quick View</a>
                                 </figure>
                                 <div class="product-details">
                                     <div class="category-wrap">
@@ -587,7 +587,7 @@
             <div class="container">
                 <div class="footer-bottom d-sm-flex align-items-center bg-dark">
                     <div class="footer-left">
-                        <span class="footer-copyright">RPC Construction. © 2024. All Rights Reserved</span>
+                        <span class="footer-copyright">{{$Company['CompanyName']}}. © 2024. All Rights Reserved</span>
                     </div>
 
                     <div class="footer-right ml-auto mt-1 mt-sm-0">
@@ -617,116 +617,24 @@
 
     <div class="mobile-menu-overlay"></div><!-- End .mobil-menu-overlay -->
 
-{{--    <div class="mobile-menu-container">--}}
-{{--        <div class="mobile-menu-wrapper">--}}
-{{--            <span class="mobile-menu-close"><i class="fa fa-times"></i></span>--}}
-{{--            <nav class="mobile-nav">--}}
-{{--                <ul class="mobile-menu">--}}
-{{--                    <li><a href="demo42.html">Home</a></li>--}}
-{{--                    <li>--}}
-{{--                        <a href="demo42-shop.html" title="shop">Categories</a>--}}
-{{--                        <ul>--}}
-{{--                            <li><a href="category.html">Full Width Banner</a></li>--}}
-{{--                            <li><a href="category-banner-boxed-slider.html">Boxed Slider Banner</a></li>--}}
-{{--                            <li><a href="category-banner-boxed-image.html">Boxed Image Banner</a></li>--}}
-{{--                            <li><a href="https://www.portotheme.com/html/porto_ecommerce/category-sidebar-left.html">Left Sidebar</a></li>--}}
-{{--                            <li><a href="category-sidebar-right.html">Right Sidebar</a></li>--}}
-{{--                            <li><a href="category-off-canvas.html">Off Canvas Filter</a></li>--}}
-{{--                            <li><a href="category-horizontal-filter1.html">Horizontal Filter 1</a></li>--}}
-{{--                            <li><a href="category-horizontal-filter2.html">Horizontal Filter 2</a></li>--}}
-{{--                            <li><a href="#">List Types</a></li>--}}
-{{--                            <li><a href="category-infinite-scroll.html">Ajax Infinite Scroll<span--}}
-{{--                                        class="tip tip-new">New</span></a></li>--}}
-{{--                            <li><a href="demo42-shop.html" title="shop">3 Columns Products</a></li>--}}
-{{--                            <li><a href="category-4col.html">4 Columns Products</a></li>--}}
-{{--                            <li><a href="category-5col.html">5 Columns Products</a></li>--}}
-{{--                            <li><a href="category-6col.html">6 Columns Products</a></li>--}}
-{{--                            <li><a href="category-7col.html">7 Columns Products</a></li>--}}
-{{--                            <li><a href="category-8col.html">8 Columns Products</a></li>--}}
-{{--                        </ul>--}}
-{{--                    </li>--}}
-{{--                    <li>--}}
-{{--                        <a href="demo42-product.html">Products</a>--}}
-{{--                        <ul>--}}
-{{--                            <li>--}}
-{{--                                <a href="#" class="nolink">PRODUCT PAGES</a>--}}
-{{--                                <ul>--}}
-{{--                                    <li><a href="product.html">SIMPLE PRODUCT</a></li>--}}
-{{--                                    <li><a href="product-variable.html">VARIABLE PRODUCT</a></li>--}}
-{{--                                    <li><a href="product.html">SALE PRODUCT</a></li>--}}
-{{--                                    <li><a href="product.html">FEATURED & ON SALE</a></li>--}}
-{{--                                    <li><a href="product-sticky-info.html">WIDTH CUSTOM TAB</a></li>--}}
-{{--                                    <li><a href="product-sidebar-left.html">WITH LEFT SIDEBAR</a></li>--}}
-{{--                                    <li><a href="product-sidebar-right.html">WITH RIGHT SIDEBAR</a></li>--}}
-{{--                                    <li><a href="product-addcart-sticky.html">ADD CART STICKY</a></li>--}}
-{{--                                </ul>--}}
-{{--                            </li>--}}
-{{--                            <li>--}}
-{{--                                <a href="#" class="nolink">PRODUCT LAYOUTS</a>--}}
-{{--                                <ul>--}}
-{{--                                    <li><a href="product-extended-layout.html">EXTENDED LAYOUT</a></li>--}}
-{{--                                    <li><a href="product-grid-layout.html">GRID IMAGE</a></li>--}}
-{{--                                    <li><a href="product-full-width.html">FULL WIDTH LAYOUT</a></li>--}}
-{{--                                    <li><a href="product-sticky-info.html">STICKY INFO</a></li>--}}
-{{--                                    <li><a href="product-sticky-both.html">LEFT & RIGHT STICKY</a></li>--}}
-{{--                                    <li><a href="product-transparent-image.html">TRANSPARENT IMAGE</a></li>--}}
-{{--                                    <li><a href="product-center-vertical.html">CENTER VERTICAL</a></li>--}}
-{{--                                    <li><a href="#">BUILD YOUR OWN</a></li>--}}
-{{--                                </ul>--}}
-{{--                            </li>--}}
-{{--                        </ul>--}}
-{{--                    </li>--}}
-{{--                </ul>--}}
-
-{{--                <ul class="mobile-menu">--}}
-{{--                    <li><a href="login.html">My Account</a></li>--}}
-{{--                    <li><a href="contact.html">Contact Us</a></li>--}}
-{{--                    <li><a href="blog.html">Blog</a></li>--}}
-{{--                    <li><a href="wishlist.html">My Wishlist</a></li>--}}
-{{--                    <li><a href="cart.html">Cart</a></li>--}}
-{{--                    <li><a href="login.html" class="login-link">Log In</a></li>--}}
-{{--                </ul>--}}
-{{--            </nav><!-- End .mobile-nav -->--}}
-
-{{--            <form class="search-wrapper mb-2" action="#">--}}
-{{--                <input type="text" class="form-control mb-0" placeholder="Search..." required />--}}
-{{--                <button class="btn icon-search text-white bg-transparent p-0" title="submit" type="submit"></button>--}}
-{{--            </form>--}}
-
-{{--            <div class="social-icons">--}}
-{{--                <a href="#" class="social-icon social-facebook icon-facebook" target="_blank" title="facebook">--}}
-{{--                </a>--}}
-{{--                <a href="#" class="social-icon social-twitter icon-twitter" target="_blank" title="twitter">--}}
-{{--                </a>--}}
-{{--                <a href="#" class="social-icon social-instagram icon-instagram" target="_blank" title="instagram">--}}
-{{--                </a>--}}
-{{--            </div>--}}
-{{--        </div><!-- End .mobile-menu-wrapper -->--}}
-{{--    </div><!-- End .mobile-menu-container -->--}}
-
     <div class="sticky-navbar">
         <div class="sticky-info">
-            <a href="demo42.html">
+            <a href="{{url('/')}}">
                 <i class="icon-home"></i>Home
             </a>
         </div>
         <div class="sticky-info">
-            <a href="demo42-shop.html" class="">
+            <a href="{{url('/')}}" class="">
                 <i class="icon-bars"></i>Categories
             </a>
         </div>
         <div class="sticky-info">
-            <a href="wishlist.html" class="">
-                <i class="icon-wishlist-2"></i>Wishlist
-            </a>
-        </div>
-        <div class="sticky-info">
-            <a href="login.html" class="">
+            <a href="{{url('/')}}" class="">
                 <i class="icon-user-2"></i>Account
             </a>
         </div>
         <div class="sticky-info">
-            <a href="cart.html" class="">
+            <a href="{{url('/')}}" class="">
                 <i class="icon-shopping-cart position-relative">
                     <span class="cart-count badge-circle">3</span>
                 </i>Cart
@@ -740,7 +648,7 @@
 				<div class="row justify-content-center mt-3">
 					<div class="col-6">
 						<img src="{{url('/')}}/{{$Company['Logo']}}" alt="Logo" class="logo-newsletter" width="50" height="50">
-						<span class="ml-3 font-weight-bold text-dark">RPC Construction</span>
+						<span class="ml-3 font-weight-bold text-dark">{{$Company['CompanyName']}}</span>
 					</div>
 				</div>
 				<div class="row justify-content-center">
@@ -770,7 +678,7 @@
                 <div class="row justify-content-center mt-3">
                     <div class="col-6">
                         <img src="{{url('/')}}/{{$Company['Logo']}}" alt="Logo" class="logo-newsletter" width="50" height="50">
-                        <span class="ml-3 font-weight-bold text-dark">RPC Construction</span>
+                        <span class="ml-3 font-weight-bold text-dark">{{$Company['CompanyName']}}</span>
                     </div>
                 </div>
                 <div class="row justify-content-center my-3">
@@ -825,7 +733,6 @@
 
              function showNextSlide() {
                  bannerCurrentIndex = (bannerCurrentIndex + 1) % totalBannerSlides;
-                 console.log(bannerCurrentIndex);
                  $('#homeBannerList li').eq(bannerCurrentIndex).click();
              }
 

@@ -338,7 +338,7 @@ class VendorsController extends Controller{
 			$uploadingImgs=array();
 			$isDeleteImage=false;
 			try {
-				$VendorID=DocNum::getDocNum(docTypes::Vendor->value);
+				$VendorID=DocNum::getDocNum(docTypes::Vendor->value,"",Helper::getCurrentFY());
 				$dir="uploads/master/vendor/manage-vendors/".$VendorID."/";
 				$vdir="uploads/master/vendor/manage-vendors/".$VendorID."/vehicles/";
 				$dDir="uploads/master/vendor/manage-vendors/".$VendorID."/documents/";
@@ -1273,7 +1273,7 @@ class VendorsController extends Controller{
 		}
 	
 		if ($req->VendorID) {
-			$query->where('VendorID', '!=', $req->VendorID);
+			$query->whereNot('VendorID', $req->VendorID);
 		}
 	
 		$status = $query->first();
