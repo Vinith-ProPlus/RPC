@@ -350,7 +350,7 @@
                                     <span class="contact-info-label">Address:</span>{{$Company['Address']}}<br>{{$Company['AddressData']->CityName}}, {{$Company['AddressData']->DistrictName}}, {{$Company['AddressData']->StateName}}, {{$Company['AddressData']->CountryName}} - {{$Company['AddressData']->PostalCode}}.
                                 </li>
                                 <li>
-                                    <span class="contact-info-label">Phone:</span><a href="#">{{$Company['Phone-Number']}}@if($Company['Mobile-Number']), {{$Company['Mobile-Number']}} @endif</a>
+                                    <span class="contact-info-label">Phone:</span><a href="#">+91 {{$Company['Phone-Number']}}@if($Company['Mobile-Number']), +91 {{$Company['Mobile-Number']}} @endif</a>
                                 </li>
                                   <li>
                                     <span class="contact-info-label">Email:</span>
@@ -496,6 +496,7 @@
         });
     });
 </script>
+
 <script>
     $(document).ready(function() {
         var sub_category_id = "";

@@ -37,7 +37,7 @@ Route::controller(CustomerAuthController::class)->group(function () {
     Route::post('/get/notifications-count','getNotificationsCount');
     Route::post('/notification-read','NotificationRead');
 
-
+    Route::post('/get-user','getUserDatawithToken');
 
 });
 

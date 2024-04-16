@@ -874,4 +874,11 @@ class CustomerAuthController extends Controller{
             return response()->json(['status' => false,'message' => "Notification Read Failed!"]);
         }
 	}
+    public function getUserDatawithToken(Request $req){
+        $UserData = DB::table('users')->where('UserID', $this->UserID)->first();
+        return response()->json([
+            'status' => true,
+            'data' => $UserData,
+        ]);
+    }
 }

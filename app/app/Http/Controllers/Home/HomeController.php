@@ -14,28 +14,34 @@ use logs;
 
 class HomeController extends Controller
 {
-    public function GuestView(Request $req)
-    {
-        $generalDB = Helper::getGeneralDB();
-        $FormData['Company'] = DB::table('tbl_company_settings')->select('KeyName', 'KeyValue')->get()->pluck('KeyValue', 'KeyName')->toArray();
-        $FormData['Company']['AddressData'] = DB::table($generalDB.'tbl_cities as CI')
-        ->leftJoin($generalDB.'tbl_postalcodes as PC', 'PC.PID', 'CI.PostalID')
-        ->leftJoin($generalDB.'tbl_taluks as T', 'T.TalukID', 'CI.TalukID')
-        ->leftJoin($generalDB.'tbl_districts as D', 'D.DistrictID', 'CI.DistrictID')
-        ->leftJoin($generalDB.'tbl_states as S', 'S.StateID', 'CI.StateID')
-        ->leftJoin($generalDB.'tbl_countries as C','C.CountryID','CI.CountryID')->where('CI.CityID',$FormData['Company']['CityID'])
+    
+	private $generalDB;
+    private $tmpDB;
+    private $Company;
+    private $PostalCode;
+    private $PostalCodeID;
+    public function __construct(){
+		$this->generalDB=Helper::getGeneralDB();
+        $this->Company = DB::table('tbl_company_settings')->select('KeyName', 'KeyValue')->get()->pluck('KeyValue', 'KeyName')->toArray();
+        $this->Company['AddressData'] = DB::table($this->generalDB.'tbl_cities as CI')
+        ->leftJoin($this->generalDB.'tbl_postalcodes as PC', 'PC.PID', 'CI.PostalID')
+        ->leftJoin($this->generalDB.'tbl_taluks as T', 'T.TalukID', 'CI.TalukID')
+        ->leftJoin($this->generalDB.'tbl_districts as D', 'D.DistrictID', 'CI.DistrictID')
+        ->leftJoin($this->generalDB.'tbl_states as S', 'S.StateID', 'CI.StateID')
+        ->leftJoin($this->generalDB.'tbl_countries as C','C.CountryID','CI.CountryID')->where('CI.CityID',$this->Company['CityID'])
         ->select('C.CountryName','S.StateName','D.DistrictName','T.TalukName','CI.CityName', 'PC.PostalCode')
         ->first();
+        $this->PostalCode = Session::get('postal_code');
+        $this->PostalCodeID = Session::get('postal_code_id');
+    }
+    public function GuestView(Request $req)
+    {
+        $FormData['Company']=$this->Company;
         $FormData['Banners'] = DB::Table('tbl_banner_images')->where('BannerType', 'Web')->where('DFlag', 0)
             ->select('BannerTitle', 'BannerType', DB::raw('CONCAT("' . url('/') . '/", BannerImage) AS BannerImage'))->get();
         $FormData['steppers'] = DB::Table('tbl_stepper_images')->where('StepperType', 'Web')->where('DFlag', 0)->orderBy('TranNo')
             ->select('StepperTitle', DB::raw('CONCAT("' . url('/') . '/", StepperImage) AS StepperImage'))->get();
-        $PCatagories = DB::Table('tbl_product_category')->where('ActiveStatus', 'Active')->where('DFlag', 0)->select('PCName', 'PCID', 'PCImage')
-            ->inRandomOrder()->take(10)->get();
-        foreach ($PCatagories as $row) {
-            $row->PCImage = $row->PCImage ? url('/') . '/' . $row->PCImage : url('/') . '/' . 'assets/images/no-image-b.png';
-            $row->PSCData = DB::table('tbl_product_subcategory')->where('ActiveStatus', 'Active')->where('DFlag', 0)->where('PCID', $row->PCID)->select('PSCID', 'PSCName', 'PSCImage')->get();
-        }
+        
         if (auth()->check()) {
             $CustomerID = auth()->user()->ReferID;
             if (empty($CustomerID)) {
@@ -91,27 +97,66 @@ class HomeController extends Controller
                 ->where('C.CustomerID', $CustomerID)->where('P.ActiveStatus', 'Active')->where('P.DFlag', 0)->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)->where('PSC.ActiveStatus', 'Active')->where('PSC.DFlag', 0)
                 ->select('P.ProductName', 'P.ProductID', 'C.Qty', 'PC.PCName', 'PC.PCID', 'PSC.PSCName', 'U.UName', 'U.UCode', 'U.UID', 'PSC.PSCID', DB::raw('CONCAT(IF(ProductImage != "", "https://rpc.prodemo.in/", "' . url('/') . '/"), COALESCE(NULLIF(ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'))->get();
             $FormData['ShippingAddress'] = DB::table('tbl_customer_address as CA')->where('CustomerID', $CustomerID)->where('CA.DFlag',0)
-                ->join($generalDB . 'tbl_countries as C', 'C.CountryID', 'CA.CountryID')
-                ->join($generalDB . 'tbl_states as S', 'S.StateID', 'CA.StateID')
-                ->join($generalDB . 'tbl_districts as D', 'D.DistrictID', 'CA.DistrictID')
-                ->join($generalDB . 'tbl_taluks as T', 'T.TalukID', 'CA.TalukID')
-                ->join($generalDB . 'tbl_cities as CI', 'CI.CityID', 'CA.CityID')
-                ->join($generalDB . 'tbl_postalcodes as PC', 'PC.PID', 'CA.PostalCodeID')
+                ->join($this->generalDB . 'tbl_countries as C', 'C.CountryID', 'CA.CountryID')
+                ->join($this->generalDB . 'tbl_states as S', 'S.StateID', 'CA.StateID')
+                ->join($this->generalDB . 'tbl_districts as D', 'D.DistrictID', 'CA.DistrictID')
+                ->join($this->generalDB . 'tbl_taluks as T', 'T.TalukID', 'CA.TalukID')
+                ->join($this->generalDB . 'tbl_cities as CI', 'CI.CityID', 'CA.CityID')
+                ->join($this->generalDB . 'tbl_postalcodes as PC', 'PC.PID', 'CA.PostalCodeID')
                 ->select('CA.AID', 'CA.Address', 'CA.isDefault', 'CA.CountryID', 'C.CountryName', 'CA.StateID', 'S.StateName', 'CA.DistrictID', 'D.DistrictName', 'CA.TalukID', 'T.TalukName', 'CA.CityID', 'CI.CityName', 'CA.PostalCodeID', 'PC.PostalCode')
                 ->get();
 
             return view('home.home', $FormData);
         } else {
-            $RecentProducts = DB::table('tbl_products as P')
-                ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')
-                ->select('P.ProductID', 'P.ProductName', 'P.ProductImage', 'PSC.PSCName', 'PSC.PSCID', 'PSC.PCID',
-                    DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(P.ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'))
-                ->inRandomOrder()->take(10)
-                ->get();
+            $FormData['PostalCodeID'] = $this->PostalCodeID;
+            $FormData['PostalCode'] = $this->PostalCode;
+            if($FormData['PostalCodeID']){
+                $AllVendors = $this->getAvailableVendors($FormData['PostalCodeID']);
 
-            $FormData['PCategories'] = $PCatagories;
-            $FormData['HotProducts'] = $RecentProducts->shuffle();
-            $FormData['RecentProducts'] = $RecentProducts->shuffle();
+                $PCatagories = DB::table('tbl_vendors_product_mapping as VPM')
+                ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'VPM.PCID')
+                ->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)
+                ->where('VPM.Status', 1)->WhereIn('VPM.VendorID', $AllVendors)
+                ->groupBy('PC.PCID', 'PC.PCName', 'PC.PCImage')
+                ->select('PC.PCID', 'PC.PCName', DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PCImage, ""), "assets/images/no-image-b.png")) AS PCImage'))
+                ->inRandomOrder()->take(10)->get();
+                foreach ($PCatagories as $row) {
+                    $row->PSCData = DB::table('tbl_product_subcategory')->where('ActiveStatus', 'Active')->where('DFlag', 0)->where('PCID', $row->PCID)->select('PSCID', 'PSCName', 'PSCImage')->get();
+                }
+                $RecentProducts = DB::table('tbl_vendors_product_mapping as VPM')
+                    ->leftJoin('tbl_products as P','P.ProductID','VPM.ProductID')
+                    ->leftJoin('tbl_product_subcategory as PSC','PSC.PSCID','P.SCID')
+                    ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'PSC.PCID')
+                    ->leftJoin('tbl_uom as U', 'U.UID', 'P.UID')
+                    ->where('VPM.Status', 1)->WhereIn('VPM.VendorID', $AllVendors)
+                    ->where('P.ActiveStatus', 'Active')->where('P.DFlag', 0)
+                    ->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)
+                    ->where('PSC.ActiveStatus', 'Active')->where('PSC.DFlag', 0)
+                    ->groupBy('PSC.PSCID', 'PSCName', 'PC.PCID', 'PCName', 'P.ProductID', 'ProductName', 'ProductImage','UName','UCode','U.UID')
+                    ->select('PSC.PSCID', 'PSCName','PC.PCID', 'PCName', 'P.ProductID', 'ProductName','UName','UCode','U.UID', DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'))
+                    ->inRandomOrder()->take(10)
+                    ->get();
+                $FormData['PCategories'] = $PCatagories;
+                $FormData['HotProducts'] = $RecentProducts->shuffle();
+                $FormData['RecentProducts'] = $RecentProducts->shuffle();
+            }else{
+                $PCatagories = DB::Table('tbl_product_category')->where('ActiveStatus', 'Active')->where('DFlag', 0)->select('PCName', 'PCID', 'PCImage')
+                    ->inRandomOrder()->take(10)->get();
+                foreach ($PCatagories as $row) {
+                    $row->PCImage = $row->PCImage ? url('/') . '/' . $row->PCImage : url('/') . '/' . 'assets/images/no-image-b.png';
+                    $row->PSCData = DB::table('tbl_product_subcategory')->where('ActiveStatus', 'Active')->where('DFlag', 0)->where('PCID', $row->PCID)->select('PSCID', 'PSCName', 'PSCImage')->get();
+                }
+                $RecentProducts = DB::table('tbl_products as P')
+                    ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')
+                    ->select('P.ProductID', 'P.ProductName', 'P.ProductImage', 'PSC.PSCName', 'PSC.PSCID', 'PSC.PCID',
+                        DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(P.ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'))
+                    ->inRandomOrder()->take(10)
+                    ->get();
+    
+                $FormData['PCategories'] = $PCatagories;
+                $FormData['HotProducts'] = $RecentProducts->shuffle();
+                $FormData['RecentProducts'] = $RecentProducts->shuffle();
+            }
             return view('home.guest-home', $FormData);
         }
     }
@@ -126,7 +171,7 @@ class HomeController extends Controller
         $FormData['isRegister'] = true;
         $FormData['isEdit'] = false;
         $FormData['Cart'] = [];
-        $FormData['Company'] = DB::table('tbl_company_settings')->select('KeyName', 'KeyValue')->get()->pluck('KeyValue', 'KeyName')->toArray();
+        $FormData['Company']=$this->Company;
         $PCatagories = DB::Table('tbl_product_category')->where('ActiveStatus', 'Active')->where('DFlag', 0)->select('PCName', 'PCID', 'PCImage')
             ->inRandomOrder()->take(10)->get();
         foreach ($PCatagories as $row) {
@@ -143,14 +188,13 @@ class HomeController extends Controller
             $FormData['Cart'] = DB::table('tbl_customer_cart as C')->join('tbl_products as P', 'P.ProductID', 'C.ProductID')->join('tbl_product_category as PC', 'PC.PCID', 'P.CID')->join('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')->join('tbl_uom as U', 'U.UID', 'P.UID')
                 ->where('C.CustomerID', $CustomerID)->where('P.ActiveStatus', 'Active')->where('P.DFlag', 0)->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)->where('PSC.ActiveStatus', 'Active')->where('PSC.DFlag', 0)
                 ->select('P.ProductName', 'P.ProductID', 'C.Qty', 'PC.PCName', 'PC.PCID', 'PSC.PSCName', 'U.UName', 'U.UCode', 'U.UID', 'PSC.PSCID', DB::raw('CONCAT(IF(ProductImage != "", "https://rpc.prodemo.in/", "' . url('/') . '/"), COALESCE(NULLIF(ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'))->get();
-            $generalDB = Helper::getGeneralDB();
             $FormData['ShippingAddress'] = DB::table('tbl_customer_address as CA')->where('CustomerID', $CustomerID)->where('CA.DFlag',0)
-                ->join($generalDB . 'tbl_countries as C', 'C.CountryID', 'CA.CountryID')
-                ->join($generalDB . 'tbl_states as S', 'S.StateID', 'CA.StateID')
-                ->join($generalDB . 'tbl_districts as D', 'D.DistrictID', 'CA.DistrictID')
-                ->join($generalDB . 'tbl_taluks as T', 'T.TalukID', 'CA.TalukID')
-                ->join($generalDB . 'tbl_cities as CI', 'CI.CityID', 'CA.CityID')
-                ->join($generalDB . 'tbl_postalcodes as PC', 'PC.PID', 'CA.PostalCodeID')
+                ->join($this->generalDB . 'tbl_countries as C', 'C.CountryID', 'CA.CountryID')
+                ->join($this->generalDB . 'tbl_states as S', 'S.StateID', 'CA.StateID')
+                ->join($this->generalDB . 'tbl_districts as D', 'D.DistrictID', 'CA.DistrictID')
+                ->join($this->generalDB . 'tbl_taluks as T', 'T.TalukID', 'CA.TalukID')
+                ->join($this->generalDB . 'tbl_cities as CI', 'CI.CityID', 'CA.CityID')
+                ->join($this->generalDB . 'tbl_postalcodes as PC', 'PC.PID', 'CA.PostalCodeID')
                 ->select('CA.AID', 'CA.Address', 'CA.isDefault', 'CA.CountryID', 'C.CountryName', 'CA.StateID', 'S.StateName', 'CA.DistrictID', 'D.DistrictName', 'CA.TalukID', 'T.TalukName', 'CA.CityID', 'CI.CityName', 'CA.PostalCodeID', 'PC.PostalCode')
                 ->get();
         }
@@ -164,12 +208,27 @@ class HomeController extends Controller
 
     public function products(Request $req)
     {
-        $PCatagories = DB::Table('tbl_product_category')->where('ActiveStatus', 'Active')->where('DFlag', 0)->select('PCName', 'PCID', 'PCImage')
+        $FormData['PostalCodeID'] = $this->PostalCodeID;
+        $FormData['PostalCode'] = $this->PostalCode;
+        if($FormData['PostalCodeID']){
+            $AllVendors = $this->getAvailableVendors($FormData['PostalCodeID']);
+
+            $PCatagories = DB::table('tbl_vendors_product_mapping as VPM')
+            ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'VPM.PCID')
+            ->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)
+            ->where('VPM.Status', 1)->WhereIn('VPM.VendorID', $AllVendors)
+            ->groupBy('PC.PCID', 'PC.PCName', 'PC.PCImage')
+            ->select('PC.PCID', 'PC.PCName', DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PCImage, ""), "assets/images/no-image-b.png")) AS PCImage'))
             ->inRandomOrder()->take(10)->get();
+        }else{
+            $PCatagories = DB::Table('tbl_product_category')->where('ActiveStatus', 'Active')->where('DFlag', 0)->select('PCName', 'PCID', 'PCImage')
+                ->inRandomOrder()->take(10)->get();
+        }
+        
         $FormData['PCategories'] = $PCatagories;
         $FormData['isRegister'] = false;
         $FormData['Cart'] = [];
-        $FormData['Company'] = DB::table('tbl_company_settings')->select('KeyName', 'KeyValue')->get()->pluck('KeyValue', 'KeyName')->toArray();
+        $FormData['Company']=$this->Company;
         return view('home.guest-products', $FormData);
     }
 
@@ -219,10 +278,16 @@ class HomeController extends Controller
 
     public function getCategory(Request $req)
     {
-        $AllVendors = DB::table('tbl_vendors as V')
-            ->leftJoin('tbl_vendors_service_locations as VSL', 'V.VendorID', 'VSL.VendorID')
-            ->where('V.ActiveStatus', "Active")->where('V.DFlag', 0)
-            ->groupBy('VSL.VendorID')->pluck('VSL.VendorID')->toArray();
+        $FormData['PostalCodeID'] = $this->PostalCodeID;
+        $FormData['PostalCode'] = $this->PostalCode;
+        if($FormData['PostalCodeID']){
+            $AllVendors = $this->getAvailableVendors($FormData['PostalCodeID']);
+        }else{
+            $AllVendors = DB::table('tbl_vendors as V')
+                ->leftJoin('tbl_vendors_service_locations as VSL', 'V.VendorID', 'VSL.VendorID')
+                ->where('V.ActiveStatus', "Active")->where('V.DFlag', 0)
+                ->groupBy('VSL.VendorID')->pluck('VSL.VendorID')->toArray();
+        }
         $PCatagories = DB::table('tbl_vendors_product_mapping as VPM')
             ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'VPM.PCID')
             ->where('VPM.Status', 1)->WhereIn('VPM.VendorID', $AllVendors)
@@ -249,13 +314,16 @@ class HomeController extends Controller
     {
         $productCount = ($request->productCount != 'undefined') ? $request->productCount : 12;
         $pageNo = ($request->pageNo != 'undefined') ? $request->pageNo : 1;
-        $AllVendors = DB::table('tbl_vendors as V')
-            ->leftJoin('tbl_vendors_service_locations as VSL', 'V.VendorID', 'VSL.VendorID')
-            ->where('V.ActiveStatus', "Active")
-            ->where('V.DFlag', 0)
-            ->groupBy('VSL.VendorID')
-            ->pluck('VSL.VendorID')
-            ->toArray();
+        $FormData['PostalCodeID'] = $this->PostalCodeID;
+        $FormData['PostalCode'] = $this->PostalCode;
+        if($FormData['PostalCodeID']){
+            $AllVendors = $this->getAvailableVendors($FormData['PostalCodeID']);
+        }else{
+            $AllVendors = DB::table('tbl_vendors as V')
+                ->leftJoin('tbl_vendors_service_locations as VSL', 'V.VendorID', 'VSL.VendorID')
+                ->where('V.ActiveStatus', "Active")->where('V.DFlag', 0)
+                ->groupBy('VSL.VendorID')->pluck('VSL.VendorID')->toArray();
+        }
 
         $totalProducts = DB::table('tbl_vendors_product_mapping as VPM')
             ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'VPM.PCID')
@@ -305,16 +373,28 @@ class HomeController extends Controller
 
     public function categoryList()
     {
-        $PCatagories = DB::Table('tbl_product_category')->where('ActiveStatus', 'Active')->where('DFlag', 0)
-            ->select('PCName', 'PCID',
-                DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PCImage, ""), "assets/images/no-image-b.png")) AS PCImage'))
-            ->inRandomOrder()->get();
-//        $PCatagories = DB::Table('tbl_product_category')->where('ActiveStatus','Active')->where('DFlag',0)->select('PCName','PCID', DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PCImage, ""), "assets/images/no-image-b.png")) AS PCImage'))
-//            ->inRandomOrder()->take(10)->get();
+
+        $FormData['PostalCodeID'] = $this->PostalCodeID;
+        $FormData['PostalCode'] = $this->PostalCode;
+        if($FormData['PostalCodeID']){
+            $AllVendors = $this->getAvailableVendors($FormData['PostalCodeID']);
+
+            $PCatagories = DB::table('tbl_vendors_product_mapping as VPM')
+            ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'VPM.PCID')
+            ->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)
+            ->where('VPM.Status', 1)->WhereIn('VPM.VendorID', $AllVendors)
+            ->groupBy('PC.PCID', 'PC.PCName', 'PC.PCImage')
+            ->select('PC.PCID', 'PC.PCName', DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PCImage, ""), "assets/images/no-image-b.png")) AS PCImage'))
+            ->inRandomOrder()->take(10)->get();
+        }else{
+            $PCatagories = DB::Table('tbl_product_category')->where('ActiveStatus', 'Active')->where('DFlag', 0)->select('PCName', 'PCID', 'PCImage')
+                ->inRandomOrder()->take(10)->get();
+        }
+
         $FormData['PCategories'] = $PCatagories;
         $FormData['isRegister'] = false;
         $FormData['Cart'] = [];
-        $FormData['Company'] = DB::table('tbl_company_settings')->select('KeyName', 'KeyValue')->get()->pluck('KeyValue', 'KeyName')->toArray();
+        $FormData['Company']=$this->Company;
 
         if (auth()->check()) {
             $CustomerID = auth()->user()->ReferID;
@@ -325,14 +405,13 @@ class HomeController extends Controller
             $FormData['Cart'] = DB::table('tbl_customer_cart as C')->join('tbl_products as P', 'P.ProductID', 'C.ProductID')->join('tbl_product_category as PC', 'PC.PCID', 'P.CID')->join('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')->join('tbl_uom as U', 'U.UID', 'P.UID')
                 ->where('C.CustomerID', $CustomerID)->where('P.ActiveStatus', 'Active')->where('P.DFlag', 0)->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)->where('PSC.ActiveStatus', 'Active')->where('PSC.DFlag', 0)
                 ->select('P.ProductName', 'P.ProductID', 'C.Qty', 'PC.PCName', 'PC.PCID', 'PSC.PSCName', 'U.UName', 'U.UCode', 'U.UID', 'PSC.PSCID', DB::raw('CONCAT(IF(ProductImage != "", "https://rpc.prodemo.in/", "' . url('/') . '/"), COALESCE(NULLIF(ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'))->get();
-            $generalDB = Helper::getGeneralDB();
             $FormData['ShippingAddress'] = DB::table('tbl_customer_address as CA')->where('CustomerID', $CustomerID)->where('CA.DFlag',0)
-                ->join($generalDB . 'tbl_countries as C', 'C.CountryID', 'CA.CountryID')
-                ->join($generalDB . 'tbl_states as S', 'S.StateID', 'CA.StateID')
-                ->join($generalDB . 'tbl_districts as D', 'D.DistrictID', 'CA.DistrictID')
-                ->join($generalDB . 'tbl_taluks as T', 'T.TalukID', 'CA.TalukID')
-                ->join($generalDB . 'tbl_cities as CI', 'CI.CityID', 'CA.CityID')
-                ->join($generalDB . 'tbl_postalcodes as PC', 'PC.PID', 'CA.PostalCodeID')
+                ->join($this->generalDB . 'tbl_countries as C', 'C.CountryID', 'CA.CountryID')
+                ->join($this->generalDB . 'tbl_states as S', 'S.StateID', 'CA.StateID')
+                ->join($this->generalDB . 'tbl_districts as D', 'D.DistrictID', 'CA.DistrictID')
+                ->join($this->generalDB . 'tbl_taluks as T', 'T.TalukID', 'CA.TalukID')
+                ->join($this->generalDB . 'tbl_cities as CI', 'CI.CityID', 'CA.CityID')
+                ->join($this->generalDB . 'tbl_postalcodes as PC', 'PC.PID', 'CA.PostalCodeID')
                 ->select('CA.AID', 'CA.Address', 'CA.isDefault', 'CA.CountryID', 'C.CountryName', 'CA.StateID', 'S.StateName', 'CA.DistrictID', 'D.DistrictName', 'CA.TalukID', 'T.TalukName', 'CA.CityID', 'CI.CityName', 'CA.PostalCodeID', 'PC.PostalCode')
                 ->get();
         }
@@ -372,7 +451,7 @@ class HomeController extends Controller
         $FormData['CID'] = $request->CID ?? '';
         $FormData['isRegister'] = false;
         $FormData['Cart'] = [];
-        $FormData['Company'] = DB::table('tbl_company_settings')->select('KeyName', 'KeyValue')->get()->pluck('KeyValue', 'KeyName')->toArray();
+        $FormData['Company']=$this->Company;
         if (auth()->check()) {
             $CustomerID = auth()->user()->ReferID;
             if (empty($CustomerID)) {
@@ -382,14 +461,13 @@ class HomeController extends Controller
             $FormData['Cart'] = DB::table('tbl_customer_cart as C')->join('tbl_products as P', 'P.ProductID', 'C.ProductID')->join('tbl_product_category as PC', 'PC.PCID', 'P.CID')->join('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')->join('tbl_uom as U', 'U.UID', 'P.UID')
                 ->where('C.CustomerID', $CustomerID)->where('P.ActiveStatus', 'Active')->where('P.DFlag', 0)->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)->where('PSC.ActiveStatus', 'Active')->where('PSC.DFlag', 0)
                 ->select('P.ProductName', 'P.ProductID', 'C.Qty', 'PC.PCName', 'PC.PCID', 'PSC.PSCName', 'U.UName', 'U.UCode', 'U.UID', 'PSC.PSCID', DB::raw('CONCAT(IF(ProductImage != "", "https://rpc.prodemo.in/", "' . url('/') . '/"), COALESCE(NULLIF(ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'))->get();
-            $generalDB = Helper::getGeneralDB();
             $FormData['ShippingAddress'] = DB::table('tbl_customer_address as CA')->where('CustomerID', $CustomerID)->where('CA.DFlag',0)
-                ->join($generalDB . 'tbl_countries as C', 'C.CountryID', 'CA.CountryID')
-                ->join($generalDB . 'tbl_states as S', 'S.StateID', 'CA.StateID')
-                ->join($generalDB . 'tbl_districts as D', 'D.DistrictID', 'CA.DistrictID')
-                ->join($generalDB . 'tbl_taluks as T', 'T.TalukID', 'CA.TalukID')
-                ->join($generalDB . 'tbl_cities as CI', 'CI.CityID', 'CA.CityID')
-                ->join($generalDB . 'tbl_postalcodes as PC', 'PC.PID', 'CA.PostalCodeID')
+                ->join($this->generalDB . 'tbl_countries as C', 'C.CountryID', 'CA.CountryID')
+                ->join($this->generalDB . 'tbl_states as S', 'S.StateID', 'CA.StateID')
+                ->join($this->generalDB . 'tbl_districts as D', 'D.DistrictID', 'CA.DistrictID')
+                ->join($this->generalDB . 'tbl_taluks as T', 'T.TalukID', 'CA.TalukID')
+                ->join($this->generalDB . 'tbl_cities as CI', 'CI.CityID', 'CA.CityID')
+                ->join($this->generalDB . 'tbl_postalcodes as PC', 'PC.PID', 'CA.PostalCodeID')
                 ->select('CA.AID', 'CA.Address', 'CA.isDefault', 'CA.CountryID', 'C.CountryName', 'CA.StateID', 'S.StateName', 'CA.DistrictID', 'D.DistrictName', 'CA.TalukID', 'T.TalukName', 'CA.CityID', 'CI.CityName', 'CA.PostalCodeID', 'PC.PostalCode')
                 ->get();
         }
@@ -436,7 +514,8 @@ class HomeController extends Controller
         $FormData['SCID'] = $request->SCID ?? '';
         $FormData['isRegister'] = false;
         $FormData['Cart'] = [];
-        $FormData['Company'] = DB::table('tbl_company_settings')->select('KeyName', 'KeyValue')->get()->pluck('KeyValue', 'KeyName')->toArray();
+        $FormData['Company']=$this->Company;
+
         if (auth()->check()) {
             $CustomerID = auth()->user()->ReferID;
             if (empty($CustomerID)) {
@@ -446,14 +525,13 @@ class HomeController extends Controller
             $FormData['Cart'] = DB::table('tbl_customer_cart as C')->join('tbl_products as P', 'P.ProductID', 'C.ProductID')->join('tbl_product_category as PC', 'PC.PCID', 'P.CID')->join('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')->join('tbl_uom as U', 'U.UID', 'P.UID')
                 ->where('C.CustomerID', $CustomerID)->where('P.ActiveStatus', 'Active')->where('P.DFlag', 0)->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)->where('PSC.ActiveStatus', 'Active')->where('PSC.DFlag', 0)
                 ->select('P.ProductName', 'P.ProductID', 'C.Qty', 'PC.PCName', 'PC.PCID', 'PSC.PSCName', 'U.UName', 'U.UCode', 'U.UID', 'PSC.PSCID', DB::raw('CONCAT(IF(ProductImage != "", "https://rpc.prodemo.in/", "' . url('/') . '/"), COALESCE(NULLIF(ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'))->get();
-            $generalDB = Helper::getGeneralDB();
             $FormData['ShippingAddress'] = DB::table('tbl_customer_address as CA')->where('CustomerID', $CustomerID)->where('CA.DFlag',0)
-                ->join($generalDB . 'tbl_countries as C', 'C.CountryID', 'CA.CountryID')
-                ->join($generalDB . 'tbl_states as S', 'S.StateID', 'CA.StateID')
-                ->join($generalDB . 'tbl_districts as D', 'D.DistrictID', 'CA.DistrictID')
-                ->join($generalDB . 'tbl_taluks as T', 'T.TalukID', 'CA.TalukID')
-                ->join($generalDB . 'tbl_cities as CI', 'CI.CityID', 'CA.CityID')
-                ->join($generalDB . 'tbl_postalcodes as PC', 'PC.PID', 'CA.PostalCodeID')
+                ->join($this->generalDB . 'tbl_countries as C', 'C.CountryID', 'CA.CountryID')
+                ->join($this->generalDB . 'tbl_states as S', 'S.StateID', 'CA.StateID')
+                ->join($this->generalDB . 'tbl_districts as D', 'D.DistrictID', 'CA.DistrictID')
+                ->join($this->generalDB . 'tbl_taluks as T', 'T.TalukID', 'CA.TalukID')
+                ->join($this->generalDB . 'tbl_cities as CI', 'CI.CityID', 'CA.CityID')
+                ->join($this->generalDB . 'tbl_postalcodes as PC', 'PC.PID', 'CA.PostalCodeID')
                 ->select('CA.AID', 'CA.Address', 'CA.isDefault', 'CA.CountryID', 'C.CountryName', 'CA.StateID', 'S.StateName', 'CA.DistrictID', 'D.DistrictName', 'CA.TalukID', 'T.TalukName', 'CA.CityID', 'CI.CityName', 'CA.PostalCodeID', 'PC.PostalCode')
                 ->get();
         }
@@ -492,7 +570,7 @@ class HomeController extends Controller
         $FormData['PCategories'] = $PCatagories;
         $FormData['isRegister'] = false;
         $FormData['Cart'] = [];
-        $FormData['Company'] = DB::table('tbl_company_settings')->select('KeyName', 'KeyValue')->get()->pluck('KeyValue', 'KeyName')->toArray();
+        $FormData['Company']=$this->Company;
         return view('home.guest.category-list', $FormData);
     }
 
@@ -533,7 +611,7 @@ class HomeController extends Controller
         $FormData['CID'] = $request->CID ?? '';
         $FormData['isRegister'] = false;
         $FormData['Cart'] = [];
-        $FormData['Company'] = DB::table('tbl_company_settings')->select('KeyName', 'KeyValue')->get()->pluck('KeyValue', 'KeyName')->toArray();
+        $FormData['Company']=$this->Company;
         return view('home.guest.sub-category-list', $FormData);
     }
 
@@ -579,7 +657,7 @@ class HomeController extends Controller
         $FormData['SCID'] = $request->SCID ?? '';
         $FormData['isRegister'] = false;
         $FormData['Cart'] = [];
-        $FormData['Company'] = DB::table('tbl_company_settings')->select('KeyName', 'KeyValue')->get()->pluck('KeyValue', 'KeyName')->toArray();
+        $FormData['Company']=$this->Company;
         return view('home.guest.products-list', $FormData);
     }
 
@@ -635,8 +713,26 @@ class HomeController extends Controller
     {
         $aid = $request->input('aid');
         Session::put('selected_aid', $aid);
-
         return response()->json(['message' => 'Selected aid set successfully']);
+    }
+    public function setPostalCodeInSession(Request $request){
+        $PostalCodeData = DB::table($this->generalDB.'tbl_postalcodes')->where('PostalCode', $request->Pincode)->first();
+        if(!$PostalCodeData){
+            return ['status' => false,'message' => "Pincode Does Not Exist!"];
+        }elseif($PostalCodeData->DFlag == 1){
+            return ['status' => false,'message' => "Pincode Does Not Exist!"];
+        }elseif($PostalCodeData->ActiveStatus =='Inactive'){
+            return ['status' => false,'message' => "Entered Pincode is not active!"];
+        }else{
+            Session::put('postal_code_id', $PostalCodeData->PID);
+            Session::put('postal_code', $request->Pincode);
+            return ['status' => true,'message' => 'Pincode put successfully'];
+        }
+    }
+    public function removePostalCodeInSession(Request $request){
+        Session::put('postal_code_id', '');
+        Session::put('postal_code', '');
+        return ['status' => true,'message' => 'Pincode removed successfully'];
     }
 
     public function productDescription($PID)
@@ -650,7 +746,6 @@ class HomeController extends Controller
 
     public function guestProductView(Request $request, $ProductID)
     {
-//        $FormData = $this->EnquiryDetails($EnqID);
         $product = DB::table('tbl_products as P')->leftJoin('tbl_product_subcategory as PSC','PSC.PSCID','P.SCID')
             ->leftJoin('tbl_product_category as PC','PC.PCID','P.CID')
             ->where('P.ActiveStatus','Active')->where('P.DFlag',0)
@@ -683,8 +778,20 @@ class HomeController extends Controller
         $FormData['isRegister'] = false;
         $FormData['Cart'] = [];
         $FormData['RelatedProducts'] = $RelatedProducts;
-        $FormData['Company'] = DB::table('tbl_company_settings')->select('KeyName', 'KeyValue')->get()->pluck('KeyValue', 'KeyName')->toArray();
+        $FormData['Company']=$this->Company;
+
 
         return view('home.guest-product-view', $FormData);
+    }
+
+    public static function getAvailableVendors($PostalCodeID){
+        $AllVendors = DB::table('tbl_vendors as V')
+            ->join('tbl_vendors_service_locations as VSL', 'V.VendorID', 'VSL.VendorID')
+            ->where('V.isApproved', '1')
+            ->where('V.ActiveStatus', "Active")
+            ->where('V.DFlag', 0)
+            ->where('VSL.DFlag', 0)
+            ->where('VSL.PostalCodeID', $PostalCodeID)->groupBy('V.VendorID')->pluck('V.VendorID')->toArray();
+        return $AllVendors;
     }
 }

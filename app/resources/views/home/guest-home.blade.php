@@ -1,3 +1,11 @@
+
+
+
+
+
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -55,14 +63,28 @@
             <div class="header-top">
                 <div class="container">
                     <div class="header-left d-md-block">
-                        <div class="info-box info-box-icon-left text-primary justify-content-start p-0">
-							<i class="fa fa-arrow"></i>
-                        </div>
+                        @if($PostalCode)
+                            <div class="align-middle" style="display: inline-block;">
+                                <div class="info-box info-box-icon-left justify-content-start">
+                                    <i class="icon-location" style="color:#ff6840;"></i>
+                                    <div class="align-middle" style="display: inline-block; height: 20px; vertical-align: middle !important;">
+                                        <h6 class="font-weight-bold text-dark" style="line-height: 18px; position: relative;">
+                                            Delivery Location - {{$PostalCode}} 
+                                            <a href="">
+                                                <span id="btnClearPincode">
+                                                    <i class="fas fa-times text-danger" style="font-size: 12px;"></i>
+                                                </span>
+                                            </a>
+                                        </h6>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
                     </div>
                     <div class="header-right header-dropdowns ml-0 ml-md-auto w-md-100">
                         <div class="header-dropdown mr-auto mr-md-0">
                             <div class="header-menu">
-
+                                
                             </div><!-- End .header-menu -->
                         </div><!-- End .header-dropown -->
                         <ul class="d-none d-xl-flex mb-0 pr-2 align-items-center">
@@ -222,7 +244,6 @@
             </div><!-- End .header-bottom -->
         </header><!-- End .header -->
 
-        <div class="container">
         <main class="main">
 
             <section class="intro-section">
@@ -297,11 +318,11 @@
                             </a>
                             <div class="category-content">
                                 <h3 class="category-title">{{ $category->PCName }}</h3>
-{{--                                <ul class="sub-categories">--}}
-{{--                                    @foreach ($category->PSCData->take(4) as $subCategory)--}}
-{{--                                        <li><a href="{{ route('products.guest.productsList', ['SCID' => $subCategory->PSCID]) }}">{{ $subCategory->PSCName }}</a></li>--}}
-{{--                                    @endforeach--}}
-{{--                                </ul>--}}
+                               <ul class="sub-categories">
+                                   @foreach ($category->PSCData->take(4) as $subCategory)
+                                       <li><a href="{{ route('products.guest.productsList', ['SCID' => $subCategory->PSCID]) }}">{{ $subCategory->PSCName }}</a></li>
+                                   @endforeach
+                               </ul>
                             </div>
                         </div>
                     @endforeach
@@ -494,7 +515,6 @@
             </section>
 
         </main>
-        </div>
         <!-- End .main -->
 
         <footer class="footer bg-dark position-relative">
@@ -516,7 +536,7 @@
 										<span class="contact-info-label">Address:</span>{{$Company['Address']}}<br>{{$Company['AddressData']->CityName}}, {{$Company['AddressData']->DistrictName}}, {{$Company['AddressData']->StateName}}, {{$Company['AddressData']->CountryName}} - {{$Company['AddressData']->PostalCode}}.
                                     </li>
                                     <li>
-                                        <span class="contact-info-label">Phone:</span><a href="#">{{$Company['Phone-Number']}}@if($Company['Mobile-Number']), {{$Company['Mobile-Number']}} @endif</a>
+                                        <span class="contact-info-label">Phone:</span><a href="#">+91 {{$Company['Phone-Number']}}@if($Company['Mobile-Number']), +91 {{$Company['Mobile-Number']}} @endif</a>
                                     </li>
                                     <li>
                                         <span class="contact-info-label">Email:</span>
@@ -672,49 +692,49 @@
 		</div>
         <button title="Close (Esc)" type="button" class="mfp-close">×</button>
     </div> --}}
-    <div class="newsletter-popup mfp-hide bg-img p-0 h-auto" id="newsletter-popup-form" style="background: #f1f1f1 no-repeat center/cover">
-        <div class="row">
-            <div class="col-sm-7">
-                <div class="row justify-content-center mt-3">
-                    <div class="col-6">
-                        <img src="{{url('/')}}/{{$Company['Logo']}}" alt="Logo" class="logo-newsletter" width="50" height="50">
-                        <span class="ml-3 font-weight-bold text-dark">{{$Company['CompanyName']}}</span>
+    @if(!$PostalCode)
+        <div class="newsletter-popup mfp-hide bg-img p-0 h-auto" id="newsletter-popup-form" style="background: #f1f1f1 no-repeat center/cover">
+            <div class="row">
+                <div class="col-sm-7">
+                    <div class="row justify-content-center mt-3">
+                        <div class="col-6">
+                            <img src="{{url('/')}}/{{$Company['Logo']}}" alt="Logo" class="logo-newsletter" width="50" height="50">
+                            <span class="ml-3 font-weight-bold text-dark">{{$Company['CompanyName']}}</span>
+                        </div>
                     </div>
-                </div>
-                <div class="row justify-content-center my-3">
-                    <div class="col-8">
-                        <h2>Select a location </h2>
-                        <p>to see product availability and delivery options</p>
+                    <div class="row justify-content-center my-3">
+                        <div class="col-8">
+                            <h2>Select a location </h2>
+                            <p>to see product availability and delivery options</p>
+                        </div>
                     </div>
-                </div>
-                <div class="row justify-content-center">
-                    <div class="col-6 justify-content-center">
-                        <a href="{{url('/')}}/social/auth/google"><button type="button" class="btn btn-info btn-block rounded">Sign in to select address</button></a>
-
-                        {{-- <input type="button" class="btn btn-warning" value="Submit" id="btnCurrentPincode"> --}}
+                    <div class="row justify-content-center">
+                        <div class="col-6 justify-content-center">
+                            <a href="{{url('/')}}/social/auth/google"><button type="button" class="btn btn-info btn-block rounded">Sign in to select address</button></a>
+                        </div>
                     </div>
-                </div>
-                <div class="row justify-content-center">
-                    <div class="col-4">
-                        <h5 class="text-center my-3">or</h5>
+                    <div class="row justify-content-center">
+                        <div class="col-4">
+                            <h5 class="text-center my-3">or</h5>
+                        </div>
                     </div>
-                </div>
-                <div class="row justify-content-center">
-                    <div class="col-8 newsletter-popup-content" id="divLocationInputs">
-                        <div class="input-group">
-                            <input type="text" class="form-control" id="txtCurrentPincode" placeholder="Enter your pincode" required>
-                            <input type="button" class="btn btn-warning" value="Submit" id="btnCurrentPincode">
+                    <div class="row justify-content-center">
+                        <div class="col-8 newsletter-popup-content" id="divLocationInputs">
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="txtCurrentPincode" placeholder="Enter your pincode" required>
+                                <input type="button" class="btn btn-warning" value="Submit" id="btnCurrentPincode">
+                            </div>
+                            <div class="errors err-sm text-center" id="txtCurrentPincode-err"></div>
                         </div>
                     </div>
                 </div>
+                <div class="col-sm-5">
+                    <img src="{{url('/')}}/home/assets/images/location-pop-up/MapAnime.gif" alt="">
+                </div>
             </div>
-            <div class="col-sm-5">
-                <img src="{{url('/')}}/home/assets/images/location-pop-up/MapAnime.gif" alt="">
-            </div>
+            <button title="Close (Esc)" type="button" class="mfp-close" id="modal-close-btn">×</button>
         </div>
-        <button title="Close (Esc)" type="button" class="mfp-close" id="modal-close-btn">×</button>
-    </div>
-
+    @endif
 
     <a id="scroll-top" href="#top" title="Top" role="button"><i class="icon-angle-up"></i></a>
 
@@ -769,6 +789,52 @@
                      $('#searchResults').hide();
                  }
              });
+
+            $('#btnCurrentPincode').on('click', function(e){
+                e.preventDefault();
+                $('.errors').html('');
+
+                let Pincode = $('#txtCurrentPincode').val();
+                if(!Pincode){
+                    $('#txtCurrentPincode-err').html("Please enter a Pincode");
+                }else{
+                    let formData=new FormData();
+                    formData.append('Pincode', Pincode);
+                    $.ajax({
+                        url: "{{ route('setPostalCodeInSession') }}",
+                        headers: { 'X-CSRF-Token' : '{{ csrf_token() }}' },
+                        processData: false,
+                        contentType: false,
+                        type: "POST",
+                        data: formData,
+                        success: function(response) {
+                            if(response.status == true){
+                                window.location.reload();
+                            }else{
+                                $('#txtCurrentPincode-err').html(response.message);
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            console.error(error);
+                        }
+                    });
+                }
+            });
+            $('#btnClearPincode').on('click', function(e){
+                e.preventDefault();
+                $.ajax({
+                    url: "{{ route('removePostalCodeInSession') }}",
+                    headers: { 'X-CSRF-Token' : '{{ csrf_token() }}' },
+                    processData: false,
+                    contentType: false,
+                    type: "POST",
+                    success: function(response) {
+                        if(response.status == true){
+                            window.location.reload();
+                        }
+                    }
+                });
+            });
         });
     </script>
 </body>

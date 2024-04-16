@@ -7,10 +7,10 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <title>RPC Construction</title>
+    <title>{{$Company['CompanyName']}}</title>
 
     <meta name="keywords" content="HTML5 Template" />
-    <meta name="description" content="RPC Construction">
+    <meta name="description" content="{{$Company['CompanyName']}}">
     <meta name="author" content="SW-THEMES">
 
     <!-- Favicon -->
@@ -21,19 +21,20 @@
     <link rel="stylesheet" href="{{url('/')}}/home/assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="{{url('/')}}/home/assets/css/slider.css">
     <link rel="stylesheet" href="{{url('/')}}/home/assets/css/demo42.min.css">
+    <link rel="stylesheet" href="{{url('/')}}/home/assets/css/toastr.css">
+    {{-- <link rel="stylesheet" href="{{url('/')}}/home/assets/css/style.min.css"> --}}
     <link rel="stylesheet" type="text/css" href="{{url('/')}}/home/assets/vendor/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" type="text/css" href="{{url('/')}}/assets/plugins/image-cropper/cropper.css?r={{date('YmdHis')}}">
+    <link rel="stylesheet" type="text/css" href="{{url('/')}}/assets/plugins/dropify/css/dropify.min.css?r={{date('YmdHis')}}">
+    <link rel="stylesheet" type="text/css" href="{{url('/')}}/assets/css/select2.css?r={{date('YmdHis')}}">
+    <link rel="stylesheet" type="text/css" href="{{url('/')}}/assets/css/select2.css?r={{date('YmdHis')}}">
+    <link rel="stylesheet" type="text/css" href="{{url('/')}}/assets/css/datatables.css?r={{date('YmdHis')}}">
+    <link rel="stylesheet" type="text/css" href="{{url('/')}}/assets/plugins/dataTable/css/responsive.dataTables.min.css?r={{date('YmdHis')}}">
+    <link rel="stylesheet" type="text/css" href="{{url('/')}}/assets/plugins/dataTable/css/fixedHeader.dataTables.min.css?r={{date('YmdHis')}}">
+    <link rel="stylesheet" type="text/css" href="{{url('/')}}/assets/plugins/dataTable/css/fixedColumns.dataTables.min.css?r={{date('YmdHis')}}">
+    <link rel="stylesheet" type="text/css" href="{{url('/')}}/assets/plugins/dataTable/css/bootstrap5.dataTables.min.css?r={{date('YmdHis')}}">
+    <link rel="stylesheet" type="text/css" href="{{url('/')}}/assets/css/datatable-extension.css?r={{date('YmdHis')}}">
     {{-- <link rel="stylesheet" type="text/css" href="{{url('/')}}/assets/css/bootstrap.css?r={{date('YmdHis')}}"> --}}
-
-    <style>
-        .image-container {
-            width: 300px;
-            height: 300px;
-            background-size: cover;
-            background-position: center;
-        }
-    </style>
-
-    <link rel="stylesheet" href="{{url('/')}}/home/assets/css/product-style.css">
     <script>
         WebFontConfig = {
             google: { families: [ 'Open+Sans:400,600', 'Poppins:400,500,600,700' ] }
@@ -64,23 +65,54 @@
         <div class="header-top">
             <div class="container">
                 <div class="header-left d-md-block">
-                    <div class="info-box info-box-icon-left text-primary justify-content-start p-0">
-                        {{-- <i class="icon-location" style="color:#ff6840;"></i>
-                        <h6 class="font-weight-bold text-dark">Delivery Location - </h6> --}}
-                        {{-- <span><a href="#" class="text-dark">45,Eden Garden, R.S.Puram, 3rd Cross, Coimbatore. 641006</a></span> --}}
-                        <i class="fa fa-arrow"></i>
+                @if(auth()->check())
+                    <div class="align-middle" style="display: inline-block;">
+                        <div class="info-box info-box-icon-left justify-content-start">
+                            <i class="icon-location" style="color:#ff6840;"></i>
+                            <div class="align-middle" style="display: inline-block; height: 20px; vertical-align: middle !important;">
+                                <h6 class="font-weight-bold text-dark" style="line-height: 18px;">Delivery Location - </h6>
+                            </div>
+                        </div>
                     </div>
-                </div>
-                {{-- <div class="header-dropdown ">
-                    <a href="#"></a>
-                    <div class="header-menu">
-                        <ul>
-                            <li><a href="#">45, Eden Garden, Ganapathy, Coimbatore. 641006</a></li>
-                            <li><a href="#">R.S.Puram, 3rd Cross, Coimbatore. 641003</a></li>
-                        </ul>
-                    </div>
-                </div> --}}
 
+                    <div class="header-dropdown" style="display: inline-block;margin-left:0">
+                        @if(isset($ShippingAddress) && (count($ShippingAddress) > 0))
+                            <a href="#" style="margin-top:10px" id="customerSelectedAddress"
+                                data-selected-postal-id="{{ $ShippingAddress[0]->PostalCodeID }}" data-selected-latitude="{{ '11.048274' }}" data-selected-longitude="{{ '76.9885352' }}">
+                                {{ $ShippingAddress[0]->Address ?? '' }}
+                                , {{ $ShippingAddress[0]->CityName }}, {{ $ShippingAddress[0]->TalukName }}
+                                , {{ $ShippingAddress[0]->DistrictName }}, {{ $ShippingAddress[0]->StateName }}
+                                ,{{ $ShippingAddress[0]->CountryName }} - {{ $ShippingAddress[0]->PostalCode }}.
+                            </a>
+                            <ul id="changeCustomerAddressUl">
+                                @foreach ($ShippingAddress as $key => $item)
+                                    <li><a href="#" data-postal-id="{{ $item->PostalCodeID }}" data-latitude="{{ $key.'11.048274' }}" data-longitude="{{ $key.'76.9885352' }}">
+                                            {{ $item->Address }}, {{ $item->CityName }}
+                                            , {{ $item->TalukName }}, {{ $item->DistrictName }}
+                                            , {{ $item->StateName }},{{ $item->CountryName }}
+                                            - {{ $item->PostalCode }}.</a></li>
+                                @endforeach
+                            </ul>
+                        @endif
+                    </div>
+                @elseif($PostalCode)
+                    <div class="align-middle" style="display: inline-block;">
+                        <div class="info-box info-box-icon-left justify-content-start">
+                            <i class="icon-location" style="color:#ff6840;"></i>
+                            <div class="align-middle" style="display: inline-block; height: 20px; vertical-align: middle !important;">
+                                <h6 class="font-weight-bold text-dark" style="line-height: 18px; position: relative;">
+                                    Delivery Location - {{$PostalCode}} 
+                                    <a href="">
+                                        <span id="btnClearPincode">
+                                            <i class="fas fa-times text-danger" style="font-size: 12px;"></i>
+                                        </span>
+                                    </a>
+                                </h6>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+                </div>
                 <div class="header-right header-dropdowns ml-0 ml-md-auto w-md-100">
                     <div class="header-dropdown mr-auto mr-md-0">
                         <div class="header-menu">
@@ -112,10 +144,10 @@
                     <button class="mobile-menu-toggler text-dark mr-2" type="button">
                         <i class="fas fa-bars"></i>
                     </button>
-                    <a href="{{url('/')}}" class="logo">
-                        <img src="{{url('/')}}/{{$Company['Logo']}}" width="50" height="50" alt="RPC">
+                    <a href="demo42.html" class="logo">
+                        <img src="{{url('/')}}/{{$Company['Logo']}}" width="50" height="50" alt="{{$Company['CompanyName']}}">
                     </a>
-                    <span class="ml-3 font-weight-bold">RPC Construction</span>
+                    <span class="ml-3 font-weight-bold">{{$Company['CompanyName']}}</span>
                 </div><!-- End .header-left -->
 
                 <div class="header-right w-lg-max">
@@ -127,6 +159,7 @@
                             <button class="btn icon-magnifier p-0" title="search"></button>
                         </div>
                     </div>
+
                     <span class="separator d-none d-lg-block"></span>
 
                     <div class="sicon-box mb-0 d-none d-lg-flex align-items-center pr-3 mr-1">
@@ -140,21 +173,22 @@
                     </div>
 
                     <span class="separator d-none d-lg-block mr-4"></span>
-                    <a href="{{url('/')}}/social/auth/google" class="d-lg-block d-none" id="loginBtn">
-                        <div class="header-user">
-                            <div class="header-userinfo">
-                                <span>Welcome</span>
-                                <h4>Sign In / Register</h4>
+                    @if(auth()->check())
+                        <a href="{{url('/')}}/customer-profile" class="d-lg-block d-none">
+                            <div class="header-user">
+                                <i class="icon-user-2"></i>
                             </div>
-                        </div>
-                    </a>
-
-                    {{-- <span class="separator d-none d-lg-block mr-4"></span>
-                    <a href="{{url('/')}}/login" class="d-lg-block d-none">
-                        <div class="header-user">
-                            <i class="icon-user-2"></i>
-                        </div>
-                    </a> --}}
+                        </a>
+                    @else
+                        <a href="{{url('/')}}/social/auth/google" class="d-lg-block d-none" id="loginBtn">
+                            <div class="header-user">
+                                <div class="header-userinfo">
+                                    <span>Welcome</span>
+                                    <h4>Sign In / Register</h4>
+                                </div>
+                            </div>
+                        </a>
+                    @endif
 
                     <span class="separator d-block"></span>
 
@@ -202,9 +236,9 @@
                                     </div>
                             </div>
                         </li>
-                        <li class="{{ (Route::currentRouteName() == "homepage") ? 'active' : '' }}">
-                                <a href="{{ route('homepage') }}">Home</a>
-                            </li>
+                        <li class="active">
+                            <a href="{{ route('homepage') }}">Home</a>
+                        </li>
                         <li>
                             <a href="#">Products</a>
                             <div class="megamenu megamenu-fixed-width">
@@ -243,111 +277,7 @@
     </header><!-- End .header -->
 
     <main class="main">
-        <nav aria-label="breadcrumb" class="breadcrumb-nav">
-            <div class="container">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{{ route('homepage') }}">Home</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Categories</li>
-                </ol>
-            </div>
-        </nav>
-        <div class="mb-2"></div>
-        <div class="container">
-            <div class="row">
-        <div class="col-lg-12 main-content" id="categoriesDiv">
-            <div class="sticky-wrapper"><nav class="toolbox sticky-header" data-sticky-options="{'mobile': true}">
-                    <div class="toolbox-left">
-                        <a href="#" class="sidebar-toggle"><svg data-name="Layer 3" id="Layer_3" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
-                                <line x1="15" x2="26" y1="9" y2="9" class="cls-1"></line>
-                                <line x1="6" x2="9" y1="9" y2="9" class="cls-1"></line>
-                                <line x1="23" x2="26" y1="16" y2="16" class="cls-1"></line>
-                                <line x1="6" x2="17" y1="16" y2="16" class="cls-1"></line>
-                                <line x1="17" x2="26" y1="23" y2="23" class="cls-1"></line>
-                                <line x1="6" x2="11" y1="23" y2="23" class="cls-1"></line>
-                                <path d="M14.5,8.92A2.6,2.6,0,0,1,12,11.5,2.6,2.6,0,0,1,9.5,8.92a2.5,2.5,0,0,1,5,0Z" class="cls-2"></path>
-                                <path d="M22.5,15.92a2.5,2.5,0,1,1-5,0,2.5,2.5,0,0,1,5,0Z" class="cls-2"></path>
-                                <path d="M21,16a1,1,0,1,1-2,0,1,1,0,0,1,2,0Z" class="cls-3"></path>
-                                <path d="M16.5,22.92A2.6,2.6,0,0,1,14,25.5a2.6,2.6,0,0,1-2.5-2.58,2.5,2.5,0,0,1,5,0Z" class="cls-2"></path>
-                            </svg>
-                            <span>Filter</span>
-                        </a>
-
-                        <div class="toolbox-item toolbox-sort">
-                            <label>Sort By:</label>
-
-                            <div class="select-custom">
-                                <select name="orderby" class="form-control" id="orderBySelect">
-                                    <option value="" selected="selected">Default sorting</option>
-                                    <option value="new">Sort by newness</option>
-                                    <option value="popularity">Sort by popularity</option>
-                                    {{--                                        <option value="rating">Sort by average rating</option>--}}
-                                </select>
-                            </div><!-- End .select-custom -->
-
-
-                        </div><!-- End .toolbox-item -->
-                    </div><!-- End .toolbox-left -->
-
-                    <div class="toolbox-right">
-                        <div class="toolbox-item toolbox-show">
-                            <label>Show:</label>
-
-                            <div class="select-custom">
-                                <select name="count" class="form-control" id="productCountSelect">
-                                    <option value="12">12</option>
-                                    <option value="24">24</option>
-                                    <option value="36">36</option>
-                                </select>
-                            </div><!-- End .select-custom -->
-                        </div><!-- End .toolbox-item -->
-
-                        <div class="toolbox-item layout-modes">
-                            <a href="#" class="layout-btn btn-grid active" title="Grid">
-                                <i class="icon-mode-grid"></i>
-                            </a>
-                            <a href="#" class="layout-btn btn-list" title="List">
-                                <i class="icon-mode-list"></i>
-                            </a>
-                        </div><!-- End .layout-modes -->
-                    </div><!-- End .toolbox-right -->
-                </nav></div>
-
-            <div class="row no-gutters">
-
-            </div><!-- End .row -->
-
-            <nav class="toolbox toolbox-pagination">
-                <div class="toolbox-item toolbox-show">
-                    <label class="mt-0">Show:</label>
-
-                    <div class="select-custom">
-                        <select name="count" class="form-control">
-                            <option value="12">12</option>
-                            <option value="24">24</option>
-                            <option value="36">36</option>
-                        </select>
-                    </div><!-- End .select-custom -->
-                </div><!-- End .toolbox-item -->
-
-                <ul class="pagination toolbox-item">
-                    <li class="page-item disabled">
-                        <a class="page-link page-link-btn" href="#"><i class="icon-angle-left"></i></a>
-                    </li>
-                    <li class="page-item active">
-                        <a class="page-link" href="#">1 <span class="sr-only">(current)</span></a>
-                    </li>
-                    <li class="page-item"><a class="page-link" href="#">2</a></li>
-                    <li class="page-item"><a class="page-link" href="#">3</a></li>
-                    <li class="page-item"><span class="page-link">...</span></li>
-                    <li class="page-item">
-                        <a class="page-link page-link-btn" href="#"><i class="icon-angle-right"></i></a>
-                    </li>
-                </ul>
-            </nav>
-        </div><!-- End .col-lg-9 -->
-            </div>
-            <div class="mb-4"></div>
-        </div>
+        @yield('content')
     </main>
     <!-- End .main -->
 
@@ -372,7 +302,7 @@
                                 <li>
                                     <span class="contact-info-label">Phone:</span><a href="#">+91 {{$Company['Phone-Number']}}@if($Company['Mobile-Number']), +91 {{$Company['Mobile-Number']}} @endif</a>
                                 </li>
-                                <li>
+                                  <li>
                                     <span class="contact-info-label">Email:</span>
                                     <a href="mailto:{{$Company['E-Mail']}}"><span
                                             class="__cf_email__"
@@ -440,7 +370,7 @@
         <div class="container">
             <div class="footer-bottom d-sm-flex align-items-center bg-dark">
                 <div class="footer-left">
-                    <span class="footer-copyright">RPC Construction. © 2024. All Rights Reserved</span>
+                    <span class="footer-copyright">{{$Company['CompanyName']}}. © 2024. All Rights Reserved</span>
                 </div>
 
                 <div class="footer-right ml-auto mt-1 mt-sm-0">
@@ -468,8 +398,7 @@
     </div>
 </div>
 
-<div class="mobile-menu-overlay"></div><!-- End .mobil-menu-overlay -->
-
+<div class="mobile-menu-overlay"></div>
 <div class="sticky-navbar">
     <div class="sticky-info">
         <a href="{{ route('homepage') }}">
@@ -487,101 +416,230 @@
         </a>
     </div>
     <div class="sticky-info">
-        <a href="login.html" class="">
+        <a href="{{url('/')}}" class="">
             <i class="icon-user-2"></i>Account
         </a>
     </div>
     <div class="sticky-info">
-        <a href="cart.html" class="">
+        <a href="{{url('/')}}" class="">
             <i class="icon-shopping-cart position-relative">
                 <span class="cart-count badge-circle">3</span>
             </i>Cart
         </a>
     </div>
 </div>
+{{--<div class="newsletter-popup mfp-hide bg-img p-0 h-auto" id="newsletter-popup-form" style="background: #f1f1f1 no-repeat center/cover">--}}
+{{--    <div class="row">--}}
+{{--        <div class="col-sm-7">--}}
+{{--            <div class="row justify-content-center mt-3">--}}
+{{--                <div class="col-6">--}}
+{{--                    <img src="{{url('/')}}/{{$Company['Logo']}}" alt="Logo" class="logo-newsletter" width="50" height="50">--}}
+{{--                    <span class="ml-3 font-weight-bold text-dark">{{$Company['CompanyName']}}</span>--}}
+{{--                </div>--}}
+{{--            </div>--}}
+{{--            <div class="row justify-content-center my-3">--}}
+{{--                <div class="col-8">--}}
+{{--                    <h2>Select a location </h2>--}}
+{{--                    <p>to see product availability and delivery options</p>--}}
+{{--                </div>--}}
+{{--            </div>--}}
+{{--            <div class="row justify-content-center">--}}
+{{--                <div class="col-6 justify-content-center">--}}
+{{--                    <a href="{{url('/')}}/social/auth/google"><button type="button" class="btn btn-info btn-block rounded">Sign in to select address</button></a>--}}
+
+{{--                    --}}{{-- <input type="button" class="btn btn-warning" value="Submit" id="btnCurrentPincode"> --}}
+{{--                </div>--}}
+{{--            </div>--}}
+{{--            <div class="row justify-content-center">--}}
+{{--                <div class="col-4">--}}
+{{--                    <h5 class="text-center my-3">or</h5>--}}
+{{--                </div>--}}
+{{--            </div>--}}
+{{--            <div class="row justify-content-center">--}}
+{{--                <div class="col-8 newsletter-popup-content" id="divLocationInputs">--}}
+{{--                    <div class="input-group">--}}
+{{--                        <input type="text" class="form-control" id="txtCurrentPincode" placeholder="Enter your pincode" required>--}}
+{{--                        <input type="button" class="btn btn-warning" value="Submit" id="btnCurrentPincode">--}}
+{{--                    </div>--}}
+{{--                </div>--}}
+{{--            </div>--}}
+{{--        </div>--}}
+{{--        <div class="col-sm-5">--}}
+{{--            <img src="{{url('/')}}/home/assets/images/location-pop-up/MapAnime.gif" alt="">--}}
+{{--        </div>--}}
+{{--    </div>--}}
+{{--    <button title="Close (Esc)" type="button" class="mfp-close" id="modal-close-btn">×</button>--}}
+{{--</div>--}}
+
 
 <a id="scroll-top" href="#top" title="Top" role="button"><i class="icon-angle-up"></i></a>
 
 <script src="{{url('/')}}/home/assets/js/jquery.min.js"></script>
+<script src="{{url('/')}}/assets/js/jquery-3.7.1.min.js?r={{date('YmdHis')}}"></script>
 <script src="{{url('/')}}/home/assets/js/bootstrap.bundle.min.js"></script>
 <script src="{{url('/')}}/home/assets/js/optional/isotope.pkgd.min.js"></script>
 <script src="{{url('/')}}/home/assets/js/plugins.min.js"></script>
 <script src="{{url('/')}}/home/assets/js/jquery.appear.min.js"></script>
 <script src="{{url('/')}}/home/assets/js/jquery.plugin.min.js"></script>
 <script src="{{url('/')}}/home/assets/js/main.js"></script>
+<script src="{{url('/')}}/home/assets/js/toastr.js"></script>
+<script src="{{url('/')}}/assets/plugins/dropify/js/dropify.js?r={{date('YmdHis')}}"></script>
+<script src="{{url('/')}}/assets/plugins/image-cropper/cropper.js?r={{date('YmdHis')}}"></script>
+<script src="{{url('/')}}/assets/js/address-web.js?r={{date('YmdHis')}}"></script>
+{{--<script src="{{url('/')}}/assets/js/nouislider.min.js?r={{date('YmdHis')}}"></script>--}}
+<script src="{{url('/')}}/assets/plugins/bootbox-js/bootbox.min.js?r={{date('YmdHis')}}"></script>
+<script src="{{url('/')}}/assets/js/select2/select2.full.min.js?r={{date('YmdHis')}}"></script>
+<script src="{{url('/')}}/assets/plugins/dataTable/js/jquery.dataTables.min.js?r={{date('YmdHis')}}"></script>
+<script src="{{url('/')}}/assets/js/datatable/datatable-extension/dataTables.buttons.min.js?r={{date('YmdHis')}}"></script>
+<script src="{{url('/')}}/assets/js/datatable/datatable-extension/buttons.colVis.min.js?r={{date('YmdHis')}}"></script>
+<script src="{{url('/')}}/assets/js/datatable/datatable-extension/dataTables.autoFill.min.js?r={{date('YmdHis')}}"></script>
+<script src="{{url('/')}}/assets/js/datatable/datatable-extension/dataTables.select.min.js?r={{date('YmdHis')}}"></script>
+<script src="{{url('/')}}/assets/js/datatable/datatable-extension/buttons.bootstrap4.min.js?r={{date('YmdHis')}}"></script>
+<script src="{{url('/')}}/assets/js/datatable/datatable-extension/buttons.html5.min.js?r={{date('YmdHis')}}"></script>
+<script src="{{url('/')}}/assets/js/datatable/datatable-extension/buttons.print.min.js?r={{date('YmdHis')}}"></script>
+<script src="{{url('/')}}/assets/js/datatable/datatable-extension/dataTables.rowReorder.min.js?r={{date('YmdHis')}}"></script>
+<script src="{{url('/')}}/assets/plugins/dataTable/js/dataTables.responsive.min.js?r={{date('YmdHis')}}"></script>
+<script src="{{url('/')}}/assets/plugins/dataTable/js/dataTables.fixedHeader.min.js?r={{date('YmdHis')}}"></script>
+<script src="{{url('/')}}/assets/plugins/dataTable/js/dataTables.fixedColumns.min.js?r={{date('YmdHis')}}"></script>
+<script src="{{url('/')}}/assets/plugins/dataTable/js/dataTables.bootstrap5.min.js?r={{date('YmdHis')}}"></script>
+
+<script src="{{url('/')}}/assets/plugins/dataTable/js/dataTableExport.js?r={{date('YmdHis')}}"></script>
 <script>
     $(document).ready(function() {
         $('.redirectLogin').on('click', function(){
             window.location.replace($('#loginBtn').attr('href'));
         });
-    });
-</script>
-<script>
-    $(document).ready(function() {
-        var sub_category_id = "";
-        var current_page_no = 1;
-        var viewType = 'Grid';
-        const LoadCategories = async () => {
-            var formData = new FormData();
 
-            formData.append('PostalID', $('#customerSelectedAddress').attr('data-selected-postal-id'));
-            formData.append('AID', $('#customerSelectedAddress').attr('data-aid'));
-            formData.append('SubCategoryID', sub_category_id);
-            formData.append('productCount', $('#productCountSelect').val());
-            formData.append('orderBy', $('#orderBySelect').val());
-            formData.append('viewType', viewType);
-            formData.append('pageNo', current_page_no);
+        const UpdateItemQtyCount = (count) => {
+            const itemCountSpan = $('#divCartItemCount');
+            if (count > 0) {
+                itemCountSpan.text(count);
+                $('#divCartAction').html(`<a href="{{url('/')}}/checkout" class="btn btn-secondary btn-block">Quote Request</a>`);
+            } else {
+                itemCountSpan.text('');
+                $('#divCartAction').html(`<a href="{{ auth()->check() ? route('products.customer.productsList') : route('products.guest.productsList') }}" class="btn btn-dark btn-block">Add to Cart</a>`);
+            }
+        };
+
+        const LoadCart = (data) => {
+            let Parent = $('#divCart');
+            Parent.html('');
+
+            data.forEach((item) => {
+                let Content = `<div class="product">
+                                        <div class="product-details">
+                                            <h4 class="product-title">
+                                                <a href="#">${item.ProductName}</a>
+                                            </h4>
+
+                                            <span class="cart-product-info">
+                                                <span class="cart-product-qty">
+                                                    <div class="input-group" style="width: 80%;">
+                                                        <input class="form-control txtUpdateQty" type="number" value="${item.Qty}" id="${item.ProductID}">
+                                                        <div class="input-group-append">
+                                                            <span class="input-group-text">${item.UName} (${item.UName})</span>
+                                                        </div>
+                                                    </div>
+                                                </span>
+                                            </span>
+                                        </div>
+
+                                        <figure class="product-image-container">
+                                            <a href="demo42-product.html" class="product-image">
+                                                <img src="${item.ProductImage}" alt="product" width="80" height="80">
+                                            </a>
+                                            <a href="#" class="btn-remove btnRemoveCart" title="Remove Product" id="${item.ProductID}"><span>×</span></a>
+                                        </figure>
+                                    </div>`;
+                Parent.append(Content);
+            });
+        };
+
+        $(document).on('click', '.btnAddCart', function () {
+
+            let FormData = {
+                'ProductID': $(this).attr('id'),
+            }
             $.ajax({
-                url: '{{ route('products.guest.categoriesListHtml') }}',
-                headers: {'X-CSRF-Token': '{{ csrf_token() }}'},
-                type: 'POST',
-                data: formData,
-                processData: false,
-                contentType: false,
-                success: function (response) {
-                    $('#categoriesDiv').html(response);
-                    $('#productCountSelect').change(function () {
-                        var selectedValue = $(this).val();
-                        $('#productCountSelect2').val(selectedValue);
-                    });
-                    $('#productCountSelect2').change(function () {
-                        var selectedValue = $(this).val();
-                        $('#productCountSelect').val(selectedValue);
-                    });
-                    $('#productCountSelect').change(function () {
-                        LoadCategories();
-                    });
-                    $('#productCountSelect2').change(function () {
-                        LoadCategories();
-                    });
-                    $('#orderBySelect').change(function () {
-                        LoadCategories();
-                    });
-                    $('.changePage').click(function () {
-                        current_page_no = $(this).attr('data-page-no');
-                        LoadCategories();
-                    });
-                    $('.prevPage').click(function () {
-                        current_page_no = parseInt(current_page_no) - 1;
-                        LoadCategories();
-                    });
-                    $('.nextPage').click(function () {
-                        current_page_no = parseInt(current_page_no) + 1;
-                        LoadCategories();
-                    });
+                type: "post",
+                data: FormData,
+                url: "{{ route('add-cart') }}",
+                headers: {'X-CSRF-Token': $('meta[name=_token]').attr('content')},
+                dataType: "json",
+                error: function (e, x, settings, exception) {
+                    ajaxErrors(e, x, settings, exception);
                 },
-                error: function (xhr, status, error) {
-                    if (xhr.status === 419) {
-                        console.error('CSRF token mismatch. Reloading page...');
-                        window.location.reload();
-                    } else {
-                        console.log('An error occurred: ' + xhr.responseText);
+                complete: function (e, x, settings, exception) {
+                },
+                success: function (response) {
+                    if (response.status) {
+                        thiss.text("Added in cart");
+                        thiss.removeClass('btnAddCart btn-add-cart');
+                        LoadCart(response.data);
+                        UpdateItemQtyCount(response.data.length);
                     }
                 }
             });
-        }
+        });
 
-        LoadCategories();
+        $(document).on('input', '.txtUpdateQty', function () {
+            let Qty = $(this).val();
+            if(Qty > 0){
+                let FormData = {
+                    'ProductID' : $(this).attr('id'),
+                    'Qty' : Qty,
+                }
+                $.ajax({
+                    type:"post",
+                    data: FormData,
+                    url:"{{url('/')}}/update-cart",
+                    headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
+                    dataType:"json",
+                    error:function(e, x, settings, exception){ajaxErrors(e, x, settings, exception);},
+                    complete: function(e, x, settings, exception){},
+                    success:function(response){
+                        if(response.status){
+                            // LoadCart(response.data);
+                        }
+                    }
+                });
+            }else{
+                $(this).val(1);
+            }
+        });
+        $(document).on('click', '.btnRemoveCart', function () {
+            $(this).closest('.product').remove();
+            let FormData = {
+                'ProductID' : $(this).attr('id'),
+            }
+            $.ajax({
+                type:"post",
+                data: FormData,
+                url:"{{url('/')}}/delete-cart",
+                headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
+                dataType:"json",
+                error:function(e, x, settings, exception){ajaxErrors(e, x, settings, exception);},
+                complete: function(e, x, settings, exception){},
+                success:function(response){
+                    if(response.status){
+                        UpdateItemQtyCount(response.data.length);
+                    }
+                }
+            });
+            let Parent = $('#divCart');
+            if (Parent.find('.product').length === 0) {
+                Parent.html('<span>Your Cart is Empty!</span>');
+            }
+        });
+
+        $('#changeCustomerAddressUl li a').on('click', function(e){
+            e.preventDefault();
+            let selectedAddress = $('#customerSelectedAddress');
+            selectedAddress.attr('data-selected-postal-id', $(this).data('postal-id'));
+            selectedAddress.attr('data-selected-latitude', $(this).data('latitude'));
+            selectedAddress.attr('data-selected-longitude', $(this).data('longitude'));
+            selectedAddress.html($(this).html());
+        });
 
         $('#homeSearch').on('keyup', function() {
             var formData = new FormData();
@@ -610,8 +668,31 @@
                 $('#searchResults').hide();
             }
         });
+
+        $('#btnCurrentPincode').on('click', function(e){
+            e.preventDefault();
+            let Pincode = $('#txtCurrentPincode');
+            let formData=new FormData();
+            formData.append('Pincode', Pincode);
+            $.ajax({
+                url: "{{ route('setPostalCodeInSession') }}",
+                headers: { 'X-CSRF-Token' : '{{ csrf_token() }}' },
+                processData: false,
+                contentType: false,
+                type: "POST",
+                data: formData,
+                success: function(response) {
+                    // console.log(response.message);
+                },
+                error: function(xhr, status, error) {
+                    console.error(error);
+                }
+            });
+        });
     });
 </script>
+
+@yield('scripts')
 </body>
 
 </html>

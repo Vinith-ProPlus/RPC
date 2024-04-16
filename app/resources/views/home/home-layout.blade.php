@@ -22,8 +22,10 @@
     <link rel="preload" href="{{url('/')}}/home/assets/vendor/fontawesome-free/webfonts/fa-brands-400.woff2" as="font" type="font/woff2" crossorigin="anonymous">
     <link rel="stylesheet" href="{{url('/')}}/home/assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="{{url('/')}}/home/assets/css/slider.css">
+    <link rel="stylesheet" type="text/css" href="{{url('/')}}/assets/css/sweetalert2.css?r={{date('YmdHis')}}">
     <link rel="stylesheet" href="{{url('/')}}/home/assets/css/demo42.min.css">
     <link rel="stylesheet" href="{{url('/')}}/home/assets/css/toastr.css">
+    <link rel="stylesheet" href="{{url('/')}}/assets/home/vendor/simple-line-icons/css/simple-line-icons.min.css">
     {{-- <link rel="stylesheet" href="{{url('/')}}/home/assets/css/style.min.css"> --}}
     <link rel="stylesheet" type="text/css" href="{{url('/')}}/home/assets/vendor/fontawesome-free/css/all.min.css">
     <link rel="stylesheet" type="text/css" href="{{url('/')}}/assets/plugins/image-cropper/cropper.css?r={{date('YmdHis')}}">
@@ -37,7 +39,6 @@
     <link rel="stylesheet" type="text/css" href="{{url('/')}}/assets/plugins/dataTable/css/bootstrap5.dataTables.min.css?r={{date('YmdHis')}}">
     <link rel="stylesheet" type="text/css" href="{{url('/')}}/assets/css/datatable-extension.css?r={{date('YmdHis')}}">
     {{-- <link rel="stylesheet" type="text/css" href="{{url('/')}}/assets/css/bootstrap.css?r={{date('YmdHis')}}"> --}}
-
     <script>
         WebFontConfig = {
             google: { families: [ 'Open+Sans:400,600', 'Poppins:400,500,600,700' ] }
@@ -50,6 +51,199 @@
         } )( document );
     </script>
 
+    <style>
+        .dropify-wrapper {
+            border-radius: unset !important;
+        }
+
+        .dropify-message p {
+            display: none !important;
+        }
+
+        /* CSS used here will be applied after bootstrap.css */
+
+        .dropdown {
+            display:inline-block;
+            margin-left:20px;
+            padding:10px;
+        }
+
+
+        .glyphicon-bell {
+
+            font-size:1.5rem;
+        }
+
+        .notifications {
+            min-width:420px;
+        }
+
+        .notifications-wrapper {
+            overflow:auto;
+            max-height:250px;
+        }
+
+        /*.menu-title {*/
+        /*    color: #5b5b5b;*/
+        /*    font-size: 1.5rem;*/
+        /*    display: inline-block;*/
+        /*}*/
+        .menu-title {
+            color: #2d5aba;
+            font-size: 1.5rem;
+            display: inline-block;
+        }
+
+        .glyphicon-circle-arrow-right {
+            margin-left:10px;
+        }
+
+
+        .notification-heading, .notification-footer  {
+            padding:2px 10px;
+        }
+
+
+        .dropdown-menu.divider {
+            margin:5px 0;
+        }
+
+        .item-title {
+
+            font-size:1.3rem;
+            color:#000;
+
+        }
+
+        .notifications a.content {
+            text-decoration:none;
+            background:#ccc;
+
+        }
+
+        .notification-item {
+            padding:10px;
+            margin:5px;
+            background:#ccc;
+            border-radius:0px;
+        }
+
+        /*.badge-notification {*/
+        /*    position: absolute;*/
+        /*    top: 15px;*/
+        /*    right: 142px;*/
+        /*    width: 1.6rem;*/
+        /*    border-radius: 75%;*/
+        /*    color: #fff;*/
+        /*    background: #ff5b5b;*/
+        /*    font-weight: 600;*/
+        /*    font-size: 1.1rem;*/
+        /*    line-height: 1.6rem;*/
+        /*    font-family: "Open Sans", sans-serif;*/
+        /*    text-align: center;*/
+        /*}*/
+
+        /*.badge-notification {*/
+        /*    position: absolute;*/
+        /*    top: 20%;*/
+        /*    right: 12%;*/
+        /*    width: 1.6rem;*/
+        /*    border-radius: 75%;*/
+        /*    color: #fff;*/
+        /*    background: #ff5b5b;*/
+        /*    font-weight: 600;*/
+        /*    font-size: 1.1rem;*/
+        /*    line-height: 1.6rem;*/
+        /*    font-family: "Open Sans", sans-serif;*/
+        /*    text-align: center;*/
+        /*}*/
+
+        /*@media (max-width: 1220px) {*/
+        /*    .notification-count {*/
+        /*        right: 13%;*/
+        /*    }*/
+        /*}*/
+        /*@media (max-width: 1195px) {*/
+        /*    .notification-count {*/
+        /*        right: 15%;*/
+        /*    }*/
+        /*}*/
+        /*@media (max-width: 1190px) {*/
+        /*    .notification-count {*/
+        /*        right: 15%;*/
+        /*    }*/
+        /*}*/
+        /*@media (max-width: 995px) {*/
+        /*    .notification-count {*/
+        /*        right: 10%;*/
+        /*    }*/
+        /*}*/
+        /*@media (max-width: 992px) {*/
+        /*    .notification-count {*/
+        /*        right: 13%;*/
+        /*    }*/
+        /*}*/
+        /*@media (max-width: 974px) {*/
+        /*    .notification-count {*/
+        /*        right: 10%;*/
+        /*    }*/
+        /*}*/
+        /*@media (max-width: 967px) {*/
+        /*    .notification-count {*/
+        /*        right: 10%;*/
+        /*    }*/
+        /*}*/
+        /*@media (max-width: 940px) {*/
+        /*    .notification-count {*/
+        /*        right: 13%;*/
+        /*    }*/
+        /*}*/
+        /*@media (max-width: 660px) {*/
+        /*    .notification-count {*/
+        /*        right: 15%;*/
+        /*    }*/
+        /*}*/
+        /*@media (max-width: 488px) {*/
+        /*    .notification-count {*/
+        /*        right: 15%;*/
+        /*    }*/
+        /*}*/
+        /*@media (max-width: 495px) {*/
+        /*    .notification-count {*/
+        /*        right: 17%;*/
+        /*    }*/
+        /*}*/
+        /*@media (max-width: 460px) {*/
+        /*    .notification-count {*/
+        /*        right: 19%;*/
+        /*    }*/
+        /*}*/
+        /*@media (max-width: 442px) {*/
+        /*    .notification-count {*/
+        /*        right: 22%;*/
+        /*    }*/
+        /*}*/
+        /*@media (max-width: 378px) {*/
+        /*    .notification-count {*/
+        /*        right: 26%;*/
+        /*    }*/
+        /*}*/
+
+        .btn-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .unread-badge {
+            position: absolute;
+            top: 20px;
+            right: 17px;
+            width: 1.6rem;
+            height: 10px;
+            background-color: #ff5b5b;
+            border-radius: 50%;
+        }
+    </style>
 </head>
 
 <body>
@@ -68,25 +262,6 @@
     <header class="header">
         <div class="header-top">
             <div class="container">
-                {{-- @if(!$isRegister)
-                    <div class="header-left d-md-block">
-                        <div class="info-box info-box-icon-left text-primary justify-content-start p-0">
-                            <i class="icon-location" style="color:#ff6840;"></i>
-                            <h6 class="font-weight-bold text-dark">Delivery Location - </h6>
-                            <span><a href="#" class="text-dark">45,Eden Garden, R.S.Puram, 3rd Cross, Coimbatore. 641006</a></span>
-                            <i class="fa fa-arrow"></i>
-                        </div>
-                    </div>
-                    <div class="header-dropdown ">
-                        <a href="#"></a>
-                        <div class="header-menu">
-                            <ul>
-                                <li>45, Eden Garden, Ganapathy, Coimbatore. 641006</li>
-                                <li><a href="#">R.S.Puram, 3rd Cross, Coimbatore. 641003</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                @endif --}}
                 @if(!$isRegister)
                     <div class="header-left d-md-block">
                         <div class="align-middle" style="display: inline-block;">
@@ -102,21 +277,23 @@
                         <div class="header-dropdown" style="display: inline-block;margin-left:0">
                             @if(isset($ShippingAddress) && (count($ShippingAddress) > 0))
                                 <a href="#" style="margin-top:10px" id="customerSelectedAddress"
-                                   data-selected-postal-id="{{ $ShippingAddress[0]->PostalCodeID }}" data-selected-latitude="{{ '11.048274' }}" data-selected-longitude="{{ '76.9885352' }}">
+                                   data-selected-postal-id="{{ $ShippingAddress[0]->PostalCodeID }}" data-aid="{{ $ShippingAddress[0]->AID }}" data-selected-latitude="{{ '11.048274' }}" data-selected-longitude="{{ '76.9885352' }}">
                                     {{ $ShippingAddress[0]->Address ?? '' }}
                                     , {{ $ShippingAddress[0]->CityName }}, {{ $ShippingAddress[0]->TalukName }}
                                     , {{ $ShippingAddress[0]->DistrictName }}, {{ $ShippingAddress[0]->StateName }}
                                     ,{{ $ShippingAddress[0]->CountryName }} - {{ $ShippingAddress[0]->PostalCode }}.
                                 </a>
-                                <ul id="changeCustomerAddressUl">
-                                    @foreach ($ShippingAddress as $key => $item)
-                                        <li><a href="#" data-postal-id="{{ $item->PostalCodeID }}" data-latitude="{{ $key.'11.048274' }}" data-longitude="{{ $key.'76.9885352' }}">
-                                                {{ $item->Address }}, {{ $item->CityName }}
-                                                , {{ $item->TalukName }}, {{ $item->DistrictName }}
-                                                , {{ $item->StateName }},{{ $item->CountryName }}
-                                                - {{ $item->PostalCode }}.</a></li>
-                                    @endforeach
-                                </ul>
+                                @if(Route::currentRouteName() !== 'checkout')
+                                    <ul id="changeCustomerAddressUl">
+                                        @foreach ($ShippingAddress as $key => $item)
+                                            <li><a href="#" data-postal-id="{{ $item->PostalCodeID }}" data-aid="{{ $item->AID }}" data-latitude="{{ $key.'11.048274' }}" data-longitude="{{ $key.'76.9885352' }}">
+                                                    {{ $item->Address }}, {{ $item->CityName }}
+                                                    , {{ $item->TalukName }}, {{ $item->DistrictName }}
+                                                    , {{ $item->StateName }},{{ $item->CountryName }}
+                                                    - {{ $item->PostalCode }}.</a></li>
+                                        @endforeach
+                                    </ul>
+                                @endif
                             @endif
                         </div>
                     </div>
@@ -128,9 +305,9 @@
 
                         </div><!-- End .header-menu -->
                     </div><!-- End .header-dropown -->
-<ul class="d-none d-xl-flex mb-0 pr-2 align-items-center">
+                    <ul class="d-none d-xl-flex mb-0 pr-2 align-items-center">
                         <li>
-                            <a href="{{url('/')}}/social/auth/google" style="font-size: 12px;"><i
+                            <a href="{{ route('my-account', ['tab' => 'support']) }}" style="font-size: 12px;"><i
                                     class="icon-help-circle" style="font-size: 18px;"></i>&nbsp;Help</a>
                         </li>
                     </ul>
@@ -153,20 +330,19 @@
                     <button class="mobile-menu-toggler text-dark mr-2" type="button">
                         <i class="fas fa-bars"></i>
                     </button>
-                    <a href="@if($isRegister && !$isEdit) # @else {{url('/')}}/customer-home @endif" class="logo">
-                        <img src="{{url('/')}}/{{$Company['Logo']}}" width="50" height="50" alt="RPC">
+                    <a href="@if($isRegister && !$isEdit) {{ route('homepage') }} @else {{url('/')}}/customer-profile @endif" class="logo">
+                        <img src="{{url('/')}}/{{$Company['Logo']}}" width="50" height="50" alt="{{$Company['CompanyName']}}">
                     </a>
                     <span class="ml-3 font-weight-bold" style="color:rgb(7, 54, 163)">{{$Company['CompanyName']}}</span>
-                </div><!-- End .header-left -->
-
+                </div>
                 <div class="header-right w-lg-max">
                     <div class="header-icon header-search header-search-inline header-search-category w-lg-max text-right mb-0">
                         <a href="#" class="search-toggle" role="button"><i class="icon-search-3"></i></a>
-                        <div class="header-search-wrapper">
-                            <input class="form-control" placeholder="Search..." type="text" id="homeSearch" name="homeSearch">
-                            <div id="searchResults" class="search-results"></div>
-                            <button class="btn icon-magnifier p-0" title="search"></button>
-                        </div>
+                            <div class="header-search-wrapper">
+                                <input class="form-control" placeholder="Search..." type="text" id="homeSearch" name="homeSearch">
+                                <div id="searchResults" class="search-results"></div>
+                                <button class="btn icon-magnifier p-0" title="search"></button>
+                            </div>
                     </div>
 
                     <span class="separator d-none d-lg-block"></span>
@@ -182,23 +358,33 @@
                     </div>
 
                     <span class="separator d-none d-lg-block mr-4"></span>
+{{--                        <a id="dLabel" role="button" data-toggle="dropdown" class="btn btn-default bg-white" data-target="#" href="#">--}}
+{{--                            <i class="icon-mail"></i>--}}
+{{--                        </a>--}}
 
-                    @if($isRegister)
-                        <a href="{{url('/')}}/social/auth/google" class="d-lg-block d-none" id="loginBtn">
-                            <div class="header-user">
-                                <div class="header-userinfo">
-                                    <span>Welcome</span>
-                                    <h4>Sign In / Register</h4>
-                                </div>
-                            </div>
-                        </a>
-                    @else
-                        <a href="{{url('/')}}/customer-profile" class="d-lg-block d-none">
-                            <div class="header-user">
-                                <i class="icon-user-2"></i>
-                            </div>
-                        </a>
-                    @endif
+{{--                    <button type="button" class="btn btn-default bg-white" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">--}}
+{{--                        <i class="icon-mail" style="font-size: 2.8rem !important;"></i><span class="unread-badge"></span>--}}
+{{--                    </button>--}}
+                    <div class="btn-wrapper">
+                        <button type="button" class="btn btn-default bg-white" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="icon-mail" style="font-size: 2.8rem;"></i>
+                        </button>
+                        <span class="unread-badge"></span>
+                        {{--                        on clicking the button set unread-badge as hidden--}}
+                        <ul class="dropdown-menu notifications" role="menu" aria-labelledby="dLabel">
+                            <div class="notification-heading"><h4 class="menu-title">Notifications</h4></div>
+                            <li class="divider"></li>
+                            <div class="notifications-wrapper" id="customerNotification"></div>
+                        </ul>
+                    </div>
+
+                    <span class="separator d-none d-lg-block mr-4"></span>
+
+                    <a href="@if($isRegister && !$isEdit) # @else {{url('/')}}/customer-profile @endif" class="d-lg-block d-none">
+                        <div class="header-user">
+                            <i class="icon-user-2"></i>
+                        </div>
+                    </a>
 
                     <span class="separator d-block"></span>
 
@@ -222,7 +408,7 @@
                                             <div class="product">
                                                 <div class="product-details">
                                                     <h4 class="product-title">
-                                                        <a href="#">{{$item->ProductName}}</a>
+                                                        <a href="{{ route('products.quickView', $item->ProductID) }}" class="btn-quickview">{{$item->ProductName}}</a>
                                                     </h4>
 
                                                     <span class="cart-product-info">
@@ -238,10 +424,10 @@
                                                 </div>
 
                                                 <figure class="product-image-container">
-                                                    <a href="{{ur('/')}}" class="product-image">
-                                                        <img src="{{$item->ProductImage}}" alt="product" width="80" height="80">
+                                                    <a href="{{ route('products.quickView', $item->ProductID) }}" class="product-image btn-quickview">
+                                                        <img src="{{ $item->ProductImage }}" alt="product" width="80" height="80">
                                                     </a>
-                                                    <a href="#" class="btn-remove btnRemoveCart" title="Remove Product" id="{{$item->ProductID}}"><span>×</span></a>
+                                                    <a href="#" class="btn-remove btnRemoveCart" title="Remove Product" id="{{ $item->ProductID }}"><span>×</span></a>
                                                 </figure>
                                             </div>
                                         @endforeach
@@ -260,6 +446,13 @@
                             </div><!-- End .dropdownmenu-wrapper -->
                         </div><!-- End .dropdown-menu -->
                     </div><!-- End .dropdown -->
+                    <span class="separator d-none d-lg-block mr-4"></span>
+
+                    <a class="d-lg-block d-none">
+                        <div class="header-user" id="btnLogout">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </div>
+                    </a>
                 </div><!-- End .header-right -->
             </div><!-- End .container -->
         </div><!-- End .header-middle -->
@@ -274,23 +467,25 @@
                                         Categories</span></a>
                             <div class="menu-depart">
                                 @foreach ($PCategories->take(5) as $row)
-                                    <a href="{{ route('products.guest.subCategoryList', [ 'CID' => $row->PCID ]) }}">{{$row->PCName}}</a>
+                                    <a href="{{ route('products.customer.subCategoryList', [ 'CID' => $row->PCID ]) }}">{{$row->PCName}}</a>
                                 @endforeach
                                     <div style="text-align: center; display: flex; justify-content: center; align-items: center;">
-                                        <a href="{{ auth()->check() ? route('products.customer.categoriesList') : route('products.guest.categoriesList') }}" class="text-center">More</a>
+                                        <a href="{{ route('products.customer.categoriesList') }}" class="text-center">More</a>
                                     </div>
                             </div>
                         </li>
-                        <li class="">
+                        <li class="{{ (Route::currentRouteName() == "homepage") ? 'active' : '' }}">
                             <a href="{{ route('homepage') }}">Home</a>
                         </li>
                         <li>
-                            <a href="{{ route('products') }}">Products</a>
+                            <a href="{{ (Route::currentRouteName() == "customer-register") ? '#' : route('products') }}">Products</a>
+                            @if(Route::currentRouteName() != "customer-register")
                             <div class="megamenu megamenu-fixed-width">
                                 <div class="row">
                                     <div class="col-lg-12">
                                         <a href="#" class="nolink">PRODUCT CATEGORIES</a>
                                     </div>
+
                                     @php
                                         $PCategories = $PCategories->take(9);
                                         $chunks = $PCategories->chunk(3);
@@ -300,7 +495,7 @@
                                         <div class="col-lg-4">
                                             <ul class="submenu">
                                                 @foreach ($chunk as $category)
-                                                    <li><a href="{{ auth()->check() ? route('products.customer.subCategoryList', ['CID' => $category->PCID]) : route('products.guest.subCategoryList', ['CID' => $category->PCID]) }}">{{ $category->PCName }}</a></li>
+                                                    <li><a href="{{ route('products.customer.subCategoryList', ['CID' => $category->PCID]) }}">{{ $category->PCName }}</a></li>
                                                 @endforeach
                                             </ul>
                                         </div>
@@ -315,8 +510,12 @@
                                     </div>
                                 </div><!-- End .row -->
                             </div><!-- End .megamenu -->
+                            @endif
                         </li>
                         @if(auth()->check() && !$isRegister)
+{{--                            <li>--}}
+{{--                                <a href="{{ route('requested-quotations') }}">Quotations</a>--}}
+{{--                            </li>--}}
                             <li>
                                 <a href="{{ route('my-account') }}">My Account</a>
                             </li>
@@ -328,11 +527,7 @@
     </header><!-- End .header -->
 
     <main class="main">
-        <section class="product-section1" style="background-color: #f4f4f4;">
-            <div class="container">
-                <iframe id="contentFrame" src="{{ route('policiesContent', $Slug) }}" style="width: 100%; min-height: 200px; overflow: hidden;" frameborder="0"></iframe>
-            </div>
-        </section>
+        @yield('content')
     </main>
     <!-- End .main -->
 
@@ -357,7 +552,7 @@
                                 <li>
                                     <span class="contact-info-label">Phone:</span><a href="#">+91 {{$Company['Phone-Number']}}@if($Company['Mobile-Number']), +91 {{$Company['Mobile-Number']}} @endif</a>
                                 </li>
-                                  <li>
+                                <li>
                                     <span class="contact-info-label">Email:</span>
                                     <a href="mailto:{{$Company['E-Mail']}}"><span
                                             class="__cf_email__"
@@ -452,7 +647,7 @@
     </div>
 </div>
 
-<div class="mobile-menu-overlay"></div>
+<div class="mobile-menu-overlay"></div><!-- End .mobil-menu-overlay -->
 
 <div class="sticky-navbar">
     <div class="sticky-info">
@@ -461,22 +656,22 @@
         </a>
     </div>
     <div class="sticky-info">
-        <a href="{{ route('products.guest.categoriesList') }}" class="">
+        <a href="{{ route('products.customer.categoriesList') }}" class="">
             <i class="icon-bars"></i>Categories
         </a>
     </div>
     <div class="sticky-info">
-        <a href="wishlist.html" class="">
+        <a href="#" class="">
             <i class="icon-wishlist-2"></i>Wishlist
         </a>
     </div>
     <div class="sticky-info">
-        <a href="login.html" class="">
+        <a href="#" class="">
             <i class="icon-user-2"></i>Account
         </a>
     </div>
     <div class="sticky-info">
-        <a href="cart.html" class="">
+        <a href="#" class="">
             <i class="icon-shopping-cart position-relative">
                 <span class="cart-count badge-circle">3</span>
             </i>Cart
@@ -530,38 +725,7 @@
         </div>
     </div>
 </div>
-
-{{-- <div class="newsletter-popup mfp-hide bg-img p-0 h-auto" id="newsletter-popup-form" style="background: #f1f1f1 no-repeat center/cover">
-    <div class="row">
-        <div class="col-sm-7">
-            <div class="row justify-content-center mt-3">
-                <div class="col-6">
-                    <img src="{{url('/')}}/{{$Company['Logo']}}" alt="Logo" class="logo-newsletter" width="50" height="50">
-                    <span class="ml-3 font-weight-bold text-dark">{{$Company['CompanyName']}}</span>
-                </div>
-            </div>
-            <div class="row justify-content-center">
-                <div class="col-9">
-                    <h2>KINDLY TURN ON YOUR LOCATION</h2>
-                    <p>for location Offers!</p>
-                </div>
-            </div>
-            <div class="row my-1 justify-content-center">
-                <div class="col-12 newsletter-popup-content">
-                    <div class="input-group">
-                        <input type="email" class="form-control" id="newsletter-email" name="newsletter-email" placeholder="Enter your delivery location" required />
-                        <input type="submit" class="btn btn-warning" value="locate me" />
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-5">
-            <img src="{{url('/')}}/home/assets/images/location-pop-up/MapAnime.gif" alt="">
-        </div>
-    </div>
-    <button title="Close (Esc)" type="button" class="mfp-close">×</button>
-</div> --}}
-
+<form id="logoutForm" action="{{ route('logout') }}" method="POST" style="display: none;">@csrf</form>
 <a id="scroll-top" href="#top" title="Top" role="button"><i class="icon-angle-up"></i></a>
 
 <script data-cfasync="false" src="../../cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
@@ -577,6 +741,7 @@
 <script src="{{url('/')}}/assets/plugins/dropify/js/dropify.js?r={{date('YmdHis')}}"></script>
 <script src="{{url('/')}}/assets/plugins/image-cropper/cropper.js?r={{date('YmdHis')}}"></script>
 <script src="{{url('/')}}/assets/js/address-web.js?r={{date('YmdHis')}}"></script>
+<script src="{{url('/')}}/assets/js/custom.js?r={{date('YmdHis')}}"></script>
 {{--<script src="{{url('/')}}/assets/js/nouislider.min.js?r={{date('YmdHis')}}"></script>--}}
 <script src="{{url('/')}}/assets/plugins/bootbox-js/bootbox.min.js?r={{date('YmdHis')}}"></script>
 <script src="{{url('/')}}/assets/js/select2/select2.full.min.js?r={{date('YmdHis')}}"></script>
@@ -618,7 +783,7 @@
                 let Content = `<div class="product">
                                         <div class="product-details">
                                             <h4 class="product-title">
-                                                <a href="#">${item.ProductName}</a>
+                                                <a href="{{url('/').'/products/quickView/html/' }}${item.ProductID}" class="btn-quickview">${item.ProductName}</a>
                                             </h4>
 
                                             <span class="cart-product-info">
@@ -634,7 +799,7 @@
                                         </div>
 
                                         <figure class="product-image-container">
-                                            <a href="demo42-product.html" class="product-image">
+                                            <a href="{{url('/').'/products/quickView/html/' }}${item.ProductID}" class="product-image btn-quickview">
                                                 <img src="${item.ProductImage}" alt="product" width="80" height="80">
                                             </a>
                                             <a href="#" class="btn-remove btnRemoveCart" title="Remove Product" id="${item.ProductID}"><span>×</span></a>
@@ -646,6 +811,7 @@
 
         $(document).on('click', '.btnAddCart', function () {
 
+            let thiss = $(this);
             let FormData = {
                 'ProductID': $(this).attr('id'),
             }
@@ -662,8 +828,18 @@
                 },
                 success: function (response) {
                     if (response.status) {
-                        thiss.text("Added in cart");
-                        thiss.removeClass('btnAddCart btn-add-cart');
+                        if (thiss.hasClass('wishlistCartBtn')) {
+                            thiss.text("Added in cart");
+                        }
+                        if ($('#wishlistTableHtml').length){
+                            var $wishlistButton = $('#wishlistTableHtml').find('.btnAddCart#' + thiss.attr('id'));
+                            thiss.removeClass('wishlistCartBtn btnAddCart btn-add-cart add-cart');
+                            thiss.addClass('added-in-cart');
+                            $wishlistButton.attr('class', thiss.attr('class'));
+                            $wishlistButton.html(thiss.html());
+                        }
+                        thiss.addClass('added-in-cart');
+                        thiss.removeClass('wishlistCartBtn btnAddCart btn-add-cart add-cart');
                         LoadCart(response.data);
                         UpdateItemQtyCount(response.data.length);
                     }
@@ -721,38 +897,54 @@
             }
         });
 
+        function setCookie(name, value, days) {
+            var expires = '';
+            if (days) {
+                var date = new Date();
+                date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+                expires = '; expires=' + date.toUTCString();
+            }
+            document.cookie = name + '=' + value + expires + '; path=/';
+        }
+
+        function getCookie(name) {
+            const cookieValue = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+            return cookieValue ? cookieValue.pop() : '';
+        }
+
         $('#changeCustomerAddressUl li a').on('click', function(e){
             e.preventDefault();
             let selectedAddress = $('#customerSelectedAddress');
+            selectedAddress.attr('data-aid', $(this).data('aid'));
             selectedAddress.attr('data-selected-postal-id', $(this).data('postal-id'));
             selectedAddress.attr('data-selected-latitude', $(this).data('latitude'));
             selectedAddress.attr('data-selected-longitude', $(this).data('longitude'));
             selectedAddress.html($(this).html());
-        });
-    });
-
-    $(document).ready(function() {
-        function adjustIframeHeight() {
-            var iframe = document.getElementById('contentFrame');
-            var iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
-            var body = iframeDocument.querySelector('body');
-            iframe.style.height = (body.scrollHeight+10) + 'px';
-        }
-
-        // Adjust iframe height after content is loaded
-        window.addEventListener('load', adjustIframeHeight);
-        // Also adjust iframe height when the window is resized
-        window.addEventListener('resize', adjustIframeHeight);
-
-        $('.redirectLogin').on('click', function(){
-            window.location.replace($('#loginBtn').attr('href'));
+            setCookie('selected_aid', $(this).data('aid'), 30);
+            let formData=new FormData();
+            formData.append('aid', $(this).data('aid'));
+            $.ajax({
+                url: "{{ route('setAidInSession') }}",
+                headers: { 'X-CSRF-Token' : '{{ csrf_token() }}' },
+                processData: false,
+                contentType: false,
+                type: "POST",
+                data: formData,
+                success: function(response) {
+                    // console.log(response.message);
+                },
+                error: function(xhr, status, error) {
+                    console.error(error);
+                }
+            });
         });
 
         $('#homeSearch').on('keyup', function() {
             var formData = new FormData();
+            formData.append('AID', $('#customerSelectedAddress').attr('data-aid'));
             formData.append('SearchText', $(this).val());
             $.ajax({
-                url: "{{ route('guestHomeSearch') }}",
+                url: "{{ route('customerHomeSearch') }}",
                 method: 'POST',
                 headers: { 'X-CSRF-Token' : '{{ csrf_token() }}' },
                 data: formData,
@@ -774,6 +966,70 @@
             if (!$(event.target).closest('.header-search-wrapper').length) {
                 $('#searchResults').hide();
             }
+        });
+
+        let selected_aid = getCookie('selected_aid');
+        if (selected_aid !== "") {
+            $('#changeCustomerAddressUl li a[data-aid="' + selected_aid + '"]').click();
+        }
+
+        let currentNotificationPage = 1;
+
+        function updateNotifications(data) {
+            var dropdownMenu = $('#customerNotification');
+            dropdownMenu.css('top', '160px !important');
+            dropdownMenu.html("");
+            for (var i = 0; i < data.length; i++) {
+                var notification = data[i];
+                // var notificationItem = $('<li><a href="#" class="top-text-block"><div class="top-text-heading">' + notification.Title + '</div><div class="top-text-light">' + notification.Message + '</div></a></li>');
+
+                var notificationItem = $('<a class="content" href="#"><div class="notification-item"><h4 class="item-title">' + notification.Title + '</h4>' +
+                    '<p class="item-info">' + notification.Message + '</p></div></a>');
+                dropdownMenu.append(notificationItem);
+            }
+            dropdownMenu.attr('style', 'top: 160px !important;');
+        }
+
+        function fetchNotifications(currentNotificationPage) {
+            $.ajax({
+                type: "POST",
+                url: "{{ route('getNotifications') }}",
+                dataType: "json",
+                headers: { 'X-CSRF-Token' : '{{ csrf_token() }}' },
+                data: { page: currentNotificationPage },
+                success: function(response) {
+                    if (response.status === true) {
+                        updateNotifications(response.data);
+                        currentNotificationPage = response.currentPage;
+                    } else {
+                        console.error('Failed to fetch notifications:', response.message);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('AJAX Error:', error);
+                }
+            });
+        }
+
+        fetchNotifications(currentNotificationPage);
+
+        $('#paginationNext').on('click', function() {
+            fetchNotifications(currentNotificationPage + 1);
+        });
+
+        $('#paginationPrev').on('click', function() {
+            fetchNotifications(currentNotificationPage - 1);
+        });
+        $('#customerNotificationBtn').on('click', function () {
+            $('#customerNotification').attr('style', 'top: 160px !important;');
+        });
+        $('.btn-wrapper .btn').click(function () {
+            $('.unread-badge').hide();
+        });
+        
+        $(document).on('click','#btnLogout',async(e)=>{
+            e.preventDefault();
+            $('#logoutForm').submit();
         });
     });
 </script>

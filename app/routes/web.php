@@ -133,6 +133,8 @@ Route::controller(HomeAuthController::class)->group(function () {
 });
 
 Route::post('setAidInSession', [HomeController::class, 'setAidInSession'])->name('setAidInSession');
+Route::post('setPostalCodeInSession', [HomeController::class, 'setPostalCodeInSession'])->name('setPostalCodeInSession');
+Route::post('removePostalCodeInSession', [HomeController::class, 'removePostalCodeInSession'])->name('removePostalCodeInSession');
 Route::get('policies/{Slug}', [HomeController::class, 'policies'])->name('policies');
 Route::get('get/iframe-contents/{Slug}', [HomeController::class, 'policiesContent'])->name('policiesContent');
 Route::get('guest/products', [HomeController::class, 'products'])->name('guest.products');
