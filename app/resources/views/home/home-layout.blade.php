@@ -357,26 +357,21 @@
                         </div>
                     </div>
 
-                    <span class="separator d-none d-lg-block mr-4"></span>
-{{--                        <a id="dLabel" role="button" data-toggle="dropdown" class="btn btn-default bg-white" data-target="#" href="#">--}}
-{{--                            <i class="icon-mail"></i>--}}
-{{--                        </a>--}}
+                    @if(!$isRegister)
+                        <span class="separator d-none d-lg-block mr-4"></span>
 
-{{--                    <button type="button" class="btn btn-default bg-white" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">--}}
-{{--                        <i class="icon-mail" style="font-size: 2.8rem !important;"></i><span class="unread-badge"></span>--}}
-{{--                    </button>--}}
-                    <div class="btn-wrapper">
-                        <button type="button" class="btn btn-default bg-white" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <i class="icon-mail" style="font-size: 2.8rem;"></i>
-                        </button>
-                        <span class="unread-badge"></span>
-                        {{--                        on clicking the button set unread-badge as hidden--}}
-                        <ul class="dropdown-menu notifications" role="menu" aria-labelledby="dLabel">
-                            <div class="notification-heading"><h4 class="menu-title">Notifications</h4></div>
-                            <li class="divider"></li>
-                            <div class="notifications-wrapper" id="customerNotification"></div>
-                        </ul>
-                    </div>
+                        <div class="btn-wrapper">
+                            <button type="button" class="btn btn-default bg-white" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="icon-mail" style="font-size: 2.8rem;"></i>
+                            </button>
+                            <span class="unread-badge"></span>
+                            <ul class="dropdown-menu notifications" role="menu" aria-labelledby="dLabel">
+                                <div class="notification-heading"><h4 class="menu-title">Notifications</h4></div>
+                                <li class="divider"></li>
+                                <div class="notifications-wrapper" id="customerNotification"></div>
+                            </ul>
+                        </div>
+                    @endif
 
                     <span class="separator d-none d-lg-block mr-4"></span>
 
@@ -386,66 +381,68 @@
                         </div>
                     </a>
 
-                    <span class="separator d-block"></span>
+                    @if(!$isRegister)
+                        <span class="separator d-block"></span>
 
-                    <div class="dropdown cart-dropdown">
-                        <a href="#" title="Cart" class="dropdown-toggle dropdown-arrow cart-toggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-display="static">
-                            <i class="icon-cart-thick"></i>
-                            <i class="fa-regular fa-cart-shopping"></i>
-                            <span class="cart-count badge-circle" id="divCartItemCount">@if(count($Cart) > 0){{count($Cart)}}@endif</span>
-                        </a>
+                        <div class="dropdown cart-dropdown">
+                            <a href="#" title="Cart" class="dropdown-toggle dropdown-arrow cart-toggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-display="static">
+                                <i class="icon-cart-thick"></i>
+                                <i class="fa-regular fa-cart-shopping"></i>
+                                <span class="cart-count badge-circle" id="divCartItemCount">@if(count($Cart) > 0){{count($Cart)}}@endif</span>
+                            </a>
 
-                        <div class="cart-overlay"></div>
+                            <div class="cart-overlay"></div>
 
-                        <div class="dropdown-menu mobile-cart">
-                            <a href="#" title="Close (Esc)" class="btn-close">×</a>
+                            <div class="dropdown-menu mobile-cart">
+                                <a href="#" title="Close (Esc)" class="btn-close">×</a>
 
-                            <div class="dropdownmenu-wrapper custom-scrollbar">
-                                <div class="dropdown-cart-header">Shopping Cart</div>
-                                <div class="dropdown-cart-products" id="divCart">
-                                    @if(count($Cart) > 0)
-                                        @foreach($Cart as $item)
-                                            <div class="product">
-                                                <div class="product-details">
-                                                    <h4 class="product-title">
-                                                        <a href="{{ route('products.quickView', $item->ProductID) }}" class="btn-quickview">{{$item->ProductName}}</a>
-                                                    </h4>
+                                <div class="dropdownmenu-wrapper custom-scrollbar">
+                                    <div class="dropdown-cart-header">Shopping Cart</div>
+                                    <div class="dropdown-cart-products" id="divCart">
+                                        @if(count($Cart) > 0)
+                                            @foreach($Cart as $item)
+                                                <div class="product">
+                                                    <div class="product-details">
+                                                        <h4 class="product-title">
+                                                            <a href="{{ route('products.quickView', $item->ProductID) }}" class="btn-quickview">{{$item->ProductName}}</a>
+                                                        </h4>
 
-                                                    <span class="cart-product-info">
-                                                            <span class="cart-product-qty">
-                                                                <div class="input-group" style="width: 80%;">
-                                                                    <input class="form-control txtUpdateQty" type="number" value="{{$item->Qty}}" id="{{$item->ProductID}}">
-                                                                    <div class="input-group-append">
-                                                                        <span class="input-group-text">{{$item->UName}} ({{$item->UName}})</span>
+                                                        <span class="cart-product-info">
+                                                                <span class="cart-product-qty">
+                                                                    <div class="input-group" style="width: 80%;">
+                                                                        <input class="form-control txtUpdateQty" type="number" value="{{$item->Qty}}" id="{{$item->ProductID}}">
+                                                                        <div class="input-group-append">
+                                                                            <span class="input-group-text">{{$item->UName}} ({{$item->UName}})</span>
+                                                                        </div>
                                                                     </div>
-                                                                </div>
+                                                                </span>
                                                             </span>
-                                                        </span>
+                                                    </div>
+
+                                                    <figure class="product-image-container">
+                                                        <a href="{{ route('products.quickView', $item->ProductID) }}" class="product-image btn-quickview">
+                                                            <img src="{{ $item->ProductImage }}" alt="product" width="80" height="80">
+                                                        </a>
+                                                        <a href="#" class="btn-remove btnRemoveCart" title="Remove Product" id="{{ $item->ProductID }}"><span>×</span></a>
+                                                    </figure>
                                                 </div>
+                                            @endforeach
+                                        @else
+                                            <span>Your Cart is Empty!</span>
+                                        @endif
+                                    </div>
 
-                                                <figure class="product-image-container">
-                                                    <a href="{{ route('products.quickView', $item->ProductID) }}" class="product-image btn-quickview">
-                                                        <img src="{{ $item->ProductImage }}" alt="product" width="80" height="80">
-                                                    </a>
-                                                    <a href="#" class="btn-remove btnRemoveCart" title="Remove Product" id="{{ $item->ProductID }}"><span>×</span></a>
-                                                </figure>
-                                            </div>
-                                        @endforeach
-                                    @else
-                                        <span>Your Cart is Empty!</span>
-                                    @endif
-                                </div>
-
-                                <div class="dropdown-cart-action" id="divCartAction">
-                                    @if(count($Cart) > 0)
-                                        <a href="{{url('/')}}/checkout" class="btn btn-secondary btn-block">Request Quote</a>
-                                    @else
-                                        <a href="{{ auth()->check() ? route('products.customer.productsList') : route('products.guest.productsList') }}" class="btn btn-dark btn-block">Add to Cart</a>
-                                    @endif
-                                </div><!-- End .dropdown-cart-total -->
-                            </div><!-- End .dropdownmenu-wrapper -->
-                        </div><!-- End .dropdown-menu -->
-                    </div><!-- End .dropdown -->
+                                    <div class="dropdown-cart-action" id="divCartAction">
+                                        @if(count($Cart) > 0)
+                                            <a href="{{url('/')}}/checkout" class="btn btn-secondary btn-block">Request Quote</a>
+                                        @else
+                                            <a href="{{ auth()->check() ? route('products.customer.productsList') : route('products.guest.productsList') }}" class="btn btn-dark btn-block">Add to Cart</a>
+                                        @endif
+                                    </div><!-- End .dropdown-cart-total -->
+                                </div><!-- End .dropdownmenu-wrapper -->
+                            </div><!-- End .dropdown-menu -->
+                        </div>
+                    @endif
                     <span class="separator d-none d-lg-block mr-4"></span>
 
                     <a class="d-lg-block d-none">
@@ -461,58 +458,58 @@
             <div class="container">
                 <nav class="main-nav w-100">
                     <ul class="menu w-100" id="customerNavigationBar">
-                        <li class="menu-item d-flex align-items-center">
-                            <a href="#" class="d-inline-flex align-items-center sf-with-ul">
-                                <i class="custom-icon-toggle-menu d-inline-table"></i><span>All
-                                        Categories</span></a>
-                            <div class="menu-depart">
-                                @foreach ($PCategories->take(5) as $row)
-                                    <a href="{{ route('products.customer.subCategoryList', [ 'CID' => $row->PCID ]) }}">{{$row->PCName}}</a>
-                                @endforeach
-                                    <div style="text-align: center; display: flex; justify-content: center; align-items: center;">
-                                        <a href="{{ route('products.customer.categoriesList') }}" class="text-center">More</a>
-                                    </div>
-                            </div>
-                        </li>
-                        <li class="{{ (Route::currentRouteName() == "homepage") ? 'active' : '' }}">
-                            <a href="{{ route('homepage') }}">Home</a>
-                        </li>
-                        <li>
-                            <a href="{{ (Route::currentRouteName() == "customer-register") ? '#' : route('products') }}">Products</a>
-                            @if(Route::currentRouteName() != "customer-register")
-                            <div class="megamenu megamenu-fixed-width">
-                                <div class="row">
-                                    <div class="col-lg-12">
-                                        <a href="#" class="nolink">PRODUCT CATEGORIES</a>
-                                    </div>
-
-                                    @php
-                                        $PCategories = $PCategories->take(9);
-                                        $chunks = $PCategories->chunk(3);
-                                    @endphp
-
-                                    @foreach ($chunks as $chunk)
-                                        <div class="col-lg-4">
-                                            <ul class="submenu">
-                                                @foreach ($chunk as $category)
-                                                    <li><a href="{{ route('products.customer.subCategoryList', ['CID' => $category->PCID]) }}">{{ $category->PCName }}</a></li>
-                                                @endforeach
-                                            </ul>
-                                        </div>
+                        @if(auth()->check() && !$isRegister)
+                            <li class="menu-item d-flex align-items-center">
+                                <a href="#" class="d-inline-flex align-items-center sf-with-ul">
+                                    <i class="custom-icon-toggle-menu d-inline-table"></i><span>All
+                                            Categories</span></a>
+                                <div class="menu-depart">
+                                    @foreach ($PCategories->take(5) as $row)
+                                        <a href="{{ route('products.customer.subCategoryList', [ 'CID' => $row->PCID ]) }}">{{$row->PCName}}</a>
                                     @endforeach
+                                        <div style="text-align: center; display: flex; justify-content: center; align-items: center;">
+                                            <a href="{{ route('products.customer.categoriesList') }}" class="text-center">More</a>
+                                        </div>
+                                </div>
+                            </li>
+                            <li class="{{ (Route::currentRouteName() == "homepage") ? 'active' : '' }}">
+                                <a href="{{ route('homepage') }}">Home</a>
+                            </li>
+                            <li>
+                                <a href="{{ (Route::currentRouteName() == "customer-register") ? '#' : route('products') }}">Products</a>
+                                @if(Route::currentRouteName() != "customer-register")
+                                <div class="megamenu megamenu-fixed-width">
+                                    <div class="row">
+                                        <div class="col-lg-12">
+                                            <a href="#" class="nolink">PRODUCT CATEGORIES</a>
+                                        </div>
 
-                                    <div class="col-lg-12 p-1">
-                                        <div class="row justify-content-end">
+                                        @php
+                                            $PCategories = $PCategories->take(9);
+                                            $chunks = $PCategories->chunk(3);
+                                        @endphp
+
+                                        @foreach ($chunks as $chunk)
                                             <div class="col-lg-4">
-                                                <a href="{{ route('products') }}" class="btn btn-sm btn-dark mr-0">View More</a>
+                                                <ul class="submenu">
+                                                    @foreach ($chunk as $category)
+                                                        <li><a href="{{ route('products.customer.subCategoryList', ['CID' => $category->PCID]) }}">{{ $category->PCName }}</a></li>
+                                                    @endforeach
+                                                </ul>
+                                            </div>
+                                        @endforeach
+
+                                        <div class="col-lg-12 p-1">
+                                            <div class="row justify-content-end">
+                                                <div class="col-lg-4">
+                                                    <a href="{{ route('products') }}" class="btn btn-sm btn-dark mr-0">View More</a>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </div><!-- End .row -->
-                            </div><!-- End .megamenu -->
-                            @endif
-                        </li>
-                        @if(auth()->check() && !$isRegister)
+                                    </div><!-- End .row -->
+                                </div><!-- End .megamenu -->
+                                @endif
+                            </li>
 {{--                            <li>--}}
 {{--                                <a href="{{ route('requested-quotations') }}">Quotations</a>--}}
 {{--                            </li>--}}

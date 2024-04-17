@@ -7,10 +7,10 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <title>RPC Construction</title>
+    <title>{{$Company['CompanyName']}}</title>
 
     <meta name="keywords" content="HTML5 Template"/>
-    <meta name="description" content="RPC Construction">
+    <meta name="description" content="{{$Company['CompanyName']}}">
     <meta name="author" content="SW-THEMES">
 
     <!-- Favicon -->
@@ -60,9 +60,23 @@
         <div class="header-top">
             <div class="container">
                 <div class="header-left d-md-block">
-                    <div class="info-box info-box-icon-left text-primary justify-content-start p-0">
-                        <i class="fa fa-arrow"></i>
-                    </div>
+                    @if($PostalCode)
+                        <div class="align-middle" style="display: inline-block;">
+                            <div class="info-box info-box-icon-left justify-content-start">
+                                <i class="icon-location" style="color:#ff6840;"></i>
+                                <div class="align-middle" style="display: inline-block; height: 20px; vertical-align: middle !important;">
+                                    <h6 class="font-weight-bold text-dark" style="line-height: 18px; position: relative;">
+                                        Delivery Location - {{$PostalCode}} 
+                                        <a href="">
+                                            <span id="btnClearPincode">
+                                                <i class="fas fa-times text-danger" style="font-size: 12px;"></i>
+                                            </span>
+                                        </a>
+                                    </h6>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
                 </div>
                 <div class="header-right header-dropdowns ml-0 ml-md-auto w-md-100">
                     <div class="header-dropdown mr-auto mr-md-0">
@@ -96,9 +110,9 @@
                         <i class="fas fa-bars"></i>
                     </button>
                     <a href="{{url('/')}}" class="logo">
-                        <img src="{{url('/')}}/{{$Company['Logo']}}" width="50" height="50" alt="RPC">
+                        <img src="{{url('/')}}/{{$Company['Logo']}}" width="50" height="50" alt="{{$Company['CompanyName']}}">
                     </a>
-                    <span class="ml-3 font-weight-bold">RPC Construction</span>
+                    <span class="ml-3 font-weight-bold">{{$Company['CompanyName']}}</span>
                 </div><!-- End .header-left -->
 
                 <div class="header-right w-lg-max">
@@ -346,8 +360,7 @@
                 <div class="row">
                     <div class="col-lg-2 col-sm-6 pb-2 pb-sm-0 d-flex align-items-center">
                         <div class="widget m-b-3">
-                            <img src="{{url('/')}}/{{$Company['Logo']}}" alt="Logo" width="202" height="54"
-                                 class="logo-footer">
+                            <img src="{{url('/')}}/{{$Company['Logo']}}" alt="{{$Company['CompanyName']}}" width="202" height="54" class="logo-footer">
 
                         </div><!-- End .widget -->
                     </div><!-- End .col-lg-3 -->
@@ -431,7 +444,7 @@
         <div class="container">
             <div class="footer-bottom d-sm-flex align-items-center bg-dark">
                 <div class="footer-left">
-                    <span class="footer-copyright">RPC Construction. © 2024. All Rights Reserved</span>
+                    <span class="footer-copyright">{{$Company['CompanyName']}}. © 2024. All Rights Reserved</span>
                 </div>
 
                 <div class="footer-right ml-auto mt-1 mt-sm-0">
@@ -473,17 +486,17 @@
         </a>
     </div>
     <div class="sticky-info">
-        <a href="wishlist.html" class="">
+        <a href="{{url('/')}}" class="">
             <i class="icon-wishlist-2"></i>Wishlist
         </a>
     </div>
     <div class="sticky-info">
-        <a href="login.html" class="">
+        <a href="{{url('/')}}" class="">
             <i class="icon-user-2"></i>Account
         </a>
     </div>
     <div class="sticky-info">
-        <a href="cart.html" class="">
+        <a href="{{url('/')}}" class="">
             <i class="icon-shopping-cart position-relative">
                 <span class="cart-count badge-circle">3</span>
             </i>Cart

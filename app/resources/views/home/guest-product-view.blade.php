@@ -60,12 +60,23 @@
         <div class="header-top">
             <div class="container">
                 <div class="header-left d-md-block">
-                    <div class="info-box info-box-icon-left text-primary justify-content-start p-0">
-                        {{-- <i class="icon-location" style="color:#ff6840;"></i>
-                        <h6 class="font-weight-bold text-dark">Delivery Location - </h6> --}}
-                        {{-- <span><a href="#" class="text-dark">45,Eden Garden, R.S.Puram, 3rd Cross, Coimbatore. 641006</a></span> --}}
-                        <i class="fa fa-arrow"></i>
-                    </div>
+                    @if($PostalCode)
+                        <div class="align-middle" style="display: inline-block;">
+                            <div class="info-box info-box-icon-left justify-content-start">
+                                <i class="icon-location" style="color:#ff6840;"></i>
+                                <div class="align-middle" style="display: inline-block; height: 20px; vertical-align: middle !important;">
+                                    <h6 class="font-weight-bold text-dark" style="line-height: 18px; position: relative;">
+                                        Delivery Location - {{$PostalCode}} 
+                                        <a href="">
+                                            <span id="btnClearPincode">
+                                                <i class="fas fa-times text-danger" style="font-size: 12px;"></i>
+                                            </span>
+                                        </a>
+                                    </h6>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
                 </div>
                 {{-- <div class="header-dropdown ">
                     <a href="#"></a>
@@ -108,8 +119,8 @@
                     <button class="mobile-menu-toggler text-dark mr-2" type="button">
                         <i class="fas fa-bars"></i>
                     </button>
-                    <a href="#" class="logo">
-                        <img src="{{url('/')}}/{{$Company['Logo']}}" width="50" height="50" alt="RPC">
+                    <a href="{{url('/')}}" class="logo">
+                        <img src="{{url('/')}}/{{$Company['Logo']}}" width="50" height="50" alt="{{$Company['CompanyName']}}">
                     </a>
                     <span class="ml-3 font-weight-bold">{{$Company['CompanyName']}}</span>
                 </div><!-- End .header-left -->
@@ -435,8 +446,7 @@
                 <div class="row">
                     <div class="col-lg-2 col-sm-6 pb-2 pb-sm-0 d-flex align-items-center">
                         <div class="widget m-b-3">
-                            <img src="{{url('/')}}/{{$Company['Logo']}}" alt="Logo" width="202" height="54"
-                                 class="logo-footer">
+                            <img src="{{url('/')}}/{{$Company['Logo']}}" alt="{{$Company['CompanyName']}}" width="202" height="54" class="logo-footer">
 
                         </div><!-- End .widget -->
                     </div><!-- End .col-lg-3 -->
@@ -562,17 +572,17 @@
         </a>
     </div>
     <div class="sticky-info">
-        <a href="wishlist.html" class="">
+        <a href="{{url('/')}}" class="">
             <i class="icon-wishlist-2"></i>Wishlist
         </a>
     </div>
     <div class="sticky-info">
-        <a href="login.html" class="">
+        <a href="{{url('/')}}" class="">
             <i class="icon-user-2"></i>Account
         </a>
     </div>
     <div class="sticky-info">
-        <a href="cart.html" class="">
+        <a href="{{url('/')}}" class="">
             <i class="icon-shopping-cart position-relative">
                 <span class="cart-count badge-circle">3</span>
             </i>Cart
@@ -621,6 +631,21 @@
                 $('#searchResults').hide();
             }
         });
+        $('#btnClearPincode').on('click', function(e){
+                e.preventDefault();
+                $.ajax({
+                    url: "{{ route('removePostalCodeInSession') }}",
+                    headers: { 'X-CSRF-Token' : '{{ csrf_token() }}' },
+                    processData: false,
+                    contentType: false,
+                    type: "POST",
+                    success: function(response) {
+                        if(response.status == true){
+                            window.location.reload();
+                        }
+                    }
+                });
+            });
     });
 </script>
 </body>

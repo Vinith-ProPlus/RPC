@@ -154,7 +154,7 @@
                         <i class="fas fa-bars"></i>
                     </button>
                     <a href="@if($isRegister && !$isEdit) # @else {{url('/')}}/customer-home @endif" class="logo">
-                        <img src="{{url('/')}}/{{$Company['Logo']}}" width="50" height="50" alt="RPC">
+                        <img src="{{url('/')}}/{{$Company['Logo']}}" width="50" height="50" alt="{{$Company['CompanyName']}}">
                     </a>
                     <span class="ml-3 font-weight-bold" style="color:rgb(7, 54, 163)">{{$Company['CompanyName']}}</span>
                 </div><!-- End .header-left -->
@@ -342,7 +342,7 @@
                 <div class="row">
                     <div class="col-lg-2 col-sm-6 pb-2 pb-sm-0 d-flex align-items-center">
                         <div class="widget m-b-3">
-                            <img src="{{url('/')}}/{{$Company['Logo']}}" alt="Logo" width="202" height="54" class="logo-footer">
+                            <img src="{{url('/')}}/{{$Company['Logo']}}" alt="{{$Company['CompanyName']}}" width="202" height="54" class="logo-footer">
 
                         </div><!-- End .widget -->
                     </div><!-- End .col-lg-3 -->
@@ -466,17 +466,17 @@
         </a>
     </div>
     <div class="sticky-info">
-        <a href="wishlist.html" class="">
+        <a href="{{url('/')}}" class="">
             <i class="icon-wishlist-2"></i>Wishlist
         </a>
     </div>
     <div class="sticky-info">
-        <a href="login.html" class="">
+        <a href="{{url('/')}}" class="">
             <i class="icon-user-2"></i>Account
         </a>
     </div>
     <div class="sticky-info">
-        <a href="cart.html" class="">
+        <a href="{{url('/')}}" class="">
             <i class="icon-shopping-cart position-relative">
                 <span class="cart-count badge-circle">3</span>
             </i>Cart
@@ -634,7 +634,7 @@
                                         </div>
 
                                         <figure class="product-image-container">
-                                            <a href="demo42-product.html" class="product-image">
+                                            <a href="#" class="product-image">
                                                 <img src="${item.ProductImage}" alt="product" width="80" height="80">
                                             </a>
                                             <a href="#" class="btn-remove btnRemoveCart" title="Remove Product" id="${item.ProductID}"><span>×</span></a>

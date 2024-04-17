@@ -21,18 +21,22 @@ class HomeController extends Controller
     private $PostalCode;
     private $PostalCodeID;
     public function __construct(){
-		$this->generalDB=Helper::getGeneralDB();
+        $this->generalDB = Helper::getGeneralDB();
         $this->Company = DB::table('tbl_company_settings')->select('KeyName', 'KeyValue')->get()->pluck('KeyValue', 'KeyName')->toArray();
         $this->Company['AddressData'] = DB::table($this->generalDB.'tbl_cities as CI')
-        ->leftJoin($this->generalDB.'tbl_postalcodes as PC', 'PC.PID', 'CI.PostalID')
-        ->leftJoin($this->generalDB.'tbl_taluks as T', 'T.TalukID', 'CI.TalukID')
-        ->leftJoin($this->generalDB.'tbl_districts as D', 'D.DistrictID', 'CI.DistrictID')
-        ->leftJoin($this->generalDB.'tbl_states as S', 'S.StateID', 'CI.StateID')
-        ->leftJoin($this->generalDB.'tbl_countries as C','C.CountryID','CI.CountryID')->where('CI.CityID',$this->Company['CityID'])
-        ->select('C.CountryName','S.StateName','D.DistrictName','T.TalukName','CI.CityName', 'PC.PostalCode')
-        ->first();
-        $this->PostalCode = Session::get('postal_code');
-        $this->PostalCodeID = Session::get('postal_code_id');
+            ->leftJoin($this->generalDB.'tbl_postalcodes as PC', 'PC.PID', 'CI.PostalID')
+            ->leftJoin($this->generalDB.'tbl_taluks as T', 'T.TalukID', 'CI.TalukID')
+            ->leftJoin($this->generalDB.'tbl_districts as D', 'D.DistrictID', 'CI.DistrictID')
+            ->leftJoin($this->generalDB.'tbl_states as S', 'S.StateID', 'CI.StateID')
+            ->leftJoin($this->generalDB.'tbl_countries as C','C.CountryID','CI.CountryID')->where('CI.CityID',$this->Company['CityID'])
+            ->select('C.CountryName','S.StateName','D.DistrictName','T.TalukName','CI.CityName', 'PC.PostalCode')
+            ->first();
+
+        $this->middleware(function ($request, $next) {
+            $this->PostalCode = $request->session()->get('postal_code');
+            $this->PostalCodeID = $request->session()->get('postal_code_id');
+            return $next($request);
+        });
     }
     public function GuestView(Request $req)
     {
@@ -443,15 +447,30 @@ class HomeController extends Controller
 
     public function subCategoryList(Request $request)
     {
-        $PCatagories = DB::Table('tbl_product_category')->where('ActiveStatus', 'Active')->where('DFlag', 0)
-            ->select('PCName', 'PCID',
-                DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PCImage, ""), "assets/images/no-image-b.png")) AS PCImage'))
-            ->inRandomOrder()->take(10)->get();
+        $FormData['PostalCodeID'] = $this->PostalCodeID;
+        $FormData['PostalCode'] = $this->PostalCode;
+        if($FormData['PostalCodeID']){
+            $AllVendors = $this->getAvailableVendors($FormData['PostalCodeID']);
+
+            $PCatagories = DB::table('tbl_vendors_product_mapping as VPM')
+                ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'VPM.PCID')
+                ->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)
+                ->where('VPM.Status', 1)->WhereIn('VPM.VendorID', $AllVendors)
+                ->groupBy('PC.PCID', 'PC.PCName', 'PC.PCImage')
+                ->select('PC.PCID', 'PC.PCName', DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PCImage, ""), "assets/images/no-image-b.png")) AS PCImage'))
+                ->inRandomOrder()->take(10)->get();
+        }else{
+            $PCatagories = DB::Table('tbl_product_category')->where('ActiveStatus', 'Active')->where('DFlag', 0)
+                ->select('PCName', 'PCID',
+                    DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PCImage, ""), "assets/images/no-image-b.png")) AS PCImage'))
+                ->inRandomOrder()->take(10)->get();
+        }
         $FormData['PCategories'] = $PCatagories;
         $FormData['CID'] = $request->CID ?? '';
         $FormData['isRegister'] = false;
         $FormData['Cart'] = [];
         $FormData['Company']=$this->Company;
+
         if (auth()->check()) {
             $CustomerID = auth()->user()->ReferID;
             if (empty($CustomerID)) {
@@ -492,13 +511,30 @@ class HomeController extends Controller
                     DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PSC.PSCImage, ""), "assets/images/no-image-b.png")) AS PSCImage'))
                 ->inRandomOrder()->get();
         } else {
-            $PSubCatagories = DB::Table('tbl_product_subcategory')->where('ActiveStatus', 'Active')->where('DFlag', 0)
-                ->when(isset($request->CID), function ($query) use ($request){
-                    return $query->where('PCID', $request->CID);
-                })
-                ->select('PSCName', 'PSCID',
-                    DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PSCImage, ""), "assets/images/no-image-b.png")) AS PSCImage'))
-                ->inRandomOrder()->get();
+            $FormData['PostalCodeID'] = $this->PostalCodeID;
+            $FormData['PostalCode'] = $this->PostalCode;
+            if($FormData['PostalCodeID']){
+                $AllVendors = $this->getAvailableVendors($FormData['PostalCodeID']);
+
+                $PSubCatagories = DB::table('tbl_product_subcategory as PSC')
+                    ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'PSC.PCID')
+                    ->rightJoin('tbl_vendors_product_mapping as VPM', 'PSC.PSCID', 'VPM.PSCID')
+                    ->where('VPM.Status', 1)
+                    ->whereIn('VPM.VendorID', $AllVendors)
+                    ->when(isset($request->CID), function ($query) use ($request){
+                        return $query->where('PCID', $request->CID);
+                    })
+                    ->groupBy('PC.PCID', 'PC.PCName', 'PSC.PSCID', 'PSC.PSCName')
+                    ->select('PSCName', 'PSC.PSCID', DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PSCImage, ""), "assets/images/no-image-b.png")) AS PSCImage'))
+                    ->inRandomOrder()->get();
+            }else{
+                $PSubCatagories = DB::Table('tbl_product_subcategory')->where('ActiveStatus', 'Active')->where('DFlag', 0)
+                    ->when(isset($request->CID), function ($query) use ($request){
+                        return $query->where('PCID', $request->CID);
+                    })
+                    ->select('PSCName', 'PSCID', DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PSCImage, ""), "assets/images/no-image-b.png")) AS PSCImage'))
+                    ->inRandomOrder()->get();
+            }
         }
 
         return view('home.sub-category-list-html', compact('PSubCatagories'))->render();
@@ -563,10 +599,24 @@ class HomeController extends Controller
 
     public function guestCategoryList()
     {
-        $PCatagories = DB::Table('tbl_product_category')->where('ActiveStatus', 'Active')->where('DFlag', 0)
-            ->select('PCName', 'PCID',
-                DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PCImage, ""), "assets/images/no-image-b.png")) AS PCImage'))
-            ->inRandomOrder()->get();
+        $FormData['PostalCodeID'] = $this->PostalCodeID;
+        $FormData['PostalCode'] = $this->PostalCode;
+        if($FormData['PostalCodeID']){
+            $AllVendors = $this->getAvailableVendors($FormData['PostalCodeID']);
+
+            $PCatagories = DB::table('tbl_vendors_product_mapping as VPM')
+                ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'VPM.PCID')
+                ->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)
+                ->where('VPM.Status', 1)->WhereIn('VPM.VendorID', $AllVendors)
+                ->groupBy('PC.PCID', 'PC.PCName', 'PC.PCImage')
+                ->select('PC.PCID', 'PC.PCName', DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PCImage, ""), "assets/images/no-image-b.png")) AS PCImage'))
+                ->inRandomOrder()->take(10)->get();
+        }else{
+            $PCatagories = DB::Table('tbl_product_category')->where('ActiveStatus', 'Active')->where('DFlag', 0)
+                ->select('PCName', 'PCID',
+                    DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PCImage, ""), "assets/images/no-image-b.png")) AS PCImage'))
+                ->inRandomOrder()->take(10)->get();
+        }
         $FormData['PCategories'] = $PCatagories;
         $FormData['isRegister'] = false;
         $FormData['Cart'] = [];
@@ -603,10 +653,24 @@ class HomeController extends Controller
 
     public function guestSubCategoryList(Request $request)
     {
-        $PCatagories = DB::Table('tbl_product_category')->where('ActiveStatus', 'Active')->where('DFlag', 0)
-            ->select('PCName', 'PCID',
-                DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PCImage, ""), "assets/images/no-image-b.png")) AS PCImage'))
-            ->inRandomOrder()->get();
+        $FormData['PostalCodeID'] = $this->PostalCodeID;
+        $FormData['PostalCode'] = $this->PostalCode;
+        if($FormData['PostalCodeID']){
+            $AllVendors = $this->getAvailableVendors($FormData['PostalCodeID']);
+
+            $PCatagories = DB::table('tbl_vendors_product_mapping as VPM')
+                ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'VPM.PCID')
+                ->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)
+                ->where('VPM.Status', 1)->WhereIn('VPM.VendorID', $AllVendors)
+                ->groupBy('PC.PCID', 'PC.PCName', 'PC.PCImage')
+                ->select('PC.PCID', 'PC.PCName', DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PCImage, ""), "assets/images/no-image-b.png")) AS PCImage'))
+                ->inRandomOrder()->take(10)->get();
+        }else{
+            $PCatagories = DB::Table('tbl_product_category')->where('ActiveStatus', 'Active')->where('DFlag', 0)
+                ->select('PCName', 'PCID',
+                    DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PCImage, ""), "assets/images/no-image-b.png")) AS PCImage'))
+                ->inRandomOrder()->take(10)->get();
+        }
         $FormData['PCategories'] = $PCatagories;
         $FormData['CID'] = $request->CID ?? '';
         $FormData['isRegister'] = false;
@@ -649,10 +713,24 @@ class HomeController extends Controller
 
     public function guestProductsList(Request $request)
     {
-        $PCatagories = DB::Table('tbl_product_category')->where('ActiveStatus', 'Active')->where('DFlag', 0)
-            ->select('PCName', 'PCID',
-                DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PCImage, ""), "assets/images/no-image-b.png")) AS PCImage'))
-            ->inRandomOrder()->get();
+        $FormData['PostalCodeID'] = $this->PostalCodeID;
+        $FormData['PostalCode'] = $this->PostalCode;
+        if($FormData['PostalCodeID']){
+            $AllVendors = $this->getAvailableVendors($FormData['PostalCodeID']);
+
+            $PCatagories = DB::table('tbl_vendors_product_mapping as VPM')
+                ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'VPM.PCID')
+                ->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)
+                ->where('VPM.Status', 1)->WhereIn('VPM.VendorID', $AllVendors)
+                ->groupBy('PC.PCID', 'PC.PCName', 'PC.PCImage')
+                ->select('PC.PCID', 'PC.PCName', DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PCImage, ""), "assets/images/no-image-b.png")) AS PCImage'))
+                ->inRandomOrder()->take(10)->get();
+        }else{
+            $PCatagories = DB::Table('tbl_product_category')->where('ActiveStatus', 'Active')->where('DFlag', 0)
+                ->select('PCName', 'PCID',
+                    DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PCImage, ""), "assets/images/no-image-b.png")) AS PCImage'))
+                ->inRandomOrder()->take(10)->get();
+        }
         $FormData['PCategories'] = $PCatagories;
         $FormData['SCID'] = $request->SCID ?? '';
         $FormData['isRegister'] = false;
@@ -746,6 +824,48 @@ class HomeController extends Controller
 
     public function guestProductView(Request $request, $ProductID)
     {
+        $FormData['PostalCodeID'] = $this->PostalCodeID;
+        $FormData['PostalCode'] = $this->PostalCode;
+        if($FormData['PostalCodeID']){
+            $AllVendors = $this->getAvailableVendors($FormData['PostalCodeID']);
+
+            $PCatagories = DB::table('tbl_vendors_product_mapping as VPM')
+            ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'VPM.PCID')
+            ->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)
+            ->where('VPM.Status', 1)->WhereIn('VPM.VendorID', $AllVendors)
+            ->groupBy('PC.PCID', 'PC.PCName', 'PC.PCImage')
+            ->select('PC.PCID', 'PC.PCName', DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PCImage, ""), "assets/images/no-image-b.png")) AS PCImage'))
+            ->inRandomOrder()->take(10)->get();
+
+            $RelatedProducts = DB::table('tbl_vendors_product_mapping as VPM')
+                    ->leftJoin('tbl_products as P','P.ProductID','VPM.ProductID')
+                    ->leftJoin('tbl_product_subcategory as PSC','PSC.PSCID','P.SCID')
+                    ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'PSC.PCID')
+                    ->leftJoin('tbl_uom as U', 'U.UID', 'P.UID')
+                    ->where('VPM.Status', 1)->WhereIn('VPM.VendorID', $AllVendors)
+                    ->where('P.ActiveStatus', 'Active')->where('P.DFlag', 0)
+                    ->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)
+                    ->where('PSC.ActiveStatus', 'Active')->where('PSC.DFlag', 0)
+                    ->groupBy('PSC.PSCID', 'PSCName', 'PC.PCID', 'PCName', 'P.ProductID', 'ProductName', 'ProductImage','UName','UCode','U.UID')
+                    ->select('PSC.PSCID', 'PSCName','PC.PCID', 'PCName', 'P.ProductID', 'ProductName','UName','UCode','U.UID', DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'))
+                    ->inRandomOrder()->take(10)
+                    ->get();
+        }else{
+            $PCatagories = DB::Table('tbl_product_category')->where('ActiveStatus', 'Active')->where('DFlag', 0)->select('PCName', 'PCID', 'PCImage')
+                ->inRandomOrder()->take(10)->get();
+
+            $RelatedProducts = DB::table('tbl_vendors_product_mapping as VPM')
+                ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'VPM.PCID')
+                ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PCID', 'PC.PCID')
+                ->leftJoin('tbl_products as P', 'P.SCID', 'PSC.PSCID')
+                ->where('P.ActiveStatus', 'Active')
+                ->where('P.DFlag', 0)
+                ->select('P.ProductID', 'P.ProductName', 'P.ProductImage', 'PSC.PSCID', 'PSC.PSCName',
+                    DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(P.ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'))
+                ->inRandomOrder()
+                ->take(10)
+                ->get();
+        }
         $product = DB::table('tbl_products as P')->leftJoin('tbl_product_subcategory as PSC','PSC.PSCID','P.SCID')
             ->leftJoin('tbl_product_category as PC','PC.PCID','P.CID')
             ->where('P.ActiveStatus','Active')->where('P.DFlag',0)
@@ -758,28 +878,14 @@ class HomeController extends Controller
             ->where('ProductID', $ProductID)
             ->pluck(DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(gImage, ""), "assets/images/no-image-b.png")) AS gImage'))
             ->toArray();
-        $RelatedProducts = DB::table('tbl_vendors_product_mapping as VPM')
-            ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'VPM.PCID')
-            ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PCID', 'PC.PCID')
-            ->leftJoin('tbl_products as P', 'P.SCID', 'PSC.PSCID')
-            ->where('P.ActiveStatus', 'Active')
-            ->where('P.DFlag', 0)
-            ->select('P.ProductID', 'P.ProductName', 'P.ProductImage', 'PSC.PSCID', 'PSC.PSCName',
-                DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(P.ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'))
-            ->inRandomOrder()
-            ->take(10)
-            ->get();
+
         $FormData['product'] = $product;
-        $PCatagories = DB::Table('tbl_product_category')->where('ActiveStatus', 'Active')->where('DFlag', 0)
-            ->select('PCName', 'PCID',
-                DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PCImage, ""), "assets/images/no-image-b.png")) AS PCImage'))
-            ->inRandomOrder()->get();
         $FormData['PCategories'] = $PCatagories;
+        $FormData['RelatedProducts'] = $RelatedProducts;
+
         $FormData['isRegister'] = false;
         $FormData['Cart'] = [];
-        $FormData['RelatedProducts'] = $RelatedProducts;
         $FormData['Company']=$this->Company;
-
 
         return view('home.guest-product-view', $FormData);
     }

@@ -112,8 +112,8 @@
                         <button class="mobile-menu-toggler text-dark mr-2" type="button">
                             <i class="fas fa-bars"></i>
                         </button>
-                        <a href="{{ route('homepage') }}" class="logo">
-							<img src="{{url('/')}}/{{$Company['Logo']}}" width="50" height="50" alt="RPC">
+                        <a href="{{url('/')}}" class="logo">
+							<img src="{{url('/')}}/{{$Company['Logo']}}" width="50" height="50" alt="{{$Company['CompanyName']}}">
                         </a>
 						<span class="ml-3 font-weight-bold">{{$Company['CompanyName']}}</span>
                     </div><!-- End .header-left -->
@@ -523,7 +523,7 @@
                     <div class="row">
                         <div class="col-lg-2 col-sm-6 pb-2 pb-sm-0 d-flex align-items-center">
                             <div class="widget m-b-3">
-									<img src="{{url('/')}}/{{$Company['Logo']}}" alt="Logo" width="202" height="54" class="logo-footer">
+									<img src="{{url('/')}}/{{$Company['Logo']}}" alt="{{$Company['CompanyName']}}" width="202" height="54" class="logo-footer">
 
                             </div><!-- End .widget -->
                         </div><!-- End .col-lg-3 -->
@@ -698,7 +698,7 @@
                 <div class="col-sm-7">
                     <div class="row justify-content-center mt-3">
                         <div class="col-6">
-                            <img src="{{url('/')}}/{{$Company['Logo']}}" alt="Logo" class="logo-newsletter" width="50" height="50">
+                            <img src="{{url('/')}}/{{$Company['Logo']}}" alt="{{$Company['CompanyName']}}" class="logo-newsletter" width="50" height="50">
                             <span class="ml-3 font-weight-bold text-dark">{{$Company['CompanyName']}}</span>
                         </div>
                     </div>

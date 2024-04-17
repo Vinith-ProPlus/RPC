@@ -144,7 +144,7 @@
                     <button class="mobile-menu-toggler text-dark mr-2" type="button">
                         <i class="fas fa-bars"></i>
                     </button>
-                    <a href="demo42.html" class="logo">
+                    <a href="{{url('/')}}" class="logo">
                         <img src="{{url('/')}}/{{$Company['Logo']}}" width="50" height="50" alt="{{$Company['CompanyName']}}">
                     </a>
                     <span class="ml-3 font-weight-bold">{{$Company['CompanyName']}}</span>
@@ -411,7 +411,7 @@
         </a>
     </div>
     <div class="sticky-info">
-        <a href="wishlist.html" class="">
+        <a href="{{url('/')}}" class="">
             <i class="icon-wishlist-2"></i>Wishlist
         </a>
     </div>
@@ -545,7 +545,7 @@
                                         </div>
 
                                         <figure class="product-image-container">
-                                            <a href="demo42-product.html" class="product-image">
+                                            <a href="#" class="product-image">
                                                 <img src="${item.ProductImage}" alt="product" width="80" height="80">
                                             </a>
                                             <a href="#" class="btn-remove btnRemoveCart" title="Remove Product" id="${item.ProductID}"><span>×</span></a>
@@ -689,6 +689,21 @@
                 }
             });
         });
+        $('#btnClearPincode').on('click', function(e){
+                e.preventDefault();
+                $.ajax({
+                    url: "{{ route('removePostalCodeInSession') }}",
+                    headers: { 'X-CSRF-Token' : '{{ csrf_token() }}' },
+                    processData: false,
+                    contentType: false,
+                    type: "POST",
+                    success: function(response) {
+                        if(response.status == true){
+                            window.location.reload();
+                        }
+                    }
+                });
+            });
     });
 </script>
 

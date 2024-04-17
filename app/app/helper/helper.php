@@ -995,6 +995,7 @@ class helper{
                 "notification" => [
                     "title" => $Title,
                     "body" => $Message,
+                    "bodyLocKey" => "bharani",
                 ]
             ];
             $dataString = json_encode($data);
