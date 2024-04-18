@@ -378,7 +378,7 @@
                                 <li>
                                     <span class="contact-info-label">Email:</span> <a href="#"><span
                                             class="__cf_email__"
-                                            data-cfemail="f895999194b89d80999588949dd69b9795">{{$Company['E-Mail']}}</span></a>
+                                            >{{$Company['E-Mail']}}</span></a>
                                 </li>
                                 <li>
                                     <span class="contact-info-label">Working Days/Hours:</span>
