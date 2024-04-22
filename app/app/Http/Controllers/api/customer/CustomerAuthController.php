@@ -487,7 +487,7 @@ class CustomerAuthController extends Controller{
     public function CustomerData(request $req){
         $CustomerID = $this->ReferID;
         $CustomerData = DB::Table('tbl_customer as CU')->leftJoin($this->generalDB.'tbl_postalcodes as P','P.PID','CU.PostalCodeID')->where('CU.CustomerID',$CustomerID)
-        ->select('CustomerID','CustomerName','DOB','MobileNo1','Email','CustomerImage','CusTypeID','ConTypeIDs','GenderID','Address','CityID','TalukID','CU.DistrictID','CU.StateID','CU.CountryID','PostalCodeID','P.PostalCode','CU.DFlag','CU.ActiveStatus')
+        ->select('CustomerID','CustomerName','DOB','MobileNo1','MobileNo2','Email','CustomerImage','CusTypeID','ConTypeIDs','GenderID','Address','CityID','TalukID','CU.DistrictID','CU.StateID','CU.CountryID','PostalCodeID','P.PostalCode','CU.DFlag','CU.ActiveStatus')
         ->first();
         if(!$CustomerData){
             return response()->json(['status' => false,'message' => "No Customers Found! Contact Admin"]);
