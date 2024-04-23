@@ -69,7 +69,7 @@
                                     <i class="icon-location" style="color:#ff6840;"></i>
                                     <div class="align-middle" style="display: inline-block; height: 20px; vertical-align: middle !important;">
                                         <h6 class="font-weight-bold text-dark" style="line-height: 18px; position: relative;">
-                                            Delivery Location - {{$PostalCode}} 
+                                            Delivery Location - {{$PostalCode}}
                                             <a href="">
                                                 <span id="btnClearPincode">
                                                     <i class="fas fa-times text-danger" style="font-size: 12px;"></i>
@@ -84,7 +84,7 @@
                     <div class="header-right header-dropdowns ml-0 ml-md-auto w-md-100">
                         <div class="header-dropdown mr-auto mr-md-0">
                             <div class="header-menu">
-                                
+
                             </div><!-- End .header-menu -->
                         </div><!-- End .header-dropown -->
                         <ul class="d-none d-xl-flex mb-0 pr-2 align-items-center">
@@ -109,9 +109,6 @@
             <div class="header-middle sticky-header" data-sticky-options="{'mobile': true}">
                 <div class="container">
                     <div class="header-left col-lg-2 w-auto pl-0">
-                        <button class="mobile-menu-toggler text-dark mr-2" type="button">
-                            <i class="fas fa-bars"></i>
-                        </button>
                         <a href="{{url('/')}}" class="logo">
 							<img src="{{url('/')}}/{{$Company['Logo']}}" width="50" height="50" alt="{{$Company['CompanyName']}}">
                         </a>
@@ -553,19 +550,19 @@
                                     @if(array_key_exists('facebook', $Company) && $Company['facebook'])
                                         <a href="{{$Company['facebook']}}" class="social-icon social-facebook icon-facebook" target="_blank" title="Facebook"></a>
                                     @endif
-                                
+
                                     @if(array_key_exists('instagram', $Company) && $Company['instagram'])
                                         <a href="{{$Company['instagram']}}" class="social-icon social-instagram icon-instagram" target="_blank" title="Instagram"></a>
                                     @endif
-                                
+
                                     @if(array_key_exists('youtube', $Company) && $Company['youtube'])
                                         <a href="{{$Company['youtube']}}" class="social-icon social-youtube fab fa-youtube" target="_blank" title="YouTube"></a>
                                     @endif
-                                
+
                                     @if(array_key_exists('twitter', $Company) && $Company['twitter'])
                                         <a href="{{$Company['twitter']}}" class="social-icon social-twitter fab fa-twitter" target="_blank" title="Twitter"></a>
                                     @endif
-                                
+
                                     @if(array_key_exists('linkedin', $Company) && $Company['linkedin'])
                                         <a href="{{$Company['linkedin']}}" class="social-icon social-linkedin fab fa-linkedin-in" target="_blank" title="Linkedin"></a>
                                     @endif
@@ -639,25 +636,28 @@
 
     <div class="sticky-navbar">
         <div class="sticky-info">
-            <a href="{{url('/')}}">
+            <a href="{{ route('homepage') }}">
                 <i class="icon-home"></i>Home
             </a>
         </div>
         <div class="sticky-info">
-            <a href="{{url('/')}}" class="">
+            <a href="{{ route('products.guest.categoriesList') }}" class="">
                 <i class="icon-bars"></i>Categories
             </a>
         </div>
         <div class="sticky-info">
-            <a href="{{url('/')}}" class="">
+            <a href="{{url('/')}}/social/auth/google" class="">
                 <i class="icon-user-2"></i>Account
             </a>
         </div>
         <div class="sticky-info">
-            <a href="{{url('/')}}" class="">
-                <i class="icon-shopping-cart position-relative">
-                    <span class="cart-count badge-circle">3</span>
-                </i>Cart
+            <a href="{{ route('products.guest.productsList') }}" class="">
+                <i class="icon-category-saddle"></i>Products
+            </a>
+        </div>
+        <div class="sticky-info">
+            <a href="#" title="Cart" class="dropdown-toggle dropdown-arrow cart-toggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-display="static">
+                <i class="icon-shopping-cart position-relative"></i>Cart
             </a>
         </div>
     </div>
@@ -694,42 +694,45 @@
     </div> --}}
     @if(!$PostalCode)
         <div class="newsletter-popup mfp-hide bg-img p-0 h-auto" id="newsletter-popup-form" style="background: #f1f1f1 no-repeat center/cover">
-            <div class="row">
-                <div class="col-sm-7">
-                    <div class="row justify-content-center mt-3">
-                        <div class="col-6">
-                            <img src="{{url('/')}}/{{$Company['Logo']}}" alt="{{$Company['CompanyName']}}" class="logo-newsletter" width="50" height="50">
-                            <span class="ml-3 font-weight-bold text-dark">{{$Company['CompanyName']}}</span>
-                        </div>
-                    </div>
-                    <div class="row justify-content-center my-3">
-                        <div class="col-8">
-                            <h2>Select a location </h2>
-                            <p>to see product availability and delivery options</p>
-                        </div>
-                    </div>
-                    <div class="row justify-content-center">
-                        <div class="col-6 justify-content-center">
-                            <a href="{{url('/')}}/social/auth/google"><button type="button" class="btn btn-info btn-block rounded">Sign in to select address</button></a>
-                        </div>
-                    </div>
-                    <div class="row justify-content-center">
-                        <div class="col-4">
-                            <h5 class="text-center my-3">or</h5>
-                        </div>
-                    </div>
-                    <div class="row justify-content-center">
-                        <div class="col-8 newsletter-popup-content" id="divLocationInputs">
-                            <div class="input-group">
-                                <input type="text" class="form-control" id="txtCurrentPincode" placeholder="Enter your pincode" required>
-                                <input type="button" class="btn btn-warning" value="Submit" id="btnCurrentPincode">
+
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-7">
+                        <div class="row justify-content-center mt-3">
+                            <div class="col-md-6">
+                                <img src="{{url('/')}}/{{$Company['Logo']}}" alt="{{$Company['CompanyName']}}" class="logo-newsletter" width="50" height="50">
+                                <span class="ml-3 font-weight-bold text-dark">{{$Company['CompanyName']}}</span>
                             </div>
-                            <div class="errors err-sm text-center" id="txtCurrentPincode-err"></div>
+                        </div>
+                        <div class="row justify-content-center my-3">
+                            <div class="col-md-8">
+                                <h2>Select a location </h2>
+                                <p>to see product availability and delivery options</p>
+                            </div>
+                        </div>
+                        <div class="row justify-content-center">
+                            <div class="col-md-6 justify-content-center">
+                                <a href="{{url('/')}}/social/auth/google"><button type="button" class="btn btn-info btn-block rounded">Sign in to select address</button></a>
+                            </div>
+                        </div>
+                        <div class="row justify-content-center">
+                            <div class="col-md-4">
+                                <h5 class="text-center my-3">or</h5>
+                            </div>
+                        </div>
+                        <div class="row justify-content-center mb-3">
+                            <div class="col-md-8 newsletter-popup-content" id="divLocationInputs">
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="txtCurrentPincode" placeholder="Enter your pincode" required="">
+                                    <input type="button" class="btn btn-warning" value="Submit" id="btnCurrentPincode">
+                                </div>
+                                <div class="errors err-sm text-center" id="txtCurrentPincode-err"></div>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="col-sm-5">
-                    <img src="{{url('/')}}/home/assets/images/location-pop-up/MapAnime.gif" alt="">
+                    <div class="col-lg-5">
+                        <img src="{{url('/')}}/home/assets/images/location-pop-up/MapAnime.gif" alt="">
+                    </div>
                 </div>
             </div>
             <button title="Close (Esc)" type="button" class="mfp-close" id="modal-close-btn">×</button>

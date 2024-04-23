@@ -274,7 +274,7 @@
                         </div>
 
 
-                        <div class="header-dropdown" style="display: inline-block;margin-left:0">
+                        <div class="header-dropdown px-3" style="display: inline-block;margin-left:0">
                             @if(isset($ShippingAddress) && (count($ShippingAddress) > 0))
                                 <a href="#" style="margin-top:10px" id="customerSelectedAddress"
                                    data-selected-postal-id="{{ $ShippingAddress[0]->PostalCodeID }}" data-aid="{{ $ShippingAddress[0]->AID }}" data-selected-latitude="{{ '11.048274' }}" data-selected-longitude="{{ '76.9885352' }}">
@@ -328,9 +328,6 @@
         <div class="header-middle sticky-header" data-sticky-options="{'mobile': true}">
             <div class="container">
                 <div class="header-left col-lg-2 w-auto pl-0">
-                    <button class="mobile-menu-toggler text-dark mr-2" type="button">
-                        <i class="fas fa-bars"></i>
-                    </button>
                     <a href="@if($isRegister && !$isEdit) {{ route('homepage') }} @else {{url('/')}}/customer-profile @endif" class="logo">
                         <img src="{{url('/')}}/{{$Company['Logo']}}" width="50" height="50" alt="{{$Company['CompanyName']}}">
                     </a>
@@ -565,19 +562,19 @@
                                 @if(array_key_exists('facebook', $Company) && $Company['facebook'])
                                     <a href="{{$Company['facebook']}}" class="social-icon social-facebook icon-facebook" target="_blank" title="Facebook"></a>
                                 @endif
-                            
+
                                 @if(array_key_exists('instagram', $Company) && $Company['instagram'])
                                     <a href="{{$Company['instagram']}}" class="social-icon social-instagram icon-instagram" target="_blank" title="Instagram"></a>
                                 @endif
-                            
+
                                 @if(array_key_exists('youtube', $Company) && $Company['youtube'])
                                     <a href="{{$Company['youtube']}}" class="social-icon social-youtube fab fa-youtube" target="_blank" title="YouTube"></a>
                                 @endif
-                            
+
                                 @if(array_key_exists('twitter', $Company) && $Company['twitter'])
                                     <a href="{{$Company['twitter']}}" class="social-icon social-twitter fab fa-twitter" target="_blank" title="Twitter"></a>
                                 @endif
-                            
+
                                 @if(array_key_exists('linkedin', $Company) && $Company['linkedin'])
                                     <a href="{{$Company['linkedin']}}" class="social-icon social-linkedin fab fa-linkedin-in" target="_blank" title="Linkedin"></a>
                                 @endif
@@ -659,19 +656,19 @@
         </a>
     </div>
     <div class="sticky-info">
-        <a href="#" class="">
-            <i class="icon-wishlist-2"></i>Wishlist
-        </a>
-    </div>
-    <div class="sticky-info">
-        <a href="#" class="">
+        <a href="{{ url('/customer-profile') }} " class="">
             <i class="icon-user-2"></i>Account
         </a>
     </div>
     <div class="sticky-info">
-        <a href="#" class="">
+        <a href="{{ route('products.customer.productsList') }}" class="">
+            <i class="icon-category-saddle"></i>Products
+        </a>
+    </div>
+    <div class="sticky-info">
+        <a href="#" title="Cart" class="dropdown-toggle dropdown-arrow cart-toggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-display="static">
             <i class="icon-shopping-cart position-relative">
-                <span class="cart-count badge-circle">3</span>
+                <span class="cart-count badge-circle" id="divMblCartItemCount">@if(count($Cart) > 0){{count($Cart)}}@endif</span>
             </i>Cart
         </a>
     </div>
@@ -764,11 +761,14 @@
     $(document).ready(function () {
         const UpdateItemQtyCount = (count) => {
             const itemCountSpan = $('#divCartItemCount');
+            const itemMblCountSpan = $('#divMblCartItemCount');
             if (count > 0) {
                 itemCountSpan.text(count);
+                itemMblCountSpan.text(count);
                 $('#divCartAction').html(`<a href="{{url('/')}}/checkout" class="btn btn-secondary btn-block">Quote Request</a>`);
             } else {
                 itemCountSpan.text('');
+                itemMblCountSpan.text('');
                 $('#divCartAction').html(`<a href="{{ auth()->check() ? route('products.customer.productsList') : route('products.guest.productsList') }}" class="btn btn-dark btn-block">Add to Cart</a>`);
             }
         };
@@ -1024,7 +1024,7 @@
         $('.btn-wrapper .btn').click(function () {
             $('.unread-badge').hide();
         });
-        
+
         $(document).on('click','#btnLogout',async(e)=>{
             e.preventDefault();
             $('#logoutForm').submit();

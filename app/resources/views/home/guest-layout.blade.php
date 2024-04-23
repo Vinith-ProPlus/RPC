@@ -101,7 +101,7 @@
                             <i class="icon-location" style="color:#ff6840;"></i>
                             <div class="align-middle" style="display: inline-block; height: 20px; vertical-align: middle !important;">
                                 <h6 class="font-weight-bold text-dark" style="line-height: 18px; position: relative;">
-                                    Delivery Location - {{$PostalCode}} 
+                                    Delivery Location - {{$PostalCode}}
                                     <a href="">
                                         <span id="btnClearPincode">
                                             <i class="fas fa-times text-danger" style="font-size: 12px;"></i>
@@ -141,9 +141,7 @@
         <div class="header-middle sticky-header" data-sticky-options="{'mobile': true}">
             <div class="container">
                 <div class="header-left col-lg-2 w-auto pl-0">
-                    <button class="mobile-menu-toggler text-dark mr-2" type="button">
-                        <i class="fas fa-bars"></i>
-                    </button>
+
                     <a href="{{url('/')}}" class="logo">
                         <img src="{{url('/')}}/{{$Company['Logo']}}" width="50" height="50" alt="{{$Company['CompanyName']}}">
                     </a>
@@ -317,19 +315,19 @@
                                 @if(array_key_exists('facebook', $Company) && $Company['facebook'])
                                     <a href="{{$Company['facebook']}}" class="social-icon social-facebook icon-facebook" target="_blank" title="Facebook"></a>
                                 @endif
-                            
+
                                 @if(array_key_exists('instagram', $Company) && $Company['instagram'])
                                     <a href="{{$Company['instagram']}}" class="social-icon social-instagram icon-instagram" target="_blank" title="Instagram"></a>
                                 @endif
-                            
+
                                 @if(array_key_exists('youtube', $Company) && $Company['youtube'])
                                     <a href="{{$Company['youtube']}}" class="social-icon social-youtube fab fa-youtube" target="_blank" title="YouTube"></a>
                                 @endif
-                            
+
                                 @if(array_key_exists('twitter', $Company) && $Company['twitter'])
                                     <a href="{{$Company['twitter']}}" class="social-icon social-twitter fab fa-twitter" target="_blank" title="Twitter"></a>
                                 @endif
-                            
+
                                 @if(array_key_exists('linkedin', $Company) && $Company['linkedin'])
                                     <a href="{{$Company['linkedin']}}" class="social-icon social-linkedin fab fa-linkedin-in" target="_blank" title="Linkedin"></a>
                                 @endif
@@ -400,34 +398,32 @@
 
 <div class="mobile-menu-overlay"></div>
 <div class="sticky-navbar">
-    <div class="sticky-info">
-        <a href="{{ route('homepage') }}">
-            <i class="icon-home"></i>Home
-        </a>
+        <div class="sticky-info">
+            <a href="{{ route('homepage') }}">
+                <i class="icon-home"></i>Home
+            </a>
+        </div>
+        <div class="sticky-info">
+            <a href="{{ route('products.guest.categoriesList') }}" class="">
+                <i class="icon-bars"></i>Categories
+            </a>
+        </div>
+        <div class="sticky-info">
+            <a href="{{url('/')}}/social/auth/google" class="">
+                <i class="icon-user-2"></i>Account
+            </a>
+        </div>
+        <div class="sticky-info">
+            <a href="{{ route('products.guest.productsList') }}" class="">
+                <i class="icon-category-saddle"></i>Products
+            </a>
+        </div>
+        <div class="sticky-info">
+            <a href="#" title="Cart" class="dropdown-toggle dropdown-arrow cart-toggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-display="static">
+                <i class="icon-shopping-cart position-relative"></i>Cart
+            </a>
+        </div>
     </div>
-    <div class="sticky-info">
-        <a href="{{ route('products.guest.categoriesList') }}" class="">
-            <i class="icon-bars"></i>Categories
-        </a>
-    </div>
-    <div class="sticky-info">
-        <a href="{{url('/')}}" class="">
-            <i class="icon-wishlist-2"></i>Wishlist
-        </a>
-    </div>
-    <div class="sticky-info">
-        <a href="{{url('/')}}" class="">
-            <i class="icon-user-2"></i>Account
-        </a>
-    </div>
-    <div class="sticky-info">
-        <a href="{{url('/')}}" class="">
-            <i class="icon-shopping-cart position-relative">
-                <span class="cart-count badge-circle">3</span>
-            </i>Cart
-        </a>
-    </div>
-</div>
 {{--<div class="newsletter-popup mfp-hide bg-img p-0 h-auto" id="newsletter-popup-form" style="background: #f1f1f1 no-repeat center/cover">--}}
 {{--    <div class="row">--}}
 {{--        <div class="col-sm-7">--}}
