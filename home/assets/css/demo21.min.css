@@ -12355,8 +12355,20 @@ header .separator {
 	border: 10px solid transparent;
 	border-bottom-color: #d0d5d8
 }
+.search-toggle-btn:after {
+	content: "";
+	position: absolute;
+	right: calc(50% - 10px);
+	bottom: -10px;
+	border: 10px solid transparent;
+	border-bottom-color: #d0d5d8
+}
 
 .header-search:not(.show) .search-toggle:after {
+	display: none
+}
+
+.header-search:not(.show) .search-toggle-btn:after {
 	display: none
 }
 
@@ -12462,6 +12474,10 @@ header .separator {
 
 	.header-search-inline .btn:after,
 	.header-search-inline .search-toggle {
+		display: none
+	}
+
+	.search-toggle-btn {
 		display: none
 	}
 

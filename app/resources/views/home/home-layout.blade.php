@@ -335,8 +335,8 @@
                 </div>
                 <div class="header-right w-lg-max">
                     <div class="header-icon header-search header-search-inline header-search-category w-lg-max text-right mb-0">
-                        <a href="#" class="search-toggle" role="button"><i class="icon-search-3"></i></a>
-                            <div class="header-search-wrapper">
+                        <a href="#" class="search-toggle-btn d-md-none d-lg-none" role="button"><i class="icon-search-3"></i></a>
+                        <div class="header-search-wrapper" id="webSearchDiv">
                                 <input class="form-control" placeholder="Search..." type="text" id="homeSearch" name="homeSearch">
                                 <div id="searchResults" class="search-results"></div>
                                 <button class="btn icon-magnifier p-0" title="search"></button>
@@ -451,6 +451,22 @@
                 </div><!-- End .header-right -->
             </div><!-- End .container -->
         </div><!-- End .header-middle -->
+
+        <div class="container d-none" id="mbl-header-search-div">
+            <div class="row col-12">
+                <div class="col-12">
+                    <div class="py-2">
+                        <div class="input-group" style="width: 100% !important;">
+                            <input class="form-control" placeholder="Search..." type="text" id="mblHomeSearch" name="homeSearch">
+                            <div class="input-group-append">
+                                <button class="btn icon-magnifier px-3" title="search"></button>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="mblSearchResults" class="search-results"></div>
+                </div>
+            </div>
+        </div>
 
         <div class="header-bottom sticky-header d-none d-lg-flex" data-sticky-options="{'mobile': false}">
             <div class="container">
@@ -950,6 +966,37 @@
                 contentType: false,
                 success: function(response) {
                     let searchResults = $('#searchResults');
+                    searchResults.empty();
+                    searchResults.append((response.searchResults !== "") ? response.searchResults : "No results found");
+                    searchResults.show();
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error:', error);
+                }
+            });
+        });
+
+        $('.search-toggle-btn').on('click', function(){
+            var mblSearchDiv = $("#mbl-header-search-div")
+            if(mblSearchDiv.hasClass('d-none')){
+                mblSearchDiv.removeClass('d-none');
+            } else {
+                mblSearchDiv.addClass('d-none');
+            }
+        });
+
+        $('#mblHomeSearch').on('keyup', function() {
+            var formData = new FormData();
+            formData.append('SearchText', $(this).val());
+            $.ajax({
+                url: "{{ route('guestHomeSearch') }}",
+                method: 'POST',
+                headers: { 'X-CSRF-Token' : '{{ csrf_token() }}' },
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    let searchResults = $('#mblSearchResults');
                     searchResults.empty();
                     searchResults.append((response.searchResults !== "") ? response.searchResults : "No results found");
                     searchResults.show();
