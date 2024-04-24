@@ -767,26 +767,34 @@
                  window.location.replace($('#loginBtn').attr('href'));
              });
 
-             $('#homeSearch').on('keyup', function() {
+             function performSearch(resultsElementId, searchText) {
                  var formData = new FormData();
-                 formData.append('SearchText', $(this).val());
+                 formData.append('SearchText', searchText);
                  $.ajax({
                      url: "{{ route('guestHomeSearch') }}",
                      method: 'POST',
-                     headers: { 'X-CSRF-Token' : '{{ csrf_token() }}' },
+                     headers: { 'X-CSRF-Token': '{{ csrf_token() }}' },
                      data: formData,
                      processData: false,
                      contentType: false,
-                     success: function(response) {
-                         let searchResults = $('#searchResults');
+                     success: function (response) {
+                         let searchResults = $('#' + resultsElementId);
                          searchResults.empty();
                          searchResults.append((response.searchResults !== "") ? response.searchResults : "No results found");
                          searchResults.show();
                      },
-                     error: function(xhr, status, error) {
+                     error: function (xhr, status, error) {
                          console.error('Error:', error);
                      }
                  });
+             }
+
+             $('#homeSearch').on('keyup', function () {
+                 performSearch('searchResults', $(this).val());
+             });
+
+             $('#mblHomeSearch').on('keyup', function () {
+                 performSearch('mblSearchResults', $(this).val());
              });
 
              $('.search-toggle-btn').on('click', function(){
@@ -796,28 +804,6 @@
                  } else {
                      mblSearchDiv.addClass('d-none');
                  }
-             });
-
-             $('#mblHomeSearch').on('keyup', function() {
-                 var formData = new FormData();
-                 formData.append('SearchText', $(this).val());
-                 $.ajax({
-                     url: "{{ route('guestHomeSearch') }}",
-                     method: 'POST',
-                     headers: { 'X-CSRF-Token' : '{{ csrf_token() }}' },
-                     data: formData,
-                     processData: false,
-                     contentType: false,
-                     success: function(response) {
-                         let searchResults = $('#mblSearchResults');
-                         searchResults.empty();
-                         searchResults.append((response.searchResults !== "") ? response.searchResults : "No results found");
-                         searchResults.show();
-                     },
-                     error: function(xhr, status, error) {
-                         console.error('Error:', error);
-                     }
-                 });
              });
 
              $(document).on('click', function(event) {

@@ -306,7 +306,6 @@
 
             function showNextSlide() {
                 bannerCurrentIndex = (bannerCurrentIndex + 1) % totalBannerSlides;
-                console.log(bannerCurrentIndex);
                 $('#homeBannerList li').eq(bannerCurrentIndex).click();
             }
 
