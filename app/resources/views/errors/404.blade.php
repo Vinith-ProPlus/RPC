@@ -1,5 +1,6 @@
 @extends('layouts.errors')
 @section('content')
+
         <!-- error-400 start-->
         <div class="error-wrapper">
             <div class="container-fluid">

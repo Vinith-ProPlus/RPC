@@ -77,6 +77,14 @@
                             <input type="text" class="form-control" id="txtPointName" value="<?php if($isEdit){ echo $EditData->PointName;} ?>">
                             <span class="errors err-sm" id="txtPointName-err"></span>
                         </div>
+                        <div class="col-sm-12 mt-20">
+                            <label for="txtMapUrl">Map Url</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control  {{$Theme['input-size']}}" id="txtMapUrl" value="<?php if($isEdit){ echo $EditData->PointName;} ?>">
+                                <button class="input-group-text btn-outline-primary px-4 position-relative" id="btnMapSubmit"><i class="fa fa-map-marker"></i></button>
+                            </div>
+                            <span class="errors err-sm" id="txtMapUrl-err"></span>
+                        </div>
                         {{-- MAP --}}
                         <div class="col-sm-12 mt-20">
                             <div id="map" style="height: 450px;"></div>
@@ -256,7 +264,7 @@
 
         marker = new google.maps.Marker({
             map: map,
-            draggable: true // Make the marker draggable
+            draggable: true
         });
 
         map.addListener('click', function (event) {
@@ -266,11 +274,13 @@
         marker.addListener('dragend', function () {
             updateAddress(marker.getPosition());
         });
+
         @if($isEdit && $EditData->Latitude && $EditData->Longitude)
             var latLng = new google.maps.LatLng({{ $EditData->Latitude }}, {{ $EditData->Longitude }});
             marker.setPosition(latLng);
+            map.setCenter(latLng);
+            updateAddress(latLng);
         @endif
-
     }
 
     function updateMarker(latLng) {
@@ -294,10 +304,10 @@
                     $('#txtPostalCode').val(postalCode);
                     $('#btnGSearchPostalCode').click();
                 }
-
             }
         });
     }
+
     function extractPostalCodeFromAddressComponents(result) {
         for (var i = 0; i < result.address_components.length; i++) {
             var addressComponent = result.address_components[i];
@@ -308,7 +318,30 @@
         return null;
     }
 
-    // Call initMap() to initialize the map when the page loads
+    function markLocationFromUrl(url) {
+        var matches = url.match(/@([-0-9.]+),([-0-9.]+)/);
+        if (matches && matches.length === 3) {
+            var lat = parseFloat(matches[1]);
+            var lng = parseFloat(matches[2]);
+            var latLng = new google.maps.LatLng(lat, lng);
+            marker.setPosition(latLng);
+            map.setCenter(latLng);
+            updateAddress(latLng);
+        } else {
+            $('#txtMapUrl-err').html('Enter a valid Map URL!');
+        }
+    }
+
+    $(document).on('click', '#btnMapSubmit', function () {
+        $('#txtMapUrl-err').html('');
+        var mapUrl = $('#txtMapUrl').val();
+        if (!mapUrl) {
+            $('#txtMapUrl-err').html('Enter a Map URL!');
+        } else {
+            markLocationFromUrl(mapUrl);
+        }
+    });
+
 </script>
 <script async src="https://maps.googleapis.com/maps/api/js?key={{ config('app.map_api_key') }}&callback=initMap"></script>
 {{-- End Map Script --}}
@@ -872,7 +905,6 @@
                 }
 
             }
-            console.log(status);
             return status;
 
             if(status==false){$("html, body").animate({ scrollTop: 0 }, "slow");}
