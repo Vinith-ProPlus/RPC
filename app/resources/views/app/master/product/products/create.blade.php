@@ -546,7 +546,6 @@
                                             <option value="Active"   @if($isEdit) @if($data->ActiveStatus=="Active") selected @endif @endif>Active</option>
                                             <option value="Inactive"   @if($isEdit) @if($data->ActiveStatus=="Inactive") selected @endif @endif>Inactive</option>
                                         </select>
-                                        <div class="errors err-sm" id="lstTax-err"></div>
                                     </div>
                                     <div class="col-1 col-lg-2 d-flex align-items-center">
                                     </div>
@@ -555,6 +554,7 @@
                                     <div class="col-4 col-lg-2 d-flex align-items-center"><div >Product Video URL</div></div>
                                     <div class="col-6 col-lg-8">
                                         <input type="text" id="txtVideoURL" class="form-control" placeholder="Video URL" value="<?php if($isEdit){ echo $data->VideoURL;} ?>">
+                                        <div class="errors err-sm" id="txtVideoURL-err"></div>
                                     </div>
                                     <div class="col-1 col-lg-2 d-flex align-items-center">
                                         <button class="btn btn-outline-danger {{$Theme['button-size']}}" id="btnPlayVideo" title="Play Video" ><i class="fa fa-play"></i></button>
@@ -2304,21 +2304,25 @@
 
         $('#btnPlayVideo').on('click', function() {
             var Url = $('#txtVideoURL').val();
-            var embedUrl = Url;
-
-            if(isYouTubeUrl(Url)){
-                var videoId = extractYouTubeVideoId(Url);
-                embedUrl = 'https://www.youtube.com/embed/' + videoId;
+            if(!Url){
+                $('#txtVideoURL-err').html('Enter an URL!')
+            }else{
+                var embedUrl = Url;
+    
+                if(isYouTubeUrl(Url)){
+                    var videoId = extractYouTubeVideoId(Url);
+                    embedUrl = 'https://www.youtube.com/embed/' + videoId;
+                }
+    
+                var videoPlayerHtml = '<iframe width="600" height="400" src="' + embedUrl + '" frameborder="0" allowfullscreen></iframe>';
+                
+                bootbox.dialog({
+                    title: 'Video Player',
+                    message: videoPlayerHtml,
+                    className: 'video-modal',
+                    closeButton: true,
+                }).find('.modal-dialog').css('--bs-modal-width', '900px');
             }
-
-            var videoPlayerHtml = '<iframe width="100%" height="400" src="' + embedUrl + '" frameborder="0" allowfullscreen></iframe>';
-            
-            bootbox.dialog({
-                title: 'Video Player',
-                message: videoPlayerHtml,
-                className: 'video-modal',
-                closeButton: true,
-            }).find('.modal-dialog').css('--bs-modal-width', '900px');
         });
      
         function extractYouTubeVideoId(url) {

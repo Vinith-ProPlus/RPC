@@ -343,7 +343,6 @@
                     <div class="col-lg-2 col-sm-6 pb-2 pb-sm-0 d-flex align-items-center">
                         <div class="widget m-b-3">
                             <img src="{{url('/')}}/{{$Company['Logo']}}" alt="{{$Company['CompanyName']}}" width="202" height="54" class="logo-footer">
-
                         </div><!-- End .widget -->
                     </div><!-- End .col-lg-3 -->
 
