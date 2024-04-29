@@ -1,19 +1,15 @@
 <div class="sticky-wrapper">
             <nav class="toolbox sticky-header" data-sticky-options="{`mobile`: true}">
                 <div class="toolbox-left">
-                    <a href="#" class="sidebar-toggle">
-                        <svg data-name="Layer 3" id="Layer_3" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
-                        </svg>
-                        <span>Filter</span>
-                    </a>
-
                     <div class="toolbox-item toolbox-sort">
-                        <label>Sort By:</label>
+                        <label for="orderBySelect">Sort By:</label>
                         <div class="select-custom">
                             <select name="orderby" class="form-control" id="orderBySelect">
                                 <option value="">Default sorting</option>
                                 <option value="new" {{ ($orderBy=='new') ? 'selected' : '' }}>Sort by newness</option>
-                                <option value="popularity" {{ ($orderBy=='popularity') ? 'selected' : '' }}>Sort by popularity</option>
+                                <option value="popularity" {{ ($orderBy=='popularity') ? 'selected' : '' }}>Sort by
+                                    popularity
+                                </option>
                             </select>
                         </div>
                     </div>

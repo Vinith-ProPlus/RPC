@@ -1,12 +1,6 @@
 <div class="sticky-wrapper">
             <nav class="toolbox sticky-header" data-sticky-options="{`mobile`: true}">
                 <div class="toolbox-left">
-                    <a href="#" class="sidebar-toggle">
-                        <svg data-name="Layer 3" id="Layer_3" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
-                        </svg>
-                        <span>Filter</span>
-                    </a>
-
                     <div class="toolbox-item toolbox-sort">
                         <label>Sort By:</label>
                         <div class="select-custom">

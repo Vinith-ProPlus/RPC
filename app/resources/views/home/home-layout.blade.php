@@ -274,7 +274,7 @@
                         </div>
 
 
-                        <div class="header-dropdown" style="display: inline-block;margin-left:0">
+                        <div class="header-dropdown px-3" style="display: inline-block;margin-left:0">
                             @if(isset($ShippingAddress) && (count($ShippingAddress) > 0))
                                 <a href="#" style="margin-top:10px" id="customerSelectedAddress"
                                    data-selected-postal-id="{{ $ShippingAddress[0]->PostalCodeID }}" data-aid="{{ $ShippingAddress[0]->AID }}" data-selected-latitude="{{ '11.048274' }}" data-selected-longitude="{{ '76.9885352' }}">
@@ -328,9 +328,6 @@
         <div class="header-middle sticky-header" data-sticky-options="{'mobile': true}">
             <div class="container">
                 <div class="header-left col-lg-2 w-auto pl-0">
-                    <button class="mobile-menu-toggler text-dark mr-2" type="button">
-                        <i class="fas fa-bars"></i>
-                    </button>
                     <a href="@if($isRegister && !$isEdit) {{ route('homepage') }} @else {{url('/')}}/customer-profile @endif" class="logo">
                         <img src="{{url('/')}}/{{$Company['Logo']}}" width="50" height="50" alt="{{$Company['CompanyName']}}">
                     </a>
@@ -338,8 +335,8 @@
                 </div>
                 <div class="header-right w-lg-max">
                     <div class="header-icon header-search header-search-inline header-search-category w-lg-max text-right mb-0">
-                        <a href="#" class="search-toggle" role="button"><i class="icon-search-3"></i></a>
-                            <div class="header-search-wrapper">
+                        <a href="#" class="search-toggle-btn d-md-none d-lg-none" role="button"><i class="icon-search-3"></i></a>
+                        <div class="header-search-wrapper" id="webSearchDiv">
                                 <input class="form-control" placeholder="Search..." type="text" id="homeSearch" name="homeSearch">
                                 <div id="searchResults" class="search-results"></div>
                                 <button class="btn icon-magnifier p-0" title="search"></button>
@@ -455,6 +452,22 @@
             </div><!-- End .container -->
         </div><!-- End .header-middle -->
 
+        <div class="container d-none" id="mbl-header-search-div">
+            <div class="row col-12">
+                <div class="col-12">
+                    <div class="py-2">
+                        <div class="input-group" style="width: 100% !important;">
+                            <input class="form-control" placeholder="Search..." type="text" id="mblHomeSearch" name="homeSearch">
+                            <div class="input-group-append">
+                                <button class="btn icon-magnifier px-3" title="search"></button>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="mblSearchResults" class="search-results"></div>
+                </div>
+            </div>
+        </div>
+
         <div class="header-bottom sticky-header d-none d-lg-flex" data-sticky-options="{'mobile': false}">
             <div class="container">
                 <nav class="main-nav w-100">
@@ -565,19 +578,19 @@
                                 @if(array_key_exists('facebook', $Company) && $Company['facebook'])
                                     <a href="{{$Company['facebook']}}" class="social-icon social-facebook icon-facebook" target="_blank" title="Facebook"></a>
                                 @endif
-                            
+
                                 @if(array_key_exists('instagram', $Company) && $Company['instagram'])
                                     <a href="{{$Company['instagram']}}" class="social-icon social-instagram icon-instagram" target="_blank" title="Instagram"></a>
                                 @endif
-                            
+
                                 @if(array_key_exists('youtube', $Company) && $Company['youtube'])
                                     <a href="{{$Company['youtube']}}" class="social-icon social-youtube fab fa-youtube" target="_blank" title="YouTube"></a>
                                 @endif
-                            
+
                                 @if(array_key_exists('twitter', $Company) && $Company['twitter'])
                                     <a href="{{$Company['twitter']}}" class="social-icon social-twitter fab fa-twitter" target="_blank" title="Twitter"></a>
                                 @endif
-                            
+
                                 @if(array_key_exists('linkedin', $Company) && $Company['linkedin'])
                                     <a href="{{$Company['linkedin']}}" class="social-icon social-linkedin fab fa-linkedin-in" target="_blank" title="Linkedin"></a>
                                 @endif
@@ -659,19 +672,19 @@
         </a>
     </div>
     <div class="sticky-info">
-        <a href="#" class="">
-            <i class="icon-wishlist-2"></i>Wishlist
-        </a>
-    </div>
-    <div class="sticky-info">
-        <a href="#" class="">
+        <a href="{{ url('/customer-profile') }} " class="">
             <i class="icon-user-2"></i>Account
         </a>
     </div>
     <div class="sticky-info">
-        <a href="#" class="">
+        <a href="{{ route('products.customer.productsList') }}" class="">
+            <i class="icon-category-saddle"></i>Products
+        </a>
+    </div>
+    <div class="sticky-info">
+        <a href="#" title="Cart" class="dropdown-toggle dropdown-arrow cart-toggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-display="static">
             <i class="icon-shopping-cart position-relative">
-                <span class="cart-count badge-circle">3</span>
+                <span class="cart-count badge-circle" id="divMblCartItemCount">@if(count($Cart) > 0){{count($Cart)}}@endif</span>
             </i>Cart
         </a>
     </div>
@@ -764,11 +777,14 @@
     $(document).ready(function () {
         const UpdateItemQtyCount = (count) => {
             const itemCountSpan = $('#divCartItemCount');
+            const itemMblCountSpan = $('#divMblCartItemCount');
             if (count > 0) {
                 itemCountSpan.text(count);
+                itemMblCountSpan.text(count);
                 $('#divCartAction').html(`<a href="{{url('/')}}/checkout" class="btn btn-secondary btn-block">Quote Request</a>`);
             } else {
                 itemCountSpan.text('');
+                itemMblCountSpan.text('');
                 $('#divCartAction').html(`<a href="{{ auth()->check() ? route('products.customer.productsList') : route('products.guest.productsList') }}" class="btn btn-dark btn-block">Add to Cart</a>`);
             }
         };
@@ -937,27 +953,44 @@
             });
         });
 
-        $('#homeSearch').on('keyup', function() {
+        function performSearch(resultsElementId, searchText) {
             var formData = new FormData();
             formData.append('AID', $('#customerSelectedAddress').attr('data-aid'));
-            formData.append('SearchText', $(this).val());
+            formData.append('SearchText', searchText);
             $.ajax({
                 url: "{{ route('customerHomeSearch') }}",
                 method: 'POST',
-                headers: { 'X-CSRF-Token' : '{{ csrf_token() }}' },
+                headers: { 'X-CSRF-Token': '{{ csrf_token() }}' },
                 data: formData,
                 processData: false,
                 contentType: false,
-                success: function(response) {
-                    let searchResults = $('#searchResults');
+                success: function (response) {
+                    let searchResults = $('#' + resultsElementId);
                     searchResults.empty();
                     searchResults.append((response.searchResults !== "") ? response.searchResults : "No results found");
                     searchResults.show();
                 },
-                error: function(xhr, status, error) {
+                error: function (xhr, status, error) {
                     console.error('Error:', error);
                 }
             });
+        }
+
+        $('#homeSearch').on('keyup', function () {
+            performSearch('searchResults', $(this).val());
+        });
+
+        $('#mblHomeSearch').on('keyup', function () {
+            performSearch('mblSearchResults', $(this).val());
+        });
+
+        $('.search-toggle-btn').on('click', function(){
+            var mblSearchDiv = $("#mbl-header-search-div")
+            if(mblSearchDiv.hasClass('d-none')){
+                mblSearchDiv.removeClass('d-none');
+            } else {
+                mblSearchDiv.addClass('d-none');
+            }
         });
 
         $(document).on('click', function(event) {
@@ -1024,7 +1057,7 @@
         $('.btn-wrapper .btn').click(function () {
             $('.unread-badge').hide();
         });
-        
+
         $(document).on('click','#btnLogout',async(e)=>{
             e.preventDefault();
             $('#logoutForm').submit();
