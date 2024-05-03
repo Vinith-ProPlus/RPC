@@ -50,14 +50,14 @@
 <body>
 <input type="hidden" style="display:none!important" id="txtRootUrl" value="{{url('/')}}/">
     <div class="page-wrapper">
-        <div class="top-notice bg-dark text-white pt-3">
-            <div class="container text-center d-flex align-items-center justify-content-center flex-wrap">
-                <h4 class="text-uppercase font-weight-bold mr-2">Deal of the week</h4>
-                <h6>- 15% OFF in All Construction Materials, -</h6>
+{{--        <div class="top-notice bg-dark text-white pt-3">--}}
+{{--            <div class="container text-center d-flex align-items-center justify-content-center flex-wrap">--}}
+{{--                <h4 class="text-uppercase font-weight-bold mr-2">Deal of the week</h4>--}}
+{{--                <h6>- 15% OFF in All Construction Materials, -</h6>--}}
 
-                <a href="#" class="ml-2">Shop Now</a>
-            </div><!-- End .container -->
-        </div><!-- End .top-notice -->
+{{--                <a href="#" class="ml-2">Shop Now</a>--}}
+{{--            </div><!-- End .container -->--}}
+{{--        </div><!-- End .top-notice -->--}}
 
         <header class="header">
             <div class="header-top">
@@ -68,13 +68,11 @@
                                 <div class="info-box info-box-icon-left justify-content-start">
                                     <i class="icon-location" style="color:#ff6840;"></i>
                                     <div class="align-middle" style="display: inline-block; height: 20px; vertical-align: middle !important;">
-                                        <h6 class="font-weight-bold text-dark" style="line-height: 18px; position: relative;">
-                                            Delivery Location - {{$PostalCode}}
-                                            <a href="">
-                                                <span id="btnClearPincode">
+                                        <h6 class="d-flex font-weight-bold text-dark" style="line-height: 18px; position: relative;">
+                                            <span class="delivery-location-sm-hide">Delivery Location - &nbsp;</span> {{$PostalCode}}
+                                                <span id="btnClearPincode" class="px-3">
                                                     <i class="fas fa-times text-danger" style="font-size: 12px;"></i>
                                                 </span>
-                                            </a>
                                         </h6>
                                     </div>
                                 </div>

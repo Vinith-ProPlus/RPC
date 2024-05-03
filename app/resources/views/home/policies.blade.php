@@ -56,14 +56,14 @@
 <input type="hidden" style="display:none!important" id="txtRootUrl" value="{{url('/')}}/">
 
 <div class="page-wrapper">
-    <div class="top-notice bg-dark text-white pt-3">
-        <div class="container text-center d-flex align-items-center justify-content-center flex-wrap">
-            <h4 class="text-uppercase font-weight-bold mr-2">Deal of the week</h4>
-            <h6>- 15% OFF in All Construction Materials -</h6>
+    {{--    <div class="top-notice bg-dark text-white pt-3">--}}
+{{--        <div class="container text-center d-flex align-items-center justify-content-center flex-wrap">--}}
+{{--            <h4 class="text-uppercase font-weight-bold mr-2">Deal of the week</h4>--}}
+{{--            <h6>- 15% OFF in All Construction Materials -</h6>--}}
 
-            <a href="{{ route('products') }}" class="ml-2">Shop Now</a>
-        </div>
-    </div>
+{{--            <a href="{{ route('products') }}" class="ml-2">Shop Now</a>--}}
+{{--        </div>--}}
+{{--    </div>--}}
 
     <header class="header">
         <div class="header-top">
@@ -93,7 +93,13 @@
                             <div class="info-box info-box-icon-left justify-content-start">
                                 <i class="icon-location" style="color:#ff6840;"></i>
                                 <div class="align-middle" style="display: inline-block; height: 20px; vertical-align: middle !important;">
-                                    <h6 class="font-weight-bold text-dark" style="line-height: 18px;">Delivery Location - </h6>
+                                    <h6 class="font-weight-bold text-dark" style="line-height: 18px;"><span class="delivery-location-sm-hide">Delivery Location - &nbsp;</span> {{ $PostalCode ?? ''}}
+                                        @if(isset($PostalCode))
+                                                <span id="btnClearPincode" class="px-3">
+                                                    <i class="fas fa-times text-danger" style="font-size: 12px;"></i>
+                                                </span>
+                                        @endif
+                                    </h6>
                                 </div>
                             </div>
                         </div>
@@ -159,8 +165,8 @@
 
                 <div class="header-right w-lg-max">
                     <div class="header-icon header-search header-search-inline header-search-category w-lg-max text-right mb-0">
-                        <a href="#" class="search-toggle" role="button"><i class="icon-search-3"></i></a>
-                        <div class="header-search-wrapper">
+                        <a href="#" class="search-toggle-btn d-md-none d-lg-none" role="button"><i class="icon-search-3"></i></a>
+                        <div class="header-search-wrapper" id="webSearchDiv">
                             <input class="form-control" placeholder="Search..." type="text" id="homeSearch" name="homeSearch">
                             <div id="searchResults" class="search-results"></div>
                             <button class="btn icon-magnifier p-0" title="search"></button>
@@ -236,7 +242,7 @@
                                                 </div>
 
                                                 <figure class="product-image-container">
-                                                    <a href="{{ur('/')}}" class="product-image">
+                                                    <a href="{{url('/')}}" class="product-image">
                                                         <img src="{{$item->ProductImage}}" alt="product" width="80" height="80">
                                                     </a>
                                                     <a href="#" class="btn-remove btnRemoveCart" title="Remove Product" id="{{$item->ProductID}}"><span>×</span></a>
@@ -261,6 +267,21 @@
                 </div><!-- End .header-right -->
             </div><!-- End .container -->
         </div><!-- End .header-middle -->
+        <div class="container d-none" id="mbl-header-search-div">
+            <div class="row col-12">
+                <div class="col-12">
+                    <div class="py-2" >
+                        <div class="input-group" style="width: 100% !important;">
+                            <input class="form-control" placeholder="Search..." type="text" id="mblHomeSearch" name="homeSearch">
+                            <div class="input-group-append">
+                                <button class="btn icon-magnifier px-3" title="search"></button>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="mblSearchResults" class="search-results"></div>
+                </div>
+            </div>
+        </div>
 
         <div class="header-bottom sticky-header d-none d-lg-flex" data-sticky-options="{'mobile': false}">
             <div class="container">
@@ -743,26 +764,43 @@
             window.location.replace($('#loginBtn').attr('href'));
         });
 
-        $('#homeSearch').on('keyup', function() {
+        function performSearch(resultsElementId, searchText) {
             var formData = new FormData();
-            formData.append('SearchText', $(this).val());
+            formData.append('SearchText', searchText);
             $.ajax({
-                url: "{{ route('guestHomeSearch') }}",
+                url: "{{ (!$isRegister) ? route('customerHomeSearch') : route('guestHomeSearch') }}",
                 method: 'POST',
-                headers: { 'X-CSRF-Token' : '{{ csrf_token() }}' },
+                headers: { 'X-CSRF-Token': '{{ csrf_token() }}' },
                 data: formData,
                 processData: false,
                 contentType: false,
-                success: function(response) {
-                    let searchResults = $('#searchResults');
+                success: function (response) {
+                    let searchResults = $('#' + resultsElementId);
                     searchResults.empty();
                     searchResults.append((response.searchResults !== "") ? response.searchResults : "No results found");
                     searchResults.show();
                 },
-                error: function(xhr, status, error) {
+                error: function (xhr, status, error) {
                     console.error('Error:', error);
                 }
             });
+        }
+
+        $('#homeSearch').on('keyup', function () {
+            performSearch('searchResults', $(this).val());
+        });
+
+        $('#mblHomeSearch').on('keyup', function () {
+            performSearch('mblSearchResults', $(this).val());
+        });
+
+        $('.search-toggle-btn').on('click', function(){
+            var mblSearchDiv = $("#mbl-header-search-div")
+            if(mblSearchDiv.hasClass('d-none')){
+                mblSearchDiv.removeClass('d-none');
+            } else {
+                mblSearchDiv.addClass('d-none');
+            }
         });
 
         $(document).on('click', function(event) {
