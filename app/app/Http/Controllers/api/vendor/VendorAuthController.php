@@ -1551,9 +1551,13 @@ class VendorAuthController extends Controller{
             ->where('PC.DFlag', 0)
             ->where('PSC.ActiveStatus', 'Active')
             ->where('PSC.DFlag', 0)
-            ->select('VPM.VendorID','P.ProductID','VPM.VendorPrice','P.ProductName','P.ProductID as ProductID','PC.PCName','PC.PCID','PSC.PSCID','PSC.PSCName','U.UName','U.UCode',DB::raw('IFNULL(VSP.TotalQty, 0) AS TotalQty'),DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'))
+            ->select('VPM.VendorID','P.ProductID','VPM.VendorPrice','P.ProductName','P.ProductID as ProductID','PC.PCName','PC.PCID','PSC.PSCID', 'PSC.PSCName', 'U.UName', 'U.UCode', 'P.VideoURL','ProductImage','ProductBrochure')
             ->paginate($perPage, ['*'], 'page', $pageNo);
-        
+
+        foreach ($VendorProductData as $row) {
+            $row->ProductImage =  file_exists($row->ProductImage) ? url('/') . '/' . $row->ProductImage : null;
+            $row->ProductBrochure =  file_exists($row->ProductBrochure) ? url('/') . '/' . $row->ProductBrochure : null;
+        }
         return response()->json([
             'status' => true,
             'data' => $VendorProductData->items(),
@@ -1688,7 +1692,7 @@ class VendorAuthController extends Controller{
         if ($req->SearchText) {
             $query->where('P.ProductName', 'like', '%' . $req->SearchText . '%');
         }
-        $query->select('VSP.StockPointID', 'P.ProductID', 'P.ProductName', 'PC.PCName', 'PC.PCID', 'PSC.PSCID', 'PSC.PSCName', 'U.UName', 'U.UCode', DB::raw('IFNULL(SP.Qty, 0) AS Qty'));
+        $query->select('VSP.StockPointID', 'P.ProductID', 'P.ProductName', 'PC.PCName', 'PC.PCID', 'PSC.PSCID', 'PSC.PSCName', 'U.UName', 'U.UCode', 'P.VideoUrl', DB::raw('IFNULL(SP.Qty, 0) AS Qty'));
         
         if ($req->SortType) {
             if ($req->SortType == 'NameAsc') {

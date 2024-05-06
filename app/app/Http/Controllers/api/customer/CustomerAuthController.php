@@ -18,6 +18,7 @@ use DocNum;
 use docTypes;
 use logs;
 use PHPUnit\TextUI\Help;
+use Illuminate\Support\Facades\Storage;
 
 use function Laravel\Prompts\select;
 
@@ -618,11 +619,12 @@ class CustomerAuthController extends Controller{
                 if ($req->has('SearchText') && !empty($req->SearchText)) {
                     $products->where('P.ProductName', 'like', '%' . $req->SearchText . '%');
                 }
-            $Products = $products->groupBy('PSC.PSCID', 'PSCName', 'PC.PCID', 'PCName', 'P.ProductID', 'ProductName', 'ProductImage','UName','UCode','U.UID')
-                ->select('PSC.PSCID', 'PSCName','PC.PCID', 'PCName', 'P.ProductID', 'ProductName','UName','UCode','U.UID', DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'))
+            $Products = $products->groupBy('PSC.PSCID', 'PSCName', 'PC.PCID', 'PCName', 'P.ProductID', 'ProductName', 'ProductImage','UName','UCode','U.UID','P.VideoURL','P.ProductBrouchre')
+                ->select('PSC.PSCID', 'PSCName','PC.PCID', 'PCName', 'P.ProductID', 'ProductName','UName','UCode','U.UID','P.VideoURL', DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'), DB::raw('CONCAT("' . url('/') . '/", NULLIF(ProductBrochure, "")) AS ProductBrochure'))
                 ->paginate($perPage, ['*'], 'page', $pageNo);
-
             foreach ($Products as $row) {
+                $row->ProductImage =  file_exists($row->ProductImage) ? url('/') . '/' . $row->ProductImage : null;
+                $row->ProductBrochure =  file_exists($row->ProductBrochure) ? url('/') . '/' . $row->ProductBrochure : null;
                 $row->GalleryImages = DB::table('tbl_products_gallery')
                     ->where('ProductID', $row->ProductID)
                     ->pluck(DB::raw('CONCAT("' . url('/') . '/", gImage) AS gImage'))
@@ -729,8 +731,8 @@ class CustomerAuthController extends Controller{
                 ->where('P.ActiveStatus', 'Active')->where('P.DFlag', 0)
                 ->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)
                 ->where('PSC.ActiveStatus', 'Active')->where('PSC.DFlag', 0)
-                ->groupBy('PSC.PSCID', 'PSCName', 'PC.PCID', 'PCName', 'P.ProductID', 'ProductName', 'ProductImage','UName','UCode','U.UID')
-                ->select('PSC.PSCID', 'PSCName','PC.PCID', 'PCName', 'P.ProductID', 'ProductName','UName','UCode','U.UID', DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'))
+                ->groupBy('PSC.PSCID', 'PSCName', 'PC.PCID', 'PCName', 'P.ProductID', 'ProductName', 'ProductImage','UName','UCode','U.UID','P.VideoURL')
+                ->select('PSC.PSCID', 'PSCName','PC.PCID', 'PCName', 'P.ProductID', 'ProductName','UName','UCode','U.UID','P.VideoURL', DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'))
                 ->inRandomOrder()->take(5)->get();
 
             $PCategories = DB::table('tbl_vendors_product_mapping as VPM')
@@ -764,10 +766,14 @@ class CustomerAuthController extends Controller{
                 if($req->SearchText){
                     $query ->where('P.ProductName', 'like', '%' . $req->SearchText . '%');
                 }
-                $Products = $query->groupBy('P.ProductID', 'P.ProductName', 'PC.PCID', 'PC.PCName', 'PSC.PSCID', 'PSC.PSCName','ProductImage')
-                ->select('P.ProductID', 'P.ProductName', 'PC.PCID', 'PC.PCName', 'PSC.PSCID', 'PSC.PSCName',DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'))
+                $Products = $query->groupBy('P.ProductID', 'P.ProductName', 'PC.PCID', 'PC.PCName', 'PSC.PSCID', 'PSC.PSCName','ProductImage','P.VideoURL','P.ProductBrochure')
+                ->select('P.ProductID', 'P.ProductName', 'PC.PCID', 'PC.PCName', 'PSC.PSCID', 'PSC.PSCName', 'P.VideoURL', 'ProductImage','ProductBrochure')
                 ->paginate($perPage, ['*'], 'page', $pageNo);
 
+                foreach ($Products as $row) {
+                    $row->ProductImage =  file_exists($row->ProductImage) ? url('/') . '/' . $row->ProductImage : null;
+                    $row->ProductBrochure =  file_exists($row->ProductBrochure) ? url('/') . '/' . $row->ProductBrochure : null;
+                }
                 return response()->json([
                     'status' => true,
                     'data' => $Products->items(),
@@ -784,11 +790,13 @@ class CustomerAuthController extends Controller{
             ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'PSC.PCID')
             ->leftJoin('tbl_uom as U', 'U.UID', 'P.UID')
             ->where('P.ProductID', $req->ProductID)
-            ->select('P.*', 'PC.PCID', 'PC.PCName', 'PSC.PSCID', 'PSC.PSCName',DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'))->first();
-        $Products->GalleryImages = DB::table('tbl_products_gallery')
-            ->where('ProductID', $Products->ProductID)
-            ->pluck(DB::raw('CONCAT("' . url('/') . '/", gImage) AS gImage'))
-            ->toArray();
+            ->select('P.*', 'PC.PCID', 'PC.PCName', 'PSC.PSCID', 'PSC.PSCName', 'ProductImage','ProductBrouchre')->first();
+            $Products->ProductImage =  file_exists($Products->ProductImage) ? url('/') . '/' . $Products->ProductImage : null;
+            $Products->ProductBrochure =  file_exists($Products->ProductBrochure) ? url('/') . '/' . $Products->ProductBrochure : null;
+            $Products->GalleryImages = DB::table('tbl_products_gallery')
+                ->where('ProductID', $Products->ProductID)
+                ->pluck(DB::raw('CONCAT("' . url('/') . '/", gImage) AS gImage'))
+                ->toArray();
         return response()->json(['status' => true, 'data' => $Products ]);
 	}
     public function getCustomerHomeSearch(Request $req){
