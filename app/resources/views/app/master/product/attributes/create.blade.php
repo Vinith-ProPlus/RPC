@@ -30,6 +30,16 @@
                         </div>
                         <div class="col-sm-12 mt-20">
                             <div class="form-group">
+                                <label class="lstActiveStatus">Active Status</label>
+                                <select class="form-control {{$Theme['input-size']}}" id="lstActiveStatus">
+                                    <option value="Active" @if($isEdit==true) @if($EditData[0]->ActiveStatus=="Active") selected @endif @endif >Active</option>
+                                    <option value="Inactive" @if($isEdit==true) @if($EditData[0]->ActiveStatus=="Inactive") selected @endif @endif>Inactive</option>
+                                </select>
+                                <div class="errors" id="lstActiveStatus-err"></div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12 mt-20">
+                            <div class="form-group">
                                 <label class="txtValues">Values <span class="required"> * </span></label>
                                 <div class="input-group">
                                     <input type="text" class="form-control  {{$Theme['input-size']}}" id="txtValues">
@@ -396,7 +406,6 @@
             AcnIndex++;
         };
         $("#btnAddAttrValue").on("click", async function () {
-            
             console.log(AcnIndex);
             let AttrName = $('#txtAttrName').val();
             let Value = $('#txtValues').val();
@@ -585,7 +594,7 @@
             console.log(tmp);
             let formData=new FormData();
             formData.append('AttrName',$('#txtAttrName').val());
-            formData.append('ActiveStatus','Active');
+            formData.append('ActiveStatus',$('#lstActiveStatus').val());
             let Values = {
                 ExistingValues: [],
                 DeletedValueIDs: [],

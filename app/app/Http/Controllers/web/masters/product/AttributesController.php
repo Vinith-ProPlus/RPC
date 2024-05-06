@@ -511,11 +511,11 @@ class AttributesController extends Controller{
 					'formatter' => function( $d, $row ) {
 						$html='';
 						if($this->general->isCrudAllow($this->CRUD,"edit")==true){
-							if($row['ActiveStatus']=="Active"){
+							/* if($row['ActiveStatus']=="Active"){
 								$html.='<button type="button" data-id="'.$d.'" class="btn  btn-outline-dark '.$this->general->UserInfo['Theme']['button-size'].' m-5 mr-10 btnActive" data-original-title="Active"><i class="fa fa-eye-slash"></i></button>';
 							}else{
 								$html.='<button type="button" data-id="'.$d.'" class="btn  btn-outline-info '.$this->general->UserInfo['Theme']['button-size'].' m-5 mr-10 btnActive" data-original-title="Inactive"><i class="fa fa-eye"></i></button>';
-							}
+							} */
 							$html.='<button type="button" data-id="'.$d.'" class="btn  btn-outline-success '.$this->general->UserInfo['Theme']['button-size'].' m-5 mr-10 btnEdit" data-original-title="Edit"><i class="fa fa-pencil"></i></button>';
 						}
 						if($this->general->isCrudAllow($this->CRUD,"delete")==true){

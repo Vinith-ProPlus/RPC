@@ -149,7 +149,7 @@ class VendorTransactionAPIController extends Controller{
                     $status = DB::Table($this->currfyDB.'tbl_enquiry')->where('EnqID',$req->EnqID)->update(['isImageQuote' => 0,'Status'=>'Quote Requested']);
                 }
             }else{
-				$totalTaxable = 0;
+                $totalTaxable = 0;
 				$totalTaxAmount = 0;
 				$totalCGST = 0;
 				$totalSGST = 0;

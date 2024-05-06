@@ -247,6 +247,7 @@
             var $image = $('#ImageCrop').cropper(options);
             $('#ImgCrop').modal({backdrop: 'static',keyboard: false});
             $('#ImgCrop').modal('hide');
+            
             $(document).on('change', '.imageScrop', function() {
                 let id = $(this).attr('id');
                 $('#'+id).attr('data-remove',0);
