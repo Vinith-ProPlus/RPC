@@ -250,14 +250,14 @@
 <input type="hidden" style="display:none!important" id="txtRootUrl" value="{{url('/')}}/">
 
 <div class="page-wrapper">
-    <div class="top-notice bg-dark text-white pt-3">
-        <div class="container text-center d-flex align-items-center justify-content-center flex-wrap">
-            <h4 class="text-uppercase font-weight-bold mr-2">Deal of the week</h4>
-            <h6>- 15% OFF in All Construction Materials -</h6>
+    {{--    <div class="top-notice bg-dark text-white pt-3">--}}
+{{--        <div class="container text-center d-flex align-items-center justify-content-center flex-wrap">--}}
+{{--            <h4 class="text-uppercase font-weight-bold mr-2">Deal of the week</h4>--}}
+{{--            <h6>- 15% OFF in All Construction Materials -</h6>--}}
 
-            <a href="{{ route('products') }}" class="ml-2">Shop Now</a>
-        </div>
-    </div>
+{{--            <a href="{{ route('products') }}" class="ml-2">Shop Now</a>--}}
+{{--        </div>--}}
+{{--    </div>--}}
 
     <header class="header">
         <div class="header-top">
@@ -268,7 +268,7 @@
                             <div class="info-box info-box-icon-left justify-content-start">
                                 <i class="icon-location" style="color:#ff6840;"></i>
                                 <div class="align-middle" style="display: inline-block; height: 20px; vertical-align: middle !important;">
-                                    <h6 class="font-weight-bold text-dark" style="line-height: 18px;">Delivery Location - </h6>
+                                    <h6 class="font-weight-bold text-dark" style="line-height: 18px;"><span class="delivery-location-sm-hide">Delivery Location - &nbsp;</span></h6>
                                 </div>
                             </div>
                         </div>
@@ -334,13 +334,16 @@
                     <span class="ml-3 font-weight-bold" style="color:rgb(7, 54, 163)">{{$Company['CompanyName']}}</span>
                 </div>
                 <div class="header-right w-lg-max">
+
                     <div class="header-icon header-search header-search-inline header-search-category w-lg-max text-right mb-0">
-                        <a href="#" class="search-toggle-btn d-md-none d-lg-none" role="button"><i class="icon-search-3"></i></a>
+                        @if(!$isRegister)
+                        <a href="#" class="search-toggle-btn d-lg-none px-3" role="button"><i class="icon-search-3"></i></a>
                         <div class="header-search-wrapper" id="webSearchDiv">
                                 <input class="form-control" placeholder="Search..." type="text" id="homeSearch" name="homeSearch">
                                 <div id="searchResults" class="search-results"></div>
                                 <button class="btn icon-magnifier p-0" title="search"></button>
                             </div>
+                        @endif
                     </div>
 
                     <span class="separator d-none d-lg-block"></span>
@@ -443,7 +446,7 @@
                     @endif
                     <span class="separator d-none d-lg-block mr-4"></span>
 
-                    <a class="d-lg-block d-none">
+                    <a class="d-lg-block">
                         <div class="header-user" id="btnLogout">
                             <i class="fas fa-sign-out-alt"></i>
                         </div>

@@ -52,14 +52,14 @@
 <input type="hidden" style="display:none!important" id="txtRootUrl" value="{{url('/')}}/">
 <input type="hidden" style="display:none!important" id="CID" value="{{ $CID ?? '' }}">
 <div class="page-wrapper">
-    <div class="top-notice bg-dark text-white pt-3">
-        <div class="container text-center d-flex align-items-center justify-content-center flex-wrap">
-            <h4 class="text-uppercase font-weight-bold mr-2">Deal of the week</h4>
-            <h6>- 15% OFF in All Construction Materials, -</h6>
+{{--    <div class="top-notice bg-dark text-white pt-3">--}}
+{{--        <div class="container text-center d-flex align-items-center justify-content-center flex-wrap">--}}
+{{--            <h4 class="text-uppercase font-weight-bold mr-2">Deal of the week</h4>--}}
+{{--            <h6>- 15% OFF in All Construction Materials, -</h6>--}}
 
-            <a href="#" class="ml-2">Shop Now</a>
-        </div><!-- End .container -->
-    </div><!-- End .top-notice -->
+{{--            <a href="#" class="ml-2">Shop Now</a>--}}
+{{--        </div><!-- End .container -->--}}
+{{--    </div><!-- End .top-notice -->--}}
 
     <header class="header">
         <div class="header-top">
@@ -70,14 +70,12 @@
                             <div class="info-box info-box-icon-left justify-content-start">
                                 <i class="icon-location" style="color:#ff6840;"></i>
                                 <div class="align-middle" style="display: inline-block; height: 20px; vertical-align: middle !important;">
-                                    <h6 class="font-weight-bold text-dark" style="line-height: 18px; position: relative;">
-                                        Delivery Location - {{$PostalCode}}
-                                        <a href="">
-                                            <span id="btnClearPincode">
-                                                <i class="fas fa-times text-danger" style="font-size: 12px;"></i>
-                                            </span>
-                                        </a>
-                                    </h6>
+                                    <h6 class="d-flex font-weight-bold text-dark" style="line-height: 18px; position: relative;">
+                                            <span class="delivery-location-sm-hide">Delivery Location - &nbsp;</span> {{$PostalCode}}
+                                                <span id="btnClearPincode" class="px-3">
+                                                    <i class="fas fa-times text-danger" style="font-size: 12px;"></i>
+                                                </span>
+                                        </h6>
                                 </div>
                             </div>
                         </div>
@@ -107,74 +105,85 @@
             </div><!-- End .container -->
         </div><!-- End .header-top -->
 
-        <div class="header-middle sticky-header" data-sticky-options="{'mobile': true}">
-            <div class="container">
-                <div class="header-left col-lg-2 w-auto pl-0">
+         <div class="header-middle sticky-header" data-sticky-options="{'mobile': true}">
+                <div class="container">
+                    <div class="header-left col-lg-2 w-auto pl-0">
+                        <a href="{{url('/')}}" class="logo">
+							<img src="{{url('/')}}/{{$Company['Logo']}}" width="50" height="50" alt="{{$Company['CompanyName']}}">
+                        </a>
+						<span class="ml-3 font-weight-bold">{{$Company['CompanyName']}}</span>
+                    </div><!-- End .header-left -->
 
-                    <a href="{{url('/')}}" class="logo">
-                        <img src="{{url('/')}}/{{$Company['Logo']}}" width="50" height="50" alt="{{$Company['CompanyName']}}">
-                    </a>
-                    <span class="ml-3 font-weight-bold">{{$Company['CompanyName']}}</span>
-                </div><!-- End .header-left -->
-
-                <div class="header-right w-lg-max">
-                    <div class="header-icon header-search header-search-inline header-search-category w-lg-max text-right mb-0">
-                        <a href="#" class="search-toggle" role="button"><i class="icon-search-3"></i></a>
-                        <div class="header-search-wrapper">
-                            <input class="form-control" placeholder="Search..." type="text" id="homeSearch" name="homeSearch">
-                            <div id="searchResults" class="search-results"></div>
-                            <button class="btn icon-magnifier p-0" title="search"></button>
-                        </div>
-                    </div>
-
-                    <span class="separator d-none d-lg-block"></span>
-
-                    <div class="sicon-box mb-0 d-none d-lg-flex align-items-center pr-3 mr-1">
-                        <div class=" sicon-default">
-                            <i class="icon-phone-1"></i>
-                        </div>
-                        <div class="sicon-header">
-                            <h4 class="sicon-title ls-n-25">CALL US NOW</h4>
-                            <p>+91 {{$Company['Phone-Number']}}</p>
-                        </div>
-                    </div>
-
-                    <span class="separator d-none d-lg-block mr-4"></span>
-                    <a href="{{url('/')}}/social/auth/google" class="d-lg-block d-none" id="loginBtn">
-                        <div class="header-user">
-                            <div class="header-userinfo">
-                                <span>Welcome</span>
-                                <h4>Sign In / Register</h4>
+                    <div class="header-right w-lg-max">
+                        <div class="header-icon header-search header-search-inline header-search-category w-lg-max text-right mb-0">
+                            <a href="#" class="search-toggle-btn d-md-none d-lg-none" role="button"><i class="icon-search-3"></i></a>
+                            <div class="header-search-wrapper" id="webSearchDiv">
+                                <input class="form-control" placeholder="Search..." type="text" id="homeSearch" name="homeSearch">
+                                <div id="searchResults" class="search-results"></div>
+                                <button class="btn icon-magnifier p-0" title="search"></button>
                             </div>
                         </div>
-                    </a>
 
-                    <span class="separator d-block"></span>
+                        <span class="separator d-none d-lg-block"></span>
 
-                    <div class="dropdown cart-dropdown">
-                        <a href="#" title="Cart" class="dropdown-toggle dropdown-arrow cart-toggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-display="static">
-                            <i class="icon-cart-thick"></i>
+                        <div class="sicon-box mb-0 d-none d-lg-flex align-items-center pr-3 mr-1">
+                            <div class=" sicon-default">
+                                <i class="icon-phone-1"></i>
+                            </div>
+                            <div class="sicon-header">
+                                <h4 class="sicon-title ls-n-25">CALL US NOW</h4>
+                                <p>+91 {{$Company['Phone-Number']}}</p>
+                            </div>
+                        </div>
+
+                        <span class="separator d-none d-lg-block mr-4"></span>
+                        <a href="{{url('/')}}/social/auth/google" class="d-lg-block d-none" id="loginBtn">
+                            <div class="header-user">
+                                <div class="header-userinfo">
+                                    <span>Welcome</span>
+                                    <h4>Sign In / Register</h4>
+                                </div>
+                            </div>
                         </a>
+                        <span class="separator d-block"></span>
 
-                        <div class="cart-overlay"></div>
+                        <div class="dropdown cart-dropdown">
+                            <a href="#" title="Cart" class="dropdown-toggle dropdown-arrow cart-toggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-display="static">
+                                <i class="icon-cart-thick"></i>
+							</a>
 
-                        <div class="dropdown-menu mobile-cart">
-                            <a href="#" title="Close (Esc)" class="btn-close">×</a>
+                            <div class="cart-overlay"></div>
 
-                            <div class="dropdownmenu-wrapper custom-scrollbar">
-                                <div class="dropdown-cart-header">Shopping Cart</div>
+                            <div class="dropdown-menu mobile-cart">
+                                <a href="#" title="Close (Esc)" class="btn-close">×</a>
 
-                                <span>Your Cart is Empty!</span>
-
-                                <div class="dropdown-cart-action">
+                                <div class="dropdownmenu-wrapper custom-scrollbar">
+                                    <div class="dropdown-cart-header">Shopping Cart</div>
+									<span>Your Cart is Empty!</span>
+                                    <div class="dropdown-cart-action">
                                         <a href="{{ route('products.guest.productsList') }}" class="btn btn-dark btn-block">Add to Cart</a>
                                     </div><!-- End .dropdown-cart-total -->
-                            </div><!-- End .dropdownmenu-wrapper -->
-                        </div><!-- End .dropdown-menu -->
-                    </div><!-- End .dropdown -->
-                </div><!-- End .header-right -->
-            </div><!-- End .container -->
-        </div><!-- End .header-middle -->
+                                </div><!-- End .dropdownmenu-wrapper -->
+                            </div><!-- End .dropdown-menu -->
+                        </div><!-- End .dropdown -->
+                    </div><!-- End .header-right -->
+                </div><!-- End .container -->
+            </div><!-- End .header-middle -->
+            <div class="container d-none" id="mbl-header-search-div">
+                <div class="row col-12">
+                    <div class="col-12">
+                        <div class="py-2" >
+                            <div class="input-group" style="width: 100% !important;">
+                                <input class="form-control" placeholder="Search..." type="text" id="mblHomeSearch" name="homeSearch">
+                                <div class="input-group-append">
+                                    <button class="btn icon-magnifier px-3" title="search"></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="mblSearchResults" class="search-results"></div>
+                    </div>
+                </div>
+            </div>
 
         <div class="header-bottom sticky-header d-none d-lg-flex" data-sticky-options="{'mobile': false}">
             <div class="container">
@@ -575,26 +584,43 @@
 
         LoadSubCategories();
 
-        $('#homeSearch').on('keyup', function() {
+        function performSearch(resultsElementId, searchText) {
             var formData = new FormData();
-            formData.append('SearchText', $(this).val());
+            formData.append('SearchText', searchText);
             $.ajax({
                 url: "{{ route('guestHomeSearch') }}",
                 method: 'POST',
-                headers: { 'X-CSRF-Token' : '{{ csrf_token() }}' },
+                headers: { 'X-CSRF-Token': '{{ csrf_token() }}' },
                 data: formData,
                 processData: false,
                 contentType: false,
-                success: function(response) {
-                    let searchResults = $('#searchResults');
+                success: function (response) {
+                    let searchResults = $('#' + resultsElementId);
                     searchResults.empty();
                     searchResults.append((response.searchResults !== "") ? response.searchResults : "No results found");
                     searchResults.show();
                 },
-                error: function(xhr, status, error) {
+                error: function (xhr, status, error) {
                     console.error('Error:', error);
                 }
             });
+        }
+
+        $('#homeSearch').on('keyup', function () {
+            performSearch('searchResults', $(this).val());
+        });
+
+        $('#mblHomeSearch').on('keyup', function () {
+            performSearch('mblSearchResults', $(this).val());
+        });
+
+        $('.search-toggle-btn').on('click', function(){
+            var mblSearchDiv = $("#mbl-header-search-div")
+            if(mblSearchDiv.hasClass('d-none')){
+                mblSearchDiv.removeClass('d-none');
+            } else {
+                mblSearchDiv.addClass('d-none');
+            }
         });
 
         $(document).on('click', function(event) {

@@ -57,7 +57,7 @@ class HomeAuthController extends Controller{
         ->leftJoin($this->generalDB.'tbl_countries as C','C.CountryID','CI.CountryID')->where('CI.CityID',$this->Company['CityID'])
         ->select('C.CountryName','S.StateName','D.DistrictName','T.TalukName','CI.CityName', 'PC.PostalCode')
         ->first();
-        
+
         $this->middleware('auth');
         $this->middleware(function ($request, $next) {
 			$this->UserData = Helper::getUserInfo(Auth()->user()->UserID);
@@ -1186,6 +1186,7 @@ class HomeAuthController extends Controller{
                     ->rightJoin('tbl_vendors_product_mapping as VPM', 'PC.PCID', 'VPM.PCID')
                     ->where('VPM.Status', 1)
                     ->whereIn('VPM.VendorID', $AllVendors)
+                    ->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)
                     ->where('PC.PCName', 'like', '%' . $req->SearchText . '%')
                     ->groupBy('PC.PCID', 'PC.PCName')
                     ->select('PC.PCID', 'PC.PCName')->take(3)->get();
@@ -1195,6 +1196,7 @@ class HomeAuthController extends Controller{
                     ->rightJoin('tbl_vendors_product_mapping as VPM', 'PSC.PSCID', 'VPM.PSCID')
                     ->where('VPM.Status', 1)
                     ->whereIn('VPM.VendorID', $AllVendors)
+                    ->where('PSC.ActiveStatus', 'Active')->where('PSC.DFlag', 0)
                     ->where('PSC.PSCName', 'like', '%' . $req->SearchText . '%')
                     ->groupBy('PC.PCID', 'PC.PCName', 'PSC.PSCID', 'PSC.PSCName')
                     ->select('PC.PCID', 'PC.PCName', 'PSC.PSCID', 'PSC.PSCName')->take(3)->get();
@@ -1205,6 +1207,7 @@ class HomeAuthController extends Controller{
                     ->rightJoin('tbl_vendors_product_mapping as VPM', 'P.ProductID', 'VPM.ProductID')
                     ->where('VPM.Status', 1)
                     ->whereIn('VPM.VendorID', $AllVendors)
+                    ->where('P.ActiveStatus', 'Active')->where('P.DFlag', 0)
                     ->where('P.ProductName', 'like', '%' . $req->SearchText . '%')
                     ->groupBy('P.ProductID', 'P.ProductName', 'PC.PCID', 'PC.PCName', 'PSC.PSCID', 'PSC.PSCName')
                     ->select('P.ProductID', 'P.ProductName', 'PC.PCID', 'PC.PCName', 'PSC.PSCID', 'PSC.PSCName')->take(3)->get();

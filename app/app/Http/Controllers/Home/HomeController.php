@@ -14,7 +14,7 @@ use logs;
 
 class HomeController extends Controller
 {
-    
+
 	private $generalDB;
     private $tmpDB;
     private $Company;
@@ -45,7 +45,7 @@ class HomeController extends Controller
             ->select('BannerTitle', 'BannerType', DB::raw('CONCAT("' . url('/') . '/", BannerImage) AS BannerImage'))->get();
         $FormData['steppers'] = DB::Table('tbl_stepper_images')->where('StepperType', 'Web')->where('DFlag', 0)->orderBy('TranNo')
             ->select('StepperTitle', DB::raw('CONCAT("' . url('/') . '/", StepperImage) AS StepperImage'))->get();
-        
+
         if (auth()->check()) {
             $CustomerID = auth()->user()->ReferID;
             if (empty($CustomerID)) {
@@ -156,7 +156,7 @@ class HomeController extends Controller
                         DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(P.ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'))
                     ->inRandomOrder()->take(10)
                     ->get();
-    
+
                 $FormData['PCategories'] = $PCatagories;
                 $FormData['HotProducts'] = $RecentProducts->shuffle();
                 $FormData['RecentProducts'] = $RecentProducts->shuffle();
@@ -228,7 +228,7 @@ class HomeController extends Controller
             $PCatagories = DB::Table('tbl_product_category')->where('ActiveStatus', 'Active')->where('DFlag', 0)->select('PCName', 'PCID', 'PCImage')
                 ->inRandomOrder()->take(10)->get();
         }
-        
+
         $FormData['PCategories'] = $PCatagories;
         $FormData['isRegister'] = false;
         $FormData['Cart'] = [];
@@ -764,12 +764,14 @@ class HomeController extends Controller
     {
         if ($req->SearchText) {
             $PCategories = DB::table('tbl_product_category as PC')
+                ->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)
                 ->where('PC.PCName', 'like', '%' . $req->SearchText . '%')
                 ->groupBy('PC.PCID', 'PC.PCName')
                 ->select('PC.PCID', 'PC.PCName')->take(3)->get();
 
             $PSCategories = DB::table('tbl_product_subcategory as PSC')
                 ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'PSC.PCID')
+                ->where('PSC.ActiveStatus', 'Active')->where('PSC.DFlag', 0)
                 ->where('PSC.PSCName', 'like', '%' . $req->SearchText . '%')
                 ->groupBy('PC.PCID', 'PC.PCName', 'PSC.PSCID', 'PSC.PSCName')
                 ->select('PC.PCID', 'PC.PCName', 'PSC.PSCID', 'PSC.PSCName')->take(3)->get();
@@ -777,6 +779,7 @@ class HomeController extends Controller
             $Products = DB::table('tbl_products as P')
                 ->leftJoin('tbl_product_subcategory as PSC', 'P.SCID', 'PSC.PSCID')
                 ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'PSC.PCID')
+                ->where('P.ActiveStatus', 'Active')->where('P.DFlag', 0)
                 ->where('P.ProductName', 'like', '%' . $req->SearchText . '%')
                 ->groupBy('P.ProductID', 'P.ProductName', 'PC.PCID', 'PC.PCName', 'PSC.PSCID', 'PSC.PSCName')
                 ->select('P.ProductID', 'P.ProductName', 'PC.PCID', 'PC.PCName', 'PSC.PSCID', 'PSC.PSCName')->take(3)->get();
