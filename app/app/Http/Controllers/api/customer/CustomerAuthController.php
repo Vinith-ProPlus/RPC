@@ -790,7 +790,7 @@ class CustomerAuthController extends Controller{
             ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'PSC.PCID')
             ->leftJoin('tbl_uom as U', 'U.UID', 'P.UID')
             ->where('P.ProductID', $req->ProductID)
-            ->select('P.*', 'PC.PCID', 'PC.PCName', 'PSC.PSCID', 'PSC.PSCName', 'ProductImage','ProductBrouchre')->first();
+            ->select('P.*', 'PC.PCID', 'PC.PCName', 'PSC.PSCID', 'PSC.PSCName')->first();
             $Products->ProductImage =  file_exists($Products->ProductImage) ? url('/') . '/' . $Products->ProductImage : null;
             $Products->ProductBrochure =  file_exists($Products->ProductBrochure) ? url('/') . '/' . $Products->ProductBrochure : null;
             $Products->GalleryImages = DB::table('tbl_products_gallery')

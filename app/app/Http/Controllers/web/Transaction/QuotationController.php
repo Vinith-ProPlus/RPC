@@ -778,7 +778,7 @@ class QuotationController extends Controller{
 			if($request->customers){
 				$customers=json_decode($request->customers,true);
 				if(count($customers)>0){
-					$Where.=" and CustomerID in('".implode("','",$customers)."')";
+					$Where.=" and Q.CustomerID in('".implode("','",$customers)."')";
 				}
 			}
 			if($request->quoteDates){

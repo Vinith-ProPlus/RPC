@@ -344,7 +344,8 @@ class QuoteEnquiryController extends Controller{
 				$FormData['PData'] = $PData;
 				$FormData['VendorQuote'] = $VendorQuote;
 				$FormData['FinalQuoteData'] = $FinalQuoteData;
-				// return $FormData['VendorQuote'];
+				$FormData['RequestedVendors'] = DB::table($this->currfyDB . 'tbl_vendor_quotation')->where('EnqID',$EnqID)->pluck('VendorID')->toArray();
+				// return $FormData['RequestedVendors'];
 				return view('app.transaction.quote-enquiry.quote-view', $FormData);
 			}else{
 				return view('errors.403');
@@ -363,6 +364,7 @@ class QuoteEnquiryController extends Controller{
 			$status=false;
 			try {
 				$EnqData = DB::table($this->currfyDB.'tbl_enquiry')->where('EnqID',$EnqID)->select('CustomerID','AID')->first();
+				$isNewEnq = DB::table($this->currfyDB.'tbl_enquiry')->where('EnqID',$EnqID)->where('Status','New')->exists();
 				$SelectedVendors = json_decode($req->SelectedVendors, true);
 				foreach ($SelectedVendors as $VendorID) {
 					$isQuoteRequested =  DB::table($this->currfyDB . 'tbl_vendor_quotation')->where('VendorID',$VendorID)->where('EnqID',$EnqID)->first();
@@ -414,9 +416,11 @@ class QuoteEnquiryController extends Controller{
 			}
 			if($status==true){
 				DB::commit();
-				$Title = "Quotation Accepted";
-				$Message = "Your quotation has been accepted. The admin will update your quote pricing.";
-				Helper::saveNotification($EnqData->CustomerID,$Title,$Message,'Quotation',$EnqID);
+				if($isNewEnq){
+					$Title = "Quotation Accepted";
+					$Message = "Your quotation has been accepted. The admin will update your quote pricing.";
+					Helper::saveNotification($EnqData->CustomerID,$Title,$Message,'Quotation',$EnqID);
+				}
 				$NewData=DB::table($this->currfyDB.'tbl_vendor_quotation as VQ')->join($this->currfyDB.'tbl_vendor_quotation_details as VQD','VQD.VQuoteID','VQ.VQuoteID')->where('VQ.EnqID',$EnqID)->get();
 				$logData=array("Description"=>"Quotation Request Sent","ModuleName"=>$this->ActiveMenuName,"Action"=>cruds::ADD->value,"ReferID"=>$EnqID,"OldData"=>$OldData,"NewData"=>$NewData,"UserID"=>$this->UserID,"IP"=>$req->ip());
 				logs::Store($logData);

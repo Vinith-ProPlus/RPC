@@ -37,7 +37,10 @@ return [
     */
 
     'env' => env('APP_ENV', 'production'),
+    // GOOGLE MAPS
     'map_api_key' => env('GOOGLE_MAPS_API_KEY', ''),
+
+    // FIREBASE
     'firebase_server_key' => env('FIREBASE_SERVER_KEY', ''),
     'geo_names_user_name' => env('GEO_NAMES_USER_NAME', ''),
 
@@ -50,6 +53,9 @@ return [
     'FIREBASE_APP_ID' => env('FIREBASE_APP_ID', ''),
     'FIREBASE_MEASUREMENT_ID' => env('FIREBASE_MEASUREMENT_ID', ''),
     
+    // TEXT LOCAL
+    'TEXT_LOCAL_API_KEY' => env('TEXT_LOCAL_API_KEY', ''),
+    'TEXT_LOCAL_SENDER_NAME' => env('TEXT_LOCAL_SENDER_NAME', ''),
 
     /*
     |--------------------------------------------------------------------------

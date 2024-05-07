@@ -2,10 +2,16 @@
 @section('content')
 <style>
     .stamp-badge {
-    padding: 3px 6px;
-    margin: -10px;
-    z-index: 1;
-}
+        padding: 3px 6px;
+        margin: -10px;
+        z-index: 1;
+    }
+    .width-max-content {
+        width: max-content;
+    }
+    .width-min-content {
+        width: min-content;
+    }
 </style>
 <div class="container-fluid">
 	<div class="page-header">
@@ -87,8 +93,8 @@
                                     <div class="card-header">
                                         <h6 class="text-center fw-700">Product Details</h6>
                                     </div>
-                                    <div class="card-body">
-                                        <table class="table" id="tblProductDetails">
+                                    <div class="card-body table-responsive">
+                                        <table class="table width-max-content" id="tblProductDetails">
                                             <thead>
                                                 <tr>
                                                     <th class="text-center align-middle">S.No</th>
@@ -143,30 +149,43 @@
                                         </table>
                                     </div>
                                     <div class="card-footer d-flex">
-                                        @foreach ($AllVendors as $item)
-                                            <div class="card w-auto">
-                                                <div class="card-body">
-                                                    <div class="row position-relative">
-                                                        <div class="col-9 w-auto">
-                                                            <span class="fs-16 fw-500 text-dark">{{$item['VendorName']}}</span>
-                                                            <button type="button" title="View Vendor Ratings" data-vendor-id="{{$item['VendorID']}}" data-vendor-name="{{$item['VendorName']}}" class="btn btnVendorRatings"><i class="fa fa-eye text-dark"></i></button><br>
-                                                            <span class="fs-12 text-dark">Available Products ({{ $item['VendorCount'] }} / {{count($PData)}})</span>
-                                                        </div>
-                                                        @if (count($VendorQuote)==0 && count($FinalQuoteData) == 0)
-                                                            <div class="col-3 w-auto">
-                                                                <span class="checkbox checkbox-secondary">
-                                                                    <input class="chkVendors" id="{{$item['VendorID']}}" type="checkbox">
-                                                                    <label for="{{$item['VendorID']}}"></label>
-                                                                </span>
+                                        <div class="row">
+                                            @foreach ($AllVendors as $item)
+                                                <div class="col width-min-content">
+                                                    <div class="card width-max-content">
+                                                        <div class="card-body">
+                                                            <div class="row">
+                                                                <div class="col-9 width-max-content">
+                                                                    <span class="fs-16 fw-500 text-dark">{{$item['VendorName']}}</span>
+                                                                    <button type="button" title="View Vendor Ratings" data-vendor-id="{{$item['VendorID']}}" data-vendor-name="{{$item['VendorName']}}" class="btn btnVendorRatings"><i class="fa fa-eye text-dark"></i></button><br>
+                                                                    <span class="fs-12 text-dark">Available Products ({{ $item['VendorCount'] }} / {{count($PData)}})</span>
+                                                                </div>
+                                                                @if (count($FinalQuoteData) == 0 && !in_array($item['VendorID'], $RequestedVendors))
+                                                                    <div class="col-3 width-max-content">
+                                                                        <span class="checkbox checkbox-secondary">
+                                                                            <input class="chkVendors" id="{{$item['VendorID']}}" type="checkbox">
+                                                                            <label for="{{$item['VendorID']}}"></label>
+                                                                        </span>
+                                                                    </div>
+                                                                @endif
                                                             </div>
-                                                        @endif
+                                                        </div>
+                                                        <div class="stamp-badge position-absolute top-0 start-0 bg-success text-white rounded">
+                                                            {{$item['Rating']}}
+                                                        </div>
                                                     </div>
                                                 </div>
-                                                <div class="stamp-badge position-absolute top-0 start-0 bg-success text-white rounded">
-                                                    {{$item['Rating']}}
+                                            @endforeach
+                                            @if(count($VendorQuote)>0)
+                                                <div class="col d-flex align-items-center">
+                                                    <div class="card shadow-none">
+                                                        <div class="card-body">
+                                                            <button type="button" class="btn btn-block btn-outline-danger btnRequestQuote">Request Quote Again</button>
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        @endforeach
+                                            @endif
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -176,8 +195,8 @@
                                         <div class="card-header">
                                             <h6 class="text-center fw-700">Recieved Quotations</h6>
                                         </div>
-                                        <div class="card-body">
-                                            <table class="table" id="tblVendorQuote">
+                                        <div class="card-body table-responsive">
+                                            <table class="table table-sm width-max-content" id="tblVendorQuote">
                                                 <thead>
                                                     <tr>
                                                         <th class="text-center align-middle">S.No</th>
@@ -185,7 +204,7 @@
                                                         <th class="text-center align-middle">Qty</th>
                                                         @foreach ($VendorQuote as $quote)
                                                             <th class="text-center align-middle">
-                                                                {{ $quote->VendorName }}
+                                                                {{ $quote->VendorName }} <br>
 
                                                                 @if($quote->Status == 'Requested') 
                                                                     <button type="button" data-vendor-id="{{ $quote->VendorID }}" data-vendor-name="{{ $quote->VendorName }}" class="btn btn-outline-primary btn-xs btnVendorPrice"> Add Vendor Price</button>  
@@ -267,8 +286,8 @@
                                     <div class="card-header">
                                         <h6 class="text-center fw-700">Allocated Quotation</h6>
                                     </div>
-                                    <div class="card-body">
-                                        <table class="table" id="tblAllocatedQuote">
+                                    <div class="card-body table-responsive">
+                                        <table class="table width-max-content" id="tblAllocatedQuote">
                                             <thead>
                                                 <tr>
                                                     <th class="text-center align-middle">S.No</th>
@@ -369,11 +388,11 @@
                     <div class="row">
                         <div class="col-sm-12 text-right">
                             @if($crud['view']==true)
-                            <a href="{{url('/')}}/admin/transaction/quote-enquiry" class="btn {{$Theme['button-size']}} btn-outline-dark mr-10" id="btnCancel">Back</a>
+                                <a href="{{url('/')}}/admin/transaction/quote-enquiry" class="btn {{$Theme['button-size']}} btn-outline-dark mr-10" id="btnCancel">Back</a>
                             @endif
                             
                             @if($crud['add']==true && count($VendorQuote)==0 && count($FinalQuoteData) == 0)
-                                <button class="btn {{$Theme['button-size']}} btn-outline-success" id="btnRequestQuote">Request Quote</button>
+                                <button class="btn {{$Theme['button-size']}} btn-outline-success btnRequestQuote">Request Quote</button>
                             @elseif(count($VendorQuote)>0 && count($FinalQuoteData) == 0)
                                 <button class="btn {{$Theme['button-size']}} btn-outline-info" id="btnQuoteConvert">Convert to Quotation</button>
                             @endif
@@ -389,7 +408,7 @@
 @section('scripts')
 <script>
     $(document).ready(function(){
-
+        
         const camelCaseToWords=(text)=> {
             return text.replace(/([a-z])([A-Z])/g, '$1 $2');
         }
@@ -911,7 +930,7 @@
                 });
             });
         });
-        $('#btnRequestQuote').click(async function(){
+        $('.btnRequestQuote').click(async function(){
             let { formData , status } = await validateGetData();
             if(status){
                 swal({
@@ -924,12 +943,12 @@
                     closeOnConfirm: false
                 },function(){
                     swal.close();
-                    btnLoading($('#btnRequestQuote'));
+                    btnLoading($('.btnRequestQuote'));
                     let postUrl="{{ url('/') }}/admin/transaction/quote-enquiry/request-quote/{{$EnqData->EnqID}}";
                     $.ajax({
                         type:"post",
                         url:postUrl,
-                        headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
+                        headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content')},
                         data:formData,
                         cache: false,
                         processData: false,
@@ -955,7 +974,7 @@
                             }, 100);
                         },
                         error:function(e, x, settings, exception){ajaxErrors(e, x, settings, exception);},
-                        complete: function(e, x, settings, exception){btnReset($('#btnRequestQuote'));ajaxIndicatorStop();$("html, body").animate({ scrollTop: 0 }, "slow");},
+                        complete: function(e, x, settings, exception){btnReset($('.btnRequestQuote'));ajaxIndicatorStop();$("html, body").animate({ scrollTop: 0 }, "slow");},
                         success:function(response){
                             document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
                             if(response.status==true){
@@ -968,7 +987,11 @@
                                     confirmButtonText: "Okay",
                                     closeOnConfirm: false
                                 },function(){
-                                    window.location.replace("{{url('/')}}/admin/transaction/quote-enquiry");
+                                    @if(count($VendorQuote)>0)
+                                        window.location.reload();
+                                    @else
+                                        window.location.replace("{{url('/')}}/admin/transaction/quote-enquiry");
+                                    @endif
                                 });
                                 
                             }else{

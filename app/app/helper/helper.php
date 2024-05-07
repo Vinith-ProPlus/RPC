@@ -1,10 +1,15 @@
 <?php
 namespace App\helper;
+
+use App\Models\TextLocal;
 use DB;
 use DocNum;
+use Exception;
 use Illuminate\Support\Facades\Config;
 use Session;
 use GuzzleHttp\Client;
+use Illuminate\Support\Facades\Request;
+
 class helper{
 	public static function getMainDB(){
 		return config('app.db_main').".";
@@ -1064,6 +1069,14 @@ class helper{
 		}
 
 		return round($value, 1) . $abbreviations[$abbrevIndex];
+	}
+
+	public static function sendOtpSms($mobileNo, $otp){
+		$TextLocal = new TextLocal();
+		$message = "Your RPC OTP for login is $otp. Please enter this code to proceed.";
+
+		return $TextLocal->sendOTP($mobileNo, $message);
+		
 	}
 
 }
