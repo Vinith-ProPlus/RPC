@@ -541,6 +541,8 @@ class HomeAuthController extends Controller{
             $PCatagories = DB::table('tbl_vendors_product_mapping as VPM')
                 ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'VPM.PCID')
                 ->where('VPM.Status', 1)->WhereIn('VPM.VendorID', $AllVendors)
+                ->where('PC.ActiveStatus', "Active")
+                ->where('PC.DFlag', 0)
                 ->groupBy('PC.PCID', 'PC.PCName', 'PC.PCImage')
                 ->select('PC.PCID', 'PC.PCName', DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PCImage, ""), "assets/images/no-image-b.png")) AS CategoryImage'))->get();
             foreach ($PCatagories as $row) {
@@ -573,14 +575,18 @@ class HomeAuthController extends Controller{
                 ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'VPM.PCID')
                 ->leftJoin('tbl_products as P', 'P.ProductID', 'VPM.ProductID')
                 ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')
-                ->where('P.ActiveStatus',"Active")
-                ->where('P.DFlag',0)
+                ->where('P.ActiveStatus', "Active")
+                ->where('P.DFlag', 0)
+                ->where('PC.ActiveStatus', "Active")
+                ->where('PC.DFlag', 0)
+                ->where('PSC.ActiveStatus', "Active")
+                ->where('PSC.DFlag', 0)
                 ->where('VPM.Status', 1)
                 ->WhereIn('VPM.VendorID', $AllVendors)
                 ->when(isset($request->SubCategoryID), function ($query) use ($request) {
                     return $query->where('P.SCID', $request->SubCategoryID);
                 })
-                ->groupBy('P.ProductID', 'P.ProductName', 'P.Description', 'P.ProductImage', 'PSC.PSCID', 'PSC.PSCName')
+                ->distinct()
                 ->select('P.ProductID')
                 ->get();
 
@@ -592,8 +598,12 @@ class HomeAuthController extends Controller{
                     $join->on('W.product_id', '=', 'P.ProductID')
                         ->where('W.customer_id', '=', $customerID);
                 })
-                ->where('P.ActiveStatus',"Active")
-                ->where('P.DFlag',0)
+                ->where('P.ActiveStatus', "Active")
+                ->where('P.DFlag', 0)
+                ->where('PC.ActiveStatus', "Active")
+                ->where('PC.DFlag', 0)
+                ->where('PSC.ActiveStatus', "Active")
+                ->where('PSC.DFlag', 0)
                 ->where('VPM.Status', 1)
                 ->WhereIn('VPM.VendorID', $AllVendors)
                 ->when(isset($request->SubCategoryID), function ($query) use ($request) {
@@ -606,7 +616,7 @@ class HomeAuthController extends Controller{
                         return $query->orderBy('P.CreatedOn', 'asc');
                     }
                 })
-                ->groupBy('P.ProductID', 'P.ProductName', 'P.Description', 'P.ProductImage', 'PSC.PSCName', 'PSC.PSCID', 'W.product_id')
+                ->distinct()
                 ->select('P.ProductID', 'P.ProductName', 'P.Description',
                     DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'),
                     DB::raw('IF(W.product_id IS NOT NULL, true, false) AS IsInWishlist'),
@@ -933,7 +943,7 @@ class HomeAuthController extends Controller{
                         return $query->orderBy('PC.CreatedOn', 'asc');
                     }
                 })
-                ->groupBy('PC.PCID', 'PC.PCName', 'PC.PCImage')
+                ->distinct()
                 ->select('PC.PCID', 'PC.PCName',
                     DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PCImage, ""), "assets/images/no-image-b.png")) AS PCImage'))
                 ->skip(($pageNo - 1) * $productCount)
