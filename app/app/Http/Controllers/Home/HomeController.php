@@ -327,12 +327,16 @@ class HomeController extends Controller
                 ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')
                 ->where('P.ActiveStatus', "Active")
                 ->where('P.DFlag', 0)
+                ->where('PC.ActiveStatus', "Active")
+                ->where('PC.DFlag', 0)
+                ->where('PSC.ActiveStatus', "Active")
+                ->where('PSC.DFlag', 0)
                 ->where('VPM.Status', 1)
                 ->WhereIn('VPM.VendorID', $AllVendors)
                 ->when(isset($request->SubCategoryID), function ($query) use ($request) {
                     return $query->where('P.SCID', $request->SubCategoryID);
                 })
-                ->groupBy('P.ProductID', 'P.ProductName', 'P.Description', 'P.ProductImage', 'PSC.PSCID', 'PSC.PSCName')
+                ->distinct()
                 ->select('P.ProductID')
                 ->get();
 
@@ -346,6 +350,8 @@ class HomeController extends Controller
                 ->where('PC.DFlag', 0)
                 ->where('PSC.ActiveStatus', "Active")
                 ->where('PSC.DFlag', 0)
+                ->where('VPM.Status', 1)
+                ->WhereIn('VPM.VendorID', $AllVendors)
                 ->when(isset($request->SubCategoryID), function ($query) use ($request) {
                     return $query->where('P.SCID', $request->SubCategoryID);
                 })
@@ -356,7 +362,7 @@ class HomeController extends Controller
                         return $query->orderBy('P.CreatedOn', 'asc');
                     }
                 })
-                ->groupBy('P.ProductID', 'P.ProductName', 'P.Description', 'P.ProductImage', 'PSC.PSCID', 'PSC.PSCName')
+                ->distinct()
                 ->select('P.ProductID', 'P.ProductName', 'P.Description',
                     DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'),
                     DB::raw('false AS IsInWishlist'),
