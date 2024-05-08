@@ -670,21 +670,71 @@ class HomeController extends Controller
         $pageNo = ($request->pageNo != 'undefined') ? $request->pageNo : 1;
         $viewType = $request->viewType ?? 'Grid';
         $orderBy = $request->orderBy ?? '';
-        $PCatagories = DB::Table('tbl_product_category')->where('ActiveStatus', 'Active')->where('DFlag', 0)
-            ->when($request->has('orderBy') && in_array($request->orderBy, ['new', 'popularity']), function ($query) use ($request) {
-                if ($request->orderBy == "new") {
-                    return $query->orderBy('CreatedOn', 'desc');
-                } elseif ($request->orderBy == "popularity") {
-                    return $query->orderBy('CreatedOn', 'asc');
-                }
-            })
-            ->select('PCName', 'PCID',
-                DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PCImage, ""), "assets/images/no-image-b.png")) AS PCImage'))
-            ->skip(($pageNo - 1) * $productCount)
-            ->take($productCount)
-            ->get();
-        $totalCategoriesCount = DB::Table('tbl_product_category')->where('ActiveStatus', 'Active')->where('DFlag', 0)
-            ->count();
+        $FormData['PostalCodeID'] = $this->PostalCodeID;
+        if($FormData['PostalCodeID']){
+            $AllVendors = $this->getAvailableVendors($FormData['PostalCodeID']);
+            $PCatagoriesTotal = DB::table('tbl_product_category as PC')
+                ->leftJoin('tbl_vendors_product_mapping as VPM', 'PC.PCID', 'VPM.PCID')
+                ->leftJoin('tbl_products as P', 'VPM.ProductID', 'P.ProductID')
+                ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')
+                ->where('PC.ActiveStatus', 'Active')
+                ->where('PC.DFlag', 0)
+                ->where('VPM.Status', 1)
+                ->whereIn('VPM.VendorID', $AllVendors)
+                ->when($request->has('orderBy') && in_array($request->orderBy, ['new', 'popularity']), function ($query) use ($request) {
+                    if ($request->orderBy == "new") {
+                        return $query->orderBy('PC.CreatedOn', 'desc');
+                    } elseif ($request->orderBy == "popularity") {
+                        return $query->orderBy('PC.CreatedOn', 'asc');
+                    }
+                })
+                ->distinct()
+                ->select('PC.PCName', 'PC.PCID',
+                    DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PC.PCImage, ""), "assets/images/no-image-b.png")) AS PCImage'))
+                ->get();
+            $PCatagories = DB::table('tbl_product_category as PC')
+                ->leftJoin('tbl_vendors_product_mapping as VPM', 'PC.PCID', 'VPM.PCID')
+                ->leftJoin('tbl_products as P', 'VPM.ProductID', 'P.ProductID')
+                ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')
+                ->where('PC.ActiveStatus', 'Active')
+                ->where('PC.DFlag', 0)
+                ->where('VPM.Status', 1)
+                ->whereIn('VPM.VendorID', $AllVendors)
+                ->when($request->has('orderBy') && in_array($request->orderBy, ['new', 'popularity']), function ($query) use ($request) {
+                    if ($request->orderBy == "new") {
+                        return $query->orderBy('PC.CreatedOn', 'desc');
+                    } elseif ($request->orderBy == "popularity") {
+                        return $query->orderBy('PC.CreatedOn', 'asc');
+                    }
+                })
+                ->distinct()
+                ->select('PC.PCName', 'PC.PCID',
+                    DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PC.PCImage, ""), "assets/images/no-image-b.png")) AS PCImage'))
+                ->skip(($pageNo - 1) * $productCount)
+                ->take($productCount)
+                ->get();
+
+            $totalCategoriesCount = $PCatagoriesTotal->count();
+        }else{
+            $PCatagories = DB::Table('tbl_product_category')->where('ActiveStatus', 'Active')->where('DFlag', 0)
+                ->when($request->has('orderBy') && in_array($request->orderBy, ['new', 'popularity']), function ($query) use ($request) {
+                    if ($request->orderBy == "new") {
+                        return $query->orderBy('CreatedOn', 'desc');
+                    } elseif ($request->orderBy == "popularity") {
+                        return $query->orderBy('CreatedOn', 'asc');
+                    }
+                })
+                ->distinct()
+                ->select('PCName', 'PCID',
+                    DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PCImage, ""), "assets/images/no-image-b.png")) AS PCImage'))
+                ->skip(($pageNo - 1) * $productCount)
+                ->take($productCount)
+                ->get();
+            $totalCategoriesCount = DB::Table('tbl_product_category')->where('ActiveStatus', 'Active')->where('DFlag', 0)
+                ->distinct()
+                ->count();
+        }
+
         $totalPages = ceil($totalCategoriesCount / $productCount);
         $range = 3;
         return view('home.guest.category-list-html', compact('PCatagories', 'productCount', 'pageNo', 'viewType', 'orderBy', 'range', 'totalPages'))->render();
@@ -725,26 +775,82 @@ class HomeController extends Controller
         $pageNo = ($request->pageNo != 'undefined') ? $request->pageNo : 1;
         $viewType = $request->viewType ?? 'Grid';
         $orderBy = $request->orderBy ?? '';
-        $PSubCatagories = DB::Table('tbl_product_subcategory')
-            ->when($request->has('CID') && isset($request->CID), function ($query) use ($request) {
-                $query->where('PCID', $request->CID);
-            })
-            ->when($request->has('orderBy') && in_array($request->orderBy, ['new', 'popularity']), function ($query) use ($request) {
-                if ($request->orderBy == "new") {
-                    return $query->orderBy('CreatedOn', 'desc');
-                } elseif ($request->orderBy == "popularity") {
-                    return $query->orderBy('CreatedOn', 'asc');
-                }
-            })
-            ->select('PSCName', 'PSCID',
-                DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PSCImage, ""), "assets/images/no-image-b.png")) AS PSCImage'))
-            ->skip(($pageNo - 1) * $productCount)
-            ->take($productCount)
-            ->get();
-        $totalSubCategoriesCount = DB::Table('tbl_product_subcategory')->where('ActiveStatus', 'Active')->where('DFlag', 0)
-            ->when($request->has('CID') && isset($request->CID), function ($query) use ($request) {
-                $query->where('PCID', $request->CID);
-            })->count();
+        $FormData['PostalCodeID'] = $this->PostalCodeID;
+        if($FormData['PostalCodeID']){
+            $AllVendors = $this->getAvailableVendors($FormData['PostalCodeID']);
+            $PSubCatagoriesTotal = DB::table('tbl_product_category as PC')
+                ->leftJoin('tbl_vendors_product_mapping as VPM', 'PC.PCID', 'VPM.PCID')
+                ->leftJoin('tbl_products as P', 'VPM.ProductID', 'P.ProductID')
+                ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')
+                ->where('VPM.Status', 1)
+                ->whereIn('VPM.VendorID', $AllVendors)
+                ->where('PSC.ActiveStatus', 'Active')
+                ->where('PSC.DFlag', 0)
+                ->when($request->has('orderBy') && in_array($request->orderBy, ['new', 'popularity']), function ($query) use ($request) {
+                    if ($request->orderBy == "new") {
+                        return $query->orderBy('PSC.CreatedOn', 'desc');
+                    } elseif ($request->orderBy == "popularity") {
+                        return $query->orderBy('PSC.CreatedOn', 'asc');
+                    }
+                })
+                ->distinct()
+                ->select('PSC.PSCName', 'PSC.PSCID',
+                    DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PSC.PSCImage, ""), "assets/images/no-image-b.png")) AS PSCImage'))
+                ->get();
+            $PSubCatagories = DB::table('tbl_product_category as PC')
+                ->leftJoin('tbl_vendors_product_mapping as VPM', 'PC.PCID', 'VPM.PCID')
+                ->leftJoin('tbl_products as P', 'VPM.ProductID', 'P.ProductID')
+                ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')
+                ->where('VPM.Status', 1)
+                ->whereIn('VPM.VendorID', $AllVendors)
+                ->where('PSC.ActiveStatus', 'Active')
+                ->where('PSC.DFlag', 0)
+                ->when($request->has('CID') && isset($request->CID), function ($query) use ($request) {
+                    $query->where('PSC.PCID', $request->CID);
+                })
+                ->when($request->has('orderBy') && in_array($request->orderBy, ['new', 'popularity']), function ($query) use ($request) {
+                    if ($request->orderBy == "new") {
+                        return $query->orderBy('PSC.CreatedOn', 'desc');
+                    } elseif ($request->orderBy == "popularity") {
+                        return $query->orderBy('PSC.CreatedOn', 'asc');
+                    }
+                })
+                ->distinct()
+                ->select('PSC.PSCName', 'PSC.PSCID',
+                    DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PSC.PSCImage, ""), "assets/images/no-image-b.png")) AS PSCImage'))
+                ->skip(($pageNo - 1) * $productCount)
+                ->take($productCount)
+                ->get();
+
+            $totalSubCategoriesCount = $PSubCatagoriesTotal->count();
+        }else{
+            $PSubCatagories = DB::Table('tbl_product_subcategory')
+                ->where('ActiveStatus', 'Active')
+                ->where('DFlag', 0)
+                ->when($request->has('CID') && isset($request->CID), function ($query) use ($request) {
+                    $query->where('PCID', $request->CID);
+                })
+                ->when($request->has('orderBy') && in_array($request->orderBy, ['new', 'popularity']), function ($query) use ($request) {
+                    if ($request->orderBy == "new") {
+                        return $query->orderBy('CreatedOn', 'desc');
+                    } elseif ($request->orderBy == "popularity") {
+                        return $query->orderBy('CreatedOn', 'asc');
+                    }
+                })
+                ->distinct()
+                ->select('PSCName', 'PSCID',
+                    DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PSCImage, ""), "assets/images/no-image-b.png")) AS PSCImage'))
+                ->skip(($pageNo - 1) * $productCount)
+                ->take($productCount)
+                ->get();
+            $totalSubCategoriesCount = DB::Table('tbl_product_subcategory')
+                ->where('ActiveStatus', 'Active')->where('DFlag', 0)
+                ->distinct()
+                ->when($request->has('CID') && isset($request->CID), function ($query) use ($request) {
+                    $query->where('PCID', $request->CID);
+                })->count();
+        }
+
         $totalPages = ceil($totalSubCategoriesCount / $productCount);
         $range = 3;
         return view('home.guest.sub-category-list-html', compact('PSubCatagories', 'productCount', 'pageNo', 'viewType', 'orderBy', 'range', 'totalPages'))->render();
