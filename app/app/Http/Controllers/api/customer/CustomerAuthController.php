@@ -870,7 +870,7 @@ class CustomerAuthController extends Controller{
         try {
             $status = DB::Table($this->currfyDB.'tbl_notifications')
             ->where('UserID',$this->UserID)
-            ->where('NID',$req->NID)->update(['ReadStatus' => 1,'ReadOn'=>date('Y-m-d H:i:s')]); 
+            ->where('NID',$req->NID)->update(['ReadStatus' => 1,'ReadOn'=>date('Y-m-d H:i:s')]);
         }catch(Exception $e) {
             $status=false;
         }
@@ -884,9 +884,41 @@ class CustomerAuthController extends Controller{
 	}
     public function getUserDatawithToken(Request $req){
         $UserData = DB::table('users')->where('UserID', $this->UserID)->first();
-        return response()->json([
-            'status' => true,
-            'data' => $UserData,
-        ]);
+        return response()->json(['status' => true, 'data' => $UserData]);
     }
+
+    public function UpdateEmail(request $req){ return Auth::user();
+        
+        if(!$req->OTP){
+            $OTP = Helper::getOTP(6);
+
+            if($req->LoginMethod == 'Email'){
+                $user = Auth::user();
+        
+                Mail::to($user->email)->send(new EmailChanged($user)); 
+                return response()->json(['status' => true,'message' => "OTP Sent to Registered Email Successfully!"]);
+            } elseif($req->LoginMethod == 'MobileNumber'){
+                Helper::saveSmsOtp($req->MobileNumber,$OTP,$req->LoginType);
+                return response()->json(['status' => true,'message' => "OTP Sent to Registered Mobile Number Successfully!"]);
+            }
+        }else{
+            $OTP = DB::table(Helper::getCurrFYDB().'tbl_sms_otps')->where('MobileNumber',$req->MobileNumber)->where('isOtpExpired',0)->value('OTP');
+            if($OTP == $req->OTP){ 
+                $UserData=DB::Table('users')->where('MobileNumber',$req->MobileNumber)->where('LoginType',$req->LoginType)->first();
+                if($UserData){
+                    $request = new Request([
+                        'email' => $UserData->EMail,
+                        'password' => $UserData->EMail,
+                        'LoginType' => $req->LoginType,
+                        'fcmToken' => $req->fcmToken
+                    ]);
+                    return $this->Login($request);
+                }else{
+                    return response()->json(['status' => true,'message' => "OTP Verified Successfully!",'data'=>['user_data'=>['isNewUser'=>true,'MobileNumber'=>$req->MobileNumber,'LoginType' => $req->LoginType]]]);
+                }
+            }else{
+                return response()->json(['status' => false,'message' => "The OTP verification failed. Please enter the correct OTP."]);
+            }
+        }
+	}
 }

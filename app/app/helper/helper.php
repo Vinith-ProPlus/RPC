@@ -1071,12 +1071,42 @@ class helper{
 		return round($value, 1) . $abbreviations[$abbrevIndex];
 	}
 
-	public static function sendOtpSms($mobileNo, $otp){
-		$TextLocal = new TextLocal();
-		$message = "Your RPC OTP for login is $otp. Please enter this code to proceed.";
+	public static function saveSmsOtp($MobNo,$OTP,$LoginType){
+		$OtpID = DocNum::getDocNum("SMS-OTP",self::getCurrFYDB(),self::getCurrentFY());
+		$Message = "Your RPC OTP for login is $OTP. Please enter this code to proceed.";
+		$Ndata = [
+			'OtpID'=> $OtpID,
+			'MobileNumber'=> $MobNo,
+			'OTP'=> $OTP,
+			'LoginType'=> $LoginType,
+			'Message'=> $Message,
+		];
+		$status = DB::table(self::getCurrFYDB().'tbl_sms_otps')->insert($Ndata);
+		DB::table(Helper::getCurrFYDB().'tbl_sms_otps')->where('MobileNumber',$MobNo)->whereNot('OTP',$OTP)->update(['isOtpExpired' =>1]);
 
-		return $TextLocal->sendOTP($mobileNo, $message);
-		
+		if($status){
+			DocNum::updateDocNum("SMS-OTP",self::getCurrFYDB());
+			$TextLocal = new TextLocal();
+			$TextLocal->sendOTP($MobNo, $Message);
+		}
+		return $status;
 	}
+
+	public static function saveEmailOtp($email, $otp) {
+		DB::table('email_otps')->insert([
+			'email' => $email,
+			'otp' => $otp
+		]);
+	
+		$data = [
+			'user' => User::where('email', $email)->first(),
+			'otp' => $otp
+		];
+	
+		Mail::send('emails.email_otp', $data, function($message) use ($email) {
+			$message->to($email)->subject('Your OTP for Email Update');
+		});
+	}
+	
 
 }

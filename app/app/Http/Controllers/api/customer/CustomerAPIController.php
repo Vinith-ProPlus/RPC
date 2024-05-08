@@ -154,6 +154,31 @@ class CustomerAPIController extends Controller{
             }
         }
 	}
+    public function MobileNoRegister(request $req){
+        if(!$req->OTP){
+            $OTP = Helper::getOTP(6);
+            Helper::saveSmsOtp($req->MobileNumber,$OTP,$req->LoginType);
+            return response()->json(['status' => true,'message' => "OTP Sent Successfully!","OTP"=>$OTP]);
+        }else{
+            $OTP = DB::table(Helper::getCurrFYDB().'tbl_sms_otps')->where('MobileNumber',$req->MobileNumber)->where('isOtpExpired',0)->value('OTP');
+            if($OTP == $req->OTP){ 
+                $UserData=DB::Table('users')->where('MobileNumber',$req->MobileNumber)->where('LoginType',$req->LoginType)->first();
+                if($UserData){
+                    $request = new Request([
+                        'email' => $UserData->EMail,
+                        'password' => $UserData->EMail,
+                        'LoginType' => $req->LoginType,
+                        'fcmToken' => $req->fcmToken
+                    ]);
+                    return $this->Login($request);
+                }else{
+                    return response()->json(['status' => true,'message' => "OTP Verified Successfully!",'data'=>['user_data'=>['MobileNumber'=>$req->MobileNumber,'LoginType' => $req->LoginType],'isNewUser'=>true]]);
+                }
+            }else{
+                return response()->json(['status' => false,'message' => "The OTP verification failed. Please enter the correct OTP."]);
+            }
+        }
+	}
 
 
 }

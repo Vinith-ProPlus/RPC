@@ -422,7 +422,7 @@ class VendorTransactionAPIController extends Controller{
         try {
             $ExistingOTP =DB::table($this->currfyDB.'tbl_order_details')->where('VOrderID',$req->VOrderID)->where('Status','New')->value('OTP');
             if($ExistingOTP != $req->OTP){
-                return response()->json(['status' => false,'message' => "The OTP verification has failed. Please enter the correct OTP."]);
+                return response()->json(['status' => false,'message' => "The OTP verification failed. Please enter the correct OTP."]);
             }else{
                 $status = DB::table($this->currfyDB.'tbl_order_details')->where('VOrderID',$req->VOrderID)->where('Status','New')->where('OTP',$req->OTP)->update(['Status'=>'Delivered','DeliveredOn'=>now(),'DeliveredBy'=>$VendorID,'UpdatedOn'=>now(),'UpdatedBy'=>$VendorID]);
                 if($status){
