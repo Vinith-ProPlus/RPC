@@ -319,55 +319,95 @@ class HomeController extends Controller
         $productCount = ($request->productCount != 'undefined') ? $request->productCount : 12;
         $pageNo = ($request->pageNo != 'undefined') ? $request->pageNo : 1;
         $FormData['PostalCodeID'] = $this->PostalCodeID;
-        $FormData['PostalCode'] = $this->PostalCode;
         if($FormData['PostalCodeID']){
             $AllVendors = $this->getAvailableVendors($FormData['PostalCodeID']);
+            $totalProducts = DB::table('tbl_vendors_product_mapping as VPM')
+                ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'VPM.PCID')
+                ->leftJoin('tbl_products as P', 'P.ProductID', 'VPM.ProductID')
+                ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')
+                ->where('P.ActiveStatus', "Active")
+                ->where('P.DFlag', 0)
+                ->where('VPM.Status', 1)
+                ->WhereIn('VPM.VendorID', $AllVendors)
+                ->when(isset($request->SubCategoryID), function ($query) use ($request) {
+                    return $query->where('P.SCID', $request->SubCategoryID);
+                })
+                ->groupBy('P.ProductID', 'P.ProductName', 'P.Description', 'P.ProductImage', 'PSC.PSCID', 'PSC.PSCName')
+                ->select('P.ProductID')
+                ->get();
+
+            $productDetails = DB::table('tbl_vendors_product_mapping as VPM')
+                ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'VPM.PCID')
+                ->leftJoin('tbl_products as P', 'P.ProductID', 'VPM.ProductID')
+                ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')
+                ->where('P.ActiveStatus', "Active")
+                ->where('P.DFlag', 0)
+                ->where('PC.ActiveStatus', "Active")
+                ->where('PC.DFlag', 0)
+                ->where('PSC.ActiveStatus', "Active")
+                ->where('PSC.DFlag', 0)
+                ->when(isset($request->SubCategoryID), function ($query) use ($request) {
+                    return $query->where('P.SCID', $request->SubCategoryID);
+                })
+                ->when($request->has('orderBy') && in_array($request->orderBy, ['new', 'popularity']), function ($query) use ($request) {
+                    if ($request->orderBy == "new") {
+                        return $query->orderBy('P.CreatedOn', 'desc');
+                    } elseif ($request->orderBy == "popularity") {
+                        return $query->orderBy('P.CreatedOn', 'asc');
+                    }
+                })
+                ->groupBy('P.ProductID', 'P.ProductName', 'P.Description', 'P.ProductImage', 'PSC.PSCID', 'PSC.PSCName')
+                ->select('P.ProductID', 'P.ProductName', 'P.Description',
+                    DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'),
+                    DB::raw('false AS IsInWishlist'),
+                    'PSC.PSCID', 'PSC.PSCName as SubCategoryName')
+                ->skip(($pageNo - 1) * $productCount)
+                ->take($productCount)
+                ->get();
         }else{
-            $AllVendors = DB::table('tbl_vendors as V')
-                ->leftJoin('tbl_vendors_service_locations as VSL', 'V.VendorID', 'VSL.VendorID')
-                ->where('V.ActiveStatus', "Active")->where('V.DFlag', 0)
-                ->groupBy('VSL.VendorID')->pluck('VSL.VendorID')->toArray();
+            $totalProducts = DB::table('tbl_products as P')
+                ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'P.CID')
+                ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PCID', 'PC.PCID')
+                ->where('P.ActiveStatus', "Active")
+                ->where('P.DFlag', 0)
+                ->where('PC.ActiveStatus', "Active")
+                ->where('PC.DFlag', 0)
+                ->where('PSC.ActiveStatus', "Active")
+                ->where('PSC.DFlag', 0)
+                ->when(isset($request->SubCategoryID), function ($query) use ($request) {
+                    return $query->where('P.SCID', $request->SubCategoryID);
+                })
+                ->distinct()
+                ->select('P.ProductID')
+                ->get();
+            $productDetails = DB::table('tbl_products as P')
+                ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'P.CID')
+                ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PCID', 'PC.PCID')
+                ->where('P.ActiveStatus', "Active")
+                ->where('P.DFlag', 0)
+                ->where('PC.ActiveStatus', "Active")
+                ->where('PC.DFlag', 0)
+                ->where('PSC.ActiveStatus', "Active")
+                ->where('PSC.DFlag', 0)
+                ->when(isset($request->SubCategoryID), function ($query) use ($request) {
+                    return $query->where('P.SCID', $request->SubCategoryID);
+                })
+                ->when(($request->has('orderBy') && in_array($request->orderBy, ['new', 'popularity'])), function ($query) use ($request) {
+                    if ($request->orderBy == "new") {
+                        return $query->orderBy('P.CreatedOn', 'desc');
+                    } elseif ($request->orderBy == "popularity") {
+                        return $query->orderBy('P.CreatedOn', 'asc');
+                    }
+                })
+                ->distinct()
+                ->select('P.ProductID', 'P.ProductName', 'P.Description',
+                    DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'),
+                    DB::raw('false AS IsInWishlist'),
+                    'PSC.PSCID', 'PSC.PSCName as SubCategoryName')
+                ->skip(($pageNo - 1) * $productCount)
+                ->take($productCount)
+                ->get();
         }
-
-        $totalProducts = DB::table('tbl_vendors_product_mapping as VPM')
-            ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'VPM.PCID')
-            ->leftJoin('tbl_products as P', 'P.ProductID', 'VPM.ProductID')
-            ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')
-            ->where('P.ActiveStatus', "Active")
-            ->where('P.DFlag', 0)
-            ->where('VPM.Status', 1)
-            ->WhereIn('VPM.VendorID', $AllVendors)
-            ->when(isset($request->SubCategoryID), function ($query) use ($request) {
-                return $query->where('P.SCID', $request->SubCategoryID);
-            })
-            ->groupBy('P.ProductID', 'P.ProductName', 'P.Description', 'P.ProductImage', 'PSC.PSCID', 'PSC.PSCName')
-            ->select('P.ProductID')
-            ->get();
-
-        $productDetails = DB::table('tbl_vendors_product_mapping as VPM')
-            ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'VPM.PCID')
-            ->leftJoin('tbl_products as P', 'P.ProductID', 'VPM.ProductID')
-            ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')
-            ->where('P.ActiveStatus', "Active")
-            ->where('P.DFlag', 0)
-            ->when(isset($request->SubCategoryID), function ($query) use ($request) {
-                return $query->where('P.SCID', $request->SubCategoryID);
-            })
-            ->when($request->has('orderBy') && in_array($request->orderBy, ['new', 'popularity']), function ($query) use ($request) {
-                if ($request->orderBy == "new") {
-                    return $query->orderBy('P.CreatedOn', 'desc');
-                } elseif ($request->orderBy == "popularity") {
-                    return $query->orderBy('P.CreatedOn', 'asc');
-                }
-            })
-            ->groupBy('P.ProductID', 'P.ProductName', 'P.Description', 'P.ProductImage', 'PSC.PSCID', 'PSC.PSCName')
-            ->select('P.ProductID', 'P.ProductName', 'P.Description',
-                DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'),
-                DB::raw('false AS IsInWishlist'),
-                'PSC.PSCID', 'PSC.PSCName as SubCategoryName')
-            ->skip(($pageNo - 1) * $productCount)
-            ->take($productCount)
-            ->get();
 
         return [
             'productDetails' => $productDetails,
