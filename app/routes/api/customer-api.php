@@ -30,20 +30,22 @@ Route::controller(CustomerAuthController::class)->group(function () {
     Route::post('/set-default','SetDefault');
     Route::post('/update-saddress','UpdateSAddress');
     Route::post('/delete-saddress','DeleteSAddress');
-
+    
     Route::post('/get/customer-home','getCustomerHome');
     Route::post('/get/customer-home-search','getCustomerHomeSearch');
     Route::post('/get/notifications','getNotifications');
     Route::post('/get/notifications-count','getNotificationsCount');
     Route::post('/notification-read','NotificationRead');
-
+    
     Route::post('/get-user','getUserDatawithToken');
-
+    
+    Route::post('/update-email','UpdateEmail');
 });
 
 Route::controller(CustomerAPIController::class)->group(function () {
     Route::post('/login','Login');
     Route::post('/google-register','GoogleRegister');
+    Route::post('/mobile-no-register','MobileNoRegister');
 });
 
 Route::controller(CustomerTransactionAPIController::class)->group(function () {

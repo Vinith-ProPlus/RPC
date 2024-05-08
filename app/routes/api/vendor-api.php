@@ -45,6 +45,7 @@ Route::controller(VendorStockPointController::class)->group(function () {
 Route::controller(VendorAPIController::class)->group(function () {
     Route::post('/login','Login');
     Route::post('/google-register','GoogleRegister');
+    Route::post('/mobile-no-register','MobileNoRegister');
 });
 
 Route::controller(VendorTransactionAPIController::class)->group(function () {
