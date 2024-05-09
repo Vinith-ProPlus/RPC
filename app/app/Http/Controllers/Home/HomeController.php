@@ -286,31 +286,49 @@ class HomeController extends Controller
         $FormData['PostalCode'] = $this->PostalCode;
         if($FormData['PostalCodeID']){
             $AllVendors = $this->getAvailableVendors($FormData['PostalCodeID']);
+            $PCatagories = DB::table('tbl_vendors_product_mapping as VPM')
+                ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'VPM.PCID')
+                ->where('VPM.Status', 1)->WhereIn('VPM.VendorID', $AllVendors)
+                ->where('PC.ActiveStatus', "Active")->where('PC.DFlag', 0)
+                ->distinct()
+                ->select('PC.PCID', 'PC.PCName', DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PCImage, ""), "assets/images/no-image-b.png")) AS CategoryImage'))->get();
+            foreach ($PCatagories as $row) {
+                $row->PSCData = DB::table('tbl_vendors_product_mapping as VPM')
+                    ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'VPM.PSCID')
+                    ->where('VPM.Status', 1)->where('PSC.PCID', $row->PCID)->WhereIn('VPM.VendorID', $AllVendors)
+                    ->where('PSC.ActiveStatus', "Active")->where('PSC.DFlag', 0)
+                    ->distinct()
+                    ->select('PSC.PSCID', 'PSC.PSCName')->get();
+                foreach ($row->PSCData as $item) {
+                    $item->ProductData = DB::table('tbl_vendors_product_mapping as VPM')
+                        ->leftJoin('tbl_products as P', 'P.ProductID', 'VPM.ProductID')
+                        ->where('VPM.Status', 1)->where('P.CID', $row->PCID)->where('P.SCID', $item->PSCID)->WhereIn('VPM.VendorID', $AllVendors)
+                        ->where('P.ActiveStatus', "Active")->where('P.DFlag', 0)
+                        ->distinct()
+                        ->select('P.ProductID', 'P.ProductName', DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(P.ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'))->get();
+                }
+            }
         }else{
-            $AllVendors = DB::table('tbl_vendors as V')
-                ->leftJoin('tbl_vendors_service_locations as VSL', 'V.VendorID', 'VSL.VendorID')
-                ->where('V.ActiveStatus', "Active")->where('V.DFlag', 0)
-                ->groupBy('VSL.VendorID')->pluck('VSL.VendorID')->toArray();
-        }
-        $PCatagories = DB::table('tbl_vendors_product_mapping as VPM')
-            ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'VPM.PCID')
-            ->where('VPM.Status', 1)->WhereIn('VPM.VendorID', $AllVendors)
-            ->groupBy('PC.PCID', 'PC.PCName', 'PC.PCImage')
-            ->select('PC.PCID', 'PC.PCName', DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PCImage, ""), "assets/images/no-image-b.png")) AS CategoryImage'))->get();
-        foreach ($PCatagories as $row) {
-            $row->PSCData = DB::table('tbl_vendors_product_mapping as VPM')
-                ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'VPM.PSCID')
-                ->where('VPM.Status', 1)->where('PSC.PCID', $row->PCID)->WhereIn('VPM.VendorID', $AllVendors)
-                ->groupBy('PSC.PSCID', 'PSC.PSCName')
-                ->select('PSC.PSCID', 'PSC.PSCName')->get();
-            foreach ($row->PSCData as $item) {
-                $item->ProductData = DB::table('tbl_vendors_product_mapping as VPM')
-                    ->leftJoin('tbl_products as P', 'P.ProductID', 'VPM.ProductID')
-                    ->where('VPM.Status', 1)->where('P.CID', $row->PCID)->where('P.SCID', $item->PSCID)->WhereIn('VPM.VendorID', $AllVendors)
-                    ->groupBy('P.ProductID', 'P.ProductName', 'P.ProductImage')
-                    ->select('P.ProductID', 'P.ProductName', DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(P.ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'))->get();
+            $PCatagories = DB::table('tbl_product_category as PC')
+                ->where('PC.ActiveStatus', "Active")->where('PC.DFlag', 0)
+                ->distinct()
+                ->select('PC.PCID', 'PC.PCName', DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PCImage, ""), "assets/images/no-image-b.png")) AS CategoryImage'))->get();
+            foreach ($PCatagories as $row) {
+                $row->PSCData = DB::table('tbl_product_subcategory as PSC')
+                    ->where('PSC.PCID', $row->PCID)
+                    ->where('PSC.ActiveStatus', "Active")->where('PSC.DFlag', 0)
+                    ->distinct()
+                    ->select('PSC.PSCID', 'PSC.PSCName')->get();
+                foreach ($row->PSCData as $item) {
+                    $item->ProductData = DB::table('tbl_products as P')
+                        ->where('P.CID', $row->PCID)->where('P.SCID', $item->PSCID)
+                        ->where('P.ActiveStatus', "Active")->where('P.DFlag', 0)
+                        ->distinct()
+                        ->select('P.ProductID', 'P.ProductName', DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(P.ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'))->get();
+                }
             }
         }
+
         return $PCatagories;
     }
 
@@ -322,13 +340,10 @@ class HomeController extends Controller
         if($FormData['PostalCodeID']){
             $AllVendors = $this->getAvailableVendors($FormData['PostalCodeID']);
             $totalProducts = DB::table('tbl_vendors_product_mapping as VPM')
-                ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'VPM.PCID')
                 ->leftJoin('tbl_products as P', 'P.ProductID', 'VPM.ProductID')
                 ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')
                 ->where('P.ActiveStatus', "Active")
                 ->where('P.DFlag', 0)
-                ->where('PC.ActiveStatus', "Active")
-                ->where('PC.DFlag', 0)
                 ->where('PSC.ActiveStatus', "Active")
                 ->where('PSC.DFlag', 0)
                 ->where('VPM.Status', 1)
@@ -341,13 +356,10 @@ class HomeController extends Controller
                 ->get();
 
             $productDetails = DB::table('tbl_vendors_product_mapping as VPM')
-                ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'VPM.PCID')
                 ->leftJoin('tbl_products as P', 'P.ProductID', 'VPM.ProductID')
                 ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')
                 ->where('P.ActiveStatus', "Active")
                 ->where('P.DFlag', 0)
-                ->where('PC.ActiveStatus', "Active")
-                ->where('PC.DFlag', 0)
                 ->where('PSC.ActiveStatus', "Active")
                 ->where('PSC.DFlag', 0)
                 ->where('VPM.Status', 1)
@@ -372,28 +384,23 @@ class HomeController extends Controller
                 ->get();
         }else{
             $totalProducts = DB::table('tbl_products as P')
-                ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'P.CID')
-                ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PCID', 'PC.PCID')
-                ->where('P.ActiveStatus', "Active")
+                ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')
+                ->where('P.ActiveStatus', 'Active')
                 ->where('P.DFlag', 0)
-                ->where('PC.ActiveStatus', "Active")
-                ->where('PC.DFlag', 0)
-                ->where('PSC.ActiveStatus', "Active")
+                ->where('PSC.ActiveStatus', 'Active')
                 ->where('PSC.DFlag', 0)
                 ->when(isset($request->SubCategoryID), function ($query) use ($request) {
                     return $query->where('P.SCID', $request->SubCategoryID);
                 })
-                ->distinct()
+                ->groupBy('P.ProductID', 'P.ProductName', 'P.Description', 'P.ProductImage', 'PSC.PSCID', 'PSC.PSCName')
                 ->select('P.ProductID')
+                ->distinct()
                 ->get();
             $productDetails = DB::table('tbl_products as P')
-                ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'P.CID')
-                ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PCID', 'PC.PCID')
-                ->where('P.ActiveStatus', "Active")
+                ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')
+                ->where('P.ActiveStatus', 'Active')
                 ->where('P.DFlag', 0)
-                ->where('PC.ActiveStatus', "Active")
-                ->where('PC.DFlag', 0)
-                ->where('PSC.ActiveStatus', "Active")
+                ->where('PSC.ActiveStatus', 'Active')
                 ->where('PSC.DFlag', 0)
                 ->when(isset($request->SubCategoryID), function ($query) use ($request) {
                     return $query->where('P.SCID', $request->SubCategoryID);
@@ -405,11 +412,12 @@ class HomeController extends Controller
                         return $query->orderBy('P.CreatedOn', 'asc');
                     }
                 })
-                ->distinct()
+                ->groupBy('P.ProductID', 'P.ProductName', 'P.Description', 'P.ProductImage', 'PSC.PSCID', 'PSC.PSCName')
                 ->select('P.ProductID', 'P.ProductName', 'P.Description',
-                    DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'),
+                    DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(P.ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'),
                     DB::raw('false AS IsInWishlist'),
                     'PSC.PSCID', 'PSC.PSCName as SubCategoryName')
+                ->distinct()
                 ->skip(($pageNo - 1) * $productCount)
                 ->take($productCount)
                 ->get();
@@ -423,7 +431,6 @@ class HomeController extends Controller
 
     public function categoryList()
     {
-
         $FormData['PostalCodeID'] = $this->PostalCodeID;
         $FormData['PostalCode'] = $this->PostalCode;
         if($FormData['PostalCodeID']){
