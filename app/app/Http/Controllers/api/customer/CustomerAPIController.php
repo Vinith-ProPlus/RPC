@@ -33,8 +33,6 @@ class CustomerAPIController extends Controller{
 
     public function Login(Request $req){
 		$rules=array(
-			'email' => 'required|email:filter',
-			'password' => 'required',
 			'fcmToken' => 'required',
 		);
 		$message=array(
@@ -50,13 +48,22 @@ class CustomerAPIController extends Controller{
         $result=DB::Table('users')->where('UserName',$req->email)->get();
         if(count($result)>0){
             if(($result[0]->DFlag==0)&&($result[0]->ActiveStatus=='Active')&&($result[0]->isLogin==1)){
-                if(Auth::attempt(['UserName'=>$req->email,'password'=>$req->password,'LoginType'=>$req->LoginType,'ActiveStatus' => 1,'DFlag' => 0,'isLogin' => 1])){
-                    
+                $isLogin = false;
+                if ($req->LoginMethod == "MobileNumber") {
+                    if (Auth::attempt(['MobileNumber' => $req->MobileNumber, 'password_2' => $req->MobileNumber, 'LoginType' => $req->LoginType, 'ActiveStatus' => 1, 'DFlag' => 0, 'isLogin' => 1])) {
+                        $isLogin = true;
+                    }
+                } elseif($req->LoginMethod == "Email") {
+                    if (Auth::attempt(['UserName' => $req->Email, 'password' => $req->Email, 'LoginType' => $req->LoginType, 'ActiveStatus' => 1, 'DFlag' => 0, 'isLogin' => 1])) {
+                        $isLogin = true;
+                    }
+                }                
+                if($isLogin){
                     $token=auth()->user()->createToken('Token')->accessToken;
 					DB::Table('users')->where('UserID',Auth()->user()->UserID)->update(array("fcmToken"=>$req->fcmToken));
                     $userInfo=helper::getUserInfo(Auth()->user()->UserID);
-                    
                     $return=array(
+                    
 						"status"=>true,
 						"message"=>"Successfully Logged in",
 						"data"=>array(
@@ -93,8 +100,8 @@ class CustomerAPIController extends Controller{
         if($UserData){
             $request = new Request([
                 'email' => $req->Email,
-                'password' => $req->Email,
                 'LoginType' => $req->LoginType,
+                'LoginMethod' => "Email",
                 'fcmToken' => $req->fcmToken
             ]);
             return $this->Login($request);
@@ -143,8 +150,8 @@ class CustomerAPIController extends Controller{
                 DocNum::updateDocNum(docTypes::Users->value);
                 $request = new Request([
                     'email' => $req->Email,
-                    'password' => $req->Email,
                     'LoginType' => $req->LoginType,
+                    'LoginMethod' => "Email",
                     'fcmToken' => $req->fcmToken
                 ]);
                 return $this->Login($request);
@@ -157,7 +164,8 @@ class CustomerAPIController extends Controller{
     public function MobileNoRegister(request $req){
         if(!$req->OTP){
             $OTP = Helper::getOTP(6);
-            Helper::saveSmsOtp($req->MobileNumber,$OTP,$req->LoginType);
+            $Message = "Your RPC OTP for login is $OTP. Please enter this code to proceed.";
+            Helper::saveSmsOtp($req->MobileNumber,$OTP,$Message,$req->LoginType);
             return response()->json(['status' => true,'message' => "OTP Sent Successfully!","OTP"=>$OTP]);
         }else{
             $OTP = DB::table(Helper::getCurrFYDB().'tbl_sms_otps')->where('MobileNumber',$req->MobileNumber)->where('isOtpExpired',0)->value('OTP');
@@ -165,13 +173,40 @@ class CustomerAPIController extends Controller{
                 $UserData=DB::Table('users')->where('MobileNumber',$req->MobileNumber)->where('LoginType',$req->LoginType)->first();
                 if($UserData){
                     $request = new Request([
-                        'email' => $UserData->EMail,
-                        'password' => $UserData->EMail,
+                        'MobileNumber' => $UserData->MobileNumber,
                         'LoginType' => $req->LoginType,
+                        'LoginMethod' => "MobileNumber",
                         'fcmToken' => $req->fcmToken
                     ]);
                     return $this->Login($request);
                 }else{
+                    DB::beginTransaction();
+                    $UserID=DocNum::getDocNum(docTypes::Users->value,'',Helper::getCurrentFY());
+                    $pwd1=Hash::make($req->MobileNumber);
+                    $pwd2=Helper::EncryptDecrypt("encrypt",$req->MobileNumber);
+                    $data=array(
+                        "UserID"=>$UserID,
+                        "MobileNumber"=>$req->MobileNumber,
+                        "password_2"=>$pwd1,
+                        "LoginType"=>$req->LoginType,
+                        "CreatedOn"=>date("Y-m-d H:i:s"),
+                        "CreatedBy"=>$UserID
+                    );
+                    $status=DB::Table('users')->insert($data);
+                    if($status){
+                        DB::commit();
+                        DocNum::updateDocNum(docTypes::Users->value);
+                        $request = new Request([
+                            'MobileNumber' => $req->MobileNumber,
+                            'LoginType' => $req->LoginType,
+                            'LoginMethod' => "MobileNumber",
+                            'fcmToken' => $req->fcmToken
+                        ]);
+                        return $this->Login($request);
+                    }else{
+                        DB::rollback();
+                        return response()->json(['status' => false,'message' => "Mobile Number Registration Failed!"]);
+                    }
                     return response()->json(['status' => true,'message' => "OTP Verified Successfully!",'data'=>['user_data'=>['MobileNumber'=>$req->MobileNumber,'LoginType' => $req->LoginType],'isNewUser'=>true]]);
                 }
             }else{

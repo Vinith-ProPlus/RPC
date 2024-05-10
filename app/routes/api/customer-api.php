@@ -40,6 +40,7 @@ Route::controller(CustomerAuthController::class)->group(function () {
     Route::post('/get-user','getUserDatawithToken');
     
     Route::post('/update-email','UpdateEmail');
+    Route::post('/update-mobile-no','UpdateMobileNo');
 });
 
 Route::controller(CustomerAPIController::class)->group(function () {

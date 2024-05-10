@@ -34,6 +34,9 @@ Route::controller(VendorAuthController::class)->group(function () {
     Route::post('/notification-read','NotificationRead');
 
     Route::post('/get/vendor-products-search','getVendorProductSearch');
+    
+    Route::post('/update-email','UpdateEmail');
+    Route::post('/update-mobile-no','UpdateMobileNo');
 });
 
 Route::controller(VendorStockPointController::class)->group(function () {

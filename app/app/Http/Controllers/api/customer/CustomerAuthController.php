@@ -18,6 +18,7 @@ use DocNum;
 use docTypes;
 use logs;
 use PHPUnit\TextUI\Help;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 
 use function Laravel\Prompts\select;
@@ -887,38 +888,87 @@ class CustomerAuthController extends Controller{
         return response()->json(['status' => true, 'data' => $UserData]);
     }
 
-    public function UpdateEmail(request $req){ return Auth::user();
-        
+    public function UpdateEmail(request $req){
+        $user = Auth::user();
         if(!$req->OTP){
             $OTP = Helper::getOTP(6);
 
-            if($req->LoginMethod == 'Email'){
-                $user = Auth::user();
-        
-                Mail::to($user->email)->send(new EmailChanged($user)); 
-                return response()->json(['status' => true,'message' => "OTP Sent to Registered Email Successfully!"]);
-            } elseif($req->LoginMethod == 'MobileNumber'){
-                Helper::saveSmsOtp($req->MobileNumber,$OTP,$req->LoginType);
-                return response()->json(['status' => true,'message' => "OTP Sent to Registered Mobile Number Successfully!"]);
+            $result = Helper::saveEmailOtp($user->EMail,$OTP,"Customer",$user->Name);
+
+            return response()->json(['status' => true, 'message' => 'OTP sent to registered Email successfully','OTP'=>$OTP,'result'=>$result]);
+            if ($result) {
+            } else {
+                return response()->json(['status' => false, 'message' => 'Failed to send email']);
             }
         }else{
-            $OTP = DB::table(Helper::getCurrFYDB().'tbl_sms_otps')->where('MobileNumber',$req->MobileNumber)->where('isOtpExpired',0)->value('OTP');
-            if($OTP == $req->OTP){ 
-                $UserData=DB::Table('users')->where('MobileNumber',$req->MobileNumber)->where('LoginType',$req->LoginType)->first();
-                if($UserData){
-                    $request = new Request([
-                        'email' => $UserData->EMail,
-                        'password' => $UserData->EMail,
-                        'LoginType' => $req->LoginType,
-                        'fcmToken' => $req->fcmToken
-                    ]);
-                    return $this->Login($request);
-                }else{
-                    return response()->json(['status' => true,'message' => "OTP Verified Successfully!",'data'=>['user_data'=>['isNewUser'=>true,'MobileNumber'=>$req->MobileNumber,'LoginType' => $req->LoginType]]]);
-                }
+            $OTP = DB::table(Helper::getCurrFYDB().'tbl_email_otps')->where('Email',$user->EMail)->where('isOtpExpired',0)->whereRaw('TIMESTAMPDIFF(MINUTE, CreatedOn, NOW()) <= 2')->value('OTP');
+            if(!$OTP){
+                return response()->json(['status' => false,'message' => "OTP has Expired!"]);
             }else{
-                return response()->json(['status' => false,'message' => "The OTP verification failed. Please enter the correct OTP."]);
+                if($OTP == $req->OTP){ 
+                    $isEmailExists = DB::table('users')->where('EMail',$req->Email)->where('LoginType','Customer')->whereNot('UserID',$user->UserID)->exists();
+                    if($isEmailExists){
+                        return response()->json(['status' => false,'message' => "This Email is already taken"]);
+                    }else{
+                        $pwd1=Hash::make($req->Email);
+                        $pwd2=Helper::EncryptDecrypt("encrypt",$req->Email);
+                        
+                        $status = DB::Table('users')->where('UserID',$user->UserID)->update(['UserName'=>$req->Email,'EMail'=>$req->Email,"Password"=>$pwd1,"Password1"=>$pwd2,'UpdatedOn'=>now(),'UpdatedBy'=>$user->UserID]);
+                        $status = DB::Table('tbl_customer')->where('CustomerID',$user->ReferID)->update(['Email'=>$req->Email,'UpdatedOn'=>now(),'UpdatedBy'=>$user->ReferID]);
+                        if($status){
+                            return response()->json(['status' => true,'message' => "Email Updated Successfully"]);
+                        }else{
+                            return response()->json(['status' => false,'message' => "Email Update Failed!"]);
+                        }
+                    }
+                }else{
+                    return response()->json(['status' => false,'message' => "OTP verification failed. Please enter the correct OTP."]);
+                }
             }
         }
 	}
+
+    public function UpdateMobileNo(request $req){
+        if(!$req->MobileNumber){
+            return response()->json(['status' => false, 'message' => 'Mobile Number is required.']);
+        }
+        $user = Auth::user();
+        if(!$req->OTP){
+            $OTP = Helper::getOTP(6);
+
+            $Message = "You are trying to change your mobile number in the RPC customer app. Please enter $OTP code to verify your request. Do not share this OTP with anyone for security reasons.";
+            $result = Helper::saveSmsOtp($user->MobileNumber,$OTP,$Message,"Customer");
+
+            if ($result) {
+                return response()->json(['status' => true, 'message' => 'OTP sent to registered Mobile Number successfully','OTP'=>$OTP ,'result'=>$result]);
+            } else {
+                return response()->json(['status' => false, 'message' => 'Failed to send OTP']);
+            }
+        }else{
+            $OTP = DB::table(Helper::getCurrFYDB().'tbl_sms_otps')->where('MobileNumber',$user->MobileNumber)->where('isOtpExpired',0)->value('OTP');
+            if(!$OTP){
+                return response()->json(['status' => false,'message' => "OTP has Expired!"]);
+            }else{
+                if($OTP == $req->OTP){ 
+                    $isMobileNumberExists = DB::table('users')->where('MobileNumber',$req->MobileNumber)->where('LoginType','Customer')->whereNot('UserID',$user->UserID)->exists();
+                    if($isMobileNumberExists){
+                        return response()->json(['status' => false,'message' => "This Mobile Number is already taken"]);
+                    }else{
+                        
+                        $status = DB::Table('users')->where('UserID',$user->UserID)->update(['MobileNumber'=>$req->MobileNumber,'UpdatedOn'=>now(),'UpdatedBy'=>$user->UserID]);
+                        $status = DB::Table('tbl_customer')->where('CustomerID',$user->ReferID)->update(['MobileNo1'=>$req->MobileNumber,'UpdatedOn'=>now(),'UpdatedBy'=>$user->ReferID]);
+                        if($status){
+                            return response()->json(['status' => true,'message' => "Mobile Number Updated Successfully"]);
+                        }else{
+                            return response()->json(['status' => false,'message' => "Mobile Number Update Failed!"]);
+                        }
+                    }
+                }else{
+                    return response()->json(['status' => false,'message' => "OTP verification failed. Please enter the correct OTP."]);
+                }
+            }
+        }
+	}
+
+    
 }

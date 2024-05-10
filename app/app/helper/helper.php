@@ -1,6 +1,7 @@
 <?php
 namespace App\helper;
 
+use App\Models\EmailSender;
 use App\Models\TextLocal;
 use DB;
 use DocNum;
@@ -8,6 +9,7 @@ use Exception;
 use Illuminate\Support\Facades\Config;
 use Session;
 use GuzzleHttp\Client;
+use Mail;
 use Illuminate\Support\Facades\Request;
 
 class helper{
@@ -1071,9 +1073,8 @@ class helper{
 		return round($value, 1) . $abbreviations[$abbrevIndex];
 	}
 
-	public static function saveSmsOtp($MobNo,$OTP,$LoginType){
+	public static function saveSmsOtp($MobNo,$OTP,$Message,$LoginType){
 		$OtpID = DocNum::getDocNum("SMS-OTP",self::getCurrFYDB(),self::getCurrentFY());
-		$Message = "Your RPC OTP for login is $OTP. Please enter this code to proceed.";
 		$Ndata = [
 			'OtpID'=> $OtpID,
 			'MobileNumber'=> $MobNo,
@@ -1082,30 +1083,44 @@ class helper{
 			'Message'=> $Message,
 		];
 		$status = DB::table(self::getCurrFYDB().'tbl_sms_otps')->insert($Ndata);
-		DB::table(Helper::getCurrFYDB().'tbl_sms_otps')->where('MobileNumber',$MobNo)->whereNot('OTP',$OTP)->update(['isOtpExpired' =>1]);
-
+		DB::table(self::getCurrFYDB().'tbl_sms_otps')->where('MobileNumber',$MobNo)->whereNot('OTP',$OTP)->update(['isOtpExpired' =>1]);
 		if($status){
 			DocNum::updateDocNum("SMS-OTP",self::getCurrFYDB());
 			$TextLocal = new TextLocal();
-			$TextLocal->sendOTP($MobNo, $Message);
+			$result = $TextLocal->sendOTP($MobNo, $Message);
 		}
-		return $status;
+		return $result;
 	}
 
-	public static function saveEmailOtp($email, $otp) {
-		DB::table('email_otps')->insert([
-			'email' => $email,
-			'otp' => $otp
-		]);
-	
-		$data = [
-			'user' => User::where('email', $email)->first(),
-			'otp' => $otp
+	public static function saveEmailOtp($Email, $OTP, $LoginType, $UserName) {
+		$OtpID = DocNum::getDocNum("Email-OTP",self::getCurrFYDB(),self::getCurrentFY());
+		$Message = "";
+		$Ndata = [
+			'OtpID'=> $OtpID,
+			'Email'=> $Email,
+			'OTP'=> $OTP,
+			'LoginType'=> $LoginType,
+			'Message'=> $Message,
 		];
+		$status = DB::table(self::getCurrFYDB().'tbl_email_otps')->insert($Ndata);
+		DB::table(self::getCurrFYDB().'tbl_email_otps')->where('Email',$Email)->whereNot('OTP',$OTP)->update(['isOtpExpired' =>1]);
+		if($status){
+			DocNum::updateDocNum("Email-OTP",self::getCurrFYDB());
+            $data = DB::table('tbl_company_settings')->select('KeyName', 'KeyValue')->get()->pluck('KeyValue', 'KeyName')->toArray();
+			$data['OTP'] = $OTP;
+			$data['LoginType'] = $LoginType;
+			$data['UserName'] = $UserName;
+			$Subject = 'Your OTP for Email Update';
+			$view = 'emails.email-update-verification';
+			$result = EmailSender::sendEmail("naveenproplus222@gmail.com", $Subject, $view, $data);
+			if ($result) {
+				return true;
+			} else {
+				return false;
+			}
+		}
+		return $status;
 	
-		Mail::send('emails.email_otp', $data, function($message) use ($email) {
-			$message->to($email)->subject('Your OTP for Email Update');
-		});
 	}
 	
 

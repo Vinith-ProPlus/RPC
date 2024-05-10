@@ -258,7 +258,7 @@
                                                             @if($quote->Status !== 'Rejected' && $quote->AdditionalCost)
                                                                 <th class="text-right align-middle">    
                                                                     <div class="row d-flex align-items-center justify-content-center">
-                                                                        <div class="col-6">
+                                                                        <div class="col-9">
                                                                             <div class="input-group">
                                                                                 <div class="input-group-text SelectedItemCount" data-vendor-id="{{ $quote->VendorID }}">
                                                                                     Items(0)

@@ -36,17 +36,14 @@ class TextLocal extends Model
     }
 
     public function sendOTP($mobileNumber, $message){
-        // Account details
         $apiKey = urlencode(config('app.TEXT_LOCAL_API_KEY'));
         
-        // Message details
         $numbers = [$mobileNumber];
         $sender = urlencode(config('app.TEXT_LOCAL_SENDER_NAME'));
         $message = rawurlencode($message);
     
         $numbers = implode(',', $numbers);
     
-        // Prepare data for POST request
         $data = array('apikey' => $apiKey, 'numbers' => $numbers, "sender" => $sender, "message" => $message);
         $ch = curl_init('https://api.textlocal.in/send/');
         curl_setopt($ch, CURLOPT_POST, true);
@@ -55,7 +52,13 @@ class TextLocal extends Model
         $response = curl_exec($ch);
         curl_close($ch);
         
-        // Process your response here
         info($response);
+    
+        if (strpos($response, 'success') !== false) {
+            return true;
+        } else {
+            return false;
         }
+    }
+    
 }
