@@ -142,7 +142,7 @@ class CustomerTransactionAPIController extends Controller{
             DB::commit();
             $Title = "Quotation Received";
             $Message = "Your quotation has been received. Admin will verify your quotation and get back to you shortly.";
-            Helper::saveNotification($CustomerID,$Title,$Message,'Quotation',$EnqID);
+            Helper::saveNotification($CustomerID,$Title,$Message,'Enquiry',$EnqID);
             DocNum::updateInvNo("Quote-Enquiry");
             DB::table('tbl_customer_cart')->where('CustomerID',$CustomerID)->delete();
             return response()->json(['status' => true,'message' => "Order Placed Successfully"]);
@@ -202,6 +202,9 @@ class CustomerTransactionAPIController extends Controller{
                     $query->whereIn('Q.Status',$QStatus);
                 });
             });
+        }
+        if($req->EnqID){
+            $query->where('E.EnqID',$req->EnqID);
         }
         $QuoteEnq=$query
         ->select('E.EnqID','E.EnqNo','E.EnqDate','E.EnqExpiryDate','E.ReceiverName','E.ReceiverMobNo','E.ExpectedDeliveryDate','E.Status AS EnqStatus','Q.Status AS QStatus','Q.QID','Q.QNo','Q.QExpiryDate','Q.QDate','Q.TaxAmount','Q.SubTotal','Q.CGSTAmount','Q.SGSTAmount','Q.IGSTAmount','Q.TotalAmount','Q.AdditionalCost','Q.OverAllAmount','CU.CustomerName as CancelledBy')
@@ -656,6 +659,9 @@ class CustomerTransactionAPIController extends Controller{
         ->leftJoin('tbl_customer_address as CA','CA.AID','O.AID')->where('O.CustomerID',$this->ReferID);
         if($req->Status){
             $query->where('O.Status',$req->Status);
+        }
+        if($req->OrderID){
+            $query->where('O.OrderID',$req->OrderID);
         }
         $OrderData=$query
         ->select('O.OrderID','O.OrderNo','O.OrderDate','O.ReceiverName','O.ReceiverMobNo','O.Status','O.TaxAmount','O.SubTotal','O.CGSTAmount','O.SGSTAmount','O.IGSTAmount','O.TotalAmount','O.AdditionalCost','O.NetAmount','O.isRated','O.DeliveredOn','O.ExpectedDelivery','O.PaymentStatus','CU.CompleteAddress as BillingAddress','CA.CompleteAddress as ShippingAddress')

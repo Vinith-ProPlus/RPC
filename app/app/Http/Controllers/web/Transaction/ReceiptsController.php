@@ -34,7 +34,7 @@ class ReceiptsController extends Controller{
     public function __construct(){
 		$this->ActiveMenuName=activeMenuNames::Receipts->value;
 		$this->PageTitle="Receipts From Customer";
-        $this->middleware('auth');    
+        $this->middleware('auth');
 		$this->middleware(function ($request, $next) {
 			$this->UserID=auth()->user()->UserID;
 			$this->general=new general($this->UserID,$this->ActiveMenuName);

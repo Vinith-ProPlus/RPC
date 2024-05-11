@@ -53,13 +53,14 @@ Route::controller(VendorAPIController::class)->group(function () {
 
 Route::controller(VendorTransactionAPIController::class)->group(function () {
 
-    Route::post('/get/quote-request','getQuoteRequest');
     Route::post('/get/all-quotations','getAllQuotations');
+    Route::post('/get/single-quote/{ID}','getSingleQuote');
     Route::post('/add-quote-price','AddQuotePrice');
     Route::post('/reject-quote','RejectQuote');
     Route::post('/stock-list','index');
     
     Route::post('/get/orders','getOrders');
+    Route::post('/get/single-order/{ID}','getSingleOrder');
     Route::post('/get/current-orders','getCurrentOrders');
     Route::post('/get/completed-orders','getCompletedOrders');
     

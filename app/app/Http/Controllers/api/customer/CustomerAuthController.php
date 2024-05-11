@@ -101,8 +101,8 @@ class CustomerAuthController extends Controller{
 
 
         $rules=array(
-            'MobileNo1' =>['required','max:10',new ValidUnique(array("TABLE"=>"tbl_customer","WHERE"=>" MobileNo1='".$req->MobileNo1."'  "),"This Mobile Number is already taken.")],
-            'Email' =>['required','max:50',new ValidUnique(array("TABLE"=>"tbl_customer","WHERE"=>" Email='".$req->Email."'  "),"This Email is already taken.")],
+            'MobileNo1' =>['required','max:10',new ValidUnique(array("TABLE"=>"users","WHERE"=>" MobileNumber='".$req->MobileNo1."' and LoginType = 'Customer' and UserID <> '".$this->UserID."' "),"This Mobile Number is already taken.")],
+            'Email' =>['required','max:50',new ValidUnique(array("TABLE"=>"users","WHERE"=>" EMail='".$req->Email."' and LoginType = 'Customer' and UserID <> '".$this->UserID."' "),"This Email is already taken.")],
         );
         if($req->hasFile('CustomerImage')){
             $rules['CustomerImage']='mimes:'.implode(",",$this->FileTypes['category']['Images']);
@@ -171,6 +171,7 @@ class CustomerAuthController extends Controller{
                 $nameParts = explode(' ', $customerName, 2);
                 $firstName = $nameParts[0] ?? '';
                 $lastName = $nameParts[1] ?? '';
+                $pwd1=Hash::make($req->Email);
 
                 $Udata=array(
                     "ReferID"=>$CustomerID,
@@ -180,6 +181,9 @@ class CustomerAuthController extends Controller{
                     "FirstName" => $firstName,
                     "LastName" => $lastName,
                     "MobileNumber"=>$req->MobileNo1,
+                    "EMail"=>$req->Email,
+                    "UserName"=>$req->Email,
+                    "password"=>$pwd1,
                     "Address"=>$req->Address,
                     "PostalCodeID"=>$req->PostalCodeID,
                     "CityID"=>$req->CityID,
@@ -620,8 +624,8 @@ class CustomerAuthController extends Controller{
                 if ($req->has('SearchText') && !empty($req->SearchText)) {
                     $products->where('P.ProductName', 'like', '%' . $req->SearchText . '%');
                 }
-            $Products = $products->groupBy('PSC.PSCID', 'PSCName', 'PC.PCID', 'PCName', 'P.ProductID', 'ProductName', 'ProductImage','UName','UCode','U.UID','P.VideoURL','P.ProductBrouchre')
-                ->select('PSC.PSCID', 'PSCName','PC.PCID', 'PCName', 'P.ProductID', 'ProductName','UName','UCode','U.UID','P.VideoURL', DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'), DB::raw('CONCAT("' . url('/') . '/", NULLIF(ProductBrochure, "")) AS ProductBrochure'))
+            $Products = $products->groupBy('PSC.PSCID', 'PSCName', 'PC.PCID', 'PCName', 'P.ProductID', 'ProductName', 'ProductImage','UName','UCode','U.UID','P.VideoURL')
+                ->select('PSC.PSCID', 'PSCName','PC.PCID', 'PCName', 'P.ProductID', 'ProductName','UName','UCode','U.UID','P.VideoURL', DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'))
                 ->paginate($perPage, ['*'], 'page', $pageNo);
             foreach ($Products as $row) {
                 $row->ProductImage =  file_exists($row->ProductImage) ? url('/') . '/' . $row->ProductImage : null;
@@ -800,6 +804,7 @@ class CustomerAuthController extends Controller{
                 ->toArray();
         return response()->json(['status' => true, 'data' => $Products ]);
 	}
+    
     public function getCustomerHomeSearch(Request $req){
         if ($req->AID) {
             if($req->SearchText){
@@ -859,6 +864,7 @@ class CustomerAuthController extends Controller{
             'LastPage' => $Notifications->lastPage(),
         ]);
     }
+
     public function getNotificationsCount(Request $req){
         $NotificationsCount = DB::table($this->currfyDB.'tbl_notifications')->where('UserID', $this->UserID)->where('ReadStatus',0)->count();
         return response()->json([
@@ -866,6 +872,7 @@ class CustomerAuthController extends Controller{
             'data' => $NotificationsCount,
         ]);
     }
+
     public function NotificationRead(Request $req){
 		DB::beginTransaction();
         try {
@@ -883,6 +890,7 @@ class CustomerAuthController extends Controller{
             return response()->json(['status' => false,'message' => "Notification Read Failed!"]);
         }
 	}
+
     public function getUserDatawithToken(Request $req){
         $UserData = DB::table('users')->where('UserID', $this->UserID)->first();
         return response()->json(['status' => true, 'data' => $UserData]);
@@ -895,8 +903,8 @@ class CustomerAuthController extends Controller{
 
             $result = Helper::saveEmailOtp($user->EMail,$OTP,"Customer",$user->Name);
 
-            return response()->json(['status' => true, 'message' => 'OTP sent to registered Email successfully','OTP'=>$OTP,'result'=>$result]);
             if ($result) {
+                return response()->json(['status' => true, 'message' => 'OTP sent to registered Email successfully']);
             } else {
                 return response()->json(['status' => false, 'message' => 'Failed to send email']);
             }
@@ -939,8 +947,8 @@ class CustomerAuthController extends Controller{
             $Message = "You are trying to change your mobile number in the RPC customer app. Please enter $OTP code to verify your request. Do not share this OTP with anyone for security reasons.";
             $result = Helper::saveSmsOtp($user->MobileNumber,$OTP,$Message,"Customer");
 
+            return response()->json(['status' => true, 'message' => 'OTP sent to registered Mobile Number successfully','OTP'=>$OTP ,'result'=>$result]);
             if ($result) {
-                return response()->json(['status' => true, 'message' => 'OTP sent to registered Mobile Number successfully','OTP'=>$OTP ,'result'=>$result]);
             } else {
                 return response()->json(['status' => false, 'message' => 'Failed to send OTP']);
             }

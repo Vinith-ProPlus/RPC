@@ -42,23 +42,21 @@ class CustomerAPIController extends Controller{
 		$validator = Validator::make($req->all(), $rules,$message);
 			
 		if ($validator->fails()) {
-			return array('status'=>false,'message'=>"Login failed",'errors'=>$validator->errors());			
+			return array('status'=>false,'message'=>"Login failed",'errors'=>$validator->errors());
 		}
         $return=array('status'=>false);
-        $result=DB::Table('users')->where('UserName',$req->email)->get();
-        if(count($result)>0){
-            if(($result[0]->DFlag==0)&&($result[0]->ActiveStatus=='Active')&&($result[0]->isLogin==1)){
-                $isLogin = false;
-                if ($req->LoginMethod == "MobileNumber") {
-                    if (Auth::attempt(['MobileNumber' => $req->MobileNumber, 'password_2' => $req->MobileNumber, 'LoginType' => $req->LoginType, 'ActiveStatus' => 1, 'DFlag' => 0, 'isLogin' => 1])) {
-                        $isLogin = true;
-                    }
-                } elseif($req->LoginMethod == "Email") {
-                    if (Auth::attempt(['UserName' => $req->Email, 'password' => $req->Email, 'LoginType' => $req->LoginType, 'ActiveStatus' => 1, 'DFlag' => 0, 'isLogin' => 1])) {
-                        $isLogin = true;
-                    }
-                }                
-                if($isLogin){
+        $query = DB::table('users')->where('LoginType', $req->LoginType);
+        if ($req->LoginMethod == "MobileNumber") {
+            $query->where('MobileNumber', $req->MobileNumber);
+        } elseif ($req->LoginMethod == "Email") {
+            $query->where('UserName', $req->email);
+        }
+        $result = $query->first();
+        if($result){
+            if(($result->DFlag==0)&&($result->ActiveStatus=='Active')&&($result->isLogin==1)){
+                $Password = $result->UserName ?? $result->MobileNumber;
+
+                if (Auth::attempt(['UserName' => $result->UserName, 'password' => $Password, 'LoginType' => $req->LoginType, 'ActiveStatus' => 1, 'DFlag' => 0, 'isLogin' => 1])) {
                     $token=auth()->user()->createToken('Token')->accessToken;
 					DB::Table('users')->where('UserID',Auth()->user()->UserID)->update(array("fcmToken"=>$req->fcmToken));
                     $userInfo=helper::getUserInfo(Auth()->user()->UserID);
@@ -82,11 +80,11 @@ class CustomerAPIController extends Controller{
                     $return['message']='login failed';
                     $return['password']='The user name and password not match.';
                 }
-            }elseif($result[0]->DFlag==1){
+            }elseif($result->DFlag==1){
                 $return['message']='Your account has been deleted.';
-            }elseif($result[0]->ActiveStatus==0){
+            }elseif($result->ActiveStatus != 'Active'){
                 $return['message']='Your account has been disabled.';
-            }elseif($result[0]->isLogin==0){
+            }elseif($result->isLogin==0){
                 $return['message']='You dont have login rights.';
             }
         }else{
@@ -134,7 +132,6 @@ class CustomerAPIController extends Controller{
                 "FirstName"=>$req->FirstName,
                 "LastName"=>$req->LastName,
                 "UserName"=>$req->Email,
-                "MobileNumber"=>"",
                 "Password"=>$pwd1,
                 "Password1"=>$pwd2,
                 "EMail"=>$req->Email,
@@ -183,11 +180,11 @@ class CustomerAPIController extends Controller{
                     DB::beginTransaction();
                     $UserID=DocNum::getDocNum(docTypes::Users->value,'',Helper::getCurrentFY());
                     $pwd1=Hash::make($req->MobileNumber);
-                    $pwd2=Helper::EncryptDecrypt("encrypt",$req->MobileNumber);
                     $data=array(
                         "UserID"=>$UserID,
+                        "UserName"=>$req->UserName,
                         "MobileNumber"=>$req->MobileNumber,
-                        "password_2"=>$pwd1,
+                        "password"=>$pwd1,
                         "LoginType"=>$req->LoginType,
                         "CreatedOn"=>date("Y-m-d H:i:s"),
                         "CreatedBy"=>$UserID

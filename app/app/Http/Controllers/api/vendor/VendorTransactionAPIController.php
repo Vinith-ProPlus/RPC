@@ -43,40 +43,6 @@ class VendorTransactionAPIController extends Controller{
 		});
     }
 
-    public function getQuoteRequest(Request $req){
-        $VendorID = $this->ReferID;
-        $pageNo = $req->PageNo ?? 1;
-        $perPage = 10;
-
-        $QuoteReqData = DB::table($this->currfyDB.'tbl_vendor_quotation as VQ')
-        ->leftJoin($this->currfyDB.'tbl_enquiry as E','E.EnqID','VQ.EnqID')
-        ->leftJoin('tbl_vendors as V','V.VendorID','VQ.VendorID')
-        ->where('VQ.VendorID',$VendorID)->where('VQ.Status','Requested')
-        ->select('VQ.VQuoteID','E.EnqNo','V.CommissionPercentage')
-        ->paginate($perPage, ['*'], 'page', $pageNo);
-
-        foreach($QuoteReqData as $row){
-            $row->ProductData = DB::table($this->currfyDB.'tbl_vendor_quotation_details as VQD')->leftJoin('tbl_vendors_product_mapping as VPM','VPM.ProductID','VQD.ProductID')
-            ->leftJoin('tbl_products as P','P.ProductID','VQD.ProductID')
-            ->leftJoin('tbl_tax as T', 'T.TaxID', 'P.TaxID')
-            ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'P.CID')
-            ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')
-            ->leftJoin('tbl_uom as U', 'U.UID', 'P.UID')
-            ->where('P.ActiveStatus', 'Active')->where('P.DFlag', 0)->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)->where('PSC.ActiveStatus', 'Active')->where('PSC.DFlag', 0)
-            ->where('VQD.VQuoteID',$row->VQuoteID)
-            ->where('VPM.VendorID',$VendorID)
-            ->select('VQD.DetailID','P.ProductName','P.ProductID','VQD.Qty', 'PC.PCName', 'PC.PCID', 'PSC.PSCName','U.UName','U.UCode','U.UID', 'PSC.PSCID','VPM.VendorPrice','P.TaxType','P.TaxID','T.TaxPercentage','T.TaxName')
-            ->get();
-        }
-        
-        return response()->json([
-            'status' => true,
-            'data' => $QuoteReqData->items(),
-            'CurrentPage' => $QuoteReqData->currentPage(),
-            'LastPage' => $QuoteReqData->lastPage(),
-        ]);
-    }
-
     public function AddQuotePrice(Request $req){
         $VendorID = $this->ReferID;
 		DB::beginTransaction();
@@ -303,10 +269,12 @@ class VendorTransactionAPIController extends Controller{
         $query = DB::table($this->currfyDB.'tbl_vendor_quotation as VQ')
         ->leftJoin($this->currfyDB.'tbl_enquiry as E','E.EnqID','VQ.EnqID')
         ->leftJoin('tbl_vendors as V','V.VendorID','VQ.VendorID')
-
         ->where('VQ.VendorID',$VendorID);
         if(count($Status)>0){
             $query->whereIn('VQ.Status',$Status);
+        }
+        if($req->VQuoteID){
+            $query->where('VQ.VQuoteID',$req->VQuoteID);
         }
         $QuoteReqData = $query->select('VQ.VQuoteID','E.EnqID','E.EnqNo','VQ.QReqOn','VQ.TotalAmount','VQ.SubTotal','VQ.TaxAmount','VQ.LabourCost','VQ.TransportCost','VQ.AdditionalCost','VQ.QSentOn','VQ.Status','VQ.isImageQuote',DB::raw('CONCAT("' . url('/') . '/", VQ.QuoteImage) AS QuoteImage'),'V.CommissionPercentage','VQ.Distance')
         ->orderBy('VQ.CreatedOn','desc')
@@ -333,6 +301,7 @@ class VendorTransactionAPIController extends Controller{
             'LastPage' => $QuoteReqData->lastPage(),
         ]);
     }
+
     public function getOrders(Request $req){
         $VendorID = $this->ReferID;
         $Status = json_decode($req->Status) ?? [];
@@ -343,6 +312,9 @@ class VendorTransactionAPIController extends Controller{
         ->where('VO.VendorID',$VendorID);
         if(count($Status)>0){
             $query->whereIn('VO.Status',$Status);
+        }
+        if($req->VOrderID){
+            $query->where('VO.VOrderID',$req->VOrderID);
         }
         $OrderData = $query->select('VO.VOrderID','O.OrderID','O.OrderNo','O.OrderDate','O.ExpectedDelivery','VO.DeliveredOn','VO.AID','O.ReceiverName','O.ReceiverMobNo','VO.TotalAmount','VO.SubTotal','VO.TaxAmount','VO.NetAmount','VO.AdditionalCost','VO.Status','CA.CompleteAddress','CA.Latitude','CA.Longitude','VO.PaymentStatus')
         ->orderBy('VO.CreatedOn','desc')

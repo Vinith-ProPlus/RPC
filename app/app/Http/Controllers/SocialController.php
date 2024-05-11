@@ -33,8 +33,8 @@ class SocialController extends Controller{
             }
             $UserID=DocNum::getDocNum(docTypes::Users->value,"",Helper::getCurrentFY());
 
-            $pwd1=Hash::make($getInfo->id);
-            $pwd2=Helper::EncryptDecrypt("encrypt",$getInfo->id);
+            $pwd1=Hash::make($getInfo->user->email);
+            $pwd2=Helper::EncryptDecrypt("encrypt",$getInfo->user->email);
             $data=array(
                 "UserID"=>$UserID,
                 "Name"=>$getInfo->user->name,
@@ -70,7 +70,7 @@ class SocialController extends Controller{
         $result=$this->CreateUser($req,$getInfo,$provider);
         if ($result) {
             $remember_me = true;
-            $authResult = Auth::attempt(['Provider' => $provider,'ProviderID' => $getInfo->id,'password' => $getInfo->id,'ActiveStatus' => 'Active','DFlag' => 0,'isLogin' => 1], $remember_me);
+            $authResult = Auth::attempt(['UserName' => $getInfo->user->email,'password' => $getInfo->user->email,'ActiveStatus' => 'Active','DFlag' => 0,'isLogin' => 1], $remember_me);
             if ($authResult) {
                 return Helper::getUserInfo(Auth()->user()->UserID);
             } else {
@@ -97,7 +97,7 @@ class SocialController extends Controller{
 			}
 		}
         $result=$this->SocialAuth($req,$getInfo,$provider);
-//         return $result;
+        //return $result;
 
         if($result=="auth"){
             return redirect('/auth/redirect/'.$provider);

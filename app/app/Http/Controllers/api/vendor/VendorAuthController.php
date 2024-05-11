@@ -17,6 +17,7 @@ use ValidUnique;
 use ValidDB;
 use DocNum;
 use docTypes;
+use Illuminate\Support\Facades\Hash;
 use logs;
 
 class VendorAuthController extends Controller{
@@ -122,9 +123,9 @@ class VendorAuthController extends Controller{
             'VendorName' => ['required', 'max:50'],
             'VendorCoName' => ['required','max:50', new ValidUnique(array("TABLE" => "tbl_vendors", "WHERE" => " VendorCoName='" . $reqData['VendorCoName'] . "' "), "This Vendor Company Name is already taken.")],
             'VendorCoWebsite' => ['max:50', new ValidUnique(array("TABLE" => "tbl_vendors", "WHERE" => " VendorCoWebsite='" . $reqData['VendorCoWebsite'] . "' "), "This Vendor Company Website is already taken.")],
-            'Email'=> ['required', 'email:filter', new ValidUnique(array("TABLE" => "tbl_vendors", "WHERE" => " Email='" . $reqData['Email'] . "' "), "This Email is already taken.")],
+            'Email' => ['required', 'email:filter', new ValidUnique(array("TABLE" => "users", "WHERE" => " EMail='" . $reqData['Email'] . "' and LoginType = 'Vendor' and UserID <> '".$this->UserID."' "), "This Email is already taken.")],
+            'MobileNumber1' => ['required', 'regex:/^[0-9]{10}$/', new ValidUnique(array("TABLE" => "users", "WHERE" => " MobileNumber='" . $reqData['MobileNumber1'] . "' and LoginType = 'Vendor' and UserID <> '".$this->UserID."' "), "This Mobile Number is already taken.")],
             // 'GSTNo' => ['required', 'regex:/^\d{2}[A-Z]{5}\d{4}[A-Z]{1}\d[Z]{1}[0-9A-Z]{1}$/'],
-            'MobileNumber1' => ['required', 'regex:/^[0-9]{10}$/'],
             'MobileNumber2' => ['nullable', 'regex:/^[0-9]{10}$/'],
             'CountryID' => ['required', new ValidDB($ValidDB['Country'])],
             'StateID' => ['required', new ValidDB($ValidDB['State'])],
@@ -239,6 +240,7 @@ class VendorAuthController extends Controller{
                 $nameParts = explode(' ', $vendorName, 2);
                 $firstName = $nameParts[0] ?? '';
                 $lastName = $nameParts[1] ?? '';
+                $pwd1=Hash::make($req->Email);
 
                 $Udata=array(
                     "ReferID"=>$VendorID,
@@ -246,6 +248,9 @@ class VendorAuthController extends Controller{
                     "FirstName" => $firstName,
                     "LastName" => $lastName,
                     "MobileNumber"=>$reqData['MobileNumber1'],
+                    "EMail"=>$reqData['Email'],
+                    "UserName"=>$reqData['Email'],
+                    "password"=>$pwd1,
 					"Address" => $reqData['Address'],
                     "CountryID" => $reqData['CountryID'],
                     "StateID" => $reqData['StateID'],
@@ -1493,7 +1498,8 @@ class VendorAuthController extends Controller{
                 'VendorCoName' => ['required','max:50', new ValidUnique(array("TABLE" => "tbl_vendors", "WHERE" => " VendorCoName='" . $GeneralData['VendorCoName'] . "' "), "This Vendor Company Name is already taken.")],
                 'VendorCoWebsite' => ['max:50', new ValidUnique(array("TABLE" => "tbl_vendors", "WHERE" => " VendorCoWebsite='" . $GeneralData['VendorCoWebsite'] . "' "), "This Vendor Company Website is already taken.")],
                 // 'GSTNo' => ['required', 'regex:/^\d{2}[A-Z]{5}\d{4}[A-Z]{1}\d[Z]{1}[0-9A-Z]{1}$/'],
-                'MobileNumber1' => ['required', 'regex:/^[0-9]{10}$/'],
+                'Email' => ['required', 'email:filter', new ValidUnique(array("TABLE" => "users", "WHERE" => " EMail='" . $GeneralData['EMail'] . "' and LoginType = 'Vendor' and UserID <> '".$this->UserID."' "), "This Email is already taken.")],
+                'MobileNumber1' => ['required', 'regex:/^[0-9]{10}$/', new ValidUnique(array("TABLE" => "users", "WHERE" => " MobileNumber='" . $GeneralData['MobileNumber1'] . "' and LoginType = 'Vendor' and UserID <> '".$this->UserID."' "), "This Mobile Number is already taken.")],
                 'MobileNumber2' => ['nullable', 'regex:/^[0-9]{10}$/'],
                 'CountryID' => ['required', new ValidDB($ValidDB['Country'])],
                 'StateID' => ['required', new ValidDB($ValidDB['State'])],
@@ -1511,10 +1517,6 @@ class VendorAuthController extends Controller{
                 // 'GSTNo.regex' => 'Invalid GST Number Format',
                 // 'GSTNo.required' => 'GST Number is Required',
             ];
-
-            if (!empty($GeneralData['Email'])) {
-                $rules['Email'] = ['required', 'email:filter', new ValidUnique(array("TABLE" => "tbl_vendors", "WHERE" => " EMail='" . $GeneralData['EMail'] . "' and VendorID<>'".$GeneralData['VendorID']."'  "), "This Email is already taken.")];
-            }
 
             if ($req->hasFile('Logo')) {
                 $rules['Logo'] = 'mimes:' . implode(",", $this->FileTypes['category']['Images']);
@@ -1955,6 +1957,88 @@ class VendorAuthController extends Controller{
         ->select('P.ProductID', 'P.ProductName', 'PC.PCID', 'PC.PCName', 'PSC.PSCID', 'PSC.PSCName','T.TaxPercentage','P.TaxType','VPM.VendorPrice')->get();
 
         return response()->json(['status' => true, 'data' => $Products ]);
+	}
+
+    public function UpdateEmail(request $req){
+        $user = Auth::user();
+        if(!$req->OTP){
+            $OTP = Helper::getOTP(6);
+
+            $result = Helper::saveEmailOtp($user->EMail,$OTP,"Vendor",$user->Name);
+
+            if ($result) {
+                return response()->json(['status' => true, 'message' => 'OTP sent to registered Email successfully']);
+            } else {
+                return response()->json(['status' => false, 'message' => 'Failed to send email']);
+            }
+        }else{
+            $OTP = DB::table(Helper::getCurrFYDB().'tbl_email_otps')->where('Email',$user->EMail)->where('isOtpExpired',0)->whereRaw('TIMESTAMPDIFF(MINUTE, CreatedOn, NOW()) <= 2')->value('OTP');
+            if(!$OTP){
+                return response()->json(['status' => false,'message' => "OTP has Expired!"]);
+            }else{
+                if($OTP == $req->OTP){ 
+                    $isEmailExists = DB::table('users')->where('EMail',$req->Email)->where('LoginType','Vendor')->whereNot('UserID',$user->UserID)->exists();
+                    if($isEmailExists){
+                        return response()->json(['status' => false,'message' => "This Email is already taken"]);
+                    }else{
+                        $pwd1=Hash::make($req->Email);
+                        $pwd2=Helper::EncryptDecrypt("encrypt",$req->Email);
+                        
+                        $status = DB::Table('users')->where('UserID',$user->UserID)->update(['UserName'=>$req->Email,'EMail'=>$req->Email,"Password"=>$pwd1,"Password1"=>$pwd2,'UpdatedOn'=>now(),'UpdatedBy'=>$user->UserID]);
+                        $status = DB::Table('tbl_vendors')->where('VendorID',$user->ReferID)->update(['Email'=>$req->Email,'UpdatedOn'=>now(),'UpdatedBy'=>$user->ReferID]);
+                        if($status){
+                            return response()->json(['status' => true,'message' => "Email Updated Successfully"]);
+                        }else{
+                            return response()->json(['status' => false,'message' => "Email Update Failed!"]);
+                        }
+                    }
+                }else{
+                    return response()->json(['status' => false,'message' => "OTP verification failed. Please enter the correct OTP."]);
+                }
+            }
+        }
+	}
+
+    public function UpdateMobileNo(request $req){
+        if(!$req->MobileNumber){
+            return response()->json(['status' => false, 'message' => 'Mobile Number is required.']);
+        }
+        $user = Auth::user();
+        if(!$req->OTP){
+            $OTP = Helper::getOTP(6);
+
+            $Message = "You are trying to change your mobile number in the RPC vendor app. Please enter $OTP code to verify your request. Do not share this OTP with anyone for security reasons.";
+            $result = Helper::saveSmsOtp($user->MobileNumber,$OTP,$Message,"Vendor");
+
+            return response()->json(['status' => true, 'message' => 'OTP sent to registered Mobile Number successfully','OTP'=>$OTP ,'result'=>$result]);
+            if ($result) {
+            } else {
+                return response()->json(['status' => false, 'message' => 'Failed to send OTP']);
+            }
+        }else{
+            $OTP = DB::table(Helper::getCurrFYDB().'tbl_sms_otps')->where('MobileNumber',$user->MobileNumber)->where('isOtpExpired',0)->value('OTP');
+            if(!$OTP){
+                return response()->json(['status' => false,'message' => "OTP has Expired!"]);
+            }else{
+                if($OTP == $req->OTP){ 
+                    $isMobileNumberExists = DB::table('users')->where('MobileNumber',$req->MobileNumber)->where('LoginType','Vendor')->whereNot('UserID',$user->UserID)->exists();
+                    if($isMobileNumberExists){
+                        return response()->json(['status' => false,'message' => "This Mobile Number is already taken"]);
+                    }else{
+                        
+                        $status = DB::Table('users')->where('UserID',$user->UserID)->update(['MobileNumber'=>$req->MobileNumber,'UpdatedOn'=>now(),'UpdatedBy'=>$user->UserID]);
+                        $status = DB::Table('tbl_vendors')->where('VendorID',$user->ReferID)->update(['MobileNumber1'=>$req->MobileNumber,'UpdatedOn'=>now(),'UpdatedBy'=>$user->ReferID]);
+                        if($status){
+                            return response()->json(['status' => true,'message' => "Mobile Number Updated Successfully"]);
+                        }else{
+                            return response()->json(['status' => false,'message' => "Mobile Number Update Failed!"]);
+                        }
+                    }
+                }else{
+                    return response()->json(['status' => false,'message' => "OTP verification failed. Please enter the correct OTP."]);
+                }
+            }
+        }
 	}
     
 }

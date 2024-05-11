@@ -1,6 +1,8 @@
 <?php
 namespace App\helper;
 
+use App\Http\Controllers\MailController;
+use App\Mail\MailSender;
 use App\Models\EmailSender;
 use App\Models\TextLocal;
 use DB;
@@ -9,7 +11,7 @@ use Exception;
 use Illuminate\Support\Facades\Config;
 use Session;
 use GuzzleHttp\Client;
-use Mail;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Request;
 
 class helper{
@@ -1107,17 +1109,15 @@ class helper{
 		if($status){
 			DocNum::updateDocNum("Email-OTP",self::getCurrFYDB());
             $data = DB::table('tbl_company_settings')->select('KeyName', 'KeyValue')->get()->pluck('KeyValue', 'KeyName')->toArray();
+
+			$data['CompanyEmail'] =$data['E-Mail'];
+			$data['email'] = $Email;
 			$data['OTP'] = $OTP;
 			$data['LoginType'] = $LoginType;
 			$data['UserName'] = $UserName;
-			$Subject = 'Your OTP for Email Update';
-			$view = 'emails.email-update-verification';
-			$result = EmailSender::sendEmail("naveenproplus222@gmail.com", $Subject, $view, $data);
-			if ($result) {
-				return true;
-			} else {
-				return false;
-			}
+			$data['Subject'] = 'Your OTP for Email Update';
+			$result = MailController::sendMail($data);
+			return $result;
 		}
 		return $status;
 	
