@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\web\users\CustomerController;
 use App\Http\Controllers\web\users\userRoleController;
 use App\Http\Controllers\web\users\userController;

@@ -1,5 +1,5 @@
 <?php
-
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\web\reports\LedgerController;
 use App\Http\Controllers\web\reports\OutstandingsController;
 use App\Http\Controllers\web\reports\CommissionRptController;

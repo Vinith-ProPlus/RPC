@@ -386,6 +386,15 @@ class CustomerController extends Controller{
 					$data['CustomerImage']="";
 					$data['Images']=serialize(array());
 				}
+				
+				$pwd = Hash::make($req->Email);
+				$status=DB::table('users')->where('ReferID',$CustomerID)->update([
+					"ActiveStatus"=>$req->ActiveStatus,
+					"EMail"=>$req->Email,
+					"UserName"=>$req->Email,
+					"password"=>$pwd,
+					"UpdatedBy"=>$this->UserID,
+					"UpdatedOn"=>date("Y-m-d H:i:s")]);
 				$status=DB::Table('tbl_customer')->where('CustomerID',$CustomerID)->update($data);
 				if($status){
 					$AIDs=[];
@@ -528,6 +537,7 @@ class CustomerController extends Controller{
 			$status=false;
 			try{
 				$OldData=DB::table('tbl_customer')->where('CustomerID',$CID)->get();
+				$status=DB::table('users')->where('ReferID',$CID)->update(array("DFlag"=>1,"DeletedBy"=>$this->UserID,"DeletedOn"=>date("Y-m-d H:i:s")));
 				$status=DB::table('tbl_customer')->where('CustomerID',$CID)->update(array("DFlag"=>1,"DeletedBy"=>$this->UserID,"DeletedOn"=>date("Y-m-d H:i:s")));
 			}catch(Exception $e) {
 
@@ -552,6 +562,7 @@ class CustomerController extends Controller{
 			$status=false;
 			try{
 				$OldData=DB::table('tbl_customer')->where('CustomerID',$CID)->get();
+				$status=DB::table('users')->where('ReferID',$CID)->update(array("DFlag"=>0,"UpdatedBy"=>$this->UserID,"UpdatedOn"=>date("Y-m-d H:i:s")));
 				$status=DB::table('tbl_customer')->where('CustomerID',$CID)->update(array("DFlag"=>0,"UpdatedBy"=>$this->UserID,"UpdatedOn"=>date("Y-m-d H:i:s")));
 			}catch(Exception $e) {
 

@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\web\Transaction\EnquiryController;
 use App\Http\Controllers\web\Transaction\OrderController;
 use App\Http\Controllers\web\Transaction\PaymentController;

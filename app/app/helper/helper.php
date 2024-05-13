@@ -25,12 +25,11 @@ class helper{
 		return config('app.db_log') .".";
 	}
 	public static function getCurrFYDB(){
-		$FY = self::getCurrentFY();
-		return "rpc_fy_" . $FY.".";
+		return self::getCurrentFYDBName();
 	}
 	public static function getStockDB(){
 		$FY = self::getCurrentFY();
-		return "rpc_stock_fy_".$FY.".";
+		return config('app.db_stock').$FY.".";
 	}
 	public static function getTmpDB(){
 		return config('app.db_tmp').".";
@@ -997,14 +996,13 @@ class helper{
 
         }
         if(count($firebaseToken)>0){
-           $SERVER_API_KEY = config('app.firebase_server_key');// firebase server key
+           $SERVER_API_KEY = config('app.firebase_server_key');
 
             $data = [
                 "registration_ids" => $firebaseToken,
                 "notification" => [
                     "title" => $Title,
                     "body" => $Message,
-                    "bodyLocKey" => "bharani",
                 ]
             ];
             $dataString = json_encode($data);
@@ -1075,52 +1073,78 @@ class helper{
 		return round($value, 1) . $abbreviations[$abbrevIndex];
 	}
 
-	public static function saveSmsOtp($MobNo,$OTP,$Message,$LoginType){
-		$OtpID = DocNum::getDocNum("SMS-OTP",self::getCurrFYDB(),self::getCurrentFY());
-		$Ndata = [
-			'OtpID'=> $OtpID,
-			'MobileNumber'=> $MobNo,
-			'OTP'=> $OTP,
-			'LoginType'=> $LoginType,
-			'Message'=> $Message,
-		];
-		$status = DB::table(self::getCurrFYDB().'tbl_sms_otps')->insert($Ndata);
-		DB::table(self::getCurrFYDB().'tbl_sms_otps')->where('MobileNumber',$MobNo)->whereNot('OTP',$OTP)->update(['isOtpExpired' =>1]);
-		if($status){
-			DocNum::updateDocNum("SMS-OTP",self::getCurrFYDB());
-			$TextLocal = new TextLocal();
-			$result = $TextLocal->sendOTP($MobNo, $Message);
+	public static function saveSmsOtp($MobNo, $OTP, $Message, $LoginType){
+		$result = false;
+		DB::beginTransaction();
+		try {
+			$OtpID = DocNum::getDocNum("SMS-OTP", self::getCurrFYDB(), self::getCurrentFY());
+			$Ndata = [
+				'OtpID' => $OtpID,
+				'MobileNumber' => $MobNo,
+				'OTP' => $OTP,
+				'LoginType' => $LoginType,
+				'Message' => $Message,
+			];
+			$status = DB::table(self::getCurrFYDB() . 'tbl_sms_otps')->insert($Ndata);
+			DB::table(self::getCurrFYDB() . 'tbl_sms_otps')->where('MobileNumber', $MobNo)->whereNot('OTP', $OTP)->update(['isOtpExpired' => 1]);
+			if ($status) {
+				$TextLocal = new TextLocal();
+				$result = $TextLocal->sendOTP($MobNo, $Message);
+				if ($result['status']) {
+					DB::commit();
+					DocNum::updateDocNum("SMS-OTP", self::getCurrFYDB());
+				} else {
+					DB::rollback();
+				}
+			} else {
+				DB::rollback();
+			}
+		} catch (Exception $e) {
+			DB::rollback();
+			throw $e;
 		}
 		return $result;
 	}
-
-	public static function saveEmailOtp($Email, $OTP, $LoginType, $UserName) {
-		$OtpID = DocNum::getDocNum("Email-OTP",self::getCurrFYDB(),self::getCurrentFY());
-		$Message = "";
-		$Ndata = [
-			'OtpID'=> $OtpID,
-			'Email'=> $Email,
-			'OTP'=> $OTP,
-			'LoginType'=> $LoginType,
-			'Message'=> $Message,
-		];
-		$status = DB::table(self::getCurrFYDB().'tbl_email_otps')->insert($Ndata);
-		DB::table(self::getCurrFYDB().'tbl_email_otps')->where('Email',$Email)->whereNot('OTP',$OTP)->update(['isOtpExpired' =>1]);
-		if($status){
-			DocNum::updateDocNum("Email-OTP",self::getCurrFYDB());
-            $data = DB::table('tbl_company_settings')->select('KeyName', 'KeyValue')->get()->pluck('KeyValue', 'KeyName')->toArray();
-
-			$data['CompanyEmail'] =$data['E-Mail'];
-			$data['email'] = $Email;
-			$data['OTP'] = $OTP;
-			$data['LoginType'] = $LoginType;
-			$data['UserName'] = $UserName;
-			$data['Subject'] = 'Your OTP for Email Update';
-			$result = MailController::sendMail($data);
-			return $result;
-		}
-		return $status;
 	
+	public static function saveEmailOtp($Email, $OTP, $LoginType, $UserName) {
+		$result = false;
+		DB::beginTransaction();
+		try {
+			$OtpID = DocNum::getDocNum("Email-OTP", self::getCurrFYDB(), self::getCurrentFY());
+			$Message = "";
+			$Ndata = [
+				'OtpID' => $OtpID,
+				'Email' => $Email,
+				'OTP' => $OTP,
+				'LoginType' => $LoginType,
+				'Message' => $Message,
+			];
+			$status = DB::table(self::getCurrFYDB() . 'tbl_email_otps')->insert($Ndata);
+			DB::table(self::getCurrFYDB() . 'tbl_email_otps')->where('Email', $Email)->whereNot('OTP', $OTP)->update(['isOtpExpired' => 1]);
+			if ($status) {
+				$data = DB::table('tbl_company_settings')->select('KeyName', 'KeyValue')->get()->pluck('KeyValue', 'KeyName')->toArray();
+	
+				$data['CompanyEmail'] = $data['E-Mail'];
+				$data['email'] = $Email;
+				$data['OTP'] = $OTP;
+				$data['LoginType'] = $LoginType;
+				$data['UserName'] = $UserName;
+				$data['Subject'] = 'Your OTP for Email Update';
+				$result = MailController::sendMail($data);
+				if ($result) {
+					DB::commit();
+					DocNum::updateDocNum("Email-OTP", self::getCurrFYDB());
+				} else {
+					DB::rollback();
+				}
+			}else{
+				DB::rollback();
+			}
+		} catch (Exception $e) {
+			DB::rollback();
+			throw $e;
+		}
+		return $result;
 	}
 	
 

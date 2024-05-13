@@ -9,32 +9,6 @@ class TextLocal extends Model
 {
     use HasFactory;
 
-    public function sendOTP1($mobileNumber, $message){
-        $data = ['apikey' => urlencode(config('app.TEXT_LOCAL_API_KEY')),
-                'numbers' => [$mobileNumber],
-                'sender' => urlencode(config('app.TEXT_LOCAL_SENDER_NAME')),
-                'message' => rawurlencode($message)
-        ];
-
-        $ch = curl_init('https://api.textlocal.in/send/');
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-        $response = curl_exec($ch);
-        info($response);
-        $err = curl_error($ch);
-        info($err);
-
-        curl_close($ch);
-
-        if ($err) {
-            return array('error' => 1);
-        } else {
-            return array('error' => 0);
-        }
-    }
-
     public function sendOTP($mobileNumber, $message){
         $apiKey = urlencode(config('app.TEXT_LOCAL_API_KEY'));
         
@@ -53,11 +27,12 @@ class TextLocal extends Model
         curl_close($ch);
         
         info($response);
-    
-        if (strpos($response, 'success') !== false) {
-            return true;
+        $responseData = json_decode($response, true);
+
+        if ($responseData['status']=='failure') {
+            return ['status' =>false, 'message'=>'OTP Send Failed', 'errors' =>$responseData['errors']];
         } else {
-            return false;
+            return ['status' =>true, 'message'=>'OTP Sent Successfully', 'response' =>$responseData];
         }
     }
     

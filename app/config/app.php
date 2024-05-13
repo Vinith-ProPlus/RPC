@@ -22,6 +22,7 @@ return [
     'db_tmp' => env('DB_TMP'),
     'db_prefix' => env('DB_PREFIX'),
     'db_support' => env('DB_SUPPORT'),
+    'db_stock' => env('DB_STOCK'),
 
     'name' => env('APP_NAME', 'Laravel'),
 

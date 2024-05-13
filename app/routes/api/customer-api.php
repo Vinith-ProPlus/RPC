@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\api\customer\CustomerAuthController;
 use App\Http\Controllers\api\customer\CustomerAPIController;
 use App\Http\Controllers\api\customer\CustomerTransactionAPIController;

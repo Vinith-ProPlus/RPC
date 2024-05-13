@@ -1,4 +1,6 @@
 <?php
+use Illuminate\Support\Facades\Route;
+
 Route::group(['prefix'=>'general'],function (){
     require __DIR__.'/general.php';
 });

@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\web\masters\product\AttributesController;
 use App\Http\Controllers\web\masters\product\BrandsController;
 use App\Http\Controllers\web\masters\product\ProductCategoryController;
@@ -7,7 +8,6 @@ use App\Http\Controllers\web\masters\product\ProductsController;
 use App\Http\Controllers\web\masters\product\ProductSubCategoryController;
 use App\Http\Controllers\web\masters\product\TaxController;
 use App\Http\Controllers\web\masters\product\UOMController;
-use Illuminate\Support\Facades\Route;
 
 Route::group(['prefix'=>'category'],function (){
     Route::controller(ProductCategoryController::class)->group(function () {

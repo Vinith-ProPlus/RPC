@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\web\Settings\BannersController;
 use App\Http\Controllers\web\Settings\CMSController;
 use App\Http\Controllers\web\Settings\CompanyController;

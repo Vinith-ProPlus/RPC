@@ -804,7 +804,7 @@ class CustomerAuthController extends Controller{
                 ->toArray();
         return response()->json(['status' => true, 'data' => $Products ]);
 	}
-    
+
     public function getCustomerHomeSearch(Request $req){
         if ($req->AID) {
             if($req->SearchText){
@@ -897,16 +897,23 @@ class CustomerAuthController extends Controller{
     }
 
     public function UpdateEmail(request $req){
+        if(!$req->Email){
+            return response()->json(['status' => false, 'message' => 'Email is required.']);
+        }
         $user = Auth::user();
         if(!$req->OTP){
-            $OTP = Helper::getOTP(6);
-
-            $result = Helper::saveEmailOtp($user->EMail,$OTP,"Customer",$user->Name);
-
-            if ($result) {
-                return response()->json(['status' => true, 'message' => 'OTP sent to registered Email successfully']);
-            } else {
-                return response()->json(['status' => false, 'message' => 'Failed to send email']);
+            if($this->isDataExists($req)){
+                return response()->json(['status' => false,'message' => "This Email is already taken"]);
+            }else{
+                $OTP = Helper::getOTP(6);
+    
+                $result = Helper::saveEmailOtp($user->EMail,$OTP,"Customer",$user->Name);
+    
+                if ($result) {
+                    return response()->json(['status' => true, 'message' => 'OTP sent to registered Email successfully']);
+                } else {
+                    return response()->json(['status' => false, 'message' => 'Failed to send email']);
+                }
             }
         }else{
             $OTP = DB::table(Helper::getCurrFYDB().'tbl_email_otps')->where('Email',$user->EMail)->where('isOtpExpired',0)->whereRaw('TIMESTAMPDIFF(MINUTE, CreatedOn, NOW()) <= 2')->value('OTP');
@@ -914,8 +921,7 @@ class CustomerAuthController extends Controller{
                 return response()->json(['status' => false,'message' => "OTP has Expired!"]);
             }else{
                 if($OTP == $req->OTP){ 
-                    $isEmailExists = DB::table('users')->where('EMail',$req->Email)->where('LoginType','Customer')->whereNot('UserID',$user->UserID)->exists();
-                    if($isEmailExists){
+                    if($this->isDataExists($req)){
                         return response()->json(['status' => false,'message' => "This Email is already taken"]);
                     }else{
                         $pwd1=Hash::make($req->Email);
@@ -942,15 +948,12 @@ class CustomerAuthController extends Controller{
         }
         $user = Auth::user();
         if(!$req->OTP){
-            $OTP = Helper::getOTP(6);
-
-            $Message = "You are trying to change your mobile number in the RPC customer app. Please enter $OTP code to verify your request. Do not share this OTP with anyone for security reasons.";
-            $result = Helper::saveSmsOtp($user->MobileNumber,$OTP,$Message,"Customer");
-
-            return response()->json(['status' => true, 'message' => 'OTP sent to registered Mobile Number successfully','OTP'=>$OTP ,'result'=>$result]);
-            if ($result) {
-            } else {
-                return response()->json(['status' => false, 'message' => 'Failed to send OTP']);
+            if($this->isDataExists($req)){
+                return response()->json(['status' => false,'message' => "This Mobile Number is already taken"]);
+            }else{
+                $OTP = Helper::getOTP(6);
+                $Message = "You are trying to change your mobile number in the RPC customer app. Please enter $OTP code to verify your request. Do not share this OTP with anyone for security reasons.";
+                return Helper::saveSmsOtp($user->MobileNumber,$OTP,$Message,"Customer");
             }
         }else{
             $OTP = DB::table(Helper::getCurrFYDB().'tbl_sms_otps')->where('MobileNumber',$user->MobileNumber)->where('isOtpExpired',0)->value('OTP');
@@ -958,8 +961,7 @@ class CustomerAuthController extends Controller{
                 return response()->json(['status' => false,'message' => "OTP has Expired!"]);
             }else{
                 if($OTP == $req->OTP){ 
-                    $isMobileNumberExists = DB::table('users')->where('MobileNumber',$req->MobileNumber)->where('LoginType','Customer')->whereNot('UserID',$user->UserID)->exists();
-                    if($isMobileNumberExists){
+                    if($this->isDataExists($req)){
                         return response()->json(['status' => false,'message' => "This Mobile Number is already taken"]);
                     }else{
                         
@@ -978,5 +980,16 @@ class CustomerAuthController extends Controller{
         }
 	}
 
+    private function isDataExists($req) {
+        $query = DB::table('users');
+        if($req->Email){
+            $query->where('EMail', $req->Email);
+        }elseif($req->MobileNumber){
+            $query->where('MobileNumber', $req->MobileNumber);
+        }else{
+            return false;
+        }
+        return $query->where('LoginType','Customer')->whereNot('UserID',Auth::user()->UserID)->exists();
+    }
     
 }

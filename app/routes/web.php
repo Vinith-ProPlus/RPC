@@ -12,6 +12,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Home\HomeController;
 use App\Http\Controllers\SocialController;
 use App\Http\Controllers\web\SupportController;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 
 /*

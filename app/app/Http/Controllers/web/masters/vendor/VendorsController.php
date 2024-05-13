@@ -499,7 +499,6 @@ class VendorsController extends Controller{
                 $firstName = $nameParts[0] ?? '';
                 $lastName = $nameParts[1] ?? '';
 				$pwd1=Hash::make($req->Email);
-				$pwd2=Helper::EncryptDecrypt("encrypt",$req->Email);
 				$data=array(
 					"UserID"=>$UserID,
 					"ReferID"=>$VendorID,
@@ -509,7 +508,6 @@ class VendorsController extends Controller{
 					"UserName"=>$req->Email,
 					"MobileNumber"=>$req->MobileNumber1,
 					"Password"=>$pwd1,
-					"Password1"=>$pwd2,
 					"EMail"=>$req->Email,
 					"Address"=>$req->Address,
                     "PostalCodeID"=>$req->PostalCode,
@@ -533,7 +531,7 @@ class VendorsController extends Controller{
 				$NewData=$this->getVendor($VendorID);
 				DB::commit();
 				$logData=array("Description"=>"New Vendor Created ","ModuleName"=>$this->ActiveMenuName,"Action"=>cruds::ADD->value,"ReferID"=>$VendorID,"OldData"=>$OldData,"NewData"=>$NewData,"UserID"=>$this->UserID,"IP"=>$req->ip());
-				// logs::Store($logData);
+				logs::Store($logData);
 				foreach($RemoveImg as $index=>$Img){
 					Helper::removeFile($Img);
 				}
@@ -691,7 +689,16 @@ class VendorsController extends Controller{
 				}else if($req->removeLogo=="1"){
 					$data['Logo']="";
 				}
+				$pwd = Hash::make($req->Email);
+				$status=DB::table('users')->where('ReferID',$VendorID)->update([
+					"ActiveStatus"=>$req->ActiveStatus,
+					"EMail"=>$req->Email,
+					"UserName"=>$req->Email,
+					"password"=>$pwd,
+					"UpdatedBy"=>$this->UserID,
+					"UpdatedOn"=>date("Y-m-d H:i:s")]);
 				$status=DB::Table('tbl_vendors')->where('VendorID',$VendorID)->update($data);
+
 				//Vehicles
 				$VehiclesDetail=array();
 				if($status){
@@ -922,7 +929,7 @@ class VendorsController extends Controller{
 				$NewData=$this->getVendor($VendorID);
 				DB::commit();
 				$logData=array("Description"=>"Vendor Updated ","ModuleName"=>$this->ActiveMenuName,"Action"=>cruds::UPDATE->value,"ReferID"=>$VendorID,"OldData"=>$OldData,"NewData"=>$NewData,"UserID"=>$this->UserID,"IP"=>$req->ip());
-				// logs::Store($logData);
+				logs::Store($logData);
 				foreach($RemoveImg as $index=>$Img){
 					Helper::removeFile($Img);
 				}
@@ -1088,6 +1095,7 @@ class VendorsController extends Controller{
 			$status=false;
 			try{
 				$OldData=$this->getVendor($VendorID);
+				$status=DB::table('users')->where('ReferID',$VendorID)->update(array("DFlag"=>1,"DeletedBy"=>$this->UserID,"DeletedOn"=>date("Y-m-d H:i:s")));
 				$status=DB::table('tbl_vendors')->where('VendorID',$VendorID)->update(array("DFlag"=>1,"DeletedBy"=>$this->UserID,"DeletedOn"=>date("Y-m-d H:i:s")));
 			}catch(Exception $e) {
 				
@@ -1112,6 +1120,7 @@ class VendorsController extends Controller{
 			$status=false;
 			try{
 				$OldData=$this->getVendor($VendorID);
+				$status=DB::table('users')->where('ReferID',$VendorID)->update(array("DFlag"=>0,"UpdatedBy"=>$this->UserID,"UpdatedOn"=>date("Y-m-d H:i:s")));
 				$status=DB::table('tbl_vendors')->where('VendorID',$VendorID)->update(array("DFlag"=>0,"UpdatedBy"=>$this->UserID,"UpdatedOn"=>date("Y-m-d H:i:s")));
 			}catch(Exception $e) {
 				

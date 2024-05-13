@@ -222,8 +222,7 @@ class VendorAPIController extends Controller{
         if(!$req->OTP){
             $OTP = Helper::getOTP(6);
             $Message = "Your RPC OTP for login is $OTP. Please enter this code to proceed.";
-            Helper::saveSmsOtp($req->MobileNumber,$OTP,$Message,$req->LoginType);
-            return response()->json(['status' => true,'message' => "OTP Sent Successfully!","OTP"=>$OTP]);
+            return Helper::saveSmsOtp($req->MobileNumber,$OTP,$Message,$req->LoginType);
         }else{
             $OTP = DB::table(Helper::getCurrFYDB().'tbl_sms_otps')->where('MobileNumber',$req->MobileNumber)->where('isOtpExpired',0)->value('OTP');
             if($OTP == $req->OTP){ 

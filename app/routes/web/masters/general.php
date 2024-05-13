@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\web\masters\general\CityController;
 use App\Http\Controllers\web\masters\general\CountryController;
 use App\Http\Controllers\web\masters\general\DistrictsController;
@@ -8,7 +9,6 @@ use App\Http\Controllers\web\masters\general\RejectReasonController;
 use App\Http\Controllers\web\masters\general\StagesController;
 use App\Http\Controllers\web\masters\general\StatesController;
 use App\Http\Controllers\web\masters\general\TaluksController;
-use Illuminate\Support\Facades\Route;
 
 Route::group(['prefix'=>'country'],function (){
     Route::controller(CountryController::class)->group(function () {

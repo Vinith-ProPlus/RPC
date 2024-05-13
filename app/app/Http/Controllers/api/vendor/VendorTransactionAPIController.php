@@ -352,7 +352,7 @@ class VendorTransactionAPIController extends Controller{
                 ->leftJoin($this->currfyDB.'tbl_order as O','O.OrderID','VO.OrderID')
                 ->leftJoin('tbl_products as P','P.ProductID','OD.ProductID')
                 ->where('VO.VOrderID',$req->VOrderID)->where('OD.Status','New')
-                ->select('O.OrderNo','O.CustomerID','P.ProductName')
+                ->select('O.OrderNo','O.CustomerID','P.ProductName','O.OrderID')
                 ->get();
             $existingOTP=DB::Table($this->currfyDB."tbl_order_details")->where('VOrderID',$req->VOrderID)->Where('Status','New')->value('OTP');
             if (!$existingOTP) {
@@ -375,7 +375,7 @@ class VendorTransactionAPIController extends Controller{
                     }
                 }
                 $message .= ". Thank you.";
-                Helper::saveNotification($OrderData[0]->CustomerID, $title, $message, 'Order', $req->VOrderID);
+                Helper::saveNotification($OrderData[0]->CustomerID, $title, $message, 'Order', $OrderData[0]->OrderID);
             }
         }catch(Exception $e) {
             $status=false;

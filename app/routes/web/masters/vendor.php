@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\web\masters\vendor\DepartmentsController;
 use App\Http\Controllers\web\masters\vendor\StockPointsController;
 use App\Http\Controllers\web\masters\vendor\VendorCategoryController;
@@ -7,7 +8,6 @@ use App\Http\Controllers\web\masters\vendor\VendorProductMappingController;
 use App\Http\Controllers\web\masters\vendor\VendorsController;
 use App\Http\Controllers\web\masters\vendor\VendorStockUpdateController;
 use App\Http\Controllers\web\masters\vendor\VendorTypeController;
-use Illuminate\Support\Facades\Route;
 
 Route::group(['prefix'=>'departments'],function (){
     Route::controller(DepartmentsController::class)->group(function () {
