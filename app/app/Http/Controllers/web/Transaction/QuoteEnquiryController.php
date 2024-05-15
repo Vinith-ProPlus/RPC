@@ -256,6 +256,10 @@ class QuoteEnquiryController extends Controller{
 							$status = DB::table($this->currfyDB . 'tbl_vendor_quotation')->insert($data);
 							if($status){
 								DocNum::updateDocNum(docTypes::VendorQuotation->value, $this->currfyDB);
+								
+								$Title = "New Image Enquiry Received.";
+								$Message = "You have a new image enquiry! Check now for details and respond promptly.";
+								Helper::saveNotification($VendorID,$Title,$Message,'ImageEnquiry',$VQuoteID);
 							}
 						}
 					}
