@@ -91,7 +91,7 @@
 			<div class="modal-body">
                 <div class="row">
                     <div class="col-sm-12">
-                        <img style="width:100%" src="" id="ImageCrop" data-id="">
+                        <img loading="lazy" style="width:100%" src="" id="ImageCrop" data-id="">
                     </div>
                 </div>
                 <div class="row mt-10 d-flex justify-content-center">
@@ -134,7 +134,7 @@
         $('#ImgCrop').modal('hide');
         $(document).on('change', '.imageScrop', function() {
             let id = $(this).attr('id');
-            $('#'+id).attr('data-remove',0); 
+            $('#'+id).attr('data-remove',0);
             if($('#'+id).attr('data-aspect-ratio')!=undefined){
                 options.aspectRatio=$('#'+id).attr('data-aspect-ratio')
             }

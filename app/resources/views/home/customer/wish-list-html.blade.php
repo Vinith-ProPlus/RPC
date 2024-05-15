@@ -51,7 +51,7 @@
             <tr class="product-row product-div">
                 <td>
                     <figure class="product-image-container">
-                        <img src="{{ $product->ProductImage }}" alt="product">
+                        <img loading="lazy" src="{{ $product->ProductImage }}" alt="product">
                         <a href="#" class="btn-remove icon-cancel btn-icon-wish added-wishlist"
                            title="Remove Product"></a>
                     </figure>
@@ -95,7 +95,7 @@
 {{--                    <div class="product-default inner-quickview inner-icon product-div">--}}
 {{--                        <figure>--}}
 {{--                            <a href="#">--}}
-{{--                                <img src="{{ $product->ProductImage }}" width="300" height="300" alt="{{ $product->ProductName }}">--}}
+{{--                                <img loading="lazy" src="{{ $product->ProductImage }}" width="300" height="300" alt="{{ $product->ProductName }}">--}}
 {{--                            </a>--}}
 {{--                            <div class="label-group"></div>--}}
 {{--                            <div class="btn-icon-group">--}}
@@ -130,7 +130,7 @@
 {{--                <div class="col-sm-12 col-6 product-default left-details product-list mb-2 product-div">--}}
 {{--                    <figure>--}}
 {{--                        <a href="#">--}}
-{{--                            <img src="{{ $product->ProductImage }}" width="250" height="250" alt="product">--}}
+{{--                            <img loading="lazy" src="{{ $product->ProductImage }}" width="250" height="250" alt="product">--}}
 {{--                        </a>--}}
 {{--                    </figure>--}}
 {{--                    <div class="product-details">--}}

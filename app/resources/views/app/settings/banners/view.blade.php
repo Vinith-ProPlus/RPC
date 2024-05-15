@@ -9,7 +9,7 @@
 					<li class="breadcrumb-item"><a href="{{ url('/') }}/admin"><i class="f-16 fa fa-home"></i></a></li>
 					<li class="breadcrumb-item">Home</li>
                     <li class="breadcrumb-item">Settings</li>
-					<li class="breadcrumb-item">{{$PageTitle}}</li>	
+					<li class="breadcrumb-item">{{$PageTitle}}</li>
 				</ol>
 			</div>
 			<div class="col-sm-6">
@@ -31,7 +31,7 @@
 					@foreach($bannerImages as $image)
 						<figure class="col-xl-4 col-sm-6" data-tran-no="{{$image->TranNo}}">
 							<a href="{{url('/')}}/{{$image->BannerImage}}" data-lightbox="banner-images">
-								<img src="{{url('/')}}/{{$image->BannerImage}}" alt="Image {{$loop->index}}">
+								<img loading="lazy" src="{{url('/')}}/{{$image->BannerImage}}" alt="Image {{$loop->index}}">
 							</a>
 							<div class="caption text-center">
 								@if($crud['edit']==1)
@@ -55,7 +55,7 @@
 					@foreach($MbannerImages as $image)
 						<figure class="col-xl-4 col-sm-6" data-tran-no="{{$image->TranNo}}">
 							<a href="{{url('/')}}/{{$image->BannerImage}}" data-lightbox="banner-images">
-								<img src="{{url('/')}}/{{$image->BannerImage}}" alt="Image {{$loop->index}}">
+								<img loading="lazy" src="{{url('/')}}/{{$image->BannerImage}}" alt="Image {{$loop->index}}">
 							</a>
 							<div class="caption text-center">
 								@if($crud['edit']==1)

@@ -5,10 +5,10 @@
             <div class="container-fluid">
                 <div class="row justify-content-center">
                     <div class="col-sm-7 col-md-5 col-lg-4 col-xl-3">
-                        <img class="img-fluid err-img" src="../assets/images/error-img.png" alt="">
+                        <img loading="lazy" class="img-fluid err-img" src="../assets/images/error-img.png" alt="">
                     </div>
                 </div>
-                <!-- <img class="img-100" src="../assets/images/error-img.png" alt=""> -->
+                <!-- <img loading="lazy" class="img-100" src="../assets/images/error-img.png" alt=""> -->
                 <div class="error-heading">
                     <h2 class="headline font-info">500</h2>
                 </div>

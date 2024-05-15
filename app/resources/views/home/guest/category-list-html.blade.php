@@ -49,7 +49,7 @@
                                     <div class="product-default inner-quickview inner-icon product-div">
                                         <figure>
                                             <div class="image-container">
-                                                <img src="{{ $PCategory->PCImage }}" alt="{{ $PCategory->PCName }}">
+                                                <img loading="lazy" src="{{ $PCategory->PCImage }}" alt="{{ $PCategory->PCName }}">
                                             </div>
                                             <div class="label-group"></div>
                                         </figure>

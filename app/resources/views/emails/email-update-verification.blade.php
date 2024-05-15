@@ -50,8 +50,8 @@
 <body>
     <div class="email-container" style="border-radius: 2%">
         <div class="email-logo">
-            {{-- <img src="{{url('/')}}/{{$Logo}}" height="50px" alt="{{$CompanyName}}"> --}}
-            <img src="https://builderssupply.in/{{$Logo}}" height="50px" alt="{{$CompanyName}}">
+            {{-- <img loading="lazy" src="{{url('/')}}/{{$Logo}}" height="50px" alt="{{$CompanyName}}"> --}}
+            <img loading="lazy" src="https://builderssupply.in/{{$Logo}}" height="50px" alt="{{$CompanyName}}">
         </div>
         <div class="email-header">
             Dear {{ $UserName }}

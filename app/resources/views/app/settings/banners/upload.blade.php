@@ -78,7 +78,7 @@
 			<div class="modal-body">
                 <div class="row">
                     <div class="col-sm-12">
-                        <img style="width:100%" src="" id="ImageCrop" data-id="">
+                        <img loading="lazy" style="width:100%" src="" id="ImageCrop" data-id="">
                     </div>
                 </div>
                 <div class="row mt-10 d-flex justify-content-center">

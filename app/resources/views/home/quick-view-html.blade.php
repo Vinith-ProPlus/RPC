@@ -4,12 +4,12 @@
             <div class="product-slider-container">
                 <div class="product-single-carousel owl-carousel owl-theme show-nav-hover">
                     <div class="product-item">
-                        <img class="product-single-image" src="{{ $product->ProductImage }}"
+                        <img loading="lazy" class="product-single-image" src="{{ $product->ProductImage }}"
                              data-zoom-image="{{ $product->ProductImage }}"/>
                     </div>
                     @foreach($product->GalleryImages as $galleryImage)
                         <div class="product-item">
-                            <img class="product-single-image" src="{{ $galleryImage }}"
+                            <img loading="lazy" class="product-single-image" src="{{ $galleryImage }}"
                                  data-zoom-image="{{ $galleryImage }}"/>
                         </div>
                     @endforeach
@@ -17,11 +17,11 @@
             </div>
             <div class="prod-thumbnail owl-dots">
                 <div class="owl-dot">
-                    <img src="{{ $product->ProductImage }}"/>
+                    <img loading="lazy" src="{{ $product->ProductImage }}"/>
                 </div>
                 @foreach($product->GalleryImages as $galleryImage)
                     <div class="owl-dot">
-                        <img src="{{ $galleryImage }}"/>
+                        <img loading="lazy" src="{{ $galleryImage }}"/>
                     </div>
                 @endforeach
             </div>

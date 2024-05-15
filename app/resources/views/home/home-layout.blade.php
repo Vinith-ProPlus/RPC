@@ -329,7 +329,7 @@
             <div class="container">
                 <div class="header-left col-lg-2 w-auto pl-0">
                     <a href="@if($isRegister && !$isEdit) {{ route('homepage') }} @else {{url('/')}}/customer-profile @endif" class="logo">
-                        <img src="{{url('/')}}/{{$Company['Logo']}}" width="50" height="50" alt="{{$Company['CompanyName']}}">
+                        <img loading="lazy" src="{{url('/')}}/{{$Company['Logo']}}" width="50" height="50" alt="{{$Company['CompanyName']}}">
                     </a>
                     <span class="ml-3 font-weight-bold" style="color:rgb(7, 54, 163)">{{$Company['CompanyName']}}</span>
                 </div>
@@ -422,7 +422,7 @@
 
                                                     <figure class="product-image-container">
                                                         <a href="{{ route('products.quickView', $item->ProductID) }}" class="product-image btn-quickview">
-                                                            <img src="{{ $item->ProductImage }}" alt="product" width="80" height="80">
+                                                            <img loading="lazy" src="{{ $item->ProductImage }}" alt="product" width="80" height="80">
                                                         </a>
                                                         <a href="#" class="btn-remove btnRemoveCart" title="Remove Product" id="{{ $item->ProductID }}"><span>×</span></a>
                                                     </figure>
@@ -551,7 +551,7 @@
                 <div class="row">
                     <div class="col-lg-2 col-sm-6 pb-2 pb-sm-0 d-flex align-items-center">
                         <div class="widget m-b-3">
-                            <img src="{{url('/')}}/{{$Company['Logo']}}" alt="Logo" width="202" height="54" class="logo-footer">
+                            <img loading="lazy" src="{{url('/')}}/{{$Company['Logo']}}" alt="Logo" width="202" height="54" class="logo-footer">
 
                         </div><!-- End .widget -->
                     </div><!-- End .col-lg-3 -->
@@ -704,7 +704,7 @@
             <div class="modal-body">
                 <div class="row">
                     <div class="col-sm-12">
-                        <img style="width:100%" src="" id="ImageCrop" data-id="">
+                        <img loading="lazy" style="width:100%" src="" id="ImageCrop" data-id="">
                     </div>
                 </div>
                 <div class="row mt-10 d-flex justify-content-center">
@@ -817,7 +817,7 @@
 
                                         <figure class="product-image-container">
                                             <a href="{{url('/').'/products/quickView/html/' }}${item.ProductID}" class="product-image btn-quickview">
-                                                <img src="${item.ProductImage}" alt="product" width="80" height="80">
+                                                <img loading="lazy" src="${item.ProductImage}" alt="product" width="80" height="80">
                                             </a>
                                             <a href="#" class="btn-remove btnRemoveCart" title="Remove Product" id="${item.ProductID}"><span>×</span></a>
                                         </figure>

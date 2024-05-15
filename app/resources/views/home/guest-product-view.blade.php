@@ -115,7 +115,7 @@
                 <div class="container">
                     <div class="header-left col-lg-2 w-auto pl-0">
                         <a href="{{url('/')}}" class="logo">
-							<img src="{{url('/')}}/{{$Company['Logo']}}" width="50" height="50" alt="{{$Company['CompanyName']}}">
+							<img loading="lazy" src="{{url('/')}}/{{$Company['Logo']}}" width="50" height="50" alt="{{$Company['CompanyName']}}">
                         </a>
 						<span class="ml-3 font-weight-bold">{{$Company['CompanyName']}}</span>
                     </div><!-- End .header-left -->
@@ -267,12 +267,12 @@
                             <div class="product-slider-container">
                                 <div class="product-single-carousel owl-carousel owl-theme show-nav-hover">
                                     <div class="product-item">
-                                        <img class="product-single-image" src="{{ $product->ProductImage }}"
+                                        <img loading="lazy" class="product-single-image" src="{{ $product->ProductImage }}"
                                              data-zoom-image="{{ $product->ProductImage }}"/>
                                     </div>
                                     @foreach($product->GalleryImages as $galleryImage)
                                         <div class="product-item">
-                                            <img class="product-single-image" src="{{ $galleryImage }}"
+                                            <img loading="lazy" class="product-single-image" src="{{ $galleryImage }}"
                                                  data-zoom-image="{{ $galleryImage }}"/>
                                         </div>
                                     @endforeach
@@ -280,11 +280,11 @@
                             </div>
                             <div class="prod-thumbnail owl-dots">
                                 <div class="owl-dot">
-                                    <img src="{{ $product->ProductImage }}"/>
+                                    <img loading="lazy" src="{{ $product->ProductImage }}"/>
                                 </div>
                                 @foreach($product->GalleryImages as $galleryImage)
                                     <div class="owl-dot">
-                                        <img src="{{ $galleryImage }}"/>
+                                        <img loading="lazy" src="{{ $galleryImage }}"/>
                                     </div>
                                 @endforeach
                             </div>
@@ -399,7 +399,7 @@
                                 <div class="product-default inner-quickview inner-icon product-div">
                                     <figure>
                                         <a href="{{ route('guest.product.view', $relatedProduct->ProductID) }}">
-                                            <img src="{{ $relatedProduct->ProductImage }}" width="300" height="300" alt="product">
+                                            <img loading="lazy" src="{{ $relatedProduct->ProductImage }}" width="300" height="300" alt="product">
                                         </a>
                                         <div class="label-group">
                                             {{-- <span class="product-label label-sale">-13%</span> --}}
@@ -443,7 +443,7 @@
                 <div class="row">
                     <div class="col-lg-2 col-sm-6 pb-2 pb-sm-0 d-flex align-items-center">
                         <div class="widget m-b-3">
-                            <img src="{{url('/')}}/{{$Company['Logo']}}" alt="{{$Company['CompanyName']}}" width="202" height="54" class="logo-footer">
+                            <img loading="lazy" src="{{url('/')}}/{{$Company['Logo']}}" alt="{{$Company['CompanyName']}}" width="202" height="54" class="logo-footer">
 
                         </div><!-- End .widget -->
                     </div><!-- End .col-lg-3 -->

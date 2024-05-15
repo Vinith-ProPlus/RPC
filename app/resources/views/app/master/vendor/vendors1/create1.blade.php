@@ -9,7 +9,7 @@
     .custom input,.custom select,.custom textarea{
         border-radius:0px !important;
     }
-    .card{    
+    .card{
         border-radius:0px !important;
         position: relative;
         border: 1px solid #c3c4c7;
@@ -53,7 +53,7 @@
         margin: 0;
         line-height: 1.4;
     }
-    .woo-commerce-style > ul::after{    
+    .woo-commerce-style > ul::after{
         content: "";
         display: block;
         width: 100%;
@@ -76,13 +76,13 @@
         box-sizing: border-box;
     }
 
-    .woo-commerce-style ul.woo-commerce-style li{    
+    .woo-commerce-style ul.woo-commerce-style li{
         margin: 0;
         padding: 0;
         display: block;
         position: relative;
     }
-    .woo-commerce-style ul.woo-commerce-style li a{    
+    .woo-commerce-style ul.woo-commerce-style li a{
         margin: 0;
         padding: 10px;
         display: block;
@@ -120,7 +120,7 @@
     .woo-commerce-style ul.woo-commerce-style li.variation_options a:before{
         content: "\eab8";
     }
-    .woo-commerce-style ul.woo-commerce-style  li.active a{ 
+    .woo-commerce-style ul.woo-commerce-style  li.active a{
         color: #555;
         position: relative;
         background-color: #eee;
@@ -221,7 +221,7 @@
     .vehicle_images_container ul li:hover .actions li a{
         background: #999;
         /* width: 40px; */
-        /* height: 40px; */    
+        /* height: 40px; */
         font-size: 11px;
         padding: 1px 3px 3px;
         border-radius: 3px;
@@ -261,7 +261,7 @@
         max-height: 100px !important;
         overflow-y:auto;
     }
-    
+
     .accordion-item .accordion-header .options{
         position: absolute;
         right: 60px;
@@ -373,7 +373,7 @@
                                 <div class="col-18 col-sm-8 col-md-6 col-lg-5 col-xl-4 d-flex align-items-center">
                                     <div class=" fw-700 text-nowrap pr-10">Vendor Data  </div>
                                 </div>
-                            </div> 
+                            </div>
                         </div>
                         <div class="card-body p-0 woo-commerce-style">
                             <ul class="woo-commerce-style ">
@@ -733,7 +733,7 @@
             let id = $(this).attr('id');
             let pType=$(this).attr('data-product-type')
             let uuid=$(this).attr('data-uuid')
-            $('#'+id).attr('data-remove',0); 
+            $('#'+id).attr('data-remove',0);
             if($('#'+id).attr('data-aspect-ratio')!=undefined){
                 options.aspectRatio=$('#'+id).attr('data-aspect-ratio')
             }
@@ -751,7 +751,7 @@
                     if (uploadedImageURL) {
                         URL.revokeObjectURL(uploadedImageURL);
                     }
-                    uploadedImageURL = URL.createObjectURL(file); 
+                    uploadedImageURL = URL.createObjectURL(file);
                     $image.cropper('destroy').attr('src', uploadedImageURL).cropper(options);
                 } else {
                     window.alert('Please choose an image file.');
@@ -871,7 +871,7 @@
             $('#inputImage').trigger('click')
         });
         $("#btnCropApply").on('click', function() {
-            
+
         });
         $(document).on('click','#btnCropModelClose',function(){
             let  id = $image.attr('data-id');
@@ -919,7 +919,7 @@
             let activeTabs=$('.woo-commerce-style ul.woo-commerce-style li.active a').attr('href');
             $('.woo-commerce-style '+activeTabs).show('slow')
             if(activeTabs=="#attributes-tab"){
-                
+
                 let cid=$('#lstCategory').val();
                 let scid=$('#lstSubCategory').val();
                 if(cid!="" && scid!=""){
@@ -1115,7 +1115,7 @@
         const AddVehicleImages=async(uuid,imgID,tdata)=>{
             let html='';
             if($('ul#VImages-'+uuid+' li[data-attachment_id="'+imgID+'"]').length>0){
-                    html+='<img src="{{url("/")}}/'+tdata.uploadPath+'">';
+                    html+='<img loading="lazy" src="{{url("/")}}/'+tdata.uploadPath+'">';
                     html+='<div class="actions">';
                         html+='<ul class="actions">';
                             html+='<li><a href="{{url("/")}}/'+tdata.uploadPath+'" data-uuid="'+uuid+'" data-attachment_id="'+imgID+'" data-lightbox="Product Gallery" class="view" title="view image"><i class="fa fa-eye" aria-hidden="true"></i></a></li>';
@@ -1125,7 +1125,7 @@
                 $('ul#VGalleries-'+uuid+' li[data-attachment_id="'+imgID+'"]').html(html);
             }else{
                 html+='<li class="image" data-attachment_id="'+imgID+'" style="cursor: default;">';
-                    html+='<img src="{{url("/")}}/'+tdata.uploadPath+'">';
+                    html+='<img loading="lazy" src="{{url("/")}}/'+tdata.uploadPath+'">';
                     html+='<div class="actions">';
                         html+='<ul class="actions">';
                             html+='<li><a href="{{url("/")}}/'+tdata.uploadPath+'" data-uuid="'+uuid+'" data-attachment_id="'+imgID+'" data-lightbox="Product Gallery" class="view" title="view image"><i class="fa fa-eye" aria-hidden="true"></i></a></li>';
@@ -1392,7 +1392,7 @@
                     }
                 }
             });
-            $('#'+id).select2(); 
+            $('#'+id).select2();
         }
         const getVehicleModal=async(data,id)=>{
             $('#'+id).select2('destroy');
@@ -1418,7 +1418,7 @@
                     }
                 }
             });
-            $('#'+id).select2(); 
+            $('#'+id).select2();
         }
         const stockPointValidation = async () => {
             $('.errors.stock-points').html('');
@@ -1487,7 +1487,7 @@
             getCity();
         }
         const formValidation=async()=>{
-            
+
         }
         init();
 
@@ -1539,7 +1539,7 @@
                 formData.append('image',file);
                 tmpImageUpload(formData);
             }
-            
+
             $('#txtVehicleImages').attr('data-uuid',"");
             $('#txtVehicleImages').val("");
         });
@@ -1566,9 +1566,9 @@
             $('#vehicleAccordion .accordion-item[data-uuid="'+uuid+'"]').remove();
             updateVehicleAccordinTitle();
         });
-        
+
         $(document).on('keyup','.txtVehicleNumber',function(){updateVehicleAccordinTitle();});
-        
+
         $(document).on('click','#btnAddDocuments',function(){
             $('#txtDocuments').trigger('click');
 
@@ -1586,7 +1586,7 @@
                 formData.append('image',file);
                 tmpImageUpload(formData);
             }
-            
+
             $('#txtDocuments').attr('data-uuid',"");
             $('#txtDocuments').val("");
         });

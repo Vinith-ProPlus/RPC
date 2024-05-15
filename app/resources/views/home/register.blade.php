@@ -37,7 +37,7 @@
                                 </div> --}}
                                 <div class="col-sm-4 d-flex justify-content-center">
                                     <div style="position: relative; display: inline-block;">
-                                        <img src="@if($isEdit){{$EditData->CustomerImage}} @elseif($UserData->ProfileImage){{$UserData->ProfileImage}}@endif" alt="" class="rounded-circle border border-secondary" height="200px" width="200px">
+                                        <img loading="lazy" src="@if($isEdit){{$EditData->CustomerImage}} @elseif($UserData->ProfileImage){{$UserData->ProfileImage}}@endif" alt="" class="rounded-circle border border-secondary" height="200px" width="200px">
                                         <input type="file" class="imageScrop d-none" data-aspect-ratio="1" data-remove="0" data-is-cover-image="1" id="txtCustomerImage">
                                         <button id="btnEditImage" class="btn btn-sm btn-warning rounded-circle">
                                             <i class="fas fa-pencil-alt"></i>
@@ -247,7 +247,7 @@
             var $image = $('#ImageCrop').cropper(options);
             $('#ImgCrop').modal({backdrop: 'static',keyboard: false});
             $('#ImgCrop').modal('hide');
-            
+
             $(document).on('change', '.imageScrop', function() {
                 let id = $(this).attr('id');
                 $('#'+id).attr('data-remove',0);
@@ -392,7 +392,7 @@
             var basepath=$('#txtRootUrl').val();
             if ($('body').find('#resultLoading').attr('id') != 'resultLoading') {
                 if(text==""){text="Processing";}
-                $('body').append('<div id="resultLoading" style="display:none"><div style="font-weight: 700;"><img src="' + basepath + '/assets/images/ajax-loader.gif"><div id="divProcessText">'+text+'</div></div><div class="bg"></div></div>');
+                $('body').append('<div id="resultLoading" style="display:none"><div style="font-weight: 700;"><img loading="lazy" src="' + basepath + '/assets/images/ajax-loader.gif"><div id="divProcessText">'+text+'</div></div><div class="bg"></div></div>');
             }
             $('#resultLoading').css({
                 'width': '100%',
