@@ -192,6 +192,8 @@ Route::post('UpdateShippingAddress', [HomeAuthController::class, 'UpdateShipping
 Route::post('SetAddressDefault', [HomeAuthController::class, 'SetAddressDefault'])->name('SetAddressDefault');
 Route::post('DeleteShippingAddress', [HomeAuthController::class, 'DeleteShippingAddress'])->name('DeleteShippingAddress');
 Route::post('getNotifications', [HomeAuthController::class, 'getNotifications'])->name('getNotifications');
+Route::post('getNotificationsCount', [HomeAuthController::class, 'getNotificationsCount'])->name('getNotificationsCount');
+Route::post('notificationsRead', [HomeAuthController::class, 'NotificationRead'])->name('notificationsRead');
 Route::get('productShortDescription/{PID}', [HomeController::class, 'productShortDescription'])->name('productShortDescription');
 Route::get('productDescription/{PID}', [HomeController::class, 'productDescription'])->name('productDescription');
 

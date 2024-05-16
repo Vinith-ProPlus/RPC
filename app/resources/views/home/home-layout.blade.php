@@ -365,8 +365,8 @@
                             <button type="button" class="btn btn-default bg-white" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <i class="icon-mail" style="font-size: 2.8rem;"></i>
                             </button>
-                            <span class="unread-badge"></span>
-                            <ul class="dropdown-menu notifications" role="menu" aria-labelledby="dLabel">
+                            <span class="unread-badge" style="display: none;"></span>
+                            <ul class="dropdown-menu notifications" id="customerNotificationUl" role="menu" aria-labelledby="dLabel">
                                 <div class="notification-heading"><h4 class="menu-title">Notifications</h4></div>
                                 <li class="divider"></li>
                                 <div class="notifications-wrapper" id="customerNotification"></div>
@@ -741,7 +741,7 @@
 </div>
 <form id="logoutForm" action="{{ route('logout') }}" method="POST" style="display: none;">@csrf</form>
 <a id="scroll-top" href="#top" title="Top" role="button"><i class="icon-angle-up"></i></a>
-
+<input type="hidden" id="notificationPageNo" value="1">
 <script data-cfasync="false" src="../../cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
 <script src="{{url('/')}}/home/assets/js/jquery.min.js"></script>
 <script src="{{url('/')}}/assets/js/jquery-3.7.1.min.js?r={{date('YmdHis')}}"></script>
@@ -778,6 +778,9 @@
 
 <script>
     $(document).ready(function () {
+        $('.notifications').on('click', function(event) {
+            event.stopPropagation();
+        });
         const UpdateItemQtyCount = (count) => {
             const itemCountSpan = $('#divCartItemCount');
             const itemMblCountSpan = $('#divMblCartItemCount');
@@ -1010,37 +1013,48 @@
         if (selected_aid !== "") {
             $('#changeCustomerAddressUl li a[data-aid="' + selected_aid + '"]').click();
         }
-
-        let currentNotificationPage = 1;
-
-        function updateNotifications(data) {
-            var dropdownMenu = $('#customerNotification');
-            dropdownMenu.css('top', '160px !important');
-            dropdownMenu.html("");
-            for (var i = 0; i < data.length; i++) {
-                var notification = data[i];
-                // var notificationItem = $('<li><a href="#" class="top-text-block"><div class="top-text-heading">' + notification.Title + '</div><div class="top-text-light">' + notification.Message + '</div></a></li>');
-
-                var notificationItem = $('<a class="content" href="#"><div class="notification-item"><h4 class="item-title">' + notification.Title + '</h4>' +
-                    '<p class="item-info">' + notification.Message + '</p></div></a>');
-                dropdownMenu.append(notificationItem);
-            }
-            dropdownMenu.attr('style', 'top: 160px !important;');
+        function updateNotificationsDropdown(response) {
+            var dropdownMenu = $('#customerNotificationUl');
+            dropdownMenu.html(response);
         }
 
         function fetchNotifications(currentNotificationPage) {
             $.ajax({
                 type: "POST",
                 url: "{{ route('getNotifications') }}",
-                dataType: "json",
-                headers: { 'X-CSRF-Token' : '{{ csrf_token() }}' },
-                data: { page: currentNotificationPage },
+                dataType: "html",
+                headers: { 'X-CSRF-Token': '{{ csrf_token() }}' },
+                data: { PageNo: currentNotificationPage },
                 success: function(response) {
-                    if (response.status === true) {
-                        updateNotifications(response.data);
-                        currentNotificationPage = response.currentPage;
-                    } else {
-                        console.error('Failed to fetch notifications:', response.message);
+                    updateNotificationsDropdown(response);
+                },
+                error: function(xhr, status, error) {
+                    console.error('AJAX Error:', error);
+                }
+            });
+        }
+
+        fetchNotifications($('#notificationPageNo').val());
+
+        getNotificationCount();
+        function getNotificationCount() {
+            $.ajax({
+                type: "POST",
+                url: "{{ route('getNotificationsCount') }}",
+                dataType: "json",
+                headers: { 'X-CSRF-Token': '{{ csrf_token() }}' },
+                cache: false,
+                processData: false,
+                contentType: false,
+                success: function (response) {
+                    if(response.status === true){
+                        if(response.UnReadCount === 0){
+                            if($('.unread-badge').is(':visible')){
+                                $('.unread-badge').hide();
+                            }
+                        } else {
+                            $('.unread-badge').show();
+                        }
                     }
                 },
                 error: function(xhr, status, error) {
@@ -1049,21 +1063,17 @@
             });
         }
 
-        fetchNotifications(currentNotificationPage);
 
-        $('#paginationNext').on('click', function() {
-            fetchNotifications(currentNotificationPage + 1);
+        $('#notificationPageNo').on('change', function() {
+            fetchNotifications($('#notificationPageNo').val());
         });
 
-        $('#paginationPrev').on('click', function() {
-            fetchNotifications(currentNotificationPage - 1);
-        });
         $('#customerNotificationBtn').on('click', function () {
             $('#customerNotification').attr('style', 'top: 160px !important;');
         });
-        $('.btn-wrapper .btn').click(function () {
-            $('.unread-badge').hide();
-        });
+        // $('.btn-wrapper .btn').click(function () {
+        //     $('.unread-badge').hide();
+        // });
 
         $(document).on('click','#btnLogout',async(e)=>{
             e.preventDefault();

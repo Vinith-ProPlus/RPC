@@ -2087,12 +2087,35 @@ class HomeAuthController extends Controller{
         $pageNo = $req->PageNo ?? 1;
         $perPage = 10;
 
+        logger($this->ReferID);
         $Notifications = DB::table($this->CurrFyDB.'tbl_notifications')
             ->where('ReferID', $this->ReferID)
             ->orderBy('CreatedOn', 'desc')
             ->paginate($perPage, ['*'], 'page', $pageNo);
-
+        logger($Notifications);
         return view('home.customer.notification-template', compact('Notifications', 'pageNo'))->render();
+    }
+
+    public function getNotificationsCount(Request $req){
+        $NotificationsCount = DB::table($this->CurrFyDB.'tbl_notifications')->where('ReferID', $this->ReferID)
+            ->where('ReadStatus',0)->count();
+        return array('status' => true, 'UnReadCount' => $NotificationsCount);
+    }
+
+    public function NotificationRead(Request $req){
+        DB::beginTransaction();
+        try {
+            DB::Table($this->CurrFyDB.'tbl_notifications')
+                ->where('NID',$req->NID)->update(['ReadStatus' => 1,'ReadOn'=>date('Y-m-d H:i:s')]);
+            DB::commit();
+            $UnReadCount = DB::table($this->CurrFyDB.'tbl_notifications')->where('ReferID', $this->ReferID)
+                ->where('ReadStatus',0)->count();
+            return array('status'=>true, 'message' => "Notification Read Successfully!", 'UnReadCount' => $UnReadCount);
+        }catch(Exception $e) {
+            logger($e);
+            DB::rollback();
+            return array('status'=>false,'message' => "Notification Read Failed!");
+        }
     }
 
     public function customerProductView(Request $request, $ProductID)
