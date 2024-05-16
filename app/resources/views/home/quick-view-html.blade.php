@@ -109,10 +109,13 @@
                             </a>
                             <a href="#" class="btn view-cart d-none">View cart</a>
                         </div>
-                        <div class="col-6 text-right">
-                            <a href="{{ $product->ProductBrochure }}" class="btn btn-dark mr-2"
-                               download="RPC - {{$product->ProductName}} Product Brochure">Download Brochure</a>
-                        </div>
+                        @if($product->ProductBrochure)
+                            <div class="col-6 text-right">
+                                <a href="{{ $product->ProductBrochure }}" class="btn btn-dark" target="new">
+                                    View Brochure
+                                </a>
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>
