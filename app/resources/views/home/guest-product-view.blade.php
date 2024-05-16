@@ -715,7 +715,7 @@
                 width = screenWidth * 0.9;
                 height = screenHeight * 0.5;
             } else {
-                width = screenWidth * 0.39;
+                width = screenWidth * 0.49;
                 height = screenHeight * 0.56;
             }
             iframe.width = width;

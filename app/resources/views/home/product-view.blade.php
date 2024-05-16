@@ -233,12 +233,22 @@
             </div>
         </section>
     </div>
+    <!-- Modal -->
+    <div class="modal fade" id="videoModal" tabindex="-1" role="dialog" aria-labelledby="videoModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-body text-center" style="height: auto !important;">
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 @section('scripts')
     <script>
         $(document).ready(function () {
-
             $('.youtubeVideoURL').on('click', function () {
+                debugger
                 var videoId = $(this).data('video-id');
                 var iframe = document.createElement('iframe');
                 iframe.src = 'https://www.youtube.com/embed/' + videoId + '?autoplay=1';
@@ -250,7 +260,7 @@
                     width = screenWidth * 0.9;
                     height = screenHeight * 0.5;
                 } else {
-                    width = screenWidth * 0.39;
+                    width = screenWidth * 0.49;
                     height = screenHeight * 0.56;
                 }
                 iframe.width = width;
