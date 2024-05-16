@@ -248,7 +248,6 @@
     <script>
         $(document).ready(function () {
             $('.youtubeVideoURL').on('click', function () {
-                debugger
                 var videoId = $(this).data('video-id');
                 var iframe = document.createElement('iframe');
                 iframe.src = 'https://www.youtube.com/embed/' + videoId + '?autoplay=1';
