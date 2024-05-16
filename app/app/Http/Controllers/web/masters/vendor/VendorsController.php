@@ -894,34 +894,69 @@ class VendorsController extends Controller{
 						}
 					}
 				}
-				$VendorName = $req->VendorName;
-                $nameParts = explode(' ', $VendorName, 2);
-                $firstName = $nameParts[0] ?? '';
-                $lastName = $nameParts[1] ?? '';
+				$isVendorInUser = DB::Table('users')->where('ReferID',$VendorID)->exists();
+				if(!$isVendorInUser){
+					$UserID=DocNum::getDocNum(docTypes::Users->value,'',Helper::getCurrentFY());
 
-				$pwd1=Hash::make($req->Email);
-				$pwd2=Helper::EncryptDecrypt("encrypt",$req->Email);
-
-				$data=array(
-					"Name"=>$req->VendorName,
-					"FirstName"=>$firstName,
-					"LastName"=>$lastName,
-					"UserName"=>$req->Email,
-					"MobileNumber"=>$req->MobileNumber1,
-					"Password"=>$pwd1,
-					"Password1"=>$pwd2,
-					"EMail"=>$req->Email,
-					"Address"=>$req->Address,
-                    "PostalCodeID"=>$req->PostalCode,
-                    "CityID"=>$req->CityID,
-                    "TalukID"=>$req->TalukID,
-                    "DistrictID"=>$req->DistrictID,
-                    "StateID"=>$req->StateID,
-                    "CountryID"=>$req->CountryID,
-					"UpdatedOn"=>date("Y-m-d H:i:s"),
-					"UpdatedBy"=>$this->UserID
-				);
-				$status=DB::Table('users')->where('ReferID',$VendorID)->update($data);
+					$VendorName = $req->VendorName;
+					$nameParts = explode(' ', $VendorName, 2);
+					$firstName = $nameParts[0] ?? '';
+					$lastName = $nameParts[1] ?? '';
+					$pwd1=Hash::make($req->Email);
+					$data=array(
+						"UserID"=>$UserID,
+						"ReferID"=>$VendorID,
+						"Name"=>$req->VendorName,
+						"FirstName"=>$firstName,
+						"LastName"=>$lastName,
+						"UserName"=>$req->Email,
+						"MobileNumber"=>$req->MobileNumber1,
+						"Password"=>$pwd1,
+						"EMail"=>$req->Email,
+						"Address"=>$req->Address,
+						"PostalCodeID"=>$req->PostalCode,
+						"CityID"=>$req->CityID,
+						"TalukID"=>$req->TalukID,
+						"DistrictID"=>$req->DistrictID,
+						"StateID"=>$req->StateID,
+						"CountryID"=>$req->CountryID,
+						"isLogin"=>1,
+						"LoginType"=>"Vendor",
+						"CreatedOn"=>date("Y-m-d H:i:s"),
+						"CreatedBy"=>$this->UserID
+					);
+					$status=DB::Table('users')->insert($data);
+				}else{
+					$VendorName = $req->VendorName;
+					$nameParts = explode(' ', $VendorName, 2);
+					$firstName = $nameParts[0] ?? '';
+					$lastName = $nameParts[1] ?? '';
+	
+					$pwd1=Hash::make($req->Email);
+					$pwd2=Helper::EncryptDecrypt("encrypt",$req->Email);
+	
+					$data=array(
+						"Name"=>$req->VendorName,
+						"FirstName"=>$firstName,
+						"LastName"=>$lastName,
+						"UserName"=>$req->Email,
+						"MobileNumber"=>$req->MobileNumber1,
+						"Password"=>$pwd1,
+						"Password1"=>$pwd2,
+						"EMail"=>$req->Email,
+						"Address"=>$req->Address,
+						"PostalCodeID"=>$req->PostalCode,
+						"CityID"=>$req->CityID,
+						"TalukID"=>$req->TalukID,
+						"DistrictID"=>$req->DistrictID,
+						"StateID"=>$req->StateID,
+						"CountryID"=>$req->CountryID,
+						"UpdatedOn"=>date("Y-m-d H:i:s"),
+						"UpdatedBy"=>$this->UserID
+					);
+					$status=DB::Table('users')->where('ReferID',$VendorID)->update($data);
+					DocNum::updateDocNum(docTypes::Users->value);
+				}
 			}catch(Exception $e) {
 				$status=false;
 			}
