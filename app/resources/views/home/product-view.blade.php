@@ -116,20 +116,22 @@
                     </ul>
 
                     <div class="product-action">
-                        <a href="#"
-                           class="btn btn-dark mr-2 product-type-simple btn-shop {{ $cartProducts->contains('ProductID', $product->ProductID) ? 'added-in-cart' : 'wishlistCartBtn btnAddCart' }}"
-                           title="Add to Cart" id="{{ $product->ProductID }}">
-                            {{ $cartProducts->contains('ProductID', $product->ProductID) ? 'Added in Cart' : 'ADD TO CART' }}
-                        </a>
-                        <a href="#" class="btn view-cart d-none">View cart</a>
+                        <div class="row col-12">
+                            <div class="col-8">
+                                <a href="#"
+                                   class="btn btn-dark mr-2 product-type-simple btn-shop {{ $cartProducts->contains('ProductID', $product->ProductID) ? 'added-in-cart' : 'wishlistCartBtn btnAddCart' }}"
+                                   title="Add to Cart" id="{{ $product->ProductID }}">
+                                    {{ $cartProducts->contains('ProductID', $product->ProductID) ? 'Added in Cart' : 'ADD TO CART' }}
+                                </a>
+                                <a href="#" class="btn view-cart d-none">View cart</a>
+                            </div>
+                            <div class="col-4 text-right">
+                                <a href="{{ $product->ProductBrochure }}" class="btn btn-dark mr-2"
+                                   download="RPC - {{$product->ProductName}} Product Brochure">Download
+                                    Brochure</a>
+                            </div>
+                        </div>
                     </div>
-
-                    {{--                <hr class="divider mb-0 mt-0">--}}
-
-                    {{--                <div class="product-single-share mb-0">--}}
-                    {{--                    <a href="#" class="btn-icon-wish add-wishlist {{ $product->IsInWishlist ? 'added-wishlist' : '' }}" title="{{ $product->IsInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist' }}"><i--}}
-                    {{--                            class="icon-wishlist-2"></i><span>{{ $product->IsInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist' }}</span></a>--}}
-                    {{--                </div>--}}
                 </div>
             </div>
 
