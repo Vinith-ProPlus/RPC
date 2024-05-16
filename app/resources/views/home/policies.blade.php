@@ -714,8 +714,13 @@
         });
         $(document).on('click', '.btnRemoveCart', function () {
             $(this).closest('.product').remove();
+            let ProductID = $(this).attr('id');
+            var deletedCartElement = $('#' + ProductID);
+            if (deletedCartElement.hasClass('added-in-cart')) {
+                deletedCartElement.removeClass('added-in-cart').addClass('btnAddCart');
+            }
             let FormData = {
-                'ProductID' : $(this).attr('id'),
+                'ProductID' : ProductID,
             }
             $.ajax({
                 type:"post",
