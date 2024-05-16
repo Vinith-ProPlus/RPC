@@ -1,5 +1,20 @@
 @extends('home.home-layout')
 @section('content')
+    <style>
+        .play-icon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1;
+            cursor: pointer;
+        }
+
+        .play-icon svg {
+            fill: #ffffff;
+        }
+
+    </style>
     <link rel="stylesheet" href="{{url('/')}}/home/assets/css/single-product.css">
     <nav aria-label="breadcrumb" class="breadcrumb-nav">
         <div class="container">
@@ -19,6 +34,18 @@
                             <img loading="lazy" class="product-single-image" src="{{ $product->ProductImage }}"
                                  data-zoom-image="{{ $product->ProductImage }}"/>
                         </div>
+                        @if($product->VideoURL != "")
+                            <div class="product-item">
+                                @php
+                                    $urlParts = explode("/", parse_url($product->VideoURL, PHP_URL_PATH));
+                                    $videoId = end($urlParts);
+                                @endphp
+                                <img loading="lazy" class="product-single-image"
+                                     src="https://img.youtube.com/vi/{{ $videoId }}/hqdefault.jpg"
+                                     alt="{{ $product->ProductName }}"
+                                     data-zoom-image="https://img.youtube.com/vi/{{ $videoId }}/hqdefault.jpg"/>
+                            </div>
+                        @endif
                         @foreach($product->GalleryImages as $galleryImage)
                             <div class="product-item">
                                 <img loading="lazy" class="product-single-image" src="{{ $galleryImage }}"
@@ -31,6 +58,24 @@
                     <div class="owl-dot">
                         <img loading="lazy" src="{{ $product->ProductImage }}"/>
                     </div>
+                    @if($product->VideoURL != "")
+                        <div class="owl-dot">
+                            @php
+                                $urlParts = explode("/", parse_url($product->VideoURL, PHP_URL_PATH));
+                                $videoId = end($urlParts);
+                            @endphp
+                            <div class="play-icon youtubeVideoURL"
+                                 data-url="{{ $product->VideoURL }}"
+                                 data-toggle="modal" data-target="#videoModal"
+                                 data-video-id="{{ $videoId }}">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="48px" height="48px">
+                                    <path d="M8 5v14l11-7z"/>
+                                </svg>
+                            </div>
+                            <img loading="lazy" alt="{{ $product->ProductName }}"
+                                 src="https://img.youtube.com/vi/{{ $videoId }}/hqdefault.jpg"/>
+                        </div>
+                    @endif
                     @foreach($product->GalleryImages as $galleryImage)
                         <div class="owl-dot">
                             <img loading="lazy" src="{{ $galleryImage }}"/>
@@ -188,6 +233,43 @@
 @section('scripts')
     <script>
         $(document).ready(function () {
+
+            $('.youtubeVideoURL').on('click', function () {
+                var videoId = $(this).data('video-id');
+                var iframe = document.createElement('iframe');
+                iframe.src = 'https://www.youtube.com/embed/' + videoId + '?autoplay=1';
+                var closeButton = `<div class="row mb-2"><button type="button" class="close ml-1" data-dismiss="modal" aria-label="Close" style="position: absolute; top: 10px; right: 10px;"><span aria-hidden="true">×</span></button></div>`;
+                var screenWidth = $(window).width();
+                var screenHeight = $(window).height();
+                var width, height;
+                if (screenWidth < 768) {
+                    width = screenWidth * 0.9;
+                    height = screenHeight * 0.5;
+                } else {
+                    width = screenWidth * 0.39;
+                    height = screenHeight * 0.56;
+                }
+                iframe.width = width;
+                iframe.height = height;
+                iframe.frameborder = 0;
+                iframe.allow = 'accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture';
+                iframe.allowFullscreen = true;
+                $('#videoModal .modal-body').append(closeButton, iframe);
+                $('#videoModal').on('hidden.bs.modal', function () {
+                    $('#videoModal .modal-body').empty();
+                    var activeDot = $('.owl-dot.active');
+                    var nextItem = activeDot.closest('.owl-item').next('.owl-item');
+                    if (!nextItem.length) {
+                        nextItem = $('.owl-item').first();
+                    }
+                    activeDot.removeClass('active');
+                    var nextDot = nextItem.find('.owl-dot');
+                    if (!nextDot.length) {
+                        nextDot = $('.owl-dot').first();
+                    }
+                    nextDot.click();
+                });
+            });
 
             // function adjustIframeHeight() {
             //     var iframe = document.getElementById('productIFrame');

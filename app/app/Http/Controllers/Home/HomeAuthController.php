@@ -2116,14 +2116,20 @@ class HomeAuthController extends Controller{
             })
             ->where('P.ActiveStatus','Active')->where('P.DFlag',0)
             ->where('P.ProductID', $ProductID)
-            ->select('P.ProductID','P.ProductName','P.ShortDescription','P.Description', 'PC.PCID', 'PSC.PSCID', 'PC.PCName as CategoryName','PSC.PSCName as SubCategoryName',
-                DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(P.ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'),
+            ->select('P.ProductID','P.ProductName','P.ShortDescription','P.Description', 'PC.PCID', 'PSC.PSCID',
+                'PC.PCName as CategoryName','PSC.PSCName as SubCategoryName', 'P.ProductImage', 'P.ProductBrochure', 'P.VideoURL',
                 DB::raw('IF(W.product_id IS NOT NULL, true, false) AS IsInWishlist'))
             ->first();
 
+        $product->ProductImage = (new Helper)->fileCheckAndUrl($product->ProductImage, 'assets/images/no-image-b.png');
+        $product->ProductBrochure = (new Helper)->fileCheckAndUrl($product->ProductBrochure, '');
+
         $product->GalleryImages = DB::table('tbl_products_gallery')
             ->where('ProductID', $ProductID)
-            ->pluck(DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(gImage, ""), "assets/images/no-image-b.png")) AS gImage'))
+            ->pluck('gImage')
+            ->map(function ($image) {
+                return (new Helper)->fileCheckAndUrl($image, 'assets/images/no-image-b.png');
+            })
             ->toArray();
         $RelatedProducts = DB::table('tbl_vendors_product_mapping as VPM')
             ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'VPM.PCID')
