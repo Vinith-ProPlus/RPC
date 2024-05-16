@@ -27,8 +27,6 @@
     <link rel="stylesheet" type="text/css" href="{{url('/')}}/home/assets/vendor/fontawesome-free/css/all.min.css">
 
     {{-- <link rel="stylesheet" type="text/css" href="{{url('/')}}/assets/css/bootstrap.css?r={{date('YmdHis')}}"> --}}
-
-
     <link rel="stylesheet" href="{{url('/')}}/home/assets/css/product-style.css">
     <script>
         WebFontConfig = {
@@ -42,19 +40,34 @@
         })(document);
     </script>
 
+    <style>
+        .play-icon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1;
+            cursor: pointer;
+        }
+
+        .play-icon svg {
+            fill: #ffffff;
+        }
+
+    </style>
 </head>
 
 <body>
 <input type="hidden" style="display:none!important" id="txtRootUrl" value="{{url('/')}}/">
 <div class="page-wrapper">
     {{--    <div class="top-notice bg-dark text-white pt-3">--}}
-{{--        <div class="container text-center d-flex align-items-center justify-content-center flex-wrap">--}}
-{{--            <h4 class="text-uppercase font-weight-bold mr-2">Deal of the week</h4>--}}
-{{--            <h6>- 15% OFF in All Construction Materials, -</h6>--}}
+    {{--        <div class="container text-center d-flex align-items-center justify-content-center flex-wrap">--}}
+    {{--            <h4 class="text-uppercase font-weight-bold mr-2">Deal of the week</h4>--}}
+    {{--            <h6>- 15% OFF in All Construction Materials, -</h6>--}}
 
-{{--            <a href="{{ route('guest.products') }}" class="ml-2">Shop Now</a>--}}
-{{--        </div><!-- End .container -->--}}
-{{--    </div><!-- End .top-notice -->--}}
+    {{--            <a href="{{ route('guest.products') }}" class="ml-2">Shop Now</a>--}}
+    {{--        </div><!-- End .container -->--}}
+    {{--    </div><!-- End .top-notice -->--}}
 
     <header class="header">
         <div class="header-top">
@@ -64,13 +77,16 @@
                         <div class="align-middle" style="display: inline-block;">
                             <div class="info-box info-box-icon-left justify-content-start">
                                 <i class="icon-location" style="color:#ff6840;"></i>
-                                <div class="align-middle" style="display: inline-block; height: 20px; vertical-align: middle !important;">
-                                    <h6 class="d-flex font-weight-bold text-dark" style="line-height: 18px; position: relative;">
-                                            <span class="delivery-location-sm-hide">Delivery Location - &nbsp;</span> {{$PostalCode}}
-                                                <span id="btnClearPincode" class="px-3">
+                                <div class="align-middle"
+                                     style="display: inline-block; height: 20px; vertical-align: middle !important;">
+                                    <h6 class="d-flex font-weight-bold text-dark"
+                                        style="line-height: 18px; position: relative;">
+                                        <span
+                                            class="delivery-location-sm-hide">Delivery Location - &nbsp;</span> {{$PostalCode}}
+                                        <span id="btnClearPincode" class="px-3">
                                                     <i class="fas fa-times text-danger" style="font-size: 12px;"></i>
                                                 </span>
-                                        </h6>
+                                    </h6>
                                 </div>
                             </div>
                         </div>
@@ -103,93 +119,103 @@
                     <span class="separator d-none d-md-block mr-0 ml-4"></span>
 
                     <div class="social-icons">
-                        <a href="{{$Company['facebook']}}" class="social-icon social-facebook icon-facebook" target="_blank" title="facebook"></a>
-                        <a href="{{$Company['instagram']}}" class="social-icon social-instagram icon-instagram" target="_blank" title="instagram"></a>
-                        <a href="{{$Company['youtube']}}" class="social-icon social-youtube fab fa-youtube" target="_blank" title="YouTube"></a>
+                        <a href="{{$Company['facebook']}}" class="social-icon social-facebook icon-facebook"
+                           target="_blank" title="facebook"></a>
+                        <a href="{{$Company['instagram']}}" class="social-icon social-instagram icon-instagram"
+                           target="_blank" title="instagram"></a>
+                        <a href="{{$Company['youtube']}}" class="social-icon social-youtube fab fa-youtube"
+                           target="_blank" title="YouTube"></a>
                     </div><!-- End .social-icons -->
                 </div><!-- End .header-right -->
             </div><!-- End .container -->
         </div><!-- End .header-top -->
 
-         <div class="header-middle sticky-header" data-sticky-options="{'mobile': true}">
-                <div class="container">
-                    <div class="header-left col-lg-2 w-auto pl-0">
-                        <a href="{{url('/')}}" class="logo">
-							<img loading="lazy" src="{{url('/')}}/{{$Company['Logo']}}" width="50" height="50" alt="{{$Company['CompanyName']}}">
-                        </a>
-						<span class="ml-3 font-weight-bold">{{$Company['CompanyName']}}</span>
-                    </div><!-- End .header-left -->
+        <div class="header-middle sticky-header" data-sticky-options="{'mobile': true}">
+            <div class="container">
+                <div class="header-left col-lg-2 w-auto pl-0">
+                    <a href="{{url('/')}}" class="logo">
+                        <img loading="lazy" src="{{url('/')}}/{{$Company['Logo']}}" width="50" height="50"
+                             alt="{{$Company['CompanyName']}}">
+                    </a>
+                    <span class="ml-3 font-weight-bold">{{$Company['CompanyName']}}</span>
+                </div><!-- End .header-left -->
 
-                    <div class="header-right w-lg-max">
-                        <div class="header-icon header-search header-search-inline header-search-category w-lg-max text-right mb-0">
-                            <a href="#" class="search-toggle-btn d-md-none d-lg-none" role="button"><i class="icon-search-3"></i></a>
-                            <div class="header-search-wrapper" id="webSearchDiv">
-                                <input class="form-control" placeholder="Search..." type="text" id="homeSearch" name="homeSearch">
-                                <div id="searchResults" class="search-results"></div>
-                                <button class="btn icon-magnifier p-0" title="search"></button>
-                            </div>
+                <div class="header-right w-lg-max">
+                    <div
+                        class="header-icon header-search header-search-inline header-search-category w-lg-max text-right mb-0">
+                        <a href="#" class="search-toggle-btn d-md-none d-lg-none" role="button"><i
+                                class="icon-search-3"></i></a>
+                        <div class="header-search-wrapper" id="webSearchDiv">
+                            <input class="form-control" placeholder="Search..." type="text" id="homeSearch"
+                                   name="homeSearch">
+                            <div id="searchResults" class="search-results"></div>
+                            <button class="btn icon-magnifier p-0" title="search"></button>
                         </div>
-
-                        <span class="separator d-none d-lg-block"></span>
-
-                        <div class="sicon-box mb-0 d-none d-lg-flex align-items-center pr-3 mr-1">
-                            <div class=" sicon-default">
-                                <i class="icon-phone-1"></i>
-                            </div>
-                            <div class="sicon-header">
-                                <h4 class="sicon-title ls-n-25">CALL US NOW</h4>
-                                <p>+91 {{$Company['Phone-Number']}}</p>
-                            </div>
-                        </div>
-
-                        <span class="separator d-none d-lg-block mr-4"></span>
-                        <a href="{{url('/')}}/social/auth/google" class="d-lg-block d-none" id="loginBtn">
-                            <div class="header-user">
-                                <div class="header-userinfo">
-                                    <span>Welcome</span>
-                                    <h4>Sign In / Register</h4>
-                                </div>
-                            </div>
-                        </a>
-                        <span class="separator d-block"></span>
-
-                        <div class="dropdown cart-dropdown">
-                            <a href="#" title="Cart" class="dropdown-toggle dropdown-arrow cart-toggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-display="static">
-                                <i class="icon-cart-thick"></i>
-							</a>
-
-                            <div class="cart-overlay"></div>
-
-                            <div class="dropdown-menu mobile-cart">
-                                <a href="#" title="Close (Esc)" class="btn-close">×</a>
-
-                                <div class="dropdownmenu-wrapper custom-scrollbar">
-                                    <div class="dropdown-cart-header">Shopping Cart</div>
-									<span>Your Cart is Empty!</span>
-                                    <div class="dropdown-cart-action">
-                                        <a href="{{ route('products.guest.productsList') }}" class="btn btn-dark btn-block">Add to Cart</a>
-                                    </div><!-- End .dropdown-cart-total -->
-                                </div><!-- End .dropdownmenu-wrapper -->
-                            </div><!-- End .dropdown-menu -->
-                        </div><!-- End .dropdown -->
-                    </div><!-- End .header-right -->
-                </div><!-- End .container -->
-            </div><!-- End .header-middle -->
-            <div class="container d-none" id="mbl-header-search-div">
-                <div class="row col-12">
-                    <div class="col-12">
-                        <div class="py-2" >
-                            <div class="input-group" style="width: 100% !important;">
-                                <input class="form-control" placeholder="Search..." type="text" id="mblHomeSearch" name="homeSearch">
-                                <div class="input-group-append">
-                                    <button class="btn icon-magnifier px-3" title="search"></button>
-                                </div>
-                            </div>
-                        </div>
-                        <div id="mblSearchResults" class="search-results"></div>
                     </div>
+
+                    <span class="separator d-none d-lg-block"></span>
+
+                    <div class="sicon-box mb-0 d-none d-lg-flex align-items-center pr-3 mr-1">
+                        <div class=" sicon-default">
+                            <i class="icon-phone-1"></i>
+                        </div>
+                        <div class="sicon-header">
+                            <h4 class="sicon-title ls-n-25">CALL US NOW</h4>
+                            <p>+91 {{$Company['Phone-Number']}}</p>
+                        </div>
+                    </div>
+
+                    <span class="separator d-none d-lg-block mr-4"></span>
+                    <a href="{{url('/')}}/social/auth/google" class="d-lg-block d-none" id="loginBtn">
+                        <div class="header-user">
+                            <div class="header-userinfo">
+                                <span>Welcome</span>
+                                <h4>Sign In / Register</h4>
+                            </div>
+                        </div>
+                    </a>
+                    <span class="separator d-block"></span>
+
+                    <div class="dropdown cart-dropdown">
+                        <a href="#" title="Cart" class="dropdown-toggle dropdown-arrow cart-toggle" role="button"
+                           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-display="static">
+                            <i class="icon-cart-thick"></i>
+                        </a>
+
+                        <div class="cart-overlay"></div>
+
+                        <div class="dropdown-menu mobile-cart">
+                            <a href="#" title="Close (Esc)" class="btn-close">×</a>
+
+                            <div class="dropdownmenu-wrapper custom-scrollbar">
+                                <div class="dropdown-cart-header">Shopping Cart</div>
+                                <span>Your Cart is Empty!</span>
+                                <div class="dropdown-cart-action">
+                                    <a href="{{ route('products.guest.productsList') }}" class="btn btn-dark btn-block">Add
+                                        to Cart</a>
+                                </div><!-- End .dropdown-cart-total -->
+                            </div><!-- End .dropdownmenu-wrapper -->
+                        </div><!-- End .dropdown-menu -->
+                    </div><!-- End .dropdown -->
+                </div><!-- End .header-right -->
+            </div><!-- End .container -->
+        </div><!-- End .header-middle -->
+        <div class="container d-none" id="mbl-header-search-div">
+            <div class="row col-12">
+                <div class="col-12">
+                    <div class="py-2">
+                        <div class="input-group" style="width: 100% !important;">
+                            <input class="form-control" placeholder="Search..." type="text" id="mblHomeSearch"
+                                   name="homeSearch">
+                            <div class="input-group-append">
+                                <button class="btn icon-magnifier px-3" title="search"></button>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="mblSearchResults" class="search-results"></div>
                 </div>
             </div>
+        </div>
 
         <div class="header-bottom sticky-header d-none d-lg-flex" data-sticky-options="{'mobile': false}">
             <div class="container">
@@ -203,7 +229,8 @@
                                 @foreach ($PCategories->take(5) as $row)
                                     <a href="{{ route('products.guest.subCategoryList', [ 'CID' => $row->PCID ]) }}">{{$row->PCName}}</a>
                                 @endforeach
-                                <div style="text-align: center; display: flex; justify-content: center; align-items: center;">
+                                <div
+                                    style="text-align: center; display: flex; justify-content: center; align-items: center;">
                                     <a href="{{ route('products.guest.categoriesList') }}" class="text-center">More</a>
                                 </div>
                             </div>
@@ -227,7 +254,9 @@
                                         <div class="col-lg-4">
                                             <ul class="submenu">
                                                 @foreach ($chunk as $category)
-                                                    <li><a href="{{ route('products.guest.subCategoryList', ['CID' => $category->PCID]) }}">{{ $category->PCName }}</a></li>
+                                                    <li>
+                                                        <a href="{{ route('products.guest.subCategoryList', ['CID' => $category->PCID]) }}">{{ $category->PCName }}</a>
+                                                    </li>
                                                 @endforeach
                                             </ul>
                                         </div>
@@ -267,24 +296,58 @@
                             <div class="product-slider-container">
                                 <div class="product-single-carousel owl-carousel owl-theme show-nav-hover">
                                     <div class="product-item">
-                                        <img loading="lazy" class="product-single-image" src="{{ $product->ProductImage }}"
+                                        <img loading="lazy" class="product-single-image"
+                                             src="{{ $product->ProductImage }}"
                                              data-zoom-image="{{ $product->ProductImage }}"/>
                                     </div>
+                                    @if($product->VideoURL != "")
+                                        <div class="product-item">
+                                            @php
+                                                $urlParts = explode("/", parse_url($product->VideoURL, PHP_URL_PATH));
+                                                $videoId = end($urlParts);
+                                            @endphp
+                                            <img loading="lazy" class="product-single-image"
+                                                 src="https://img.youtube.com/vi/{{ $videoId }}/hqdefault.jpg"
+                                                 alt="{{ $product->ProductName }}"
+                                                 data-zoom-image="https://img.youtube.com/vi/{{ $videoId }}/hqdefault.jpg"/>
+                                        </div>
+                                    @endif
                                     @foreach($product->GalleryImages as $galleryImage)
                                         <div class="product-item">
                                             <img loading="lazy" class="product-single-image" src="{{ $galleryImage }}"
+                                                 alt="{{ $product->ProductName }}"
                                                  data-zoom-image="{{ $galleryImage }}"/>
                                         </div>
                                     @endforeach
                                 </div>
                             </div>
                             <div class="prod-thumbnail owl-dots">
-                                <div class="owl-dot">
-                                    <img loading="lazy" src="{{ $product->ProductImage }}"/>
+                                <div class="owl-dot video-thumbnail">
+                                    <img loading="lazy" alt="{{ $product->ProductName }}"
+                                         src="{{ $product->ProductImage }}"/>
                                 </div>
+                                @if($product->VideoURL != "")
+                                    <div class="owl-dot">
+                                        @php
+                                            $urlParts = explode("/", parse_url($product->VideoURL, PHP_URL_PATH));
+                                            $videoId = end($urlParts);
+                                        @endphp
+                                        <div class="play-icon youtubeVideoURL"
+                                             data-url="{{ $product->VideoURL }}"
+                                             data-toggle="modal" data-target="#videoModal"
+                                             data-video-id="{{ $videoId }}">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="48px" height="48px">
+                                                <path d="M8 5v14l11-7z"/>
+                                            </svg>
+                                        </div>
+                                        <img loading="lazy" alt="{{ $product->ProductName }}"
+                                             src="https://img.youtube.com/vi/{{ $videoId }}/hqdefault.jpg"/>
+                                    </div>
+                                @endif
                                 @foreach($product->GalleryImages as $galleryImage)
                                     <div class="owl-dot">
-                                        <img loading="lazy" src="{{ $galleryImage }}"/>
+                                        <img loading="lazy" alt="{{ $product->ProductName }}"
+                                             src="{{ $galleryImage }}"/>
                                     </div>
                                 @endforeach
                             </div>
@@ -309,23 +372,34 @@
                                     <li>
                                         CATEGORY:
                                         <strong>
-                                            <a href="{{ route('products.guest.subCategoryList', ['CID' => $product->PCID]) }}" class="product-category">{{ $product->CategoryName }}</a>
+                                            <a href="{{ route('products.guest.subCategoryList', ['CID' => $product->PCID]) }}"
+                                               class="product-category">{{ $product->CategoryName }}</a>
                                         </strong>
                                     </li>
                                     <li>
                                         SUB CATEGORY:
                                         <strong>
-                                            <a href="{{ route('products.guest.productsList', ['SCID' => $product->PSCID]) }}" class="product-category">{{ $product->SubCategoryName }}</a>
+                                            <a href="{{ route('products.guest.productsList', ['SCID' => $product->PSCID]) }}"
+                                               class="product-category">{{ $product->SubCategoryName }}</a>
                                         </strong>
                                     </li>
                                 </ul>
 
                                 <div class="product-action">
-                                    <a href="{{ url('/social/auth/google') }}"
-                                       class="btn btn-dark mr-2 product-type-simple btn-shop"
-                                       title="Add to Cart" id="{{ $product->ProductID }}">ADD TO CART
-                                    </a>
-                                    <a href="#" class="btn view-cart d-none">View cart</a>
+                                    <div class="row col-12">
+                                        <div class="col-8">
+                                            <a href="{{ url('/social/auth/google') }}"
+                                               class="btn btn-dark mr-2 product-type-simple btn-shop"
+                                               title="Add to Cart" id="{{ $product->ProductID }}">ADD TO CART
+                                            </a>
+                                            <a href="#" class="btn view-cart d-none">View cart</a>
+                                        </div>
+                                        <div class="col-4 text-right">
+                                            <a href="{{ $product->ProductBrochure }}" class="btn btn-dark mr-2"
+                                               download="RPC - {{$product->ProductName}} Product Brochure">Download
+                                                Brochure</a>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 {{--                <hr class="divider mb-0 mt-0">--}}
@@ -346,10 +420,13 @@
 
 
                 <div class="mt-lg-3 wpb_custom_3df3a217ba8228c65da804bd5a0f04b6">
-                    <div class="woocommerce-tabs woocommerce-tabs-kktu2rb5 resp-htabs" id="product-tab" style="display: block; width: 100%;">
+                    <div class="woocommerce-tabs woocommerce-tabs-kktu2rb5 resp-htabs" id="product-tab"
+                         style="display: block; width: 100%;">
                         <ul class="resp-tabs-list" role="tablist">
-                            <li class="description_tab resp-tab-item resp-tab-active" id="tab-title-description" role="tab" aria-controls="tab_item-0">
-                                Description				</li>
+                            <li class="description_tab resp-tab-item resp-tab-active" id="tab-title-description"
+                                role="tab" aria-controls="tab_item-0">
+                                Description
+                            </li>
                             {{--                    <li class="additional_information_tab resp-tab-item" id="tab-title-additional_information" role="tab" aria-controls="tab_item-1">--}}
                             {{--                        Additional information				</li>--}}
                             {{--                    <li class="reviews_tab resp-tab-item" id="tab-title-reviews" role="tab" aria-controls="tab_item-2">--}}
@@ -399,16 +476,19 @@
                                 <div class="product-default inner-quickview inner-icon product-div">
                                     <figure>
                                         <a href="{{ route('guest.product.view', $relatedProduct->ProductID) }}">
-                                            <img loading="lazy" src="{{ $relatedProduct->ProductImage }}" width="300" height="300" alt="product">
+                                            <img loading="lazy" src="{{ $relatedProduct->ProductImage }}" width="300"
+                                                 height="300" alt="product">
                                         </a>
                                         <div class="label-group">
                                             {{-- <span class="product-label label-sale">-13%</span> --}}
                                         </div>
                                         <div class="btn-icon-group">
-                                            <a href="#" class="btn-icon btn-add-cart product-type-simple btnAddCart" id="{{ $relatedProduct->ProductID }}"><i
+                                            <a href="#" class="btn-icon btn-add-cart product-type-simple btnAddCart"
+                                               id="{{ $relatedProduct->ProductID }}"><i
                                                     class="icon-shopping-cart"></i></a>
                                         </div>
-                                        <a href="{{ route('products.quickView', $relatedProduct->ProductID) }}" class="btn-quickview" title="Quick View">Quick View</a>
+                                        <a href="{{ route('products.quickView', $relatedProduct->ProductID) }}"
+                                           class="btn-quickview" title="Quick View">Quick View</a>
                                     </figure>
                                     <div class="product-details">
                                         <div class="category-wrap">
@@ -443,7 +523,8 @@
                 <div class="row">
                     <div class="col-lg-2 col-sm-6 pb-2 pb-sm-0 d-flex align-items-center">
                         <div class="widget m-b-3">
-                            <img loading="lazy" src="{{url('/')}}/{{$Company['Logo']}}" alt="{{$Company['CompanyName']}}" width="202" height="54" class="logo-footer">
+                            <img loading="lazy" src="{{url('/')}}/{{$Company['Logo']}}"
+                                 alt="{{$Company['CompanyName']}}" width="202" height="54" class="logo-footer">
 
                         </div><!-- End .widget -->
                     </div><!-- End .col-lg-3 -->
@@ -453,15 +534,21 @@
                             <h4 class="widget-title mb-1 pb-1">Get In Touch</h4>
                             <ul class="contact-info">
                                 <li>
-                                    <span class="contact-info-label">Address:</span>{{$Company['Address']}}<br>{{$Company['AddressData']->CityName}}, {{$Company['AddressData']->DistrictName}}, {{$Company['AddressData']->StateName}}, {{$Company['AddressData']->CountryName}} - {{$Company['AddressData']->PostalCode}}.
+                                    <span class="contact-info-label">Address:</span>{{$Company['Address']}}
+                                    <br>{{$Company['AddressData']->CityName}}, {{$Company['AddressData']->DistrictName}}
+                                    , {{$Company['AddressData']->StateName}}, {{$Company['AddressData']->CountryName}}
+                                    - {{$Company['AddressData']->PostalCode}}.
                                 </li>
                                 <li>
-                                    <span class="contact-info-label">Phone:</span><a href="#">+91 {{$Company['Phone-Number']}}@if($Company['Mobile-Number']), +91 {{$Company['Mobile-Number']}} @endif</a>
+                                    <span class="contact-info-label">Phone:</span><a
+                                        href="#">+91 {{$Company['Phone-Number']}}@if($Company['Mobile-Number'])
+                                            , +91 {{$Company['Mobile-Number']}}
+                                        @endif</a>
                                 </li>
                                 <li>
                                     <span class="contact-info-label">Email:</span> <a href="#"><span
                                             class="__cf_email__"
-                                            >{{$Company['E-Mail']}}</span></a>
+                                        >{{$Company['E-Mail']}}</span></a>
                                 </li>
                                 <li>
                                     <span class="contact-info-label">Working Days/Hours:</span>
@@ -470,23 +557,30 @@
                             </ul>
                             <div class="social-icons">
                                 @if(array_key_exists('facebook', $Company) && $Company['facebook'])
-                                    <a href="{{$Company['facebook']}}" class="social-icon social-facebook icon-facebook" target="_blank" title="Facebook"></a>
+                                    <a href="{{$Company['facebook']}}" class="social-icon social-facebook icon-facebook"
+                                       target="_blank" title="Facebook"></a>
                                 @endif
 
                                 @if(array_key_exists('instagram', $Company) && $Company['instagram'])
-                                    <a href="{{$Company['instagram']}}" class="social-icon social-instagram icon-instagram" target="_blank" title="Instagram"></a>
+                                    <a href="{{$Company['instagram']}}"
+                                       class="social-icon social-instagram icon-instagram" target="_blank"
+                                       title="Instagram"></a>
                                 @endif
 
                                 @if(array_key_exists('youtube', $Company) && $Company['youtube'])
-                                    <a href="{{$Company['youtube']}}" class="social-icon social-youtube fab fa-youtube" target="_blank" title="YouTube"></a>
+                                    <a href="{{$Company['youtube']}}" class="social-icon social-youtube fab fa-youtube"
+                                       target="_blank" title="YouTube"></a>
                                 @endif
 
                                 @if(array_key_exists('twitter', $Company) && $Company['twitter'])
-                                    <a href="{{$Company['twitter']}}" class="social-icon social-twitter fab fa-twitter" target="_blank" title="Twitter"></a>
+                                    <a href="{{$Company['twitter']}}" class="social-icon social-twitter fab fa-twitter"
+                                       target="_blank" title="Twitter"></a>
                                 @endif
 
                                 @if(array_key_exists('linkedin', $Company) && $Company['linkedin'])
-                                    <a href="{{$Company['linkedin']}}" class="social-icon social-linkedin fab fa-linkedin-in" target="_blank" title="Linkedin"></a>
+                                    <a href="{{$Company['linkedin']}}"
+                                       class="social-icon social-linkedin fab fa-linkedin-in" target="_blank"
+                                       title="Linkedin"></a>
                                 @endif
                             </div><!-- End .social-icons -->
                         </div><!-- End .widget -->
@@ -558,43 +652,92 @@
 <div class="mobile-menu-overlay"></div><!-- End .mobil-menu-overlay -->
 
 <div class="sticky-navbar">
-        <div class="sticky-info">
-            <a href="{{ route('homepage') }}">
-                <i class="icon-home"></i>Home
-            </a>
-        </div>
-        <div class="sticky-info">
-            <a href="{{ route('products.guest.categoriesList') }}" class="">
-                <i class="icon-bars"></i>Categories
-            </a>
-        </div>
-        <div class="sticky-info">
-            <a href="{{url('/')}}/social/auth/google" class="">
-                <i class="icon-user-2"></i>Account
-            </a>
-        </div>
-        <div class="sticky-info">
-            <a href="{{ route('products.guest.productsList') }}" class="">
-                <i class="icon-category-saddle"></i>Products
-            </a>
-        </div>
-        <div class="sticky-info">
-            <a href="#" title="Cart" class="dropdown-toggle dropdown-arrow cart-toggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-display="static">
-                <i class="icon-shopping-cart position-relative"></i>Cart
-            </a>
-        </div>
+    <div class="sticky-info">
+        <a href="{{ route('homepage') }}">
+            <i class="icon-home"></i>Home
+        </a>
     </div>
+    <div class="sticky-info">
+        <a href="{{ route('products.guest.categoriesList') }}" class="">
+            <i class="icon-bars"></i>Categories
+        </a>
+    </div>
+    <div class="sticky-info">
+        <a href="{{url('/')}}/social/auth/google" class="">
+            <i class="icon-user-2"></i>Account
+        </a>
+    </div>
+    <div class="sticky-info">
+        <a href="{{ route('products.guest.productsList') }}" class="">
+            <i class="icon-category-saddle"></i>Products
+        </a>
+    </div>
+    <div class="sticky-info">
+        <a href="#" title="Cart" class="dropdown-toggle dropdown-arrow cart-toggle" role="button" data-toggle="dropdown"
+           aria-haspopup="true" aria-expanded="false" data-display="static">
+            <i class="icon-shopping-cart position-relative"></i>Cart
+        </a>
+    </div>
+</div>
 <a id="scroll-top" href="#top" title="Top" role="button"><i class="icon-angle-up"></i></a>
 
-<script src="{{url('/')}}/home/assets/js/jquery.min.js"></script>
-<script src="{{url('/')}}/home/assets/js/bootstrap.bundle.min.js"></script>
-<script src="{{url('/')}}/home/assets/js/optional/isotope.pkgd.min.js"></script>
-<script src="{{url('/')}}/home/assets/js/plugins.min.js"></script>
-<script src="{{url('/')}}/home/assets/js/jquery.appear.min.js"></script>
-<script src="{{url('/')}}/home/assets/js/jquery.plugin.min.js"></script>
-<script src="{{url('/')}}/home/assets/js/main.js"></script>
+<!-- Modal -->
+<div class="modal fade" id="videoModal" tabindex="-1" role="dialog" aria-labelledby="videoModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-body text-center" style="height: auto !important;">
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{{url('/home/assets/js/jquery.min.js')}}"></script>
+<script src="{{url('/home/assets/js/bootstrap.bundle.min.js')}}"></script>
+<script src="{{url('/home/assets/js/optional/isotope.pkgd.min.js')}}"></script>
+<script src="{{url('/home/assets/js/plugins.min.js')}}"></script>
+<script src="{{url('/home/assets/js/jquery.appear.min.js')}}"></script>
+<script src="{{url('/home/assets/js/jquery.plugin.min.js')}}"></script>
+<script src="{{url('/home/assets/js/main.js')}}"></script>
 <script>
     $(document).ready(function () {
+        $('.youtubeVideoURL').on('click', function () {
+            var videoId = $(this).data('video-id');
+            var iframe = document.createElement('iframe');
+            iframe.src = 'https://www.youtube.com/embed/' + videoId + '?autoplay=1';
+            var closeButton = `<div class="row mb-2"><button type="button" class="close ml-1" data-dismiss="modal" aria-label="Close" style="position: absolute; top: 10px; right: 10px;"><span aria-hidden="true">×</span></button></div>`;
+            var screenWidth = $(window).width();
+            var screenHeight = $(window).height();
+            var width, height;
+            if (screenWidth < 768) {
+                width = screenWidth * 0.9;
+                height = screenHeight * 0.5;
+            } else {
+                width = screenWidth * 0.39;
+                height = screenHeight * 0.56;
+            }
+            iframe.width = width;
+            iframe.height = height;
+            iframe.frameborder = 0;
+            iframe.allow = 'accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture';
+            iframe.allowFullscreen = true;
+            $('#videoModal .modal-body').append(closeButton, iframe);
+            $('#videoModal').on('hidden.bs.modal', function () {
+                $('#videoModal .modal-body').empty();
+                var activeDot = $('.owl-dot.active');
+                var nextItem = activeDot.closest('.owl-item').next('.owl-item');
+                if (!nextItem.length) {
+                    nextItem = $('.owl-item').first();
+                }
+                activeDot.removeClass('active');
+                var nextDot = nextItem.find('.owl-dot');
+                if (!nextDot.length) {
+                    nextDot = $('.owl-dot').first();
+                }
+                nextDot.click();
+            });
+        });
+
         $('.redirectLogin').on('click', function () {
             window.location.replace($('#loginBtn').attr('href'));
         });
@@ -605,7 +748,7 @@
             $.ajax({
                 url: "{{ route('guestHomeSearch') }}",
                 method: 'POST',
-                headers: { 'X-CSRF-Token': '{{ csrf_token() }}' },
+                headers: {'X-CSRF-Token': '{{ csrf_token() }}'},
                 data: formData,
                 processData: false,
                 contentType: false,
@@ -629,36 +772,36 @@
             performSearch('mblSearchResults', $(this).val());
         });
 
-        $('.search-toggle-btn').on('click', function(){
+        $('.search-toggle-btn').on('click', function () {
             var mblSearchDiv = $("#mbl-header-search-div")
-            if(mblSearchDiv.hasClass('d-none')){
+            if (mblSearchDiv.hasClass('d-none')) {
                 mblSearchDiv.removeClass('d-none');
             } else {
                 mblSearchDiv.addClass('d-none');
             }
         });
 
-        $(document).on('click', function(event) {
+        $(document).on('click', function (event) {
             if (!$(event.target).closest('.header-search-wrapper').length) {
                 $('#searchResults').hide();
             }
         });
 
-        $('#btnClearPincode').on('click', function(e){
-                e.preventDefault();
-                $.ajax({
-                    url: "{{ route('removePostalCodeInSession') }}",
-                    headers: { 'X-CSRF-Token' : '{{ csrf_token() }}' },
-                    processData: false,
-                    contentType: false,
-                    type: "POST",
-                    success: function(response) {
-                        if(response.status == true){
-                            window.location.reload();
-                        }
+        $('#btnClearPincode').on('click', function (e) {
+            e.preventDefault();
+            $.ajax({
+                url: "{{ route('removePostalCodeInSession') }}",
+                headers: {'X-CSRF-Token': '{{ csrf_token() }}'},
+                processData: false,
+                contentType: false,
+                type: "POST",
+                success: function (response) {
+                    if (response.status === true) {
+                        window.location.reload();
                     }
-                });
+                }
             });
+        });
     });
 </script>
 </body>

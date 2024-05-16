@@ -252,7 +252,7 @@ class helper{
 		}
 		return $VendorDB.'.';
 	}
-	
+
 	public static function getStockTable($VendorID) {
 		$StockDB = self::getStockDB();
 
@@ -279,7 +279,7 @@ class helper{
 			`Qty` DOUBLE,
 			`CreatedBy` VARCHAR(50) COLLATE utf8mb4_general_ci NULL,
 			`CreatedOn` TIMESTAMP NULL
-		)");		
+		)");
 
 		$VendorIDexists=DB::table($StockDB.'tbl_docnum')->where('DocType', $VendorID)->exists();
 		if(!$VendorIDexists){
@@ -1105,7 +1105,7 @@ class helper{
 		}
 		return $result;
 	}
-	
+
 	public static function saveEmailOtp($Email, $OTP, $LoginType, $UserName) {
 		$result = false;
 		DB::beginTransaction();
@@ -1123,7 +1123,7 @@ class helper{
 			DB::table(self::getCurrFYDB() . 'tbl_email_otps')->where('Email', $Email)->whereNot('OTP', $OTP)->update(['isOtpExpired' => 1]);
 			if ($status) {
 				$data = DB::table('tbl_company_settings')->select('KeyName', 'KeyValue')->get()->pluck('KeyValue', 'KeyName')->toArray();
-	
+
 				$data['CompanyEmail'] = $data['E-Mail'];
 				$data['email'] = $Email;
 				$data['OTP'] = $OTP;
@@ -1146,6 +1146,10 @@ class helper{
 		}
 		return $result;
 	}
-	
+
+    public function fileCheckAndUrl($filePath, $dummyFile)
+    {
+        return ($filePath != "") ? (file_exists($filePath) ? url($filePath) : url($dummyFile)) : false;
+    }
 
 }
