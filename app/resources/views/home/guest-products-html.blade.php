@@ -52,7 +52,7 @@
             <div class="col-6 col-sm-4 col-lg-3">
                 <div class="product-default inner-quickview inner-icon product-div">
                     <figure>
-                        <a href="#">
+                        <a href="{{ route('guest.product.view', $product->ProductID) }}">
                             <img loading="lazy" src="{{ $product->ProductImage }}" width="300" height="300" alt="{{ $product->ProductName }}">
                         </a>
                         <div class="label-group"></div>
@@ -66,14 +66,14 @@
                     <div class="product-details">
                         <div class="category-wrap">
                             <div class="category-list">
-                                <a href="#">{{ $product->SubCategoryName }}</a>
+                                <a href="{{ route('products.guest.productsList', ['SCID' => $product->PSCID]) }}">{{ $product->SubCategoryName }}</a>
                             </div>
 {{--                            <a href="#" class="guest-btn-icon-wish redirectLogin" title="wishlist">--}}
 {{--                                <i class="icon-heart"></i>--}}
 {{--                            </a>--}}
                         </div>
                         <h3 class="product-title">
-                            <a href="#">{{ $product->ProductName }}</a>
+                            <a href="{{ route('guest.product.view', $product->ProductID) }}">{{ $product->ProductName }}</a>
                         </h3>
                         <div class="ratings-container">
                             <div class="product-ratings">

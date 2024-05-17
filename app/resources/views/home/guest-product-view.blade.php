@@ -489,7 +489,7 @@
                                                id="{{ $relatedProduct->ProductID }}"><i
                                                     class="icon-shopping-cart"></i></a>
                                         </div>
-                                        <a href="{{ route('products.quickView', $relatedProduct->ProductID) }}"
+                                        <a href="{{ route('guest.products.quickView', $relatedProduct->ProductID) }}"
                                            class="btn-quickview" title="Quick View">Quick View</a>
                                     </figure>
                                     <div class="product-details">
