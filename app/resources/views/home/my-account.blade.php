@@ -2004,7 +2004,7 @@
                 var basepath=$('#txtRootUrl').val();
                 if ($('body').find('#resultLoading').attr('id') != 'resultLoading') {
                     if(text==""){text="Processing";}
-                    $('body').append('<div id="resultLoading" style="display:none"><div style="font-weight: 700;"><img src="' + basepath + '/assets/images/ajax-loader.gif"><div id="divProcessText">'+text+'</div></div><div class="bg"></div></div>');
+                    $('body').append('<div id="resultLoading" style="display:none"><div style="font-weight: 700;"><img loading="lazy" src="' + basepath + '/assets/images/ajax-loader.gif"><div id="divProcessText">'+text+'</div></div><div class="bg"></div></div>');
                 }
                 $('#resultLoading').css({
                     'width': '100%',

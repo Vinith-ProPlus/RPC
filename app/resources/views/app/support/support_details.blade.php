@@ -53,7 +53,7 @@
                                             $SupportDetails[$i]->ProfileImage="assets/images/male-icon.png";
                                         }
                                     ?>
-                                    <img src="{{url('/')}}/{{$SupportDetails[$i]->ProfileImage}}">
+                                    <img loading="lazy" src="{{url('/')}}/{{$SupportDetails[$i]->ProfileImage}}">
                                 </div>
                                 <h4 class="card-title">{{$SupportDetails[$i]->Name}} <br> <span>Posted on : {{date('d/m/Y',strtotime($SupportDetails[$i]->CreatedOn))}} at {{date('h:iA',strtotime($SupportDetails[$i]->CreatedOn))}}</span></h4>
                                 <a class="heading-elements-toggle"><i class="fa fa-ellipsis font-medium-3"></i></a>
@@ -74,12 +74,12 @@
                                                     @for($j=0;$j<count($SupportDetails[$i]->Attachments);$j++)
                                                         @if($SupportDetails[$i]->Attachments[$j]->UploadUrl!="")
                                                             <div class="col-sm-2">
-                                                                <?php 
+                                                                <?php
                                                                     if(file_exists($SupportDetails[$i]->Attachments[$j]->UploadUrl)){
                                                                         $ext = pathinfo($SupportDetails[$i]->Attachments[$j]->UploadUrl, PATHINFO_EXTENSION);
                                                                         $ext=strtolower($ext);
                                                                         if(in_array($ext,array('jpeg','jpg','png','gif','webp','bmp'))){
-                                                                            echo '<a target="_blank" href="'.url("/")."/".$SupportDetails[$i]->Attachments[$j]->UploadUrl.'" data-fancybox="Image-1" data-caption="'.$SupportDetails[$i]->Attachments[$j]->UploadFileName.'"><img class="b-r-5"  src="'.url("/")."/".$SupportDetails[$i]->Attachments[$j]->UploadUrl.'"></a>';
+                                                                            echo '<a target="_blank" href="'.url("/")."/".$SupportDetails[$i]->Attachments[$j]->UploadUrl.'" data-fancybox="Image-1" data-caption="'.$SupportDetails[$i]->Attachments[$j]->UploadFileName.'"><img loading="lazy" class="b-r-5"  src="'.url("/")."/".$SupportDetails[$i]->Attachments[$j]->UploadUrl.'"></a>';
                                                                         }elseif($ext=="mp4"){
                                                                             echo '<a target="_blank" href="'.url("/")."/".$SupportDetails[$i]->Attachments[$j]->UploadUrl.'" data-fancybox="Videos" data-caption="'.$SupportDetails[$i]->Attachments[$j]->UploadFileName.'"><video class="b-r-5"  style="cursor:pointer" width="100%"><source src="'.url("/")."/".$SupportDetails[$i]->Attachments[$j]->UploadUrl.'" ></video></a>';
                                                                         }else{
@@ -105,7 +105,7 @@
                 <div class="col-12">
                     <div class="card">
                         <div class="card-header">
-                            <div class="img1"><img src="{{url('/')}}/{{$UInfo->ProfileImage}}"></div>
+                            <div class="img1"><img loading="lazy" src="{{url('/')}}/{{$UInfo->ProfileImage}}"></div>
                             <h4 class="card-title">{{$UInfo->Name}}</h4>
                             <a class="heading-elements-toggle"><i class="fa fa-ellipsis font-medium-3"></i></a>
                             <div class="heading-elements">

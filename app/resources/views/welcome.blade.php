@@ -48,7 +48,7 @@
 					<div class="main-header-left">
 						<div class="logo-wrapper">
 							<a href="index.html">
-								<img src="{{url('/')}}/assets/images/logo/logo.png" alt="">
+								<img loading="lazy" src="{{url('/')}}/assets/images/logo/logo.png" alt="">
 							</a>
 						</div>
 					</div>
@@ -108,7 +108,7 @@
 								<ul class="chat-dropdown onhover-show-div p-t-20 p-b-20">
 									<li>
 										<div class="d-flex align-items-start">
-											<img class="img-fluid rounded-circle me-3" src="{{url('/')}}/assets/images/user/2.jpg" alt="">
+											<img loading="lazy" class="img-fluid rounded-circle me-3" src="{{url('/')}}/assets/images/user/2.jpg" alt="">
 											<div class="status-circle online"></div>
 											<div class="flex-grow-1">
 												<span class="f-w-600">Erica Hughes</span>
@@ -119,7 +119,7 @@
 									</li>
 									<li>
 										<div class="d-flex align-items-start">
-											<img class="img-fluid rounded-circle me-3" src="{{url('/')}}/assets/images/user/1.jpg" alt="">
+											<img loading="lazy" class="img-fluid rounded-circle me-3" src="{{url('/')}}/assets/images/user/1.jpg" alt="">
 											<div class="status-circle away"></div>
 											<div class="flex-grow-1">
 												<span class="f-w-600">Kori Thomas</span>
@@ -130,7 +130,7 @@
 									</li>
 									<li>
 										<div class="d-flex align-items-start">
-											<img class="img-fluid rounded-circle me-3" src="{{url('/')}}/assets/images/user/4.jpg" alt="">
+											<img loading="lazy" class="img-fluid rounded-circle me-3" src="{{url('/')}}/assets/images/user/4.jpg" alt="">
 											<div class="status-circle offline"></div>
 											<div class="flex-grow-1">
 												<span class="f-w-600">Ain Chavez</span>
@@ -152,7 +152,7 @@
 							</li>
 							<li class="onhover-dropdown px-0">
 								<span class="d-flex user-header">
-									<img class="me-2 rounded-circle img-35" src="{{url('/')}}/assets/images/dashboard/user.png" alt="">
+									<img loading="lazy" class="me-2 rounded-circle img-35" src="{{url('/')}}/assets/images/dashboard/user.png" alt="">
 									<span class="flex-grow-1">
 										<span class="f-12 f-w-600">Elana Saint</span>
 										<span class="d-block">Admin</span>

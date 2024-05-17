@@ -1,3 +1,8 @@
+<style>
+    .notification-item.read {
+        background: #cccccc30;
+    }
+</style>
 <div class="notification-heading">
     <h4 class="menu-title">Notifications</h4>
 </div>
@@ -5,7 +10,7 @@
 <div class="notifications-wrapper" id="customerNotification" style="top: 160px !important;">
     @forelse($Notifications as $notification)
         <a class="content" href="#">
-            <div class="notification-item">
+            <div class="notification-item {{ $notification->ReadStatus ? 'read' : 'notificationMarkRead' }}" data-nid="{{ $notification->NID }}">
                 <h4 class="item-title">{{ $notification->Title }}</h4>
                 <p class="item-info">{{ $notification->Message }}</p>
             </div>
@@ -39,15 +44,46 @@
         $('.notificationNext').on('click', function (e) {
             e.preventDefault();
             NotificationPageNo++;
-            $('#notificationPageNo').attr('data-value', NotificationPageNo).trigger('change');
+            $('#notificationPageNo').val(NotificationPageNo).trigger('change');
         });
 
         $('.notificationPrev').on('click', function (e) {
             e.preventDefault();
             if (NotificationPageNo > 1) {
                 NotificationPageNo--;
-                $('#notificationPageNo').attr('data-value', NotificationPageNo).trigger('change');
+                $('#notificationPageNo').val(NotificationPageNo).trigger('change');
             }
+        });
+        $('.notificationMarkRead').on('click', function () {
+            var notificationThis = $(this);
+            var notificationID = notificationThis.data('nid');
+            let formData=new FormData();
+            formData.append('NID',notificationID);
+            $.ajax({
+                type: "POST",
+                url: "{{ route('notificationsRead') }}",
+                dataType: "json",
+                headers: { 'X-CSRF-Token': '{{ csrf_token() }}' },
+                data: formData,
+                cache: false,
+                processData: false,
+                contentType: false,
+                success: function (response) {
+                    if(response.status){
+                        notificationThis.removeClass('notificationMarkRead').addClass('read');
+                        if(response.UnReadCount === 0){
+                            if($('.unread-badge').is(':visible')){
+                                $('.unread-badge').hide();
+                            }
+                        } else {
+                            $('.unread-badge').show();
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('AJAX Error:', error);
+                }
+            });
         });
     });
 </script>

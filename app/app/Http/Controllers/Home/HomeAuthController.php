@@ -154,13 +154,18 @@ class HomeAuthController extends Controller{
             })
             ->where('P.ActiveStatus','Active')->where('P.DFlag',0)
             ->where('P.ProductID', $PID)
-            ->select('P.ProductID','P.ProductName','P.Description', 'PC.PCID', 'PSC.PSCID', 'PC.PCName as CategoryName','PSC.PSCName as SubCategoryName',
-                DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(P.ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'),
+            ->select('P.ProductID','P.ProductName','P.Description', 'PC.PCID', 'PSC.PSCID', 'PC.PCName as CategoryName',
+                'PSC.PSCName as SubCategoryName', 'P.ProductImage', 'P.ProductBrochure', 'P.VideoURL',
                 DB::raw('IF(W.product_id IS NOT NULL, true, false) AS IsInWishlist'))
             ->first();
+        $product->ProductImage = (new Helper)->fileCheckAndUrl($product->ProductImage, 'assets/images/no-image-b.png');
+        $product->ProductBrochure = (new Helper)->fileCheckAndUrl($product->ProductBrochure, '');
         $product->GalleryImages = DB::table('tbl_products_gallery')
             ->where('ProductID', $PID)
-            ->pluck(DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(gImage, ""), "assets/images/no-image-b.png")) AS gImage'))
+            ->pluck('gImage')
+            ->map(function ($image) {
+                return (new Helper)->fileCheckAndUrl($image, 'assets/images/no-image-b.png');
+            })
             ->toArray();
         return view('home.quick-view-html', compact('product', 'cartProducts'))->render();
     }
@@ -2082,12 +2087,35 @@ class HomeAuthController extends Controller{
         $pageNo = $req->PageNo ?? 1;
         $perPage = 10;
 
+        logger($this->ReferID);
         $Notifications = DB::table($this->CurrFyDB.'tbl_notifications')
             ->where('ReferID', $this->ReferID)
             ->orderBy('CreatedOn', 'desc')
             ->paginate($perPage, ['*'], 'page', $pageNo);
-
+        logger($Notifications);
         return view('home.customer.notification-template', compact('Notifications', 'pageNo'))->render();
+    }
+
+    public function getNotificationsCount(Request $req){
+        $NotificationsCount = DB::table($this->CurrFyDB.'tbl_notifications')->where('ReferID', $this->ReferID)
+            ->where('ReadStatus',0)->count();
+        return array('status' => true, 'UnReadCount' => $NotificationsCount);
+    }
+
+    public function NotificationRead(Request $req){
+        DB::beginTransaction();
+        try {
+            DB::Table($this->CurrFyDB.'tbl_notifications')
+                ->where('NID',$req->NID)->update(['ReadStatus' => 1,'ReadOn'=>date('Y-m-d H:i:s')]);
+            DB::commit();
+            $UnReadCount = DB::table($this->CurrFyDB.'tbl_notifications')->where('ReferID', $this->ReferID)
+                ->where('ReadStatus',0)->count();
+            return array('status'=>true, 'message' => "Notification Read Successfully!", 'UnReadCount' => $UnReadCount);
+        }catch(Exception $e) {
+            logger($e);
+            DB::rollback();
+            return array('status'=>false,'message' => "Notification Read Failed!");
+        }
     }
 
     public function customerProductView(Request $request, $ProductID)
@@ -2116,14 +2144,20 @@ class HomeAuthController extends Controller{
             })
             ->where('P.ActiveStatus','Active')->where('P.DFlag',0)
             ->where('P.ProductID', $ProductID)
-            ->select('P.ProductID','P.ProductName','P.ShortDescription','P.Description', 'PC.PCID', 'PSC.PSCID', 'PC.PCName as CategoryName','PSC.PSCName as SubCategoryName',
-                DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(P.ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'),
+            ->select('P.ProductID','P.ProductName','P.ShortDescription','P.Description', 'PC.PCID', 'PSC.PSCID',
+                'PC.PCName as CategoryName','PSC.PSCName as SubCategoryName', 'P.ProductImage', 'P.ProductBrochure', 'P.VideoURL',
                 DB::raw('IF(W.product_id IS NOT NULL, true, false) AS IsInWishlist'))
             ->first();
 
+        $product->ProductImage = (new Helper)->fileCheckAndUrl($product->ProductImage, 'assets/images/no-image-b.png');
+        $product->ProductBrochure = (new Helper)->fileCheckAndUrl($product->ProductBrochure, '');
+
         $product->GalleryImages = DB::table('tbl_products_gallery')
             ->where('ProductID', $ProductID)
-            ->pluck(DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(gImage, ""), "assets/images/no-image-b.png")) AS gImage'))
+            ->pluck('gImage')
+            ->map(function ($image) {
+                return (new Helper)->fileCheckAndUrl($image, 'assets/images/no-image-b.png');
+            })
             ->toArray();
         $RelatedProducts = DB::table('tbl_vendors_product_mapping as VPM')
             ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'VPM.PCID')

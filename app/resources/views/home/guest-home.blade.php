@@ -108,7 +108,7 @@
                 <div class="container">
                     <div class="header-left col-lg-2 w-auto pl-0">
                         <a href="{{url('/')}}" class="logo">
-							<img src="{{url('/')}}/{{$Company['Logo']}}" width="50" height="50" alt="{{$Company['CompanyName']}}">
+							<img loading="lazy" src="{{url('/')}}/{{$Company['Logo']}}" width="50" height="50" alt="{{$Company['CompanyName']}}">
                         </a>
 						<span class="ml-3 font-weight-bold">{{$Company['CompanyName']}}</span>
                     </div><!-- End .header-left -->
@@ -278,7 +278,7 @@
                                     <div class="circle">{{ $index + 1 }}</div>
                                     <div class="step">{{ $stepper->StepperTitle }}</div>
                                 </div>
-                                <img src="{{ $stepper->StepperImage }}" alt="Step {{ $index + 1 }}" height="176px" width="418px">
+                                <img loading="lazy" src="{{ $stepper->StepperImage }}" alt="Step {{ $index + 1 }}" height="176px" width="418px">
                             </div>
                         @endforeach
                     </div>
@@ -310,7 +310,7 @@
                         <div class="product-category">
                             <a href="{{ route('products.guest.subCategoryList', ['CID' => $category->PCID]) }}">
                                 <figure>
-                                    <img src="{{ $category->PCImage }}" alt="{{ $category->PCName }}" width="25" height="25">
+                                    <img loading="lazy" src="{{ $category->PCImage }}" alt="{{ $category->PCName }}" width="25" height="25">
                                 </figure>
                             </a>
                             <div class="category-content">
@@ -350,7 +350,7 @@
                             <div class="product-default inner-quickview inner-icon">
                                 <figure>
                                     <a href="{{ route('guest.product.view', $hotProduct->ProductID) }}">
-                                        <img src="{{ $hotProduct->ProductImage }}" width="300" height="300" alt="product">
+                                        <img loading="lazy" src="{{ $hotProduct->ProductImage }}" width="300" height="300" alt="product">
                                     </a>
                                     <div class="label-group">
                                         {{-- <span class="product-label label-sale">-13%</span> --}}
@@ -443,7 +443,7 @@
                             <div class="product-default inner-quickview inner-icon">
                                 <figure>
                                     <a href="{{ route('guest.product.view', $recentProduct->ProductID) }}">
-                                        <img src="{{ $recentProduct->ProductImage }}" width="300" height="300" alt="product">
+                                        <img loading="lazy" src="{{ $recentProduct->ProductImage }}" width="300" height="300" alt="product">
                                     </a>
                                     <div class="label-group">
                                         {{-- <span class="product-label label-sale">-13%</span> --}}
@@ -520,7 +520,7 @@
                     <div class="row">
                         <div class="col-lg-2 col-sm-6 pb-2 pb-sm-0 d-flex align-items-center">
                             <div class="widget m-b-3">
-									<img src="{{url('/')}}/{{$Company['Logo']}}" alt="{{$Company['CompanyName']}}" width="202" height="54" class="logo-footer">
+									<img loading="lazy" src="{{url('/')}}/{{$Company['Logo']}}" alt="{{$Company['CompanyName']}}" width="202" height="54" class="logo-footer">
 
                             </div><!-- End .widget -->
                         </div><!-- End .col-lg-3 -->
@@ -667,7 +667,7 @@
 			<div class="col-sm-7">
 				<div class="row justify-content-center mt-3">
 					<div class="col-6">
-						<img src="{{url('/')}}/{{$Company['Logo']}}" alt="Logo" class="logo-newsletter" width="50" height="50">
+						<img loading="lazy" src="{{url('/')}}/{{$Company['Logo']}}" alt="Logo" class="logo-newsletter" width="50" height="50">
 						<span class="ml-3 font-weight-bold text-dark">{{$Company['CompanyName']}}</span>
 					</div>
 				</div>
@@ -687,7 +687,7 @@
 				</div>
 			</div>
 			<div class="col-sm-5">
-				<img src="{{url('/')}}/home/assets/images/location-pop-up/MapAnime.gif" alt="">
+				<img loading="lazy" src="{{url('/')}}/home/assets/images/location-pop-up/MapAnime.gif" alt="">
 			</div>
 		</div>
         <button title="Close (Esc)" type="button" class="mfp-close">×</button>
@@ -697,10 +697,10 @@
 
             <div class="container">
                 <div class="row">
-                    <div class="col-lg-7">
+                    <div class="col-lg-7 col-md-7">
                         <div class="row justify-content-center mt-3">
                             <div class="col-md-6">
-                                <img src="{{url('/')}}/{{$Company['Logo']}}" alt="{{$Company['CompanyName']}}" class="logo-newsletter" width="50" height="50">
+                                <img loading="lazy" src="{{url('/')}}/{{$Company['Logo']}}" alt="{{$Company['CompanyName']}}" class="logo-newsletter" width="50" height="50">
                                 <span class="ml-3 font-weight-bold text-dark">{{$Company['CompanyName']}}</span>
                             </div>
                         </div>
@@ -730,8 +730,8 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-5">
-                        <img src="{{url('/')}}/home/assets/images/location-pop-up/MapAnime.gif" alt="">
+                    <div class="col-lg-5 col-md-5 text-center d-none d-md-block d-lg-block p-0">
+                        <img class="centered-image" loading="lazy" src="{{url('/')}}/home/assets/images/location-pop-up/MapAnime.gif" alt="">
                     </div>
                 </div>
             </div>

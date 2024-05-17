@@ -72,8 +72,8 @@
 				"iDisplayLength": 10,
 				"lengthMenu": [[10, 25, 50,100,250,500, -1], [10, 25, 50,100,250,500, "All"]],
 				buttons: [
-					'pageLength' 
-					@if($crud['excel']==1) ,{extend: 'excel',className:"{{$Theme['button-size']}}",footer: true,title: "{{$PageTitle}}","action": DataTableExportOption,exportOptions: {columns: "thead th:not(.noExport)"}} @endif 
+					'pageLength'
+					@if($crud['excel']==1) ,{extend: 'excel',className:"{{$Theme['button-size']}}",footer: true,title: "{{$PageTitle}}","action": DataTableExportOption,exportOptions: {columns: "thead th:not(.noExport)"}} @endif
 					@if($crud['copy']==1) ,{extend: 'copy',className:"{{$Theme['button-size']}}",footer: true,title: "{{$PageTitle}}","action": DataTableExportOption,exportOptions: {columns: "thead th:not(.noExport)"}} @endif
 					@if($crud['csv']==1) ,{extend: 'csv',className:"{{$Theme['button-size']}}",footer: true,title: "{{$PageTitle}}","action": DataTableExportOption,exportOptions: {columns: "thead th:not(.noExport)"}} @endif
 					@if($crud['print']==1) ,{extend: 'print',className:"{{$Theme['button-size']}}",footer: true,title:  "{{$PageTitle}}","action": DataTableExportOption,exportOptions: {columns: "thead th:not(.noExport)"}} @endif
@@ -107,7 +107,7 @@
                     let row = $('<div class="row my-3 justify-content-center">').html(`
 								<div class="row">
 									<div class="col-sm-12 text-center">
-										<img src="{{ url('/') }}/${response.Logo}" alt="Vendor Logo" class="img-fluid rounded" height="150" width="150">
+										<img loading="lazy" src="{{ url('/') }}/${response.Logo}" alt="Vendor Logo" class="img-fluid rounded" height="150" width="150">
 									</div>
 									<div class="row mt-20 justify-content-center">
 										<div class="col-sm-5">
@@ -145,7 +145,7 @@
 												''
 											}
 										</div>
-									</div>                               
+									</div>
 								</div>`);
 
                         modalContent.append(row);
@@ -154,7 +154,7 @@
 
 						response.Documents.forEach(function (document) {
 							let documentElement;
-							documentElement = `<a href="${document.documents}" target="_blank"><img src="${document.DefaultImage}" alt="${document.DisplayName}" class="img-fluid rounded" height="150" width="150"></a>`;
+							documentElement = `<a href="${document.documents}" target="_blank"><img loading="lazy" src="${document.DefaultImage}" alt="${document.DisplayName}" class="img-fluid rounded" height="150" width="150"></a>`;
 							documentsRow.append(`
 								<div class="col-sm-3 text-center">
 									<h6>${document.DisplayName}</h6>

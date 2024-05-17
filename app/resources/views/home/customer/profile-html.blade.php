@@ -32,7 +32,7 @@
                                 </div> --}}
                                 <div class="col-sm-4 d-flex justify-content-center">
                                     <div style="position: relative; display: inline-block;">
-                                        <img src="@if($isEdit){{$EditData->CustomerImage}} @elseif($UserData->ProfileImage){{$UserData->ProfileImage}}@endif" alt="" class="rounded-circle border border-secondary" height="200px" width="200px">
+                                        <img loading="lazy" src="@if($isEdit){{$EditData->CustomerImage}} @elseif($UserData->ProfileImage){{$UserData->ProfileImage}}@endif" alt="" class="rounded-circle border border-secondary" height="200px" width="200px">
                                         <input type="file" class="imageScrop d-none" data-aspect-ratio="1" data-remove="0" data-is-cover-image="1" id="txtCustomerImage">
                                         <button id="btnEditImage" class="btn btn-sm btn-warning rounded-circle">
                                             <i class="fas fa-pencil-alt"></i>

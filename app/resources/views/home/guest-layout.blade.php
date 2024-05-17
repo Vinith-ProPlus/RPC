@@ -141,7 +141,7 @@
                 <div class="header-left col-lg-2 w-auto pl-0">
 
                     <a href="{{url('/')}}" class="logo">
-                        <img src="{{url('/')}}/{{$Company['Logo']}}" width="50" height="50" alt="{{$Company['CompanyName']}}">
+                        <img loading="lazy" src="{{url('/')}}/{{$Company['Logo']}}" width="50" height="50" alt="{{$Company['CompanyName']}}">
                     </a>
                     <span class="ml-3 font-weight-bold">{{$Company['CompanyName']}}</span>
                 </div><!-- End .header-left -->
@@ -283,7 +283,7 @@
                 <div class="row">
                     <div class="col-lg-2 col-sm-6 pb-2 pb-sm-0 d-flex align-items-center">
                         <div class="widget m-b-3">
-                            <img src="{{url('/')}}/{{$Company['Logo']}}" alt="Logo" width="202" height="54" class="logo-footer">
+                            <img loading="lazy" src="{{url('/')}}/{{$Company['Logo']}}" alt="Logo" width="202" height="54" class="logo-footer">
 
                         </div><!-- End .widget -->
                     </div><!-- End .col-lg-3 -->
@@ -427,7 +427,7 @@
 {{--        <div class="col-sm-7">--}}
 {{--            <div class="row justify-content-center mt-3">--}}
 {{--                <div class="col-6">--}}
-{{--                    <img src="{{url('/')}}/{{$Company['Logo']}}" alt="Logo" class="logo-newsletter" width="50" height="50">--}}
+{{--                    <img loading="lazy" src="{{url('/')}}/{{$Company['Logo']}}" alt="Logo" class="logo-newsletter" width="50" height="50">--}}
 {{--                    <span class="ml-3 font-weight-bold text-dark">{{$Company['CompanyName']}}</span>--}}
 {{--                </div>--}}
 {{--            </div>--}}
@@ -459,7 +459,7 @@
 {{--            </div>--}}
 {{--        </div>--}}
 {{--        <div class="col-sm-5">--}}
-{{--            <img src="{{url('/')}}/home/assets/images/location-pop-up/MapAnime.gif" alt="">--}}
+{{--            <img loading="lazy" src="{{url('/')}}/home/assets/images/location-pop-up/MapAnime.gif" alt="">--}}
 {{--        </div>--}}
 {{--    </div>--}}
 {{--    <button title="Close (Esc)" type="button" class="mfp-close" id="modal-close-btn">×</button>--}}
@@ -529,7 +529,7 @@
                                             <span class="cart-product-info">
                                                 <span class="cart-product-qty">
                                                     <div class="input-group" style="width: 80%;">
-                                                        <input class="form-control txtUpdateQty" type="number" value="${item.Qty}" id="${item.ProductID}">
+                                                        <input class="form-control txtUpdateQty" type="number" min="1" value="${item.Qty}" id="${item.ProductID}">
                                                         <div class="input-group-append">
                                                             <span class="input-group-text">${item.UName} (${item.UName})</span>
                                                         </div>
@@ -540,7 +540,7 @@
 
                                         <figure class="product-image-container">
                                             <a href="#" class="product-image">
-                                                <img src="${item.ProductImage}" alt="product" width="80" height="80">
+                                                <img loading="lazy" src="${item.ProductImage}" alt="product" width="80" height="80">
                                             </a>
                                             <a href="#" class="btn-remove btnRemoveCart" title="Remove Product" id="${item.ProductID}"><span>×</span></a>
                                         </figure>
@@ -578,10 +578,10 @@
 
         $(document).on('input', '.txtUpdateQty', function () {
             let Qty = $(this).val();
-            if(Qty > 0){
+            if((Qty > 0) && Number.isInteger(parseFloat(Qty))){
                 let FormData = {
                     'ProductID' : $(this).attr('id'),
-                    'Qty' : Qty,
+                    'Qty' : parseInt(Qty),
                 }
                 $.ajax({
                     type:"post",
@@ -597,7 +597,11 @@
                         }
                     }
                 });
-            }else{
+            }
+        });
+        $(document).on('blur', '.txtUpdateQty', function () {
+            let Qty = $(this).val();
+            if((Qty < 0) || !Number.isInteger(parseFloat(Qty))){
                 $(this).val(1);
             }
         });

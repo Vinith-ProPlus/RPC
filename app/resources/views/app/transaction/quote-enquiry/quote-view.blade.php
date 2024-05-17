@@ -143,7 +143,7 @@
                                                                 @endphp
                                                             @endforeach
                                                         </td>
-                                                    </tr>                                        
+                                                    </tr>
                                                 @endforeach
                                             </tbody>
                                         </table>
@@ -206,8 +206,8 @@
                                                             <th class="text-center align-middle">
                                                                 {{ $quote->VendorName }} <br>
 
-                                                                @if($quote->Status == 'Requested') 
-                                                                    <button type="button" data-vendor-id="{{ $quote->VendorID }}" data-vendor-name="{{ $quote->VendorName }}" class="btn btn-outline-primary btn-xs btnVendorPrice"> Add Vendor Price</button>  
+                                                                @if($quote->Status == 'Requested')
+                                                                    <button type="button" data-vendor-id="{{ $quote->VendorID }}" data-vendor-name="{{ $quote->VendorName }}" class="btn btn-outline-primary btn-xs btnVendorPrice"> Add Vendor Price</button>
                                                                 @endif
 
                                                             </th>
@@ -256,7 +256,7 @@
                                                         <th class="text-right align-middle" colspan="3">Additional Cost ==></th>
                                                         @foreach ($VendorQuote as $quote)
                                                             @if($quote->Status !== 'Rejected' && $quote->AdditionalCost)
-                                                                <th class="text-right align-middle">    
+                                                                <th class="text-right align-middle">
                                                                     <div class="row d-flex align-items-center justify-content-center">
                                                                         <div class="col-9">
                                                                             <div class="input-group">
@@ -275,7 +275,7 @@
                                                         @endforeach
                                                     </tr>
                                                 </tfoot>
-                                            </table>                                            
+                                            </table>
                                         </div>
                                     </div>
                                 </div>
@@ -390,7 +390,7 @@
                             @if($crud['view']==true)
                                 <a href="{{url('/')}}/admin/transaction/quote-enquiry" class="btn {{$Theme['button-size']}} btn-outline-dark mr-10" id="btnCancel">Back</a>
                             @endif
-                            
+
                             @if($crud['add']==true && count($VendorQuote)==0 && count($FinalQuoteData) == 0)
                                 <button class="btn {{$Theme['button-size']}} btn-outline-success btnRequestQuote">Request Quote</button>
                             @elseif(count($VendorQuote)>0 && count($FinalQuoteData) == 0)
@@ -408,7 +408,7 @@
 @section('scripts')
 <script>
     $(document).ready(function(){
-        
+
         const camelCaseToWords=(text)=> {
             return text.replace(/([a-z])([A-Z])/g, '$1 $2');
         }
@@ -505,7 +505,7 @@
                                 },function(){
                                     window.location.replace("{{url('/')}}/admin/transaction/quote-enquiry");
                                 });
-                                
+
                             }else{
                                 toastr.error(response.message, "Failed", {
                                     positionClass: "toast-top-right",
@@ -604,7 +604,7 @@
                     let row = $('<div class="row my-3 justify-content-center">').html(
                             `<div class="row">
                                 <div class="col-12 text-center">
-                                    <img src="{{ url('/') }}/${response.Logo}" alt="Vendor Logo" class="img-fluid rounded" height="150" width="150">
+                                    <img loading="lazy" src="{{ url('/') }}/${response.Logo}" alt="Vendor Logo" class="img-fluid rounded" height="150" width="150">
                                 </div>
                                 <div class="row mt-20">
                                     <div class="col-7">
@@ -638,7 +638,7 @@
                                         <div class="my-2 fs-15">• Has outstanding of <b>INR ${Number(response.Outstanding).toFixed({{$Settings['price-decimals']}})}.</b></div>
                                         <div class="my-2 fs-15">• Has an Overall Rating of <b>${response.OverAll}.</b></div>
                                     </div>
-                                </div>                                
+                                </div>
                             </div>`);
                         modalContent.append(row);
 
@@ -819,7 +819,7 @@
                                 },function(){
                                     window.location.replace("{{url('/')}}/admin/transaction/quote-enquiry/view/{{$EnqData->EnqID}}");
                                 });
-                                
+
                             }else{
                                 toastr.error(response.message, "Failed", {
                                     positionClass: "toast-top-right",
@@ -874,7 +874,7 @@
                             },function(){
                                 window.location.replace("{{url('/')}}/admin/transaction/quote-enquiry/view/{{$EnqData->EnqID}}");
                             });
-                            
+
                         }else{
                             toastr.error(response.message, "Failed", {positionClass: "toast-top-right",containerId: "toast-top-right",showMethod: "slideDown",hideMethod: "slideUp",progressBar: !0})
                         }
@@ -922,7 +922,7 @@
                             },function(){
                                 window.location.replace("{{url('/')}}/admin/transaction/quote-enquiry/view/{{$EnqData->EnqID}}");
                             });
-                            
+
                         }else{
                             toastr.error(response.message, "Failed", {positionClass: "toast-top-right",containerId: "toast-top-right",showMethod: "slideDown",hideMethod: "slideUp",progressBar: !0})
                         }
@@ -993,7 +993,7 @@
                                         window.location.replace("{{url('/')}}/admin/transaction/quote-enquiry");
                                     @endif
                                 });
-                                
+
                             }else{
                                 toastr.error(response.message, "Failed", {
                                     positionClass: "toast-top-right",
@@ -1008,7 +1008,7 @@
                                         var key=KeyName;
                                         if(key=="TaxName"){$('#txtTaxName-err').html(KeyValue);}
                                         if(key=="Percentage"){$('#txtPercentage-err').html(KeyValue);}
-                          
+
                                     });
                                 }
                             }

@@ -9,7 +9,7 @@
     input,select,textarea{
         border-radius:0px !important;
     }
-    .card{    
+    .card{
         border-radius:0px !important;
         position: relative;
         border: 1px solid #c3c4c7;
@@ -53,7 +53,7 @@
         margin: 0;
         line-height: 1.4;
     }
-    .woo-commerce-style > ul::after{    
+    .woo-commerce-style > ul::after{
         content: "";
         display: block;
         width: 100%;
@@ -76,13 +76,13 @@
         box-sizing: border-box;
     }
 
-    .woo-commerce-style ul.woo-commerce-style li{    
+    .woo-commerce-style ul.woo-commerce-style li{
         margin: 0;
         padding: 0;
         display: block;
         position: relative;
     }
-    .woo-commerce-style ul.woo-commerce-style li a{    
+    .woo-commerce-style ul.woo-commerce-style li a{
         margin: 0;
         padding: 10px;
         display: block;
@@ -120,7 +120,7 @@
     .woo-commerce-style ul.woo-commerce-style li.variation_options a:before{
         content: "\eab8";
     }
-    .woo-commerce-style ul.woo-commerce-style  li.active a{ 
+    .woo-commerce-style ul.woo-commerce-style  li.active a{
         color: #555;
         position: relative;
         background-color: #eee;
@@ -221,7 +221,7 @@
     .product_images_container ul li:hover .actions li a{
         background: #999;
         /* width: 40px; */
-        /* height: 40px; */    
+        /* height: 40px; */
         font-size: 11px;
         padding: 1px 3px 3px;
         border-radius: 3px;
@@ -261,7 +261,7 @@
         max-height: 100px !important;
         overflow-y:auto;
     }
-    
+
     .accordion-item .accordion-header .options{
         position: absolute;
         right: 60px;
@@ -377,7 +377,7 @@
                                         <option value="Variable"  @if($isEdit) @if($data->ProductType=="Variable") selected @endif @endif>Variable Product</option>
                                     </select>
                                 </div>
-                            </div> 
+                            </div>
                         </div>
                         <?php
                             $isVariationTab="display:none;";
@@ -396,7 +396,7 @@
                                 <li class="variation_options "  style="{{$isVariationTab}}"><a href="#variations-tab"><span>Variations</span></a></li>
                             </ul>
                             <div class="tab-contents" id="general-tab">
-                                
+
                                 <div class="row mt-20">
                                     <div class="col-4 col-lg-2 d-flex align-items-center"><div >Product Code</div></div>
                                     <div class="col-6 col-lg-8">
@@ -607,9 +607,9 @@
                 <div class="col-12">
                     <div class="card">
                         <div class="card-header">
-                            <h3>Product Gallery</h3> 
+                            <h3>Product Gallery</h3>
                             <span class="options">
-                                <span class="add" id="btnAddProductGallery"><i class="fa fa-plus-circle"></i></span> 
+                                <span class="add" id="btnAddProductGallery"><i class="fa fa-plus-circle"></i></span>
                             </span>
                             <input type="file" name="" id="txtProductGallery" class="d-none" multiple accept="<?php if(count($FileTypes['category']['Images'])>0) {echo ".".implode(",.",$FileTypes['category']['Images']);} ?>">
                         </div>
@@ -621,7 +621,7 @@
                                     <div>Product gallery images not found.</div>
                                 </div>
                             </div>
-                            
+
                         </div>
                     </div>
                 </div>
@@ -685,7 +685,7 @@
             let id = $(this).attr('id');
             let pType=$(this).attr('data-product-type')
             let uuid=$(this).attr('data-uuid')
-            $('#'+id).attr('data-remove',0); 
+            $('#'+id).attr('data-remove',0);
             if($('#'+id).attr('data-aspect-ratio')!=undefined){
                 options.aspectRatio=$('#'+id).attr('data-aspect-ratio')
             }
@@ -703,7 +703,7 @@
                     if (uploadedImageURL) {
                         URL.revokeObjectURL(uploadedImageURL);
                     }
-                    uploadedImageURL = URL.createObjectURL(file); 
+                    uploadedImageURL = URL.createObjectURL(file);
                     $image.cropper('destroy').attr('src', uploadedImageURL).cropper(options);
                 } else {
                     window.alert('Please choose an image file.');
@@ -823,7 +823,7 @@
             $('#inputImage').trigger('click')
         });
         $("#btnCropApply").on('click', function() {
-            
+
         });
         $(document).on('click','#btnCropModelClose',function(){
             let  id = $image.attr('data-id');
@@ -871,13 +871,13 @@
                 getProductDetails();
             @endif
         }
-        
+
         const showTabs=async()=>{
             $('.woo-commerce-style .tab-contents').hide('slow');
             let activeTabs=$('.woo-commerce-style ul.woo-commerce-style li.active a').attr('href');
             $('.woo-commerce-style '+activeTabs).show('slow')
             if(activeTabs=="#attributes-tab"){
-                
+
                 let cid=$('#lstCategory').val();
                 let scid=$('#lstSubCategory').val();
                 if(cid!="" && scid!=""){
@@ -925,7 +925,7 @@
                         uploadPath:item.gImage,
                         fileName:item.fileName,
                         ext:item.ext,
-                        
+
                         referData:{isTemp:0,imgID:item.ImgID,pType:"main-gallery"}
                     }
                     pImages.gallery[item.ImgID]=tdata;
@@ -938,7 +938,7 @@
                     await AddAttributes(AID,AName);
                     $('#chkUseVariation'+AID).prop('checked',AValues.isVariation);
                     $('#lstAValue-'+AID).select2('destroy');
-                    $.each(AValues.data,(index,Values)=>{ 
+                    $.each(AValues.data,(index,Values)=>{
                         $('#lstAValue-'+AID+' option[value="'+Values.ValueID+'"]').attr('selected','true');
                     });
                     $('#lstAValue-'+AID).select2();
@@ -979,10 +979,10 @@
                                 uploadPath:item.gImage,
                                 fileName:item.fileName,
                                 ext:item.ext,
-                                
+
                                 referData:{isTemp:0,imgID:item.ImgID,pType:"variation-gallery"}
                             }
-                            
+
                             pImages.variation[uuid].gallery[item.ImgID]=tdata;
                             await AddVariationGalleryImages(uuid,item.ImgID,{uploadPath:item.gImage})
                         }
@@ -1031,7 +1031,7 @@
                 }
             });
             $('#lstAttributes').select2();
-            
+
         }
         const getAttributeValues=async(AID)=>{
             let result=await new Promise((resolve,reject)=>{
@@ -1087,7 +1087,7 @@
                 html+='</div>';
                 $('#AttributesAccordin').append(html);
                 $('#lstAValue-'+AID).select2();
-                
+
                 if(Attributes[AID]==undefined){
                     Attributes[AID]={isVariation:false,data:[]};
                 }
@@ -1095,7 +1095,7 @@
         const AddProductGalleryImages=async(imgID,tdata)=>{
             let html='';
             if($('ul#productGalleries li[data-attachment_id="'+imgID+'"]').length>0){
-                    html+='<img src="{{url("/")}}/'+tdata.uploadPath+'">';
+                    html+='<img loading="lazy" src="{{url("/")}}/'+tdata.uploadPath+'">';
                     html+='<div class="actions">';
                         html+='<ul class="actions">';
                             html+='<li><a href="{{url("/")}}/'+tdata.uploadPath+'" data-attachment_id="'+imgID+'" data-lightbox="Product Gallery" class="view" title="view image"><i class="fa fa-eye" aria-hidden="true"></i></a></li>';
@@ -1106,7 +1106,7 @@
                 $('ul#productGalleries li[data-attachment_id="'+imgID+'"]').html(html);
             }else{
                 html+='<li class="image" data-attachment_id="'+imgID+'" style="cursor: default;">';
-                    html+='<img src="{{url("/")}}/'+tdata.uploadPath+'">';
+                    html+='<img loading="lazy" src="{{url("/")}}/'+tdata.uploadPath+'">';
                     html+='<div class="actions">';
                         html+='<ul class="actions">';
                             html+='<li><a href="{{url("/")}}/'+tdata.uploadPath+'" data-attachment_id="'+imgID+'" data-lightbox="Product Gallery" class="view" title="view image"><i class="fa fa-eye" aria-hidden="true"></i></a></li>';
@@ -1121,7 +1121,7 @@
         const AddVariationGalleryImages=async(uuid,imgID,tdata)=>{
             let html='';
             if($('ul#VGalleries-'+uuid+' li[data-attachment_id="'+imgID+'"]').length>0){
-                    html+='<img src="{{url("/")}}/'+tdata.uploadPath+'">';
+                    html+='<img loading="lazy" src="{{url("/")}}/'+tdata.uploadPath+'">';
                     html+='<div class="actions">';
                         html+='<ul class="actions">';
                             html+='<li><a href="{{url("/")}}/'+tdata.uploadPath+'" data-uuid="'+uuid+'" data-attachment_id="'+imgID+'" data-lightbox="Product Gallery" class="view" title="view image"><i class="fa fa-eye" aria-hidden="true"></i></a></li>';
@@ -1132,7 +1132,7 @@
                 $('ul#VGalleries-'+uuid+' li[data-attachment_id="'+imgID+'"]').html(html);
             }else{
                 html+='<li class="image" data-attachment_id="'+imgID+'" style="cursor: default;">';
-                    html+='<img src="{{url("/")}}/'+tdata.uploadPath+'">';
+                    html+='<img loading="lazy" src="{{url("/")}}/'+tdata.uploadPath+'">';
                     html+='<div class="actions">';
                         html+='<ul class="actions">';
                             html+='<li><a href="{{url("/")}}/'+tdata.uploadPath+'" data-uuid="'+uuid+'" data-attachment_id="'+imgID+'" data-lightbox="Product Gallery" class="view" title="view image"><i class="fa fa-eye" aria-hidden="true"></i></a></li>';
@@ -1218,7 +1218,7 @@
                         if(pImages.variation[referData.uuid]==undefined){
                             pImages.variation[referData.uuid]={cover:{url:"",isDeleted:0,data:{}},gallery:{}};
                         }
-                        
+
                         pImages.variation[referData.uuid].gallery[referData.imgID]=response;
                         AddVariationGalleryImages(referData.uuid,referData.imgID,response);
 
@@ -1283,7 +1283,7 @@
                 let html='';
                 let title=$('#txtProductName').val()!=""?$('#txtProductName').val()+" - ":"";
                 title+=data.Values.join(" - ");
-                
+
                 if($('#variationAccordion .accordion-item[data-uuid="'+uuid+'"]').length<=0){
                     html+='<div class="accordion-item" data-uuid="'+uuid+'">';
                         html+='<h5 class="accordion-header" id="'+uuid+'-heading">';
@@ -1345,7 +1345,7 @@
                     loadDeteletedVariationData(uuid)
                 }else{
                     $('#variationAccordion .accordion-item[data-uuid="'+uuid+'"] .accordion-header button span.variation-name').html(data.Values.join(" - "));
-                    
+
                 }
                 setTimeout(() => {
                     $('#txtVImage-'+uuid).dropify();
@@ -1393,7 +1393,7 @@
                 let tmpVariationList={};
                 for(let item of variationList) {
                     if(item!=""){
-                        let tmp=item.split("|"); 
+                        let tmp=item.split("|");
                         let tValue=[];
                         let ValueIDs=[];
                         let Values=[];
@@ -1408,12 +1408,12 @@
                                 Values.push(t1[1]);
                             }
                         }
-                        
+
                         const getVariationUUID=async()=>{
                             return await new Promise(async(resolve,reject)=>{
                                 const checkUUID=async()=>{
                                     return  await new Promise((resolve1,reject1)=>{
-                                        $.each(variationMap,(uuid1,tdata)=>{ 
+                                        $.each(variationMap,(uuid1,tdata)=>{
                                             let tmp=[];
                                             tmp.push(tdata);
                                             if(tmp.some(arr => arr.length === ValueIDs.length && ValueIDs.every(value => arr.includes(value)))==true){
@@ -1457,7 +1457,7 @@
             generateTmpAttributes();
             return formatVariationList();
         }
-        
+
         const getCategory=async()=>{
             $('#lstCategory').select2('destroy');
             $('#lstCategory option').remove();
@@ -1561,7 +1561,7 @@
             $('#lstUOM').select2();
         };
         const getData=async()=>{
-            let vData={}; 
+            let vData={};
             $.each(variationData,(uuid,data)=>{
                 if($('.accordion-item[data-uuid="'+uuid+'"]').length>0){
                     let images={cover:{url:"",isDeleted:0,data:{}},gallery:{}};
@@ -1652,7 +1652,7 @@
             }else if(parseFloat(data.SalesPrice)<0){
                 $('#txtSalesPrice-err').html('Sales Price is must be equal or  greater than 0.');status=false;isGeneral=true;
             }
-            
+
 
             let errorUUID=null;
             if(data.ProductType=="Variable"){
@@ -1690,17 +1690,17 @@
                     showTabs();
                 }
             }else if(isGeneral==false && errorUUID!=null && status==false && data.ProductType=="Variable"){
-                
+
                 if($('.woo-commerce-style ul.woo-commerce-style li.variation_options').hasClass('active')==false){
                     $('.woo-commerce-style ul.woo-commerce-style li').removeClass('active');
                     $('.woo-commerce-style ul.woo-commerce-style li.variation_options').addClass('active');
                     showTabs();
                 }
                 if( $('#'+errorUUID+'-heading button').hasClass('collapsed')){
-                    
+
                     $('#'+errorUUID+'-heading button').trigger('click');
                 }
-               
+
             }
             if(status == false){$("html, body").animate({ scrollTop: 0 }, "slow");}
             return status;
@@ -1827,10 +1827,10 @@
                                     }else{
                                         confirmation();
                                     }
-                                    
+
                                 }, 100);
                             }, 100);
-                                
+
                         }else{
                             ajaxIndicatorStop();
                             toastr.error(response.message, "Failed", {positionClass: "toast-top-right",containerId: "toast-top-right",showMethod: "slideDown",hideMethod: "slideUp",progressBar: !0})
@@ -1952,7 +1952,7 @@
         });
         $(document).on('click','.chkUseVariation',function(){
             let AID=$(this).attr('data-attribute-id');
-            
+
             if(Attributes[AID]==undefined){
                 Attributes[AID]={isVariation:false,data:[]};
             }
@@ -1963,7 +1963,7 @@
             if(Object.keys(variationList).length>0){
                 generateVariations(variationList)
             }
-            
+
             $('#btnGenerateVariations').attr('data-status',1)
         });
         $(document).on('click','.addVGalleryImages',function(){
@@ -1987,7 +1987,7 @@
                 formData.append('image',file);
                 tmpImageUpload(formData,"");
             }
-            
+
             $('#txtVariationGallery').attr('data-uuid',"");
             $('#txtVariationGallery').val("");
         });
@@ -2074,7 +2074,7 @@
             }
         });
         $(document).on('change','#lstCategory',function(){
-            
+
         });
         $(document).on('change','#lstSubCategory',function(){
             $('#lstSubCategory-err').html('');
@@ -2163,7 +2163,7 @@
                 pImages.variation[uuid]={cover:{url:"",isDeleted:1,data:{}},gallery:{}};
             }
         });
-        
+
         $("#btnCropApply").on('click', function() {
             btnLoading($('#btnCropApply'));
             setTimeout(() => {
@@ -2201,7 +2201,7 @@
             }
 
             var videoPlayerHtml = '<iframe width="100%" height="400" src="' + embedUrl + '" frameborder="0" allowfullscreen></iframe>';
-            
+
             bootbox.dialog({
                 title: 'Video Player',
                 message: videoPlayerHtml,
@@ -2209,7 +2209,7 @@
                 closeButton: true,
             }).find('.modal-dialog').css('--bs-modal-width', '900px');
         });
-     
+
         function extractYouTubeVideoId(url) {
             var videoIdMatch = url.match(/[?&]v=([^&]+)/);
             return videoIdMatch ? videoIdMatch[1] : null;
@@ -2217,7 +2217,7 @@
         function isYouTubeUrl(url) {
             return /^(https?:\/\/)?(www\.)?(youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/i.test(url);
         }
-        
+
         $(document).on('change', '#txtProductBrochure', async function () {
             var file = this.files[0];
             if (file) {

@@ -27,7 +27,7 @@
 {{--                                    <td>--}}
 {{--                                        <figure class="product-image-container">--}}
 {{--                                            <a href="#" class="product-image">--}}
-{{--                                                <img src="{{$item->ProductImage}}" alt="product" height="100px" width="100px">--}}
+{{--                                                <img loading="lazy" src="{{$item->ProductImage}}" alt="product" height="100px" width="100px">--}}
 {{--                                            </a>--}}
 
 {{--                                            <a href="#" class="btn-remove icon-cancel btnRemoveCart" title="Remove Product" id="{{$item->ProductID}}"></a>--}}
@@ -41,7 +41,7 @@
 
 {{--                                    <td class="align-middle text-center">--}}
 {{--                                        <div class="product-single-qty">--}}
-{{--                                            <input class="form-control txtUpdateQty" type="number" value="{{$item->Qty}}" id="{{$item->ProductID}}" style="width: 100%;">--}}
+{{--                                            <input class="form-control txtUpdateQty" type="number" min="1" value="{{$item->Qty}}" id="{{$item->ProductID}}" style="width: 100%;">--}}
 {{--                                            --}}{{-- <div class="input-group bootstrap-touchspin bootstrap-touchspin-injected"><span class="input-group-btn input-group-prepend"><button class="btn btn-outline btn-down-icon bootstrap-touchspin-down" type="button"></button></span><input class="horizontal-quantity form-control" type="text"><span class="input-group-btn input-group-append"><button class="btn btn-outline btn-up-icon bootstrap-touchspin-up" type="button"></button></span></div> --}}
 {{--                                        </div>--}}
 {{--                                    </td>--}}

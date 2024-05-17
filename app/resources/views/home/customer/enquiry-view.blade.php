@@ -801,7 +801,7 @@
 {{--                    let row = $('<div class="row my-3 justify-content-center">').html(--}}
 {{--                            `<div class="row">--}}
 {{--                                <div class="col-12 text-center">--}}
-{{--                                    <img src="{{ url('/') }}/${response.Logo}" alt="Vendor Logo" class="img-fluid rounded" height="150" width="150">--}}
+{{--                                    <img loading="lazy" src="{{ url('/') }}/${response.Logo}" alt="Vendor Logo" class="img-fluid rounded" height="150" width="150">--}}
 {{--                                </div>--}}
 {{--                                <div class="row mt-20">--}}
 {{--                                    <div class="col-7">--}}

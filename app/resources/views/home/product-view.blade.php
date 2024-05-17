@@ -1,5 +1,20 @@
 @extends('home.home-layout')
 @section('content')
+    <style>
+        .play-icon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1;
+            cursor: pointer;
+        }
+
+        .play-icon svg {
+            fill: #ffffff;
+        }
+
+    </style>
     <link rel="stylesheet" href="{{url('/')}}/home/assets/css/single-product.css">
     <nav aria-label="breadcrumb" class="breadcrumb-nav">
         <div class="container">
@@ -16,12 +31,24 @@
                 <div class="product-slider-container">
                     <div class="product-single-carousel owl-carousel owl-theme show-nav-hover">
                         <div class="product-item">
-                            <img class="product-single-image" src="{{ $product->ProductImage }}"
+                            <img loading="lazy" class="product-single-image" src="{{ $product->ProductImage }}"
                                  data-zoom-image="{{ $product->ProductImage }}"/>
                         </div>
+                        @if($product->VideoURL != "")
+                            <div class="product-item">
+                                @php
+                                    $urlParts = explode("/", parse_url($product->VideoURL, PHP_URL_PATH));
+                                    $videoId = end($urlParts);
+                                @endphp
+                                <img loading="lazy" class="product-single-image"
+                                     src="https://img.youtube.com/vi/{{ $videoId }}/hqdefault.jpg"
+                                     alt="{{ $product->ProductName }}"
+                                     data-zoom-image="https://img.youtube.com/vi/{{ $videoId }}/hqdefault.jpg"/>
+                            </div>
+                        @endif
                         @foreach($product->GalleryImages as $galleryImage)
                             <div class="product-item">
-                                <img class="product-single-image" src="{{ $galleryImage }}"
+                                <img loading="lazy" class="product-single-image" src="{{ $galleryImage }}"
                                      data-zoom-image="{{ $galleryImage }}"/>
                             </div>
                         @endforeach
@@ -29,11 +56,29 @@
                 </div>
                 <div class="prod-thumbnail owl-dots">
                     <div class="owl-dot">
-                        <img src="{{ $product->ProductImage }}"/>
+                        <img loading="lazy" src="{{ $product->ProductImage }}"/>
                     </div>
+                    @if($product->VideoURL != "")
+                        <div class="owl-dot">
+                            @php
+                                $urlParts = explode("/", parse_url($product->VideoURL, PHP_URL_PATH));
+                                $videoId = end($urlParts);
+                            @endphp
+                            <div class="play-icon youtubeVideoURL"
+                                 data-url="{{ $product->VideoURL }}"
+                                 data-toggle="modal" data-target="#videoModal"
+                                 data-video-id="{{ $videoId }}">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="48px" height="48px">
+                                    <path d="M8 5v14l11-7z"/>
+                                </svg>
+                            </div>
+                            <img loading="lazy" alt="{{ $product->ProductName }}"
+                                 src="https://img.youtube.com/vi/{{ $videoId }}/hqdefault.jpg"/>
+                        </div>
+                    @endif
                     @foreach($product->GalleryImages as $galleryImage)
                         <div class="owl-dot">
-                            <img src="{{ $galleryImage }}"/>
+                            <img loading="lazy" src="{{ $galleryImage }}"/>
                         </div>
                     @endforeach
                 </div>
@@ -71,20 +116,24 @@
                     </ul>
 
                     <div class="product-action">
-                        <a href="#"
-                           class="btn btn-dark mr-2 product-type-simple btn-shop {{ $cartProducts->contains('ProductID', $product->ProductID) ? 'added-in-cart' : 'wishlistCartBtn btnAddCart' }}"
-                           title="Add to Cart" id="{{ $product->ProductID }}">
-                            {{ $cartProducts->contains('ProductID', $product->ProductID) ? 'Added in Cart' : 'ADD TO CART' }}
-                        </a>
-                        <a href="#" class="btn view-cart d-none">View cart</a>
+                        <div class="row col-12">
+                            <div class="col-8">
+                                <a href="#"
+                                   class="btn btn-dark mr-2 product-type-simple btn-shop {{ $cartProducts->contains('ProductID', $product->ProductID) ? 'added-in-cart' : 'wishlistCartBtn btnAddCart' }}"
+                                   title="Add to Cart" id="{{ $product->ProductID }}">
+                                    {{ $cartProducts->contains('ProductID', $product->ProductID) ? 'Added in Cart' : 'ADD TO CART' }}
+                                </a>
+                                <a href="#" class="btn view-cart d-none">View cart</a>
+                            </div>
+                            <div class="col-4 text-right">
+                                @if($product->ProductBrochure)
+                                    <a href="{{ $product->ProductBrochure }}" class="btn btn-dark" target="new">
+                                        View Brochure
+                                    </a>
+                                @endif
+                            </div>
+                        </div>
                     </div>
-
-                    {{--                <hr class="divider mb-0 mt-0">--}}
-
-                    {{--                <div class="product-single-share mb-0">--}}
-                    {{--                    <a href="#" class="btn-icon-wish add-wishlist {{ $product->IsInWishlist ? 'added-wishlist' : '' }}" title="{{ $product->IsInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist' }}"><i--}}
-                    {{--                            class="icon-wishlist-2"></i><span>{{ $product->IsInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist' }}</span></a>--}}
-                    {{--                </div>--}}
                 </div>
             </div>
 
@@ -150,7 +199,7 @@
                         <div class="product-default inner-quickview inner-icon product-div">
                             <figure>
                                 <a href="{{ route('customer.product.view', $relatedProduct->ProductID) }}">
-                                    <img src="{{ $relatedProduct->ProductImage }}" width="300" height="300" alt="product">
+                                    <img loading="lazy" src="{{ $relatedProduct->ProductImage }}" width="300" height="300" alt="product">
                                 </a>
                                 <div class="label-group">
                                     {{-- <span class="product-label label-sale">-13%</span> --}}
@@ -184,10 +233,56 @@
             </div>
         </section>
     </div>
+    <!-- Modal -->
+    <div class="modal fade" id="videoModal" tabindex="-1" role="dialog" aria-labelledby="videoModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-body text-center" style="height: auto !important;">
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 @section('scripts')
     <script>
         $(document).ready(function () {
+            $('.youtubeVideoURL').on('click', function () {
+                var videoId = $(this).data('video-id');
+                var iframe = document.createElement('iframe');
+                iframe.src = 'https://www.youtube.com/embed/' + videoId + '?autoplay=1';
+                var closeButton = `<div class="row mb-2"><button type="button" class="close ml-1" data-dismiss="modal" aria-label="Close" style="position: absolute; top: 10px; right: 10px;"><span aria-hidden="true">×</span></button></div>`;
+                var screenWidth = $(window).width();
+                var screenHeight = $(window).height();
+                var width, height;
+                if (screenWidth < 768) {
+                    width = screenWidth * 0.9;
+                    height = screenHeight * 0.5;
+                } else {
+                    width = screenWidth * 0.49;
+                    height = screenHeight * 0.56;
+                }
+                iframe.width = width;
+                iframe.height = height;
+                iframe.frameborder = 0;
+                iframe.allow = 'accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture';
+                iframe.allowFullscreen = true;
+                $('#videoModal .modal-body').append(closeButton, iframe);
+                $('#videoModal').on('hidden.bs.modal', function () {
+                    $('#videoModal .modal-body').empty();
+                    var activeDot = $('.owl-dot.active');
+                    var nextItem = activeDot.closest('.owl-item').next('.owl-item');
+                    if (!nextItem.length) {
+                        nextItem = $('.owl-item').first();
+                    }
+                    activeDot.removeClass('active');
+                    var nextDot = nextItem.find('.owl-dot');
+                    if (!nextDot.length) {
+                        nextDot = $('.owl-dot').first();
+                    }
+                    nextDot.click();
+                });
+            });
 
             // function adjustIframeHeight() {
             //     var iframe = document.getElementById('productIFrame');

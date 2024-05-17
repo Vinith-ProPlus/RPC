@@ -329,7 +329,7 @@
             <div class="container">
                 <div class="header-left col-lg-2 w-auto pl-0">
                     <a href="@if($isRegister && !$isEdit) {{ route('homepage') }} @else {{url('/')}}/customer-profile @endif" class="logo">
-                        <img src="{{url('/')}}/{{$Company['Logo']}}" width="50" height="50" alt="{{$Company['CompanyName']}}">
+                        <img loading="lazy" src="{{url('/')}}/{{$Company['Logo']}}" width="50" height="50" alt="{{$Company['CompanyName']}}">
                     </a>
                     <span class="ml-3 font-weight-bold" style="color:rgb(7, 54, 163)">{{$Company['CompanyName']}}</span>
                 </div>
@@ -365,8 +365,8 @@
                             <button type="button" class="btn btn-default bg-white" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <i class="icon-mail" style="font-size: 2.8rem;"></i>
                             </button>
-                            <span class="unread-badge"></span>
-                            <ul class="dropdown-menu notifications" role="menu" aria-labelledby="dLabel">
+                            <span class="unread-badge" style="display: none;"></span>
+                            <ul class="dropdown-menu notifications" id="customerNotificationUl" role="menu" aria-labelledby="dLabel">
                                 <div class="notification-heading"><h4 class="menu-title">Notifications</h4></div>
                                 <li class="divider"></li>
                                 <div class="notifications-wrapper" id="customerNotification"></div>
@@ -411,7 +411,7 @@
                                                         <span class="cart-product-info">
                                                                 <span class="cart-product-qty">
                                                                     <div class="input-group" style="width: 80%;">
-                                                                        <input class="form-control txtUpdateQty" type="number" value="{{$item->Qty}}" id="{{$item->ProductID}}">
+                                                                        <input class="form-control txtUpdateQty" type="number" min="1" value="{{$item->Qty}}" id="{{$item->ProductID}}">
                                                                         <div class="input-group-append">
                                                                             <span class="input-group-text">{{$item->UName}} ({{$item->UName}})</span>
                                                                         </div>
@@ -422,7 +422,7 @@
 
                                                     <figure class="product-image-container">
                                                         <a href="{{ route('products.quickView', $item->ProductID) }}" class="product-image btn-quickview">
-                                                            <img src="{{ $item->ProductImage }}" alt="product" width="80" height="80">
+                                                            <img loading="lazy" src="{{ $item->ProductImage }}" alt="product" width="80" height="80">
                                                         </a>
                                                         <a href="#" class="btn-remove btnRemoveCart" title="Remove Product" id="{{ $item->ProductID }}"><span>×</span></a>
                                                     </figure>
@@ -551,7 +551,7 @@
                 <div class="row">
                     <div class="col-lg-2 col-sm-6 pb-2 pb-sm-0 d-flex align-items-center">
                         <div class="widget m-b-3">
-                            <img src="{{url('/')}}/{{$Company['Logo']}}" alt="Logo" width="202" height="54" class="logo-footer">
+                            <img loading="lazy" src="{{url('/')}}/{{$Company['Logo']}}" alt="Logo" width="202" height="54" class="logo-footer">
 
                         </div><!-- End .widget -->
                     </div><!-- End .col-lg-3 -->
@@ -704,7 +704,7 @@
             <div class="modal-body">
                 <div class="row">
                     <div class="col-sm-12">
-                        <img style="width:100%" src="" id="ImageCrop" data-id="">
+                        <img loading="lazy" style="width:100%" src="" id="ImageCrop" data-id="">
                     </div>
                 </div>
                 <div class="row mt-10 d-flex justify-content-center">
@@ -741,7 +741,7 @@
 </div>
 <form id="logoutForm" action="{{ route('logout') }}" method="POST" style="display: none;">@csrf</form>
 <a id="scroll-top" href="#top" title="Top" role="button"><i class="icon-angle-up"></i></a>
-
+<input type="hidden" id="notificationPageNo" value="1">
 <script data-cfasync="false" src="../../cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
 <script src="{{url('/')}}/home/assets/js/jquery.min.js"></script>
 <script src="{{url('/')}}/assets/js/jquery-3.7.1.min.js?r={{date('YmdHis')}}"></script>
@@ -778,6 +778,9 @@
 
 <script>
     $(document).ready(function () {
+        $('.notifications').on('click', function(event) {
+            event.stopPropagation();
+        });
         const UpdateItemQtyCount = (count) => {
             const itemCountSpan = $('#divCartItemCount');
             const itemMblCountSpan = $('#divMblCartItemCount');
@@ -806,7 +809,7 @@
                                             <span class="cart-product-info">
                                                 <span class="cart-product-qty">
                                                     <div class="input-group" style="width: 80%;">
-                                                        <input class="form-control txtUpdateQty" type="number" value="${item.Qty}" id="${item.ProductID}">
+                                                        <input class="form-control txtUpdateQty" type="number" min="1" value="${item.Qty}" id="${item.ProductID}">
                                                         <div class="input-group-append">
                                                             <span class="input-group-text">${item.UName} (${item.UName})</span>
                                                         </div>
@@ -817,7 +820,7 @@
 
                                         <figure class="product-image-container">
                                             <a href="{{url('/').'/products/quickView/html/' }}${item.ProductID}" class="product-image btn-quickview">
-                                                <img src="${item.ProductImage}" alt="product" width="80" height="80">
+                                                <img loading="lazy" src="${item.ProductImage}" alt="product" width="80" height="80">
                                             </a>
                                             <a href="#" class="btn-remove btnRemoveCart" title="Remove Product" id="${item.ProductID}"><span>×</span></a>
                                         </figure>
@@ -827,7 +830,6 @@
         };
 
         $(document).on('click', '.btnAddCart', function () {
-
             let thiss = $(this);
             let FormData = {
                 'ProductID': $(this).attr('id'),
@@ -866,10 +868,10 @@
 
         $(document).on('input', '.txtUpdateQty', function () {
             let Qty = $(this).val();
-            if(Qty > 0){
+                if((Qty > 0) && Number.isInteger(parseFloat(Qty))){
                 let FormData = {
                     'ProductID' : $(this).attr('id'),
-                    'Qty' : Qty,
+                    'Qty' : parseInt(Qty),
                 }
                 $.ajax({
                     type:"post",
@@ -885,14 +887,23 @@
                         }
                     }
                 });
-            }else{
+            }
+        });
+        $(document).on('blur', '.txtUpdateQty', function () {
+            let Qty = $(this).val();
+            if((Qty < 0) || !Number.isInteger(parseFloat(Qty))){
                 $(this).val(1);
             }
         });
         $(document).on('click', '.btnRemoveCart', function () {
             $(this).closest('.product').remove();
+            let ProductID = $(this).attr('id');
+            var deletedCartElement = $('#' + ProductID);
+            if (deletedCartElement.hasClass('added-in-cart')) {
+                deletedCartElement.removeClass('added-in-cart').addClass('btnAddCart');
+            }
             let FormData = {
-                'ProductID' : $(this).attr('id'),
+                'ProductID' : ProductID,
             }
             $.ajax({
                 type:"post",
@@ -1006,37 +1017,48 @@
         if (selected_aid !== "") {
             $('#changeCustomerAddressUl li a[data-aid="' + selected_aid + '"]').click();
         }
-
-        let currentNotificationPage = 1;
-
-        function updateNotifications(data) {
-            var dropdownMenu = $('#customerNotification');
-            dropdownMenu.css('top', '160px !important');
-            dropdownMenu.html("");
-            for (var i = 0; i < data.length; i++) {
-                var notification = data[i];
-                // var notificationItem = $('<li><a href="#" class="top-text-block"><div class="top-text-heading">' + notification.Title + '</div><div class="top-text-light">' + notification.Message + '</div></a></li>');
-
-                var notificationItem = $('<a class="content" href="#"><div class="notification-item"><h4 class="item-title">' + notification.Title + '</h4>' +
-                    '<p class="item-info">' + notification.Message + '</p></div></a>');
-                dropdownMenu.append(notificationItem);
-            }
-            dropdownMenu.attr('style', 'top: 160px !important;');
+        function updateNotificationsDropdown(response) {
+            var dropdownMenu = $('#customerNotificationUl');
+            dropdownMenu.html(response);
         }
 
         function fetchNotifications(currentNotificationPage) {
             $.ajax({
                 type: "POST",
                 url: "{{ route('getNotifications') }}",
-                dataType: "json",
-                headers: { 'X-CSRF-Token' : '{{ csrf_token() }}' },
-                data: { page: currentNotificationPage },
+                dataType: "html",
+                headers: { 'X-CSRF-Token': '{{ csrf_token() }}' },
+                data: { PageNo: currentNotificationPage },
                 success: function(response) {
-                    if (response.status === true) {
-                        updateNotifications(response.data);
-                        currentNotificationPage = response.currentPage;
-                    } else {
-                        console.error('Failed to fetch notifications:', response.message);
+                    updateNotificationsDropdown(response);
+                },
+                error: function(xhr, status, error) {
+                    console.error('AJAX Error:', error);
+                }
+            });
+        }
+
+        fetchNotifications($('#notificationPageNo').val());
+
+        getNotificationCount();
+        function getNotificationCount() {
+            $.ajax({
+                type: "POST",
+                url: "{{ route('getNotificationsCount') }}",
+                dataType: "json",
+                headers: { 'X-CSRF-Token': '{{ csrf_token() }}' },
+                cache: false,
+                processData: false,
+                contentType: false,
+                success: function (response) {
+                    if(response.status === true){
+                        if(response.UnReadCount === 0){
+                            if($('.unread-badge').is(':visible')){
+                                $('.unread-badge').hide();
+                            }
+                        } else {
+                            $('.unread-badge').show();
+                        }
                     }
                 },
                 error: function(xhr, status, error) {
@@ -1045,21 +1067,17 @@
             });
         }
 
-        fetchNotifications(currentNotificationPage);
 
-        $('#paginationNext').on('click', function() {
-            fetchNotifications(currentNotificationPage + 1);
+        $('#notificationPageNo').on('change', function() {
+            fetchNotifications($('#notificationPageNo').val());
         });
 
-        $('#paginationPrev').on('click', function() {
-            fetchNotifications(currentNotificationPage - 1);
-        });
         $('#customerNotificationBtn').on('click', function () {
             $('#customerNotification').attr('style', 'top: 160px !important;');
         });
-        $('.btn-wrapper .btn').click(function () {
-            $('.unread-badge').hide();
-        });
+        // $('.btn-wrapper .btn').click(function () {
+        //     $('.unread-badge').hide();
+        // });
 
         $(document).on('click','#btnLogout',async(e)=>{
             e.preventDefault();

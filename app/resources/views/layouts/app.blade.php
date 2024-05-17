@@ -34,7 +34,7 @@
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/css/lightbox.min.css">
 
 
-		
+
 		<link rel="stylesheet" type="text/css" href="{{url('/')}}/assets/css/sweetalert2.css?r={{date('YmdHis')}}">
 		<link rel="stylesheet" type="text/css" href="{{url('/')}}/assets/css/select2.css?r={{date('YmdHis')}}">
 		<link rel="stylesheet" type="text/css" href="{{url('/')}}/assets/css/toastr.css?r={{date('YmdHis')}}">
@@ -49,7 +49,7 @@
 		<link rel="stylesheet" type="text/css" href="{{url('/')}}/assets/css/custom.css?r={{date('YmdHis')}}">
 		<link rel="stylesheet" type="text/css" href="{{url('/')}}/assets/css/custom-n.css?r={{date('YmdHis')}}">
 		<style>
-			<?php 
+			<?php
 				$bodyCss='';
 				if(array_key_exists('font-size',$Theme)){
 					if($Theme['font-size']!=""){$bodyCss.='font-size:'.$Theme['font-size'].";";}
@@ -78,7 +78,7 @@
 					<div class="main-header-left">
 						<div class="logo-wrapper">
 							<a href="{{url('/')}}/admin">
-								<img src="{{url('/')}}/{{$Company['Logo']}}" alt="" width="50" height="52">
+								<img loading="lazy" src="{{url('/')}}/{{$Company['Logo']}}" alt="" width="50" height="52">
 							</a>
 						</div>
 					</div>
@@ -108,7 +108,7 @@
 							</li>
 							<li class="onhover-dropdown px-0">
 								<span class="d-flex user-header">
-									<img class="me-2 rounded-circle img-35" src="{{url('/')}}/{{$UInfo->ProfileImage}}" alt="">
+									<img loading="lazy" class="me-2 rounded-circle img-35" src="{{url('/')}}/{{$UInfo->ProfileImage}}" alt="">
 									<span class="flex-grow-1">
 										<span class="f-12 f-w-600">{{$UInfo->Name}}</span>
 										<span class="d-block">{{$UInfo->RoleName}}</span>
@@ -144,7 +144,7 @@
 										</div>
 									</li>
                                     <?php
-                                        echo $menus; 
+                                        echo $menus;
                                     ?>
 								</ul>
 							</div>
@@ -156,7 +156,7 @@
 				</header>
 				<div class="page-body">
                     @yield('content')
-					
+
 
 					<div class="modal  medium" tabindex="-1" role="dialog" id="ImgCrop">
 						<div class="modal-dialog modal-dialog-centered" role="document" ">
@@ -170,7 +170,7 @@
 								<div class="modal-body">
 									<div class="row">
 										<div class="col-sm-12">
-											<img style="width:100%" src="" id="ImageCrop" data-id="">
+											<img loading="lazy" style="width:100%" src="" id="ImageCrop" data-id="">
 										</div>
 									</div>
 									<div class="row mt-10 d-flex justify-content-center">
@@ -217,7 +217,7 @@
                 </footer>
 			</div>
 		</div>
-		<?php 
+		<?php
 			$color="color-1";
 			$mixLayout="light-only";
 			$layout="ltr";
@@ -547,11 +547,11 @@
 		<script src="{{url('/')}}/assets/js/config.js?r={{date('YmdHis')}}"></script>
 		<script src="{{url('/')}}/assets/js/script.js?r={{date('YmdHis')}}"></script>
 		<script src="{{url('/')}}/assets/js/theme-customizer/customizer.js?r={{date('YmdHis')}}"></script>
-		
+
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.5/jszip.min.js?r={{date('YmdHis')}}"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.68/pdfmake.min.js?r={{date('YmdHis')}}"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.68/vfs_fonts.min.js?r={{date('YmdHis')}}"></script>
-			
+
 		<script src="{{url('/')}}/assets/plugins/dataTable/js/jquery.dataTables.min.js?r={{date('YmdHis')}}"></script>
 		<script src="{{url('/')}}/assets/js/datatable/datatable-extension/dataTables.buttons.min.js?r={{date('YmdHis')}}"></script>
 		<script src="{{url('/')}}/assets/js/datatable/datatable-extension/buttons.colVis.min.js?r={{date('YmdHis')}}"></script>
@@ -568,7 +568,7 @@
 
 		<script src="{{url('/')}}/assets/plugins/dataTable/js/dataTableExport.js?r={{date('YmdHis')}}"></script>
 
-		
+
 		<script src="{{url('/')}}/assets/plugins/bootstrap-multiselect/bootstrap-multiselect.js?r={{date('YmdHis')}}"></script>
 		<script src="{{url('/')}}/assets/js/select2/select2.full.min.js?r={{date('YmdHis')}}"></script>
 		<script src="{{url('/')}}/assets/js/sweet-alert/sweetalert.min.js?r={{date('YmdHis')}}"></script>
@@ -586,7 +586,7 @@
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox.min.js"></script>
 		<script src="{{url('/')}}/assets/js/lightbox/js/lightgallery.js?r={{date('dmyHis')}}"></script>
 
-		
+
 		<script src="{{url('/')}}/assets/plugins/ckeditor/ckeditor.js"></script>
     	<script src="{{url('/')}}/assets/plugins/ckeditor/custom.js"></script>
 		<script>/*

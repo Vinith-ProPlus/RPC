@@ -26,7 +26,7 @@
 					@foreach($StepperImages as $image)
 						<figure class="col-xl-4 col-sm-6" data-tran-no="{{$image->TranNo}}">
 							<a href="{{url('/')}}/{{$image->StepperImage}}" data-lightbox="stepper-images">
-								<img src="{{url('/')}}/{{$image->StepperImage}}" alt="Image {{$loop->index}}">
+								<img loading="lazy" src="{{url('/')}}/{{$image->StepperImage}}" alt="Image {{$loop->index}}">
 							</a>
 							<div class="caption text-center">
 								@if($crud['edit']==1)
@@ -47,7 +47,7 @@
 					@foreach($VStepperImages as $image)
 						<figure class="col-xl-4 col-sm-6" data-tran-no="{{$image->TranNo}}">
 							<a href="{{url('/')}}/{{$image->StepperImage}}" data-lightbox="stepper-images">
-								<img src="{{url('/')}}/{{$image->StepperImage}}" alt="Stepper {{$loop->index + 1}}">
+								<img loading="lazy" src="{{url('/')}}/{{$image->StepperImage}}" alt="Stepper {{$loop->index + 1}}">
 							</a>
 							<div class="caption text-center">
 								@if($crud['edit']==1)
@@ -68,7 +68,7 @@
 					@foreach($MStepperImages as $image)
 						<figure class="col-xl-4 col-sm-6" data-tran-no="{{$image->TranNo}}">
 							<a href="{{url('/')}}/{{$image->StepperImage}}" data-lightbox="stepper-images">
-								<img src="{{url('/')}}/{{$image->StepperImage}}" alt="Stepper {{$loop->index + 1}}">
+								<img loading="lazy" src="{{url('/')}}/{{$image->StepperImage}}" alt="Stepper {{$loop->index + 1}}">
 							</a>
 							<div class="caption text-center">
 								@if($crud['edit']==1)
@@ -89,7 +89,7 @@
 					@foreach($OGStepperImages as $image)
 						<figure class="col-xl-4 col-sm-6" data-tran-no="{{$image->TranNo}}">
 							<a href="{{url('/')}}/{{$image->StepperImage}}" data-lightbox="stepper-images">
-								<img src="{{url('/')}}/{{$image->StepperImage}}" alt="Stepper {{$loop->index + 1}}">
+								<img loading="lazy" src="{{url('/')}}/{{$image->StepperImage}}" alt="Stepper {{$loop->index + 1}}">
 							</a>
 							<div class="caption text-center">
 								@if($crud['edit']==1)
