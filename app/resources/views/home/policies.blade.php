@@ -232,7 +232,7 @@
                                                     <span class="cart-product-info">
                                                             <span class="cart-product-qty">
                                                                 <div class="input-group" style="width: 80%;">
-                                                                    <input class="form-control txtUpdateQty" type="number" value="{{$item->Qty}}" id="{{$item->ProductID}}">
+                                                                    <input class="form-control txtUpdateQty" type="number" min="1" value="{{$item->Qty}}" id="{{$item->ProductID}}">
                                                                     <div class="input-group-append">
                                                                         <span class="input-group-text">{{$item->UName}} ({{$item->UName}})</span>
                                                                     </div>
@@ -640,7 +640,7 @@
                                             <span class="cart-product-info">
                                                 <span class="cart-product-qty">
                                                     <div class="input-group" style="width: 80%;">
-                                                        <input class="form-control txtUpdateQty" type="number" value="${item.Qty}" id="${item.ProductID}">
+                                                        <input class="form-control txtUpdateQty" type="number" min="1" value="${item.Qty}" id="${item.ProductID}">
                                                         <div class="input-group-append">
                                                             <span class="input-group-text">${item.UName} (${item.UName})</span>
                                                         </div>
@@ -689,10 +689,10 @@
 
         $(document).on('input', '.txtUpdateQty', function () {
             let Qty = $(this).val();
-            if(Qty > 0){
+            if((Qty > 0) && Number.isInteger(parseFloat(Qty))){
                 let FormData = {
                     'ProductID' : $(this).attr('id'),
-                    'Qty' : Qty,
+                    'Qty' : parseInt(Qty),
                 }
                 $.ajax({
                     type:"post",
@@ -708,7 +708,11 @@
                         }
                     }
                 });
-            }else{
+            }
+        });
+        $(document).on('blur', '.txtUpdateQty', function () {
+            let Qty = $(this).val();
+            if((Qty < 0) || !Number.isInteger(parseFloat(Qty))){
                 $(this).val(1);
             }
         });
