@@ -697,7 +697,7 @@
 
             <div class="container">
                 <div class="row">
-                    <div class="col-lg-7">
+                    <div class="col-lg-7 col-md-7">
                         <div class="row justify-content-center mt-3">
                             <div class="col-md-6">
                                 <img loading="lazy" src="{{url('/')}}/{{$Company['Logo']}}" alt="{{$Company['CompanyName']}}" class="logo-newsletter" width="50" height="50">
@@ -730,8 +730,8 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-5">
-                        <img loading="lazy" src="{{url('/')}}/home/assets/images/location-pop-up/MapAnime.gif" alt="">
+                    <div class="col-lg-5 col-md-5 text-center d-none d-md-block d-lg-block p-0">
+                        <img class="centered-image" loading="lazy" src="{{url('/')}}/home/assets/images/location-pop-up/MapAnime.gif" alt="">
                     </div>
                 </div>
             </div>
