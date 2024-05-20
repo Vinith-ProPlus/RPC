@@ -1574,25 +1574,6 @@ class HomeAuthController extends Controller{
             $VendorQuote = [];
             $FinalQuoteData = [];
             $PData=DB::table($this->CurrFyDB.'tbl_enquiry_details as ED')->leftJoin('tbl_products as P','P.ProductID','ED.ProductID')->leftJoin('tbl_uom as UOM','UOM.UID','ED.UOMID')->where('ED.EnqID',$EnqID)->select('ED.ProductID','ED.CID','ED.SCID','ED.Qty','P.ProductName','UOM.UID','UOM.UName','UOM.UCode')->get();
-            if(count($PData) > 0){
-                foreach($PData as $row){
-                    $row->AvailableVendors=[];
-                    $AllVendors = DB::table('tbl_vendors as V')->join('tbl_vendors_service_locations as VSL','V.VendorID','VSL.VendorID')->leftJoin('tbl_vendor_ratings as VR','VR.VendorID','V.VendorID')->where('V.ActiveStatus',"Active")->where('V.isApproved',1)->where('V.DFlag',0)->where('VSL.PostalCodeID',$FormData['EnqData']->DPostalCodeID)->select('V.VendorID','V.VendorName','VR.OverAll')->get();
-                    if(count($AllVendors)>0){
-                        foreach($AllVendors as $item){
-                            $isProductAvailable= DB::Table('tbl_vendors_product_mapping')->where('Status',1)->Where('VendorID',$item->VendorID)->where('ProductID',$row->ProductID)->first();
-                            if($isProductAvailable){
-                                $row->AvailableVendors[] = [
-                                    "VendorID" => $item->VendorID,
-                                    "VendorName" => $item->VendorName,
-                                    "OverAll" => $item->OverAll,
-                                    "ProductID" => $isProductAvailable->ProductID,
-                                ];
-                            }
-                        }
-                    }
-                }
-            }
             if($EnqData->Status == "Quote Requested" && $EnqData->VendorIDs && count(unserialize($EnqData->VendorIDs)) > 0){
                 $VendorQuote = DB::Table($this->CurrFyDB.'tbl_vendor_quotation as VQ')->join('tbl_vendors as V','V.VendorID','VQ.VendorID')/* ->where('VQ.Status','Sent') */->where('VQ.EnqID',$EnqID)->select('VQ.VendorID','V.VendorName','VQ.VQuoteID','VQ.Status','VQ.AdditionalCost')->get();
                 foreach($VendorQuote as $row){

@@ -50,12 +50,15 @@ class HomeTransactionController extends Controller{
         $this->CurrFyDB = Helper::getCurrFYDB();
         $this->PCategories = DB::Table('tbl_product_category')->where('ActiveStatus', 'Active')->where('DFlag', 0)->select('PCName', 'PCID', 'PCImage')->get();
         $this->FileTypes = Helper::getFileTypes(array("category" => array("Images", "Documents")));
-        $CompanyData = DB::table('tbl_company_settings')->select('KeyName', 'KeyValue')->get();
-        $Company = [];
-        foreach ($CompanyData as $item) {
-            $Company[$item->KeyName] = $item->KeyValue;
-        }
-        $this->Company = $Company;
+        $this->Company = DB::table('tbl_company_settings')->select('KeyName', 'KeyValue')->get()->pluck('KeyValue', 'KeyName')->toArray();
+        $this->Company['AddressData'] = DB::table($this->generalDB.'tbl_cities as CI')
+            ->leftJoin($this->generalDB.'tbl_postalcodes as PC', 'PC.PID', 'CI.PostalID')
+            ->leftJoin($this->generalDB.'tbl_taluks as T', 'T.TalukID', 'CI.TalukID')
+            ->leftJoin($this->generalDB.'tbl_districts as D', 'D.DistrictID', 'CI.DistrictID')
+            ->leftJoin($this->generalDB.'tbl_states as S', 'S.StateID', 'CI.StateID')
+            ->leftJoin($this->generalDB.'tbl_countries as C','C.CountryID','CI.CountryID')->where('CI.CityID',$this->Company['CityID'])
+            ->select('C.CountryName','S.StateName','D.DistrictName','T.TalukName','CI.CityName', 'PC.PostalCode')
+            ->first();
         $this->middleware('auth');
         $this->middleware(function ($request, $next) {
             $this->UserData = Helper::getUserInfo(Auth()->user()->UserID);
