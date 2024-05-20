@@ -1541,8 +1541,8 @@ class VendorAuthController extends Controller{
         $StockTableName = Helper::getStockTable($VendorID);
         $VendorProductData = DB::table('tbl_vendors_product_mapping as VPM')
             ->join('tbl_products as P', 'P.ProductID', 'VPM.ProductID')
-            ->join('tbl_product_category as PC', 'PC.PCID', 'P.CID')
             ->join('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')
+            ->join('tbl_product_category as PC', 'PC.PCID', 'PSC.PCID')
             ->join('tbl_uom as U', 'U.UID', 'P.UID')
             ->leftJoin(DB::raw("(SELECT ProductID, SUM(Qty) AS TotalQty FROM $StockTableName WHERE Date = '".date('Y-m-d')."' GROUP BY ProductID) AS VSP"), 'VSP.ProductID', 'P.ProductID')
             ->where('VPM.Status', 1)
@@ -1684,8 +1684,8 @@ class VendorAuthController extends Controller{
                 }
             })
             ->leftJoin('tbl_products as P', 'P.ProductID', '=', 'VPM.ProductID')
-            ->leftJoin('tbl_product_category as PC', 'PC.PCID', '=', 'P.CID')
-            ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', '=', 'P.SCID')
+            ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')
+            ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'PSC.PCID')
             ->leftJoin('tbl_uom as U', 'U.UID', '=', 'P.UID')
             ->where('VSP.StockPointID', $req->StockPointID)
             ->where('VSP.DFlag', 0)
@@ -1728,8 +1728,8 @@ class VendorAuthController extends Controller{
         
             $point->ProductData = DB::table('tbl_vendors_product_mapping as VPM')
                 ->join('tbl_products as P', 'P.ProductID', 'VPM.ProductID')
-                ->join('tbl_product_category as PC', 'PC.PCID', 'P.CID')
-                ->join('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')
+                ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')
+                ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'PSC.PCID')
                 ->join('tbl_uom as U', 'U.UID', 'P.UID')
                 ->leftJoin($StockTableName . ' as SP', function ($join) use ($point) {
                     $join->on('SP.ProductID', 'P.ProductID')
@@ -1829,8 +1829,8 @@ class VendorAuthController extends Controller{
         
             $point->ProductData = DB::table('tbl_vendors_product_mapping as VPM')
                 ->join('tbl_products as P', 'P.ProductID', 'VPM.ProductID')
-                ->join('tbl_product_category as PC', 'PC.PCID', 'P.CID')
-                ->join('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')
+                ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')
+                ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'PSC.PCID')
                 ->join('tbl_uom as U', 'U.UID', 'P.UID')
                 ->leftJoin($StockTableName . ' as SP', function ($join) use ($point) {
                     $join->on('SP.ProductID', 'P.ProductID')
@@ -1852,8 +1852,8 @@ class VendorAuthController extends Controller{
             $row->TotalUnit = DB::table($this->currfyDB.'tbl_order_details')->whereNot('Status','Cancelled')->where('OrderID',$row->OrderID)->sum('Qty');
             $row->ProductData = DB::table($this->currfyDB.'tbl_order_details as OD')
             ->leftJoin('tbl_products as P','P.ProductID','OD.ProductID')
-            ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'P.CID')
             ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')
+            ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'PSC.PCID')
             ->leftJoin('tbl_uom as U', 'U.UID', 'P.UID')
             ->where('P.ActiveStatus', 'Active')->where('P.DFlag', 0)
             ->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)
@@ -1872,8 +1872,8 @@ class VendorAuthController extends Controller{
             $row->TotalUnit = DB::table($this->currfyDB.'tbl_order_details')->whereNot('Status','Cancelled')->where('OrderID',$row->OrderID)->sum('Qty');
             $row->ProductData = DB::table($this->currfyDB.'tbl_order_details as OD')
             ->leftJoin('tbl_products as P','P.ProductID','OD.ProductID')
-            ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'P.CID')
             ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')
+            ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'PSC.PCID')
             ->leftJoin('tbl_uom as U', 'U.UID', 'P.UID')
             ->where('P.ActiveStatus', 'Active')->where('P.DFlag', 0)
             ->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)

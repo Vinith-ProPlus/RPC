@@ -981,8 +981,8 @@ class QuoteEnquiryController extends Controller{
         $QuoteReqData->ProductData = DB::table($this->currfyDB.'tbl_vendor_quotation_details as VQD')->leftJoin('tbl_vendors_product_mapping as VPM','VPM.ProductID','VQD.ProductID')
             ->leftJoin('tbl_products as P','P.ProductID','VQD.ProductID')
             ->leftJoin('tbl_tax as T', 'T.TaxID', 'P.TaxID')
-            ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'P.CID')
-            ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')
+			->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')
+			->leftJoin('tbl_product_category as PC', 'PC.PCID', 'PSC.PCID')
             ->leftJoin('tbl_uom as U', 'U.UID', 'P.UID')
             ->where('P.ActiveStatus', 'Active')->where('P.DFlag', 0)->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)->where('PSC.ActiveStatus', 'Active')->where('PSC.DFlag', 0)
             ->where('VQD.VQuoteID',$QuoteReqData->VQuoteID)/* ->where('VQD.Status',NULL) */

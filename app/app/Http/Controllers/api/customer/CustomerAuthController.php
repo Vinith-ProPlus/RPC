@@ -649,8 +649,8 @@ class CustomerAuthController extends Controller{
     public function getCart(Request $req){
         $Cart = DB::table('tbl_customer_cart as C')
         ->leftJoin('tbl_products as P','P.ProductID','C.ProductID')
-        ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'P.CID')
         ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')
+        ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'PSC.PCID')
         ->leftJoin('tbl_uom as U', 'U.UID', 'P.UID')
         ->where('C.CustomerID', $this->ReferID)
         ->where('P.ActiveStatus', 'Active')->where('P.DFlag', 0)
