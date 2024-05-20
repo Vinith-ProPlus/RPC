@@ -278,7 +278,7 @@
                 formData.append('StageID', $('#stage_id').val());
                 formData.append('BuildingMeasurement', $('#BuildingMeasurement').val());
                 formData.append('BuildingMeasurementID', $('#BuildingMeasurementID').val());
-                formData.append('BuildingImage', $('#BuildingImage')[0].files[0]);
+                formData.append('BuildingImage', $('#BuildingImage')[0].files[0] ?? '');
                 $.ajax({
                     type: "post",
                     url: "{{url('/')}}/place-order",

@@ -717,20 +717,23 @@ class HomeAuthController extends Controller{
                 if (!file_exists($dir)) {
                     mkdir($dir, 0777, true);
                 }
-                if ($req->hasFile('BuildingImage')) {
-                    $file = $req->file('BuildingImage');
-                    $fileName = md5($file->getClientOriginalName() . time());
-                    $fileName1 = $fileName . "." . $file->getClientOriginalExtension();
-                    $file->move($dir, $fileName1);
-                    $BuildingImage = $dir . $fileName1;
-                } else if (Helper::isJSON($req->BuildingImage) == true) {
-                    $Img = json_decode($req->BuildingImage);
-                    if (file_exists($Img->uploadPath)) {
-                        $fileName1 = $Img->fileName != "" ? $Img->fileName : Helper::RandomString(10) . "png";
-                        copy($Img->uploadPath, $dir . $fileName1);
+                if ($req->BuildingImage) {
+                    if ($req->hasFile('BuildingImage')) {
+                        $file = $req->file('BuildingImage');
+                        $fileName = md5($file->getClientOriginalName() . time());
+                        $fileName1 = $fileName . "." . $file->getClientOriginalExtension();
+                        $file->move($dir, $fileName1);
                         $BuildingImage = $dir . $fileName1;
-                         unlink($Img->uploadPath);
+                    } else if (Helper::isJSON($req->BuildingImage)) {
+                        $Img = json_decode($req->BuildingImage);
+                        if (file_exists($Img->uploadPath)) {
+                            $fileName1 = $Img->fileName != "" ? $Img->fileName : Helper::RandomString(10) . "png";
+                            copy($Img->uploadPath, $dir . $fileName1);
+                            $BuildingImage = $dir . $fileName1;
+                            unlink($Img->uploadPath);
+                        }
                     }
+
                 }
             }
             $customerAid = Session::get('selected_aid');
@@ -786,6 +789,7 @@ class HomeAuthController extends Controller{
                         'CreatedOn' => date('Y-m-d H:i:s'),
                         'CreatedBy' => $CustomerID,
                     ];
+                    logger($this->CurrFyDB);
                     $status = DB::table($this->CurrFyDB.'tbl_enquiry_details')->insert($data1);
                     if($status){
                         DocNum::updateDocNum(docTypes::EnquiryDetails->value,$this->CurrFyDB);

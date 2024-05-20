@@ -149,5 +149,90 @@
             $('.mfp-close').click();
             $('.icon-cart-thick').click();
         });
+
+        const LoadCart = (data) => {
+            let Parent = $('#divCart');
+            Parent.html('');
+
+            data.forEach((item) => {
+                let Content = `<div class="product">
+                                        <div class="product-details">
+                                            <h4 class="product-title">
+                                                <a href="{{url('/').'/products/quickView/html/' }}${item.ProductID}" class="btn-quickview">${item.ProductName}</a>
+                                            </h4>
+
+                                            <span class="cart-product-info">
+                                                <span class="cart-product-qty">
+                                                    <div class="input-group" style="width: 80%;">
+                                                        <input class="form-control txtUpdateQty" type="number" min="1" value="${item.Qty}" id="${item.ProductID}">
+                                                        <div class="input-group-append">
+                                                            <span class="input-group-text">${item.UName} (${item.UName})</span>
+                                                        </div>
+                                                    </div>
+                                                </span>
+                                            </span>
+                                        </div>
+
+                                        <figure class="product-image-container">
+                                            <a href="{{url('/').'/products/quickView/html/' }}${item.ProductID}" class="product-image btn-quickview">
+                                                <img loading="lazy" src="${item.ProductImage}" alt="product" width="80" height="80">
+                                            </a>
+                                            <a href="#" class="btn-remove btnRemoveCart" title="Remove Product" id="${item.ProductID}"><span>×</span></a>
+                                        </figure>
+                                    </div>`;
+                Parent.append(Content);
+            });
+        };
+
+        const UpdateItemQtyCount = (count) => {
+            const itemCountSpan = $('#divCartItemCount');
+            const itemMblCountSpan = $('#divMblCartItemCount');
+            if (count > 0) {
+                itemCountSpan.text(count);
+                itemMblCountSpan.text(count);
+                $('#divCartAction').html(`<a href="{{url('/')}}/checkout" class="btn btn-secondary btn-block">Quote Request</a>`);
+            } else {
+                itemCountSpan.text('');
+                itemMblCountSpan.text('');
+                $('#divCartAction').html(`<a href="{{ auth()->check() ? route('products.customer.productsList') : route('products.guest.productsList') }}" class="btn btn-dark btn-block">Add to Cart</a>`);
+            }
+        };
+
+        $('.btnAddCart').click(function () {
+            let thiss = $(this);
+            let FormData = {
+                'ProductID': $(this).attr('id'),
+            }
+            $.ajax({
+                type: "post",
+                data: FormData,
+                url: "{{ route('add-cart') }}",
+                headers: {'X-CSRF-Token': $('meta[name=_token]').attr('content')},
+                dataType: "json",
+                error: function (e, x, settings, exception) {
+                    ajaxErrors(e, x, settings, exception);
+                },
+                complete: function (e, x, settings, exception) {
+                },
+                success: function (response) {
+                    if (response.status) {
+                        if (thiss.hasClass('wishlistCartBtn')) {
+                            thiss.text("Added in cart");
+                        }
+                        if ($('#wishlistTableHtml').length){
+                            var $wishlistButton = $('#wishlistTableHtml').find('.btnAddCart#' + thiss.attr('id'));
+                            thiss.removeClass('wishlistCartBtn btnAddCart btn-add-cart add-cart');
+                            thiss.addClass('added-in-cart');
+                            $wishlistButton.attr('class', thiss.attr('class'));
+                            $wishlistButton.html(thiss.html());
+                        }
+                        thiss.addClass('added-in-cart');
+                        thiss.removeClass('wishlistCartBtn btnAddCart btn-add-cart add-cart');
+                        LoadCart(response.data);
+                        UpdateItemQtyCount(response.data.length);
+                    }
+                }
+            });
+        });
     });
 </script>
