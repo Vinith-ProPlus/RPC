@@ -201,7 +201,7 @@ class VendorProductMappingController extends Controller{
 		return $VendorData;
 	}
     public function getProducts(Request $req){
-		$return=DB::table('tbl_products as P')->join('tbl_product_category as PC','PC.PCID','P.CID')->join('tbl_product_subcategory as PSC','PSC.PSCID','P.SCID')->join('tbl_uom as UOM','UOM.UID','P.UID')->where('P.DFlag',0)->where('P.ActiveStatus','Active')->whereIn('P.CID',$req->PCID)->whereIn('P.SCID',$req->PSCID)->get();
+		$return=DB::table('tbl_products as P')->join('tbl_product_subcategory as PSC','PSC.PSCID','P.SCID')->join('tbl_product_category as PC','PC.PCID','PSC.PCID')->join('tbl_uom as UOM','UOM.UID','P.UID')->where('P.DFlag',0)->where('P.ActiveStatus','Active')/* ->whereIn('P.CID',$req->PCID) */->whereIn('P.SCID',$req->PSCID)->get();
 		$result=[];
 		foreach($return as $row){
 			$result[$row->PSCName][]=$row;

@@ -97,7 +97,10 @@ class HomeController extends Controller
             $FormData['HotProducts'] = $RecentProducts->shuffle();
             $FormData['RecentProducts'] = $RecentProducts->shuffle();
             $FormData['isRegister'] = false;
-            $FormData['Cart'] = DB::table('tbl_customer_cart as C')->join('tbl_products as P', 'P.ProductID', 'C.ProductID')->join('tbl_product_category as PC', 'PC.PCID', 'P.CID')->join('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')->join('tbl_uom as U', 'U.UID', 'P.UID')
+            $FormData['Cart'] = DB::table('tbl_customer_cart as C')->join('tbl_products as P', 'P.ProductID', 'C.ProductID')
+                ->join('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')
+                ->join('tbl_product_category as PC', 'PC.PCID', 'PSC.PCID')
+                ->join('tbl_uom as U', 'U.UID', 'P.UID')
                 ->where('C.CustomerID', $CustomerID)->where('P.ActiveStatus', 'Active')->where('P.DFlag', 0)->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)->where('PSC.ActiveStatus', 'Active')->where('PSC.DFlag', 0)
                 ->select('P.ProductName', 'P.ProductID', 'C.Qty', 'PC.PCName', 'PC.PCID', 'PSC.PSCName', 'U.UName', 'U.UCode', 'U.UID', 'PSC.PSCID', DB::raw('CONCAT(IF(ProductImage != "", "https://rpc.prodemo.in/", "' . url('/') . '/"), COALESCE(NULLIF(ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'))->get();
             $FormData['ShippingAddress'] = DB::table('tbl_customer_address as CA')->where('CustomerID', $CustomerID)->where('CA.DFlag',0)
@@ -189,7 +192,10 @@ class HomeController extends Controller
                 return redirect()->route('customer-register');
             }
             $FormData['isRegister'] = false;
-            $FormData['Cart'] = DB::table('tbl_customer_cart as C')->join('tbl_products as P', 'P.ProductID', 'C.ProductID')->join('tbl_product_category as PC', 'PC.PCID', 'P.CID')->join('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')->join('tbl_uom as U', 'U.UID', 'P.UID')
+            $FormData['Cart'] = DB::table('tbl_customer_cart as C')->join('tbl_products as P', 'P.ProductID', 'C.ProductID')
+            ->join('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')
+            ->join('tbl_product_category as PC', 'PC.PCID', 'PSC.PCID')
+            ->join('tbl_uom as U', 'U.UID', 'P.UID')
                 ->where('C.CustomerID', $CustomerID)->where('P.ActiveStatus', 'Active')->where('P.DFlag', 0)->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)->where('PSC.ActiveStatus', 'Active')->where('PSC.DFlag', 0)
                 ->select('P.ProductName', 'P.ProductID', 'C.Qty', 'PC.PCName', 'PC.PCID', 'PSC.PSCName', 'U.UName', 'U.UCode', 'U.UID', 'PSC.PSCID', DB::raw('CONCAT(IF(ProductImage != "", "https://rpc.prodemo.in/", "' . url('/') . '/"), COALESCE(NULLIF(ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'))->get();
             $FormData['ShippingAddress'] = DB::table('tbl_customer_address as CA')->where('CustomerID', $CustomerID)->where('CA.DFlag',0)
@@ -238,8 +244,9 @@ class HomeController extends Controller
 
     public function quickViewHtml($PID)
     {
-        $product = DB::table('tbl_products as P')->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')
-            ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'P.CID')
+        $product = DB::table('tbl_products as P')
+            ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')
+            ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'PSC.PCID')
             ->where('P.ActiveStatus', 'Active')->where('P.DFlag', 0)
             ->where('P.ProductID', $PID)
             ->select('P.ProductID', 'P.ProductName', 'P.Description', 'PC.PCName as CategoryName', 'PSC.PCID',
@@ -307,7 +314,7 @@ class HomeController extends Controller
                 foreach ($row->PSCData as $item) {
                     $item->ProductData = DB::table('tbl_vendors_product_mapping as VPM')
                         ->leftJoin('tbl_products as P', 'P.ProductID', 'VPM.ProductID')
-                        ->where('VPM.Status', 1)->where('P.CID', $row->PCID)->where('P.SCID', $item->PSCID)->WhereIn('VPM.VendorID', $AllVendors)
+                        ->where('VPM.Status', 1)->where('P.SCID', $item->PSCID)->WhereIn('VPM.VendorID', $AllVendors)
                         ->where('P.ActiveStatus', "Active")->where('P.DFlag', 0)
                         ->distinct()
                         ->select('P.ProductID', 'P.ProductName', DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(P.ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'))->get();
@@ -326,7 +333,7 @@ class HomeController extends Controller
                     ->select('PSC.PSCID', 'PSC.PSCName')->get();
                 foreach ($row->PSCData as $item) {
                     $item->ProductData = DB::table('tbl_products as P')
-                        ->where('P.CID', $row->PCID)->where('P.SCID', $item->PSCID)
+                        ->where('P.SCID', $item->PSCID)
                         ->where('P.ActiveStatus', "Active")->where('P.DFlag', 0)
                         ->distinct()
                         ->select('P.ProductID', 'P.ProductName', DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(P.ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'))->get();
@@ -464,7 +471,10 @@ class HomeController extends Controller
                 return redirect()->route('customer-register');
             }
             $FormData['isRegister'] = false;
-            $FormData['Cart'] = DB::table('tbl_customer_cart as C')->join('tbl_products as P', 'P.ProductID', 'C.ProductID')->join('tbl_product_category as PC', 'PC.PCID', 'P.CID')->join('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')->join('tbl_uom as U', 'U.UID', 'P.UID')
+            $FormData['Cart'] = DB::table('tbl_customer_cart as C')->join('tbl_products as P', 'P.ProductID', 'C.ProductID')
+                ->join('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')
+                ->join('tbl_product_category as PC', 'PC.PCID', 'PSC.PCID')
+                ->join('tbl_uom as U', 'U.UID', 'P.UID')
                 ->where('C.CustomerID', $CustomerID)->where('P.ActiveStatus', 'Active')->where('P.DFlag', 0)->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)->where('PSC.ActiveStatus', 'Active')->where('PSC.DFlag', 0)
                 ->select('P.ProductName', 'P.ProductID', 'C.Qty', 'PC.PCName', 'PC.PCID', 'PSC.PSCName', 'U.UName', 'U.UCode', 'U.UID', 'PSC.PSCID', DB::raw('CONCAT(IF(ProductImage != "", "https://rpc.prodemo.in/", "' . url('/') . '/"), COALESCE(NULLIF(ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'))->get();
             $FormData['ShippingAddress'] = DB::table('tbl_customer_address as CA')->where('CustomerID', $CustomerID)->where('CA.DFlag',0)
@@ -535,7 +545,10 @@ class HomeController extends Controller
                 return redirect()->route('customer-register');
             }
             $FormData['isRegister'] = false;
-            $FormData['Cart'] = DB::table('tbl_customer_cart as C')->join('tbl_products as P', 'P.ProductID', 'C.ProductID')->join('tbl_product_category as PC', 'PC.PCID', 'P.CID')->join('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')->join('tbl_uom as U', 'U.UID', 'P.UID')
+            $FormData['Cart'] = DB::table('tbl_customer_cart as C')->join('tbl_products as P', 'P.ProductID', 'C.ProductID')
+                ->join('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')
+                ->join('tbl_product_category as PC', 'PC.PCID', 'PSC.PCID')
+                ->join('tbl_uom as U', 'U.UID', 'P.UID')
                 ->where('C.CustomerID', $CustomerID)->where('P.ActiveStatus', 'Active')->where('P.DFlag', 0)->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)->where('PSC.ActiveStatus', 'Active')->where('PSC.DFlag', 0)
                 ->select('P.ProductName', 'P.ProductID', 'C.Qty', 'PC.PCName', 'PC.PCID', 'PSC.PSCName', 'U.UName', 'U.UCode', 'U.UID', 'PSC.PSCID', DB::raw('CONCAT(IF(ProductImage != "", "https://rpc.prodemo.in/", "' . url('/') . '/"), COALESCE(NULLIF(ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'))->get();
             $FormData['ShippingAddress'] = DB::table('tbl_customer_address as CA')->where('CustomerID', $CustomerID)->where('CA.DFlag',0)
@@ -616,7 +629,10 @@ class HomeController extends Controller
                 return redirect()->route('customer-register');
             }
             $FormData['isRegister'] = false;
-            $FormData['Cart'] = DB::table('tbl_customer_cart as C')->join('tbl_products as P', 'P.ProductID', 'C.ProductID')->join('tbl_product_category as PC', 'PC.PCID', 'P.CID')->join('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')->join('tbl_uom as U', 'U.UID', 'P.UID')
+            $FormData['Cart'] = DB::table('tbl_customer_cart as C')->join('tbl_products as P', 'P.ProductID', 'C.ProductID')
+                ->join('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')
+                ->join('tbl_product_category as PC', 'PC.PCID', 'PSC.PCID')
+                ->join('tbl_uom as U', 'U.UID', 'P.UID')
                 ->where('C.CustomerID', $CustomerID)->where('P.ActiveStatus', 'Active')->where('P.DFlag', 0)->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)->where('PSC.ActiveStatus', 'Active')->where('PSC.DFlag', 0)
                 ->select('P.ProductName', 'P.ProductID', 'C.Qty', 'PC.PCName', 'PC.PCID', 'PSC.PSCName', 'U.UName', 'U.UCode', 'U.UID', 'PSC.PSCID', DB::raw('CONCAT(IF(ProductImage != "", "https://rpc.prodemo.in/", "' . url('/') . '/"), COALESCE(NULLIF(ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'))->get();
             $FormData['ShippingAddress'] = DB::table('tbl_customer_address as CA')->where('CustomerID', $CustomerID)->where('CA.DFlag',0)
@@ -1033,8 +1049,9 @@ class HomeController extends Controller
                 ->take(10)
                 ->get();
         }
-        $product = DB::table('tbl_products as P')->leftJoin('tbl_product_subcategory as PSC','PSC.PSCID','P.SCID')
-            ->leftJoin('tbl_product_category as PC','PC.PCID','P.CID')
+        $product = DB::table('tbl_products as P')
+            ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')
+            ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'PSC.PCID')
             ->where('P.ActiveStatus','Active')->where('P.DFlag',0)
             ->where('P.ProductID', $ProductID)
             ->select('P.ProductID','P.ProductName','P.ShortDescription','P.Description', 'PC.PCID', 'PSC.PSCID',

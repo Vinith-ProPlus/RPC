@@ -232,8 +232,8 @@ class CustomerTransactionAPIController extends Controller{
                          ->on('QD.ProductID', 'ED.ProductID');
                 })
                 ->leftJoin('tbl_products as P','P.ProductID','ED.ProductID')
-                ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'P.CID')
                 ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')
+                ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'PSC.PCID')
                 ->leftJoin('tbl_uom as U','U.UID','P.UID')
                 ->leftJoin('users as US','US.UserID','QD.CancelledBy')
                 ->where('ED.EnqID',$quote->EnqID)
@@ -672,8 +672,8 @@ class CustomerTransactionAPIController extends Controller{
             $order->TotalUnit = DB::table($this->currfyDB.'tbl_order_details')->where('OrderID',$order->OrderID)->sum('Qty');
             $order->ProductData = DB::table($this->currfyDB.'tbl_order_details as OD')
                 ->leftJoin('tbl_products as P','P.ProductID','OD.ProductID')
-                ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'P.CID')
                 ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')
+                ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'PSC.PCID')
                 ->leftJoin('tbl_uom as U','U.UID','P.UID')
                 ->where('OD.OrderID',$order->OrderID)
                 ->whereNot('OD.Status','Cancelled')
@@ -721,7 +721,7 @@ class CustomerTransactionAPIController extends Controller{
                 foreach($row->PSCData as $item){
 					$item->ProductData = DB::table('tbl_vendors_product_mapping as VPM')
                     ->leftJoin('tbl_products as P', 'P.ProductID', 'VPM.ProductID')
-                    ->where('VPM.Status',1)->where('P.CID',$row->PCID)->where('P.SCID',$item->PSCID)->WhereIn('VPM.VendorID',$AllVendors)
+                    ->where('VPM.Status',1)->where('P.SCID',$item->PSCID)->WhereIn('VPM.VendorID',$AllVendors)
                     ->groupBy('P.ProductID', 'P.ProductName')
                     ->select('P.ProductID','P.ProductName')->get();
 				}
