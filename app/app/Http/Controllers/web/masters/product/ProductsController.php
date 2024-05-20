@@ -148,8 +148,8 @@ class ProductsController extends Controller{
 	}
 	private function getProduct($ProductID){
         $sql="SELECT P.ProductID, P.Slug, P.ProductName, P.ProductType, P.Stages, P.RelatedProducts, P.MinQty, P.MaxQty, P.HSNSAC, P.ProductCode, P.VideoURL, P.CID, C.PCName, P.SCID, SC.PSCName, P.UID, U.UName, U.UCode, P.TaxType, P.TaxID, P.PRate, P.SRate, P.Decimals, P.Description, ";
-        $sql.=" P.ShortDescription, P.Attributes, P.ProductImage, P.ProductBrochure, P.Images, P.ActiveStatus, P.DFlag FROM tbl_products as P LEFT JOIN tbl_product_category as C ON C.PCID=P.CID ";
-        $sql.=" LEFT JOIN tbl_product_subcategory as SC ON SC.PSCID=P.SCID LEFT JOIn tbl_uom as U ON U.UID=P.UID LEFT JOIN tbl_tax as T ON T.TaxID=P.TaxID Where P.ProductID='".$ProductID."'";
+        $sql.=" P.ShortDescription, P.Attributes, P.ProductImage, P.ProductBrochure, P.Images, P.ActiveStatus, P.DFlag FROM tbl_products as P LEFT JOIN tbl_product_subcategory as SC ON SC.PSCID=P.SCID LEFT JOIN tbl_product_category as C ON C.PCID = SC.PCID ";
+        $sql.=" LEFT JOIn tbl_uom as U ON U.UID=P.UID LEFT JOIN tbl_tax as T ON T.TaxID=P.TaxID Where P.ProductID='".$ProductID."'";
 		
 		$result=DB::SELECT($sql);
 		for($i=0;$i<count($result);$i++){
@@ -328,7 +328,7 @@ class ProductsController extends Controller{
 			);
 			$data=array();
 			$data['POSTDATA']=$request;
-			$data['TABLE']='tbl_products as P left join tbl_product_category as C on C.PCID = P.CID left join tbl_product_subcategory as SC on SC.PSCID = P.SCID';
+			$data['TABLE']='tbl_products as P left join tbl_product_subcategory as SC on SC.PSCID = P.SCID left join tbl_product_category as C on C.PCID = SC.PCID';
 			$data['PRIMARYKEY']='P.ProductID';
 			$data['COLUMNS']=$columns;
 			$data['COLUMNS1']=$columns1;
@@ -382,7 +382,7 @@ class ProductsController extends Controller{
 			);
 			$data=array();
 			$data['POSTDATA']=$request;
-			$data['TABLE']='tbl_products as P left join tbl_product_category as C on C.PCID = P.CID left join tbl_product_subcategory as SC on SC.PSCID = P.SCID';
+			$data['TABLE']='tbl_products as P left join tbl_product_subcategory as SC on SC.PSCID = P.SCID left join tbl_product_category as C on C.PCID = SC.PCID';
 			$data['PRIMARYKEY']='P.ProductID';
 			$data['COLUMNS']=$columns;
 			$data['COLUMNS1']=$columns1;

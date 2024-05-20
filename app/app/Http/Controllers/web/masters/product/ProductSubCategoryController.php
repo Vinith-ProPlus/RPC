@@ -292,6 +292,8 @@ class ProductSubCategoryController extends Controller{
 					$data['Images']=serialize(array());
 				}
 				$status=DB::Table('tbl_product_subcategory')->where('PSCID',$PSCID)->update($data);
+				$status=DB::Table('tbl_products')->where('SCID',$PSCID)->update(['CID'=>$req->PCategory]);
+
 				if($status){
 					DB::commit();
 					$status=dynamicField::add(docTypes::ProductSubCategory->value,$req,"tbl_product_subcategory","PSCID",$PSCID,$this->UserID);

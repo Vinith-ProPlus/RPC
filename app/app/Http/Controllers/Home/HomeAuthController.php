@@ -146,8 +146,9 @@ class HomeAuthController extends Controller{
     {
         $cartProducts = $this->getCart();
         $customerID = $this->ReferID;
-        $product = DB::table('tbl_products as P')->leftJoin('tbl_product_subcategory as PSC','PSC.PSCID','P.SCID')
-            ->leftJoin('tbl_product_category as PC','PC.PCID','P.CID')
+        $product = DB::table('tbl_products as P')
+            ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')
+            ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'PSC.PCID')
             ->leftJoin('tbl_wishlists as W', function($join) use ($customerID) {
                 $join->on('W.product_id', '=', 'P.ProductID')
                     ->where('W.customer_id', '=', $customerID);
@@ -561,7 +562,7 @@ class HomeAuthController extends Controller{
                 foreach ($row->PSCData as $item) {
                     $item->ProductData = DB::table('tbl_vendors_product_mapping as VPM')
                         ->leftJoin('tbl_products as P', 'P.ProductID', 'VPM.ProductID')
-                        ->where('VPM.Status', 1)->where('P.CID', $row->PCID)->where('P.SCID', $item->PSCID)
+                        ->where('VPM.Status', 1)->where('P.SCID', $item->PSCID)
                         ->WhereIn('VPM.VendorID', $AllVendors)
                         ->where('P.ActiveStatus', "Active")->where('P.DFlag', 0)
                         ->groupBy('P.ProductID', 'P.ProductName', 'P.ProductImage')
@@ -811,9 +812,12 @@ class HomeAuthController extends Controller{
     }
 
 	public function getCart(){
-        $Cart = DB::table('tbl_customer_cart as C')->join('tbl_products as P','P.ProductID','C.ProductID')->join('tbl_product_category as PC', 'PC.PCID', 'P.CID')->join('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')->join('tbl_uom as U', 'U.UID', 'P.UID')
-        ->where('C.CustomerID', $this->ReferID)->where('P.ActiveStatus', 'Active')->where('P.DFlag', 0)->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)->where('PSC.ActiveStatus', 'Active')->where('PSC.DFlag', 0)
-        ->select('P.ProductName','P.ProductID','C.Qty', 'PC.PCName', 'PC.PCID', 'PSC.PSCName','U.UName','U.UCode','U.UID', 'PSC.PSCID',DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'))->get();
+        $Cart = DB::table('tbl_customer_cart as C')->join('tbl_products as P','P.ProductID','C.ProductID')
+                ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')
+                ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'PSC.PCID')
+                ->join('tbl_uom as U', 'U.UID', 'P.UID')
+                ->where('C.CustomerID', $this->ReferID)->where('P.ActiveStatus', 'Active')->where('P.DFlag', 0)->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)->where('PSC.ActiveStatus', 'Active')->where('PSC.DFlag', 0)
+                ->select('P.ProductName','P.ProductID','C.Qty', 'PC.PCName', 'PC.PCID', 'PSC.PSCName','U.UName','U.UCode','U.UID', 'PSC.PSCID',DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'))->get();
 
         return $Cart;
     }
@@ -2136,8 +2140,9 @@ class HomeAuthController extends Controller{
             $AID = $customerDefaultAid;
         }
         $AllVendors = Helper::getAvailableVendorsForCustomer($AID);
-        $product = DB::table('tbl_products as P')->leftJoin('tbl_product_subcategory as PSC','PSC.PSCID','P.SCID')
-            ->leftJoin('tbl_product_category as PC','PC.PCID','P.CID')
+        $product = DB::table('tbl_products as P')
+            ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')
+            ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'PSC.PCID')
             ->leftJoin('tbl_wishlists as W', function($join) use ($customerID) {
                 $join->on('W.product_id', '=', 'P.ProductID')
                     ->where('W.customer_id', '=', $customerID);
