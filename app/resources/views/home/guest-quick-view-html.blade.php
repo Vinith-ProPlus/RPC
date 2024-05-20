@@ -128,7 +128,9 @@
         $('.product-quick-view').on('click', function(event) {
             event.stopPropagation();
         });
-
+        $('.mfp-close').on('click', function() {
+            $('.product-quick-view').magnificPopup('close');
+        });
         $('.prod-thumbnail .owl-stage-outer .owl-stage').each(function () {
             var existingStyle = $(this).attr('style');
             var updatedStyle = existingStyle.replace(/width:[^;]*/i, 'width: 1500px !important');
