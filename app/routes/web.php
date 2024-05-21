@@ -133,6 +133,55 @@ Route::controller(HomeAuthController::class)->group(function () {
     Route::post('/place-order','PlaceOrder');
 });
 
+Route::middleware(['auth', 'check.valid.customer'])->group(function () {
+    Route::get('customer/products/category-list', [HomeAuthController::class, 'customerCategoryList'])->name('products.customer.categoriesList');
+    Route::get('customer/products/sub-category-list', [HomeAuthController::class, 'customerSubCategoryList'])->name('products.customer.subCategoryList');
+    Route::get('customer/products/products-list', [HomeAuthController::class, 'customerProductsList'])->name('products.customer.productsList');
+    Route::post('customer/products/category-list-html', [HomeAuthController::class, 'customerCategoryListHtml'])->name('products.customer.categoriesListHtml');
+    Route::post('customer/products/sub-category-list-html', [HomeAuthController::class, 'customerSubCategoryListHtml'])->name('products.customer.subCategoriesListHtml');
+    Route::post('customer/products/products-list-html', [HomeAuthController::class, 'customerProductsListHtml'])->name('products.customer.productsListHtml');
+    Route::post('customer/order/review/save', [HomeAuthController::class, 'customerReviewSave'])->name('customer.order.review.save');
+    Route::get('customer/product/view/{ID}', [HomeAuthController::class, 'customerProductView'])->name('customer.product.view');
+
+    Route::get('products/category-list', [HomeController::class, 'categoryList'])->name('products.categoriesList');
+    Route::get('products/sub-category-list', [HomeController::class, 'subCategoryList'])->name('products.subCategoryList');
+    Route::get('products/products-list', [HomeController::class, 'productsList'])->name('products.productsList');
+    Route::post('products/category-list-html', [HomeController::class, 'categoryListHtml'])->name('products.categoriesListHtml');
+    Route::post('products/sub-category-list-html', [HomeController::class, 'subCategoryListHtml'])->name('products.subCategoriesListHtml');
+    Route::post('products/products-list-html', [HomeController::class, 'productsListHtml'])->name('products.productsListHtml');
+
+
+    Route::get('products', [HomeAuthController::class, 'products'])->name('products');
+    Route::get('products/quickView/html/{PID}', [HomeAuthController::class, 'quickViewHtml'])->name('products.quickView');
+    Route::post('products/get/categories/html', [HomeAuthController::class, 'categoriesHtml'])->name('products.categoriesHtml');
+    Route::post('products/get/products/html', [HomeAuthController::class, 'productsHtml'])->name('products.productsHtml');
+    Route::post('products/wishlist/add', [WishlistController::class, 'addWishlist'])->name('products.addWishlist');
+    Route::post('products/wishlist/remove', [WishlistController::class, 'removeWishlist'])->name('products.removeWishlist');
+
+    Route::get('requested-quotations', [HomeTransactionController::class, 'quotations'])->name('requested-quotations');
+    Route::post('requested-quotations/data', [HomeTransactionController::class, 'quotationData'])->name('requested-quotations.data');
+    Route::get('quotations/view/{EnqID}', [HomeAuthController::class, 'CustomerQuoteView'])->name('customer.quotations.QuoteView');
+    Route::get('my-account', [HomeTransactionController::class, 'myAccount'])->name('my-account');
+    Route::post('profileHtml', [HomeAuthController::class, 'profileHtml'])->name('profileHtml');
+    Route::get('wishlist', [HomeTransactionController::class, 'wishlist'])->name('wishlist');
+    Route::post('wishlistTableHtml', [HomeAuthController::class, 'wishlistTableHtml'])->name('wishlistTableHtml');
+    Route::post('supportTableHtml', [HomeAuthController::class, 'supportTableHtml'])->name('supportTableHtml');
+    Route::post('quotationTableHtml', [HomeAuthController::class, 'quotationTableHtml'])->name('quotationTableHtml');
+    Route::post('orderTableHtml', [HomeAuthController::class, 'orderTableHtml'])->name('orderTableHtml');
+    Route::get('order/view/{OrderID}', [HomeAuthController::class, 'CustomerOrderView'])->name('CustomerOrderView');
+    Route::post('guestHomeSearch', [HomeController::class, 'guestHomeSearch'])->name('guestHomeSearch');
+    Route::post('UpdateShippingAddress', [HomeAuthController::class, 'UpdateShippingAddress'])->name('UpdateShippingAddress');
+    Route::post('SetAddressDefault', [HomeAuthController::class, 'SetAddressDefault'])->name('SetAddressDefault');
+    Route::post('DeleteShippingAddress', [HomeAuthController::class, 'DeleteShippingAddress'])->name('DeleteShippingAddress');
+    Route::get('productShortDescription/{PID}', [HomeController::class, 'productShortDescription'])->name('productShortDescription');
+    Route::get('productDescription/{PID}', [HomeController::class, 'productDescription'])->name('productDescription');
+});
+
+Route::post('customerHomeSearch', [HomeAuthController::class, 'customerHomeSearch'])->name('customerHomeSearch');
+Route::post('getNotifications', [HomeAuthController::class, 'getNotifications'])->name('getNotifications');
+Route::post('getNotificationsCount', [HomeAuthController::class, 'getNotificationsCount'])->name('getNotificationsCount');
+Route::post('notificationsRead', [HomeAuthController::class, 'NotificationRead'])->name('notificationsRead');
+
 Route::post('setAidInSession', [HomeController::class, 'setAidInSession'])->name('setAidInSession');
 Route::post('setPostalCodeInSession', [HomeController::class, 'setPostalCodeInSession'])->name('setPostalCodeInSession');
 Route::post('removePostalCodeInSession', [HomeController::class, 'removePostalCodeInSession'])->name('removePostalCodeInSession');
@@ -142,12 +191,6 @@ Route::get('guest/products', [HomeController::class, 'products'])->name('guest.p
 Route::get('guest/products/quickView/html/{PID}', [HomeController::class, 'quickViewHtml'])->name('guest.products.quickView');
 Route::post('guest/products/get/categories/html', [HomeController::class, 'categoriesHtml'])->name('guest.products.categoriesHtml');
 Route::post('guest/products/get/products/html', [HomeController::class, 'productsHtml'])->name('guest.products.productsHtml');
-Route::get('products/category-list', [HomeController::class, 'categoryList'])->name('products.categoriesList');
-Route::get('products/sub-category-list', [HomeController::class, 'subCategoryList'])->name('products.subCategoryList');
-Route::get('products/products-list', [HomeController::class, 'productsList'])->name('products.productsList');
-Route::post('products/category-list-html', [HomeController::class, 'categoryListHtml'])->name('products.categoriesListHtml');
-Route::post('products/sub-category-list-html', [HomeController::class, 'subCategoryListHtml'])->name('products.subCategoriesListHtml');
-Route::post('products/products-list-html', [HomeController::class, 'productsListHtml'])->name('products.productsListHtml');
 
 Route::get('guest/products/category-list', [HomeController::class, 'guestCategoryList'])->name('products.guest.categoriesList');
 Route::get('guest/products/sub-category-list', [HomeController::class, 'guestSubCategoryList'])->name('products.guest.subCategoryList');
@@ -156,46 +199,6 @@ Route::post('guest/products/category-list-html', [HomeController::class, 'guestC
 Route::post('guest/products/sub-category-list-html', [HomeController::class, 'guestSubCategoryListHtml'])->name('products.guest.subCategoriesListHtml');
 Route::post('guest/products/products-list-html', [HomeController::class, 'guestProductsListHtml'])->name('products.guest.productsListHtml');
 Route::get('guest/product/view/{ID}', [HomeController::class, 'guestProductView'])->name('guest.product.view');
-
-
-Route::get('customer/products/category-list', [HomeAuthController::class, 'customerCategoryList'])->name('products.customer.categoriesList');
-Route::get('customer/products/sub-category-list', [HomeAuthController::class, 'customerSubCategoryList'])->name('products.customer.subCategoryList');
-Route::get('customer/products/products-list', [HomeAuthController::class, 'customerProductsList'])->name('products.customer.productsList');
-Route::post('customer/products/category-list-html', [HomeAuthController::class, 'customerCategoryListHtml'])->name('products.customer.categoriesListHtml');
-Route::post('customer/products/sub-category-list-html', [HomeAuthController::class, 'customerSubCategoryListHtml'])->name('products.customer.subCategoriesListHtml');
-Route::post('customer/products/products-list-html', [HomeAuthController::class, 'customerProductsListHtml'])->name('products.customer.productsListHtml');
-Route::post('customer/order/review/save', [HomeAuthController::class, 'customerReviewSave'])->name('customer.order.review.save');
-Route::get('customer/product/view/{ID}', [HomeAuthController::class, 'customerProductView'])->name('customer.product.view');
-
-
-
-Route::get('products', [HomeAuthController::class, 'products'])->name('products');
-Route::get('products/quickView/html/{PID}', [HomeAuthController::class, 'quickViewHtml'])->name('products.quickView');
-Route::post('products/get/categories/html', [HomeAuthController::class, 'categoriesHtml'])->name('products.categoriesHtml');
-Route::post('products/get/products/html', [HomeAuthController::class, 'productsHtml'])->name('products.productsHtml');
-Route::post('products/wishlist/add', [WishlistController::class, 'addWishlist'])->name('products.addWishlist');
-Route::post('products/wishlist/remove', [WishlistController::class, 'removeWishlist'])->name('products.removeWishlist');
-Route::get('requested-quotations', [HomeTransactionController::class, 'quotations'])->name('requested-quotations');
-Route::post('requested-quotations/data', [HomeTransactionController::class, 'quotationData'])->name('requested-quotations.data');
-Route::get('quotations/view/{EnqID}', [HomeAuthController::class, 'CustomerQuoteView'])->name('customer.quotations.QuoteView');
-Route::get('my-account', [HomeTransactionController::class, 'myAccount'])->name('my-account');
-Route::post('profileHtml', [HomeAuthController::class, 'profileHtml'])->name('profileHtml');
-Route::get('wishlist', [HomeTransactionController::class, 'wishlist'])->name('wishlist');
-Route::post('wishlistTableHtml', [HomeAuthController::class, 'wishlistTableHtml'])->name('wishlistTableHtml');
-Route::post('supportTableHtml', [HomeAuthController::class, 'supportTableHtml'])->name('supportTableHtml');
-Route::post('quotationTableHtml', [HomeAuthController::class, 'quotationTableHtml'])->name('quotationTableHtml');
-Route::post('orderTableHtml', [HomeAuthController::class, 'orderTableHtml'])->name('orderTableHtml');
-Route::get('order/view/{OrderID}', [HomeAuthController::class, 'CustomerOrderView'])->name('CustomerOrderView');
-Route::post('customerHomeSearch', [HomeAuthController::class, 'customerHomeSearch'])->name('customerHomeSearch');
-Route::post('guestHomeSearch', [HomeController::class, 'guestHomeSearch'])->name('guestHomeSearch');
-Route::post('UpdateShippingAddress', [HomeAuthController::class, 'UpdateShippingAddress'])->name('UpdateShippingAddress');
-Route::post('SetAddressDefault', [HomeAuthController::class, 'SetAddressDefault'])->name('SetAddressDefault');
-Route::post('DeleteShippingAddress', [HomeAuthController::class, 'DeleteShippingAddress'])->name('DeleteShippingAddress');
-Route::post('getNotifications', [HomeAuthController::class, 'getNotifications'])->name('getNotifications');
-Route::post('getNotificationsCount', [HomeAuthController::class, 'getNotificationsCount'])->name('getNotificationsCount');
-Route::post('notificationsRead', [HomeAuthController::class, 'NotificationRead'])->name('notificationsRead');
-Route::get('productShortDescription/{PID}', [HomeController::class, 'productShortDescription'])->name('productShortDescription');
-Route::get('productDescription/{PID}', [HomeController::class, 'productDescription'])->name('productDescription');
 
 //Customer Support details
 Route::post('customer/support/get/details', [CustomerSupportController::class, 'getDetails'])->name('customer.support.getDetails');

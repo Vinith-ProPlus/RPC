@@ -51,6 +51,9 @@ class HomeController extends Controller
             if (empty($CustomerID)) {
                 return redirect()->route('customer-register');
             }
+            if (!Helper::checkValidCustomer($CustomerID)) {
+                return redirect('/customer-profile');
+            }
             $customerAid = Session::get('selected_aid');
             $customerDefaultAid = DB::table('tbl_customer_address')
                 ->where('CustomerID', $CustomerID)

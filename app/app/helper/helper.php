@@ -5,10 +5,10 @@ use App\Http\Controllers\MailController;
 use App\Mail\MailSender;
 use App\Models\EmailSender;
 use App\Models\TextLocal;
-use DB;
 use DocNum;
 use Exception;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\DB;
 use Session;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Mail;
@@ -1151,5 +1151,26 @@ class helper{
     {
         return ($filePath != "") ? (file_exists($filePath) ? url($filePath) : url($dummyFile)) : false;
     }
-
+    public static function checkValidCustomer($CustomerID)
+    {
+        $customer = DB::table('tbl_customer')->where('CustomerID', $CustomerID)->first();
+        $requiredFields = ["Email", "aMobileNo1"];
+        foreach ($requiredFields as $field) {
+            if (empty($customer->$field)) {
+                return false;
+            }
+        }
+        if ($customer->ActiveStatus !== 'Active' || $customer->DFlag != 0) {
+            return false;
+        }
+        $addressCount = DB::table('tbl_customer_address')
+            ->where('CustomerID', $CustomerID)
+            ->where('isDefault', 1)
+            ->where('DFlag', 0)
+            ->count();
+        if ($addressCount == 0) {
+            return false;
+        }
+        return true;
+    }
 }

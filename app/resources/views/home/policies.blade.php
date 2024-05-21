@@ -135,10 +135,10 @@
                         </div><!-- End .header-menu -->
                     </div><!-- End .header-dropown -->
 <ul class="d-none d-xl-flex mb-0 pr-2 align-items-center">
-                        <li>
-                            <a href="{{url('/')}}/social/auth/google" style="font-size: 12px;"><i
-                                    class="icon-help-circle" style="font-size: 18px;"></i>&nbsp;Help</a>
-                        </li>
+{{--                        <li>--}}
+{{--                            <a href="{{url('/')}}/social/auth/google" style="font-size: 12px;"><i--}}
+{{--                                    class="icon-help-circle" style="font-size: 18px;"></i>&nbsp;Help</a>--}}
+{{--                        </li>--}}
                     </ul>
 
 
