@@ -1154,7 +1154,7 @@ class helper{
     public static function checkValidCustomer($CustomerID)
     {
         $customer = DB::table('tbl_customer')->where('CustomerID', $CustomerID)->first();
-        $requiredFields = ["Email", "aMobileNo1"];
+        $requiredFields = ["Email", "MobileNo1"];
         foreach ($requiredFields as $field) {
             if (empty($customer->$field)) {
                 return false;
