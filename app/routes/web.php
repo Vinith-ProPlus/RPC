@@ -155,10 +155,11 @@ Route::middleware(['auth', 'check.valid.customer'])->group(function () {
     Route::get('wishlist', [HomeTransactionController::class, 'wishlist'])->name('wishlist');
     Route::post('orderTableHtml', [HomeAuthController::class, 'orderTableHtml'])->name('orderTableHtml');
     Route::get('order/view/{OrderID}', [HomeAuthController::class, 'CustomerOrderView'])->name('CustomerOrderView');
-    Route::post('guestHomeSearch', [HomeController::class, 'guestHomeSearch'])->name('guestHomeSearch');
     Route::get('productShortDescription/{PID}', [HomeController::class, 'productShortDescription'])->name('productShortDescription');
     Route::get('productDescription/{PID}', [HomeController::class, 'productDescription'])->name('productDescription');
 });
+
+Route::post('guestHomeSearch', [HomeController::class, 'guestHomeSearch'])->name('guestHomeSearch');
 
 Route::post('customer/products/category-list-html', [HomeAuthController::class, 'customerCategoryListHtml'])->name('products.customer.categoriesListHtml');
 Route::post('customer/products/sub-category-list-html', [HomeAuthController::class, 'customerSubCategoryListHtml'])->name('products.customer.subCategoriesListHtml');
