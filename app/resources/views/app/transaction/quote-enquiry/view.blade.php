@@ -15,7 +15,7 @@
 </div>
 <div class="container-fluid">
 	<div class="row d-flex justify-content-center">
-		<div class="col-12 col-sm-12 col-lg-10">
+		<div class="col-12 col-sm-12 col-lg-12">
 			<div class="card">
 				<div class="card-header text-center">
 					<div class="row">

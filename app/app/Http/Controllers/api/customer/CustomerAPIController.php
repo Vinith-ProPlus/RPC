@@ -72,9 +72,6 @@ class CustomerAPIController extends Controller{
 							"user_data"=> $userInfo['status']==true?$userInfo['data']:array(),
                         )
 					);
-                    /* if(count($return['data']['user_data'])>0){
-                        $return['data']['user_data']=$return['data']['user_data'][0];
-                    } */
                     
                 }else{
                     $return['message']='login failed';
@@ -181,7 +178,7 @@ class CustomerAPIController extends Controller{
                     $pwd1=Hash::make($req->MobileNumber);
                     $data=array(
                         "UserID"=>$UserID,
-                        "UserName"=>$req->UserName,
+                        "UserName"=>$req->MobileNumber,
                         "MobileNumber"=>$req->MobileNumber,
                         "password"=>$pwd1,
                         "LoginType"=>$req->LoginType,

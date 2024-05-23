@@ -33,63 +33,6 @@ class VendorAPIController extends Controller{
 		$this->FileTypes=Helper::getFileTypes(array("category"=>array("Images","Documents")));
     }
 
-    public function Login1(Request $req){
-		$rules=array(
-			'email' => 'required|email:filter',
-			'password' => 'required',
-			'fcmToken' => 'required',
-		);
-		$message=array(
-		    'fcmToken.required'=>'Firebase Cloud Message Token is required'
-		);
-
-		$validator = Validator::make($req->all(), $rules,$message);
-			
-		if ($validator->fails()) {
-			return array('status'=>false,'message'=>"Login failed",'errors'=>$validator->errors());			
-		}
-        $return=array('status'=>false);
-        $result=DB::Table('users')->where('UserName',$req->email)->get();
-        if(count($result)>0){
-            if(($result[0]->DFlag==0)&&($result[0]->ActiveStatus=='Active')&&($result[0]->isLogin==1)){
-                if(Auth::attempt(['UserName'=>$req->email,'password'=>$req->password,'LoginType'=>$req->LoginType,'ActiveStatus' => 1,'DFlag' => 0,'isLogin' => 1])){
-                    $token=auth()->user()->createToken('Token')->accessToken;
-					DB::Table('users')->where('UserID',Auth()->user()->UserID)->update(array("fcmToken"=>$req->fcmToken));
-                    $userInfo=helper::getUserInfo(Auth()->user()->UserID);
-                    
-                    $return=array(
-						"status"=>true,
-						"message"=>"Successfully Logged in",
-						"data"=>array(
-							"token"=>$token,
-							"email"=>Auth()->user()->email,
-							"userID"=>Auth()->user()->UserID,
-							"isNewUser"=>$userInfo['data']->ReferID?false:true,
-							"user_data"=> $userInfo['status']==true?$userInfo['data']:array(),
-                        )
-					);
-                    /* if(count($return['data']['user_data'])>0){
-                        $return['data']['user_data']=$return['data']['user_data'][0];
-                    } */
-                    
-                }else{
-                    $return['message']='login failed';
-                    $return['password']='The user name and password not match.';
-                }
-            }elseif($result[0]->DFlag==1){
-                $return['message']='Your account has been deleted.';
-            }elseif($result[0]->ActiveStatus==0){
-                $return['message']='Your account has been disabled.';
-            }elseif($result[0]->isLogin==0){
-                $return['message']='You dont have login rights.';
-            }
-        }else{
-            $return['message']='login failed';
-            $return['email']='User name does not exists. please verify user name.';
-        }
-        return $return;
-    }
-
     public function Login(Request $req){
 		$rules=array(
 			'fcmToken' => 'required',
@@ -241,7 +184,7 @@ class VendorAPIController extends Controller{
                     $pwd1=Hash::make($req->MobileNumber);
                     $data=array(
                         "UserID"=>$UserID,
-                        "UserName"=>$req->UserName,
+                        "UserName"=>$req->MobileNumber,
                         "MobileNumber"=>$req->MobileNumber,
                         "password"=>$pwd1,
                         "LoginType"=>$req->LoginType,

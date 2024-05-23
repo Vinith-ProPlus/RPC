@@ -627,13 +627,6 @@ class CustomerAuthController extends Controller{
             $Products = $products->groupBy('PSC.PSCID', 'PSCName', 'PC.PCID', 'PCName', 'P.ProductID', 'ProductName', 'ProductImage','UName','UCode','U.UID','P.VideoURL')
                 ->select('PSC.PSCID', 'PSCName','PC.PCID', 'PCName', 'P.ProductID', 'ProductName','UName','UCode','U.UID','P.VideoURL', DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'))
                 ->paginate($perPage, ['*'], 'page', $pageNo);
-            foreach ($Products as $row) {
-                $row->ProductImage =  file_exists($row->ProductImage) ? url('/') . '/' . $row->ProductImage : null;
-                $row->GalleryImages = DB::table('tbl_products_gallery')
-                    ->where('ProductID', $row->ProductID)
-                    ->pluck(DB::raw('CONCAT("' . url('/') . '/", gImage) AS gImage'))
-                    ->toArray();
-            }
             return response()->json([
                 'status' => true,
                 'data' => $Products->items(),
@@ -794,7 +787,7 @@ class CustomerAuthController extends Controller{
             ->leftJoin('tbl_uom as U', 'U.UID', 'P.UID')
             ->where('P.ProductID', $req->ProductID)
             ->select('P.*', 'PC.PCID', 'PC.PCName', 'PSC.PSCID', 'PSC.PSCName')->first();
-            $Products->ProductImage =  file_exists($Products->ProductImage) ? url('/') . '/' . $Products->ProductImage : null;
+            $Products->ProductImage =  file_exists($Products->ProductImage) ? url('/') . '/' . $Products->ProductImage : url('/') ."assets/images/no-image-b.png";
             $Products->ProductBrochure =  file_exists($Products->ProductBrochure) ? url('/') . '/' . $Products->ProductBrochure : null;
             $Products->GalleryImages = DB::table('tbl_products_gallery')
                 ->where('ProductID', $Products->ProductID)

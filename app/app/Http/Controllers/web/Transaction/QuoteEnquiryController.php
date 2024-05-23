@@ -342,7 +342,7 @@ class QuoteEnquiryController extends Controller{
 						->get();
 					}
 				}elseif($EnqData->Status == "Converted to Quotation" || $EnqData->Status == "Accepted"){
-					$FinalQuoteData = DB::Table($this->currfyDB.'tbl_quotation_details as QD')->join($this->currfyDB.'tbl_quotation as Q','Q.QID','QD.QID')->join('tbl_vendors as V','V.VendorID','QD.VendorID')->join('tbl_products as P','P.ProductID','QD.ProductID')->join('tbl_uom as UOM','UOM.UID','P.UID')->where('Q.EnqID',$EnqID)->get();
+					$FinalQuoteData = DB::Table($this->currfyDB.'tbl_quotation_details as QD')->join($this->currfyDB.'tbl_quotation as Q','Q.QID','QD.QID')->join('tbl_vendors as V','V.VendorID','QD.VendorID')->join('tbl_products as P','P.ProductID','QD.ProductID')->join('tbl_uom as UOM','UOM.UID','P.UID')->where('QD.isCancelled',0)->where('Q.EnqID',$EnqID)->get();
 				}
 
 				$FormData['PData'] = $PData;
@@ -656,14 +656,14 @@ class QuoteEnquiryController extends Controller{
 							'CreatedOn'=>date('Y-m-d H:i:s'),
 							'CreatedBy'=>$this->UserID,
 						];
-						$isNotifiedVendor = DB::table($this->currfyDB.'tbl_quotation_details')->where('QID',$QID)->where('VendorID',$item->VendorID)->exists();
+						$status = DB::table($this->currfyDB.'tbl_quotation_details')->insert($data1);
+						$isNotifiedVendor = DB::table($this->currfyDB.'tbl_quotation_details')->where('QID',$QID)->where('VendorID',$item->VendorID)->where('QD.isCancelled',0)->exists();
 						if(!$isNotifiedVendor){
 							$VQuoteID = DB::table($this->currfyDB.'tbl_vendor_quotation_details')->where('DetailID',$item->DetailID)->value('VQuoteID');
 							$Title = "Quotation Accepted";
 							$Message = "Great news! Your quotation has been accepted. We'll proceed accordingly. Thank you.";
 							Helper::saveNotification($item->VendorID,$Title,$Message,'Quotation',$VQuoteID);
 						}
-						$status = DB::table($this->currfyDB.'tbl_quotation_details')->insert($data1);
 						if($status){
 							DocNum::updateDocNum(docTypes::QuotationDetails->value, $this->currfyDB);
 						}

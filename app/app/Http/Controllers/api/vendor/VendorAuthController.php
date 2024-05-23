@@ -1553,13 +1553,9 @@ class VendorAuthController extends Controller{
             ->where('PC.DFlag', 0)
             ->where('PSC.ActiveStatus', 'Active')
             ->where('PSC.DFlag', 0)
-            ->select('VPM.VendorID','P.ProductID','VPM.VendorPrice','P.ProductName','P.ProductID as ProductID','PC.PCName','PC.PCID','PSC.PSCID', 'PSC.PSCName', 'U.UName', 'U.UCode', 'P.VideoURL','ProductImage','ProductBrochure')
+            ->select('VPM.VendorID','P.ProductID','VPM.VendorPrice','P.ProductName','PC.PCName','PC.PCID','PSC.PSCID', 'PSC.PSCName', 'U.UName', 'U.UCode', 'P.VideoURL', DB::raw('IFNULL(VSP.TotalQty, 0) AS TotalQty') , DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'))
             ->paginate($perPage, ['*'], 'page', $pageNo);
 
-        foreach ($VendorProductData as $row) {
-            $row->ProductImage =  file_exists($row->ProductImage) ? url('/') . '/' . $row->ProductImage : null;
-            $row->ProductBrochure =  file_exists($row->ProductBrochure) ? url('/') . '/' . $row->ProductBrochure : null;
-        }
         return response()->json([
             'status' => true,
             'data' => $VendorProductData->items(),

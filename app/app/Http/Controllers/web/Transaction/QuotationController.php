@@ -59,7 +59,6 @@ class QuotationController extends Controller{
         }
     }
     public function QuoteView(Request $req,$QID){
-		//return $this->SaveVendorOrders("ODR2324-00000031");
         if($this->general->isCrudAllow($this->CRUD,"edit")==true){
 
 			$OtherCRUD=[
@@ -220,7 +219,7 @@ class QuotationController extends Controller{
 			}
 			//Update Customer's Additional Cost in Quotation Table
 			if($status){
-				$sql="Update ".$this->CurrFYDB."tbl_quotation set   AdditionalCost='".$req->CACharges."',OverAllAmount=(TotalAmount+'".floatval($req->CACharges)."'), UpdatedOn='".date("Y-m-d H:i:s")."',UpdatedBy='".$this->UserID."' Where QID='".$req->QID."'";
+				$sql="Update ".$this->CurrFYDB."tbl_quotation set AdditionalCost='".$req->CACharges."',OverAllAmount=(TotalAmount+'".floatval($req->CACharges)."'), UpdatedOn='".date("Y-m-d H:i:s")."',UpdatedBy='".$this->UserID."' Where QID='".$req->QID."'";
 				$status=DB::Update($sql);
 			}
 			// Verify if all items have been cancelled. If all items are cancelled, update the status in the main quotation table.
@@ -335,7 +334,7 @@ class QuotationController extends Controller{
 			if($status){
 				$sql =" SELECT OD.DetailID as ODetailID, OD.QID, OD.QDID, OD.OrderID, OD.ProductID, VQD.Qty, VQD.Price, VQD.TaxType, VQD.TaxID, VQD.TaxPer, VQD.Taxable, VQD.DiscountType, VQD.DiscountPer, VQD.DiscountAmt, VQD.TaxAmt, VQD.CGSTPer, VQD.SGSTPer, VQD.IGSTPer, VQD.CGSTAmt, VQD.SGSTAmt, VQD.IGSTAmt, VQD.TotalAmt ";
 				$sql.=" FROM ".$this->CurrFYDB."tbl_order_details as OD LEFT JOIN ".$this->CurrFYDB."tbl_quotation_details as QD ON QD.DetailID=OD.QDID AND QD.QID=OD.QID LEFT JOIN ".$this->CurrFYDB."tbl_vendor_quotation_details as VQD ON VQD.DetailID=QD.VQDetailID AND VQD.ProductID=QD.ProductID ";
-				$sql.=" Where OD.OrderID='".$OrderID."' and OD.VendorID='".$VendorID."'"; 
+				$sql.=" Where QD.isCancelled = 0 and OD.OrderID='".$OrderID."' and OD.VendorID='".$VendorID."'";
 				$result=DB::SELECT($sql);
 				$totals=json_decode(json_encode(["TaxAmount"=>0,"SubTotal"=>0,"CGSTAmount"=>0,"SGSTAmount"=>0,"IGSTAmount"=>0,"additionalCharges"=>0,"TotalAmount"=>0]));
 				foreach($result as $tdata){
