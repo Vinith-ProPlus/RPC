@@ -57,7 +57,7 @@
                         </a>
                         <div class="label-group"></div>
                         <div class="btn-icon-group">
-                            <a href="#" class="btn-icon btn-add-cart product-type-simple redirectLogin" id="{{ $product->ProductID }}">
+                            <a href="#" class="btn-icon product-type-simple redirectLogin" id="{{ $product->ProductID }}">
                                 <i class="icon-shopping-cart"></i>
                             </a>
                         </div>
@@ -105,7 +105,7 @@
                         <p class="product-description">{!! $product->Description !!}</p>
                         <div class="price-box"></div>
                         <div class="product-action">
-                            <a href="#" class="btn-icon btn-add-cart product-type-simple redirectLogin" id="{{ $product->ProductID }}">
+                            <a href="#" class="btn-icon product-type-simple redirectLogin" id="{{ $product->ProductID }}">
                                 <i class="icon-shopping-cart"></i>
                                 <span>ADD TO CART</span>
                             </a>
