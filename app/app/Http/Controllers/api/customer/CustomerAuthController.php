@@ -629,7 +629,6 @@ class CustomerAuthController extends Controller{
                 ->paginate($perPage, ['*'], 'page', $pageNo);
             foreach ($Products as $row) {
                 $row->ProductImage =  file_exists($row->ProductImage) ? url('/') . '/' . $row->ProductImage : null;
-                $row->ProductBrochure =  file_exists($row->ProductBrochure) ? url('/') . '/' . $row->ProductBrochure : null;
                 $row->GalleryImages = DB::table('tbl_products_gallery')
                     ->where('ProductID', $row->ProductID)
                     ->pluck(DB::raw('CONCAT("' . url('/') . '/", gImage) AS gImage'))
@@ -771,13 +770,12 @@ class CustomerAuthController extends Controller{
                 if($req->SearchText){
                     $query ->where('P.ProductName', 'like', '%' . $req->SearchText . '%');
                 }
-                $Products = $query->groupBy('P.ProductID', 'P.ProductName', 'PC.PCID', 'PC.PCName', 'PSC.PSCID', 'PSC.PSCName','ProductImage','P.VideoURL','P.ProductBrochure')
-                ->select('P.ProductID', 'P.ProductName', 'PC.PCID', 'PC.PCName', 'PSC.PSCID', 'PSC.PSCName', 'P.VideoURL', 'ProductImage','ProductBrochure')
+                $Products = $query->groupBy('P.ProductID', 'P.ProductName', 'PC.PCID', 'PC.PCName', 'PSC.PSCID', 'PSC.PSCName','ProductImage')
+                ->select('P.ProductID', 'P.ProductName', 'PC.PCID', 'PC.PCName', 'PSC.PSCID', 'PSC.PSCName','ProductImage')
                 ->paginate($perPage, ['*'], 'page', $pageNo);
 
                 foreach ($Products as $row) {
                     $row->ProductImage =  file_exists($row->ProductImage) ? url('/') . '/' . $row->ProductImage : null;
-                    $row->ProductBrochure =  file_exists($row->ProductBrochure) ? url('/') . '/' . $row->ProductBrochure : null;
                 }
                 return response()->json([
                     'status' => true,
