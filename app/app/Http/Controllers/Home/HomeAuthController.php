@@ -554,7 +554,7 @@ class HomeAuthController extends Controller{
             foreach ($PCatagories as $row) {
                 $row->PSCData = DB::table('tbl_vendors_product_mapping as VPM')
                     ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'VPM.PSCID')
-                    ->where('VPM.Status', 1)->where('PSC.PCID', $row->PCID)->WhereIn('VPM.VendorID', $AllVendors)
+                    ->where('PSC.PCID', $row->PCID)
                     ->where('PSC.ActiveStatus', "Active")->where('PSC.DFlag', 0)
                     ->groupBy('PSC.PSCID', 'PSC.PSCName')
                     ->select('PSC.PSCID', 'PSC.PSCName')
