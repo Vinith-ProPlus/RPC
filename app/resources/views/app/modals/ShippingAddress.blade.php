@@ -1,7 +1,8 @@
 <div class="row" id="shippingModalMapDiv">
     <div class="col-sm-12 mt-20">
         <label for="txtADMap">Select Location <span class="required"> * </span></label>
-        <div id="map" style="height: 350px;"></div>
+        <div id="map" class="mb-0" style="height: 350px;"></div>
+        <span class="errors Address err-sm" id="txtADMap-err"></span>
     </div>
     <div class="col-sm-12 mt-20">
         <div class="form-group">

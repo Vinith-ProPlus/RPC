@@ -83,10 +83,14 @@
                                         <span class="errors Customer err-sm" id="lstGender-err"></span>
                                     </div>
                                 </div>
+                                @php
+                                    $minDOB = Carbon\Carbon::now()->subYears(150)->format('Y-m-d');
+                                    $maxDOB = Carbon\Carbon::now()->subYears(10)->format('Y-m-d');
+                                @endphp
                                 <div class="col-sm-6 mt-20">
                                     <div class="form-group">
                                         <label for="txtDOB">DOB <span class="required">*</span></label>
-                                        <input type="date" id="txtDOB" class="form-control " placeholder="Select DOB" value="{{ $isEdit ? ($EditData->DOB ?? '') : '' }}">
+                                        <input type="date" id="txtDOB" class="form-control" placeholder="Select DOB" min="{{ $minDOB }}" max="{{ $maxDOB }}" value="{{ $isEdit ? ($EditData->DOB ?? '') : '' }}">
                                         <span class="errors Customer err-sm" id="txtDOB-err"></span>
                                     </div>
                                 </div>
@@ -544,9 +548,18 @@
             if(Gender === ""){
                 $('#lstGender-err').html('Gender is required.');status=false;
             }
-            if(DOB === ""){
-                $('#txtDOB-err').html('DOB is required.');status=false;
+
+            if (DOB === "") {
+                $('#txtDOB-err').html('DOB is required.');status = false;
+            } else {
+                let minDOB = new Date("{{ $minDOB }}");
+                let maxDOB = new Date("{{ $maxDOB }}");
+                let enteredDOB = new Date(DOB);
+                if (enteredDOB < minDOB || enteredDOB > maxDOB) {
+                    $('#txtDOB-err').html('DOB must be between 10 and 150 years ago.');status = false;
+                }
             }
+
             if(CusType === ""){
                 $('#lstCusType-err').html('Customer type is required.');status=false;
             }
@@ -867,6 +880,10 @@
 
             if(formData.AddressType==""){
                 $('#txtADAddressType-err').html('Address type is required');status=false;
+            }
+
+            if(formData.Latitude==="" || formData.Latitude===""){
+                $('#txtADMap-err').html('Delivery location is required');status=false;
             }
             // if(formData.TalukID==""){
             //     $('#lstADTaluk-err').html('Taluk is required');status=false;
