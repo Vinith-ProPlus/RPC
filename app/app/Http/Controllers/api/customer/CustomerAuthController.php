@@ -629,7 +629,6 @@ class CustomerAuthController extends Controller{
                 ->paginate($perPage, ['*'], 'page', $pageNo);
             foreach ($Products as $row) {
                 $row->ProductImage =  file_exists($row->ProductImage) ? url('/') . '/' . $row->ProductImage : null;
-                $row->ProductBrochure =  file_exists($row->ProductBrochure) ? url('/') . '/' . $row->ProductBrochure : null;
                 $row->GalleryImages = DB::table('tbl_products_gallery')
                     ->where('ProductID', $row->ProductID)
                     ->pluck(DB::raw('CONCAT("' . url('/') . '/", gImage) AS gImage'))
