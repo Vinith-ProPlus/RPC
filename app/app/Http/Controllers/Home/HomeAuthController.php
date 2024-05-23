@@ -815,15 +815,18 @@ class HomeAuthController extends Controller{
         }
     }
 
-	public function getCart(){
-        $Cart = DB::table('tbl_customer_cart as C')->join('tbl_products as P','P.ProductID','C.ProductID')
-                ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')
-                ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'PSC.PCID')
-                ->join('tbl_uom as U', 'U.UID', 'P.UID')
-                ->where('C.CustomerID', $this->ReferID)->where('P.ActiveStatus', 'Active')->where('P.DFlag', 0)->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)->where('PSC.ActiveStatus', 'Active')->where('PSC.DFlag', 0)
-                ->select('P.ProductName','P.ProductID','C.Qty', 'PC.PCName', 'PC.PCID', 'PSC.PSCName','U.UName','U.UCode','U.UID', 'PSC.PSCID',DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'))->get();
-
-        return $Cart;
+    public function getCart()
+    {
+        return DB::table('tbl_customer_cart as C')->join('tbl_products as P', 'P.ProductID', 'C.ProductID')
+            ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')
+            ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'PSC.PCID')
+            ->join('tbl_uom as U', 'U.UID', 'P.UID')
+            ->where('C.CustomerID', $this->ReferID)->where('P.ActiveStatus', 'Active')->where('P.DFlag', 0)->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)->where('PSC.ActiveStatus', 'Active')->where('PSC.DFlag', 0)
+            ->select('P.ProductName', 'P.ProductID', 'C.Qty', 'PC.PCName', 'PC.PCID', 'PSC.PSCName', 'U.UName',
+                'U.UCode', 'U.UID', 'PSC.PSCID', 'P.ProductImage')->get()->map(function ($cart) {
+                $cart->ProductImage = (new Helper)->fileCheckAndUrl($cart->ProductImage, 'assets/images/no-image-b.png');
+                return $cart;
+            });
     }
 	public function AddCart(Request $req){
         DB::beginTransaction();

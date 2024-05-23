@@ -105,7 +105,12 @@ class HomeController extends Controller
                 ->join('tbl_product_category as PC', 'PC.PCID', 'PSC.PCID')
                 ->join('tbl_uom as U', 'U.UID', 'P.UID')
                 ->where('C.CustomerID', $CustomerID)->where('P.ActiveStatus', 'Active')->where('P.DFlag', 0)->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)->where('PSC.ActiveStatus', 'Active')->where('PSC.DFlag', 0)
-                ->select('P.ProductName', 'P.ProductID', 'C.Qty', 'PC.PCName', 'PC.PCID', 'PSC.PSCName', 'U.UName', 'U.UCode', 'U.UID', 'PSC.PSCID', DB::raw('CONCAT(IF(ProductImage != "", "https://rpc.prodemo.in/", "' . url('/') . '/"), COALESCE(NULLIF(ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'))->get();
+                ->select('P.ProductName', 'P.ProductID', 'C.Qty', 'PC.PCName', 'PC.PCID', 'PSC.PSCName', 'U.UName',
+                    'U.UCode', 'U.UID', 'PSC.PSCID','P.ProductImage')->get()->map(function ($cart) {
+                    $cart->ProductImage = (new Helper)->fileCheckAndUrl($cart->ProductImage, 'assets/images/no-image-b.png');
+                    return $cart;
+                });
+
             $FormData['ShippingAddress'] = DB::table('tbl_customer_address as CA')->where('CustomerID', $CustomerID)->where('CA.DFlag',0)
                 ->join($this->generalDB . 'tbl_countries as C', 'C.CountryID', 'CA.CountryID')
                 ->join($this->generalDB . 'tbl_states as S', 'S.StateID', 'CA.StateID')
