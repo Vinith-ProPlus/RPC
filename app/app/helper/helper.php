@@ -1149,7 +1149,7 @@ class helper{
 
     public function fileCheckAndUrl($filePath, $dummyFile)
     {
-        return ($filePath != "") ? (file_exists($filePath) ? url($filePath) : url($dummyFile)) : false;
+        return ($filePath != "") ? (file_exists($filePath) ? url($filePath) : url($dummyFile)) : (($dummyFile != "") ? url($dummyFile) : false);
     }
     public static function checkValidCustomer($CustomerID)
     {
