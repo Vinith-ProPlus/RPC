@@ -2075,13 +2075,10 @@ class HomeAuthController extends Controller{
     {
         $pageNo = $req->PageNo ?? 1;
         $perPage = 10;
-
-        logger($this->ReferID);
         $Notifications = DB::table($this->CurrFyDB.'tbl_notifications')
             ->where('ReferID', $this->ReferID)
             ->orderBy('CreatedOn', 'desc')
             ->paginate($perPage, ['*'], 'page', $pageNo);
-        logger($Notifications);
         return view('home.customer.notification-template', compact('Notifications', 'pageNo'))->render();
     }
 
