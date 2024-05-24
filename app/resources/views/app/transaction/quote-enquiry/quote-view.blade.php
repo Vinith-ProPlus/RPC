@@ -118,7 +118,7 @@
                                             </div>
                                             <div class="col-4 text-end">
                                                 @if($EnqData->isImageQuote)
-                                                    <button type="button" id="btnViewQuoteImage" title="View Quote Image" data-image="{{$EnqData->QuoteImage ? url('/').'/'.$EnqData->QuoteImage : ''}}" class="btn btn-outline-dark mr-10"><i class="fa fa-image"></i></button>
+                                                    <button type="button" id="btnViewQuoteImage" title="View Quote Image" data-image="{{$EnqData->QuoteImage ? url('/').'/'.$EnqData->QuoteImage : ''}}" class="btn btn-outline-info mr-10"><i class="fa fa-image"></i></button>
                                                 @endif
                                             </div>
                                         </div>
