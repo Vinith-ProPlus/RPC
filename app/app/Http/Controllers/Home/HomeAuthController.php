@@ -1729,7 +1729,7 @@ class HomeAuthController extends Controller{
                 $data=array(
                     "AID"=>$AID,
                     "CustomerID"=>$CustomerID,
-                    "CompleteAddress"=>$req->CompleteAddress,
+                    "CompleteAddress"=> Helper::formAddress($address, $CityData->CityID),
                     "Address"=>$address,
                     "AddressType"=>$req->AddressType,
                     "PostalCodeID"=>$CityData->PostalCodeID,
