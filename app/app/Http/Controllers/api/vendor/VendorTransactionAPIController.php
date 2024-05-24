@@ -112,7 +112,7 @@ class VendorTransactionAPIController extends Controller{
                         'UpdatedOn'=>date('Y-m-d H:i:s')
                     ];
                     $status = DB::Table($this->currfyDB.'tbl_vendor_quotation')->where('VendorID',$VendorID)->where('VQuoteID',$req->VQuoteID)->update($VQData);
-                    $status = DB::Table($this->currfyDB.'tbl_enquiry')->where('EnqID',$req->EnqID)->update(['isImageQuote' => 0,'Status'=>'Quote Requested']);
+                    $status = DB::Table($this->currfyDB.'tbl_enquiry')->where('EnqID',$req->EnqID)->update(['Status'=>'Quote Requested']);
                 }
             }else{
                 $totalTaxable = 0;

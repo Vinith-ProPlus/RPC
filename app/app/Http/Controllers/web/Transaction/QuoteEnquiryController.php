@@ -300,7 +300,7 @@ class QuoteEnquiryController extends Controller{
 			->leftJoin('tbl_customer as CU', 'CU.CustomerID', 'E.CustomerID')
 			->leftJoin('tbl_customer_address as CA', 'CA.AID', 'E.AID')
 			->whereNot('E.Status','Cancelled')->Where('E.EnqID',$EnqID)
-			->select('EnqID','EnqNo','EnqDate','VendorIDs','Status','ReceiverName','ReceiverMobNo','ExpectedDeliveryDate','CU.Email','CU.CompleteAddress as BillingAddress','CA.CompleteAddress as ShippingAddress','E.AID')
+			->select('EnqID','EnqNo','EnqDate','VendorIDs','Status','ReceiverName','ReceiverMobNo','ExpectedDeliveryDate','CU.Email','CU.CompleteAddress as BillingAddress','CA.CompleteAddress as ShippingAddress','E.AID','E.isImageQuote','E.QuoteImage')
 			->first();
 			$EnqData->BillingAddress=Helper::formatAddress($EnqData->BillingAddress);
 			$EnqData->ShippingAddress=Helper::formatAddress($EnqData->ShippingAddress);
@@ -657,7 +657,7 @@ class QuoteEnquiryController extends Controller{
 							'CreatedBy'=>$this->UserID,
 						];
 						$status = DB::table($this->currfyDB.'tbl_quotation_details')->insert($data1);
-						$isNotifiedVendor = DB::table($this->currfyDB.'tbl_quotation_details')->where('QID',$QID)->where('VendorID',$item->VendorID)->where('QD.isCancelled',0)->exists();
+						$isNotifiedVendor = DB::table($this->currfyDB.'tbl_quotation_details')->where('QID',$QID)->where('VendorID',$item->VendorID)->where('isCancelled',0)->exists();
 						if(!$isNotifiedVendor){
 							$VQuoteID = DB::table($this->currfyDB.'tbl_vendor_quotation_details')->where('DetailID',$item->DetailID)->value('VQuoteID');
 							$Title = "Quotation Accepted";

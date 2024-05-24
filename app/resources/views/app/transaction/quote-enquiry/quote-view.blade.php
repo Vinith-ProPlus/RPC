@@ -12,6 +12,25 @@
     .width-min-content {
         width: min-content;
     }
+
+    .right-modal .modal-dialog {
+        position: fixed;
+        right: 0;
+        margin: 0;
+        width: 50%;
+        max-width: 100%;
+        height: 100%;
+    }
+    
+    .right-modal .modal-content {
+        height: 100%;
+    }
+    
+    .right-modal .modal-body {
+        height: auto;
+        overflow-y: auto;
+    }
+
 </style>
 <div class="container-fluid">
 	<div class="page-header">
@@ -91,7 +110,18 @@
                             <div class="col-sm-12">
                                 <div class="card">
                                     <div class="card-header">
-                                        <h6 class="text-center fw-700">Product Details</h6>
+                                        <div class="row">
+                                            <div class="col-4">
+                                            </div>
+                                            <div class="col-4">
+                                                <h6 class="text-center fw-700">Product Details</h6>
+                                            </div>
+                                            <div class="col-4 text-end">
+                                                @if($EnqData->isImageQuote)
+                                                    <button type="button" id="btnViewQuoteImage" title="View Quote Image" data-image="{{$EnqData->QuoteImage ? url('/').'/'.$EnqData->QuoteImage : ''}}" class="btn {{$Theme['button-size']}} btn-outline-dark mr-10"><i class="fa fa-image"></i></button>
+                                                @endif
+                                            </div>
+                                        </div>
                                     </div>
                                     <div class="card-body table-responsive">
                                         <table class="table width-max-content" id="tblProductDetails">
@@ -520,6 +550,42 @@
                 });
             }
         });
+        $('#btnViewQuoteImage').on('click', function() {
+            var imageUrl = $(this).data('image');
+            if (imageUrl) {
+                var img = new Image();
+                img.onload = function() {
+                    var modalWidth = Math.min(this.naturalWidth, $(window).width());
+                    var modalHeight = Math.min(this.naturalHeight, $(window).height());
+                    if(modalWidth <= 400){
+                        modalWidth = "400";
+                        modalHeight = "400";
+                    }else if(modalWidth > 1000){
+                        modalWidth = "1000";
+                        modalHeight = (1000 / this.naturalWidth) * this.naturalHeight;
+                    }
+                    var dialogContent = '<img id="quoteImage" src="' + imageUrl + '" class="img-fluid" alt="Quote Image">';
+
+                    var dialog = bootbox.dialog({
+                        title: 'Quote Image',
+                        message: dialogContent,
+                        size: 'medium',
+                        className: 'right-modal'
+                    });
+
+                    dialog.init(function() {
+                        $('.right-modal .modal-dialog').css({
+                            width: modalWidth  + 'px',
+                            height: modalHeight >= 400 ? modalHeight : '400' + 'px'
+                        });
+                    });
+                };
+                img.src = imageUrl;
+            } else {
+                bootbox.alert('No image available');
+            }
+        });
+
 
         const validateGetData=()=>{
 			let status = true;
@@ -641,22 +707,6 @@
                                 </div>
                             </div>`);
                         modalContent.append(row);
-
-                    /* Object.keys(response).forEach(function (key) {
-                        let item = response[key];
-                        let formattedKey = camelCaseToWords(key);
-
-                        let rowContent;
-                        if (key === 'CustomerRating' || key === 'AdminRating') {
-                            rowContent = generateStarRating(item);
-                        }else if (key === 'Outstanding' || key === 'OrderValue') {
-                            rowContent = Number(item).toFixed({{$Settings['price-decimals']}});
-                        }else if (key === 'OverAll') {
-                            rowContent = '<span class="fw-600">'+item+'</span>';
-                        }else {
-                            rowContent = item;
-                        }
-                    }); */
 
                     let dialog = bootbox.dialog({
                         title: "Vendor Details",
