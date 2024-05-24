@@ -2706,7 +2706,7 @@
                             src: '#confirm-modal'
                         },
                         type: 'inline',
-                        mainClass: 'mfp',
+                        mainClass: 'mfp mfp-custom-width',
                         removalDelay: 350
                     });
                 }
