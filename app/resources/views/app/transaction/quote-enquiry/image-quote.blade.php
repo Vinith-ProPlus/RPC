@@ -235,6 +235,7 @@
         var $dataScaleX = $('#dataScaleX');
         var $dataScaleY = $('#dataScaleY');
         var options = {
+            // aspectRatio: 16/9,
             preview: '.img-preview'
         };
         var $image = $('#ImageCrop').cropper(options);
