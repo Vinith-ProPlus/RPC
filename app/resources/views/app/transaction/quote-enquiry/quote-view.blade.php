@@ -118,7 +118,7 @@
                                             </div>
                                             <div class="col-4 text-end">
                                                 @if($EnqData->isImageQuote)
-                                                    <button type="button" id="btnViewQuoteImage" title="View Quote Image" data-image="{{$EnqData->QuoteImage ? url('/').'/'.$EnqData->QuoteImage : ''}}" class="btn {{$Theme['button-size']}} btn-outline-dark mr-10"><i class="fa fa-image"></i></button>
+                                                    <button type="button" id="btnViewQuoteImage" title="View Quote Image" data-image="{{$EnqData->QuoteImage ? url('/').'/'.$EnqData->QuoteImage : ''}}" class="btn btn-outline-dark mr-10"><i class="fa fa-image"></i></button>
                                                 @endif
                                             </div>
                                         </div>
@@ -551,19 +551,23 @@
             }
         });
         $('#btnViewQuoteImage').on('click', function() {
+            var $button = $(this).find('i');
+            $button.addClass('fa-spinner fa-spin').removeClass('fa-image');
+
             var imageUrl = $(this).data('image');
             if (imageUrl) {
                 var img = new Image();
                 img.onload = function() {
                     var modalWidth = Math.min(this.naturalWidth, $(window).width());
                     var modalHeight = Math.min(this.naturalHeight, $(window).height());
-                    if(modalWidth <= 400){
-                        modalWidth = "400";
-                        modalHeight = "400";
-                    }else if(modalWidth > 1000){
-                        modalWidth = "1000";
+                    if (modalWidth <= 400) {
+                        modalWidth = 400;
+                        modalHeight = 400;
+                    } else if (modalWidth > 1000) {
+                        modalWidth = 1000;
                         modalHeight = (1000 / this.naturalWidth) * this.naturalHeight;
                     }
+
                     var dialogContent = '<img id="quoteImage" src="' + imageUrl + '" class="img-fluid" alt="Quote Image">';
 
                     var dialog = bootbox.dialog({
@@ -575,16 +579,27 @@
 
                     dialog.init(function() {
                         $('.right-modal .modal-dialog').css({
-                            width: modalWidth  + 'px',
-                            height: modalHeight >= 400 ? modalHeight : '400' + 'px'
+                            width: modalWidth + 'px',
+                            height: modalHeight >= 400 ? modalHeight : 400 + 'px'
                         });
                     });
+
+                    dialog.on('shown.bs.modal', function() {
+                        $button.removeClass('fa-spinner fa-spin').addClass('fa-image');
+                    });
                 };
+
+                img.onerror = function() {
+                    $button.removeClass('fa-spinner fa-spin').addClass('fa-image');
+                    bootbox.alert('Failed to load the image.');
+                };
+
                 img.src = imageUrl;
             } else {
                 bootbox.alert('No image available');
             }
         });
+
 
 
         const validateGetData=()=>{
