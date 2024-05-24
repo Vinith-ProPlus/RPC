@@ -1194,9 +1194,9 @@ button::-moz-focus-inner {
 }
 
 .mfp-custom-width .mfp-content {
-	width: 420px; /* Set your desired width */
-	max-width: 100%; /* Ensure it doesn't overflow on smaller screens */
-	margin: 0 auto; /* Center the modal horizontally */
+	width: 420px !important; /* Set your desired width */
+	max-width: 100% !important; /* Ensure it doesn't overflow on smaller screens */
+	margin: 0 auto !important; /* Center the modal horizontally */
 }
 
 .mfp-close {
