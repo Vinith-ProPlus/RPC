@@ -60,8 +60,7 @@ class HomeController extends Controller
                 ->where('isDefault', 1)
                 ->where('DFlag',0)
                 ->value('AID');
-
-            if ($customerAid && DB::table('tbl_customer_address')->where('CustomerID', $CustomerID)->where('AID', $customerAid)->where('isDefault', 1)->where('DFlag',0)->exists()) {
+            if ($customerAid && DB::table('tbl_customer_address')->where('CustomerID', $CustomerID)->where('AID', $customerAid)->where('DFlag',0)->exists()) {
                 $AID = $customerAid;
             } else {
                 $AID = $customerDefaultAid;
@@ -111,14 +110,16 @@ class HomeController extends Controller
                     return $cart;
                 });
 
-            $FormData['ShippingAddress'] = DB::table('tbl_customer_address as CA')->where('CustomerID', $CustomerID)->where('CA.DFlag',0)
+            $FormData['ShippingAddress'] = DB::table('tbl_customer_address as CA')->where('CA.CustomerID', $CustomerID)->where('CA.DFlag',0)
                 ->join($this->generalDB . 'tbl_countries as C', 'C.CountryID', 'CA.CountryID')
                 ->join($this->generalDB . 'tbl_states as S', 'S.StateID', 'CA.StateID')
                 ->join($this->generalDB . 'tbl_districts as D', 'D.DistrictID', 'CA.DistrictID')
                 ->join($this->generalDB . 'tbl_taluks as T', 'T.TalukID', 'CA.TalukID')
                 ->join($this->generalDB . 'tbl_cities as CI', 'CI.CityID', 'CA.CityID')
                 ->join($this->generalDB . 'tbl_postalcodes as PC', 'PC.PID', 'CA.PostalCodeID')
-                ->select('CA.AID', 'CA.Address', 'CA.isDefault', 'CA.CountryID', 'C.CountryName', 'CA.StateID', 'S.StateName', 'CA.DistrictID', 'D.DistrictName', 'CA.TalukID', 'T.TalukName', 'CA.CityID', 'CI.CityName', 'CA.PostalCodeID', 'PC.PostalCode')
+                ->select('CA.AID', 'CA.Address', 'CA.isDefault', 'CA.CountryID', 'C.CountryName', 'CA.StateID',
+                    'S.StateName', 'CA.DistrictID', 'D.DistrictName', 'CA.TalukID', 'T.TalukName', 'CA.CityID', 'CI.CityName',
+                    'CA.Latitude', 'CA.Longitude', 'CA.PostalCodeID', 'PC.PostalCode')
                 ->get();
 
             return view('home.home', $FormData);
