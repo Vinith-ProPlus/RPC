@@ -1533,6 +1533,7 @@ class HomeAuthController extends Controller{
         $sql.=" LEFT JOIN ".$this->generalDB."tbl_states as S ON S.StateID=Q.DStateID LEFT JOIN ".$this->generalDB."tbl_districts as D ON D.DistrictID=Q.DDistrictID ";
         $sql.=" LEFT JOIN ".$this->generalDB."tbl_taluks as T ON T.TalukID=Q.DTalukID LEFT JOIN ".$this->generalDB."tbl_cities as CI ON CI.CityID=Q.DCityID ";
         $sql.=" LEFT JOIN ".$this->generalDB."tbl_postalcodes as PC ON PC.PID=Q.DPostalCodeID LEFT JOIN tbl_reject_reason as RR ON RR.RReasonID=Q.RReasonID ";
+
         $sql.=" Where 1=1 ";
         if(is_array($data)){
             if(array_key_exists("QID",$data)){$sql.=" AND Q.QID='".$data['QID']."'";}
@@ -1540,9 +1541,9 @@ class HomeAuthController extends Controller{
         $result=DB::SELECT($sql);
         for($i=0;$i<count($result);$i++){
             $result[$i]->AdditionalCostData=unserialize($result[$i]->AdditionalCostData);
-            $sql="SELECT QD.DetailID, QD.QID, QD.VQDetailID, QD.ProductID, P.ProductName, P.HSNSAC, P.UID, U.UCode, U.UName, QD.Qty, QD.Price, QD.TaxType, QD.TaxPer, QD.Taxable, QD.DiscountType, QD.DiscountPer, QD.DiscountAmt, QD.TaxAmt, QD.CGSTPer, QD.SGSTPer, QD.IGSTPer, QD.CGSTAmt, QD.SGSTAmt, QD.IGSTAmt, QD.TotalAmt, QD.VendorID, V.VendorName, QD.isCancelled, QD.CancelledBy, QD.CancelledOn, QD.ReasonID, RR.RReason, QD.RDescription  ";
-            $sql.=" FROM ".$this->CurrFyDB."tbl_quotation_details as QD LEFT JOIN tbl_products as P ON P.ProductID=QD.ProductID LEFT JOIN tbl_uom as U ON U.UID=P.UID LEFT JOIN tbl_reject_reason as RR ON RR.RReasonID=QD.ReasonID LEFT JOIN tbl_vendors as V ON V.VendorID=QD.VendorID ";
-            $sql.=" Where QD.QID='".$result[$i]->QID."' and QD.isCancelled=0 ";
+            $sql="SELECT QD.DetailID, QD.QID, QD.VQDetailID, QD.ProductID, P.ProductName, P.HSNSAC, P.UID, U.UCode, U.UName, QD.Qty, QD.Price, QD.TaxType, QD.TaxPer, QD.Taxable, QD.DiscountType, QD.DiscountPer, QD.DiscountAmt, QD.TaxAmt, QD.CGSTPer, QD.SGSTPer, QD.IGSTPer, QD.CGSTAmt, QD.SGSTAmt, QD.IGSTAmt, QD.TotalAmt, QD.VendorID, V.VendorName, QD.isCancelled, QD.CancelledBy, QD.CancelledOn, QD.ReasonID, RR.RReason, QD.RDescription, US.LoginType as CancelledBy";
+            $sql.=" FROM ".$this->CurrFyDB."tbl_quotation_details as QD LEFT JOIN tbl_products as P ON P.ProductID=QD.ProductID LEFT JOIN tbl_uom as U ON U.UID=P.UID LEFT JOIN tbl_reject_reason as RR ON RR.RReasonID=QD.ReasonID LEFT JOIN tbl_vendors as V ON V.VendorID=QD.VendorID LEFT JOIN users as US ON US.UserID=QD.CancelledBy";
+            $sql.=" Where QD.QID='".$result[$i]->QID."'";
             $result[$i]->Details=DB::SELECT($sql);
             $addCharges=[];
             $result1=DB::Table($this->CurrFyDB.'tbl_vendor_quotation')->Where('EnqID',$result[$i]->EnqID)->get();
@@ -1898,175 +1899,114 @@ class HomeAuthController extends Controller{
             }
     }
     public function QuoteApprove(Request $req,$QID){
-            $data=$this->getQuotes(["QID"=>$QID]);
-            $status=true;
-            DB::beginTransaction();
-            try {
-                if(count($data)>0){
-                    $data=$data[0];
-                    $OrderID=DocNum::getDocNum(docTypes::Order->value, $this->CurrFyDB,Helper::getCurrentFy());
-                    $OrderNo=DocNum::getInvNo(docTypes::Order->value);
-                    $tdata=[
-                        "OrderID"=>$OrderID,
-                        "OrderNo"=>$OrderNo,
-                        "OrderDate"=>date("Y-m-d"),
-                        "ExpectedDelivery"=>date("Y-m-d",strtotime($req->ExpectedDelivery)),
-                        "QID"=>$QID,
-                        "EnqID"=>$data->EnqID,
-                        "CustomerID"=>$data->CustomerID,
-                        "AID"=>$data->AID,
-                        "ReceiverName"=>$data->ReceiverName,
-                        "ReceiverMobNo"=>$data->ReceiverMobNo,
-                        "DAddress"=>$data->DAddress,
-                        "DCountryID"=>$data->DCountryID,
-                        "DStateID"=>$data->DStateID,
-                        "DDistrictID"=>$data->DDistrictID,
-                        "DTalukID"=>$data->DTalukID,
-                        "DCityID"=>$data->DCityID,
-                        "DPostalCodeID"=>$data->DPostalCodeID,
-                        "Status"=>"New",
-                        "TaxAmount"=>$data->TaxAmount,
-                        "SubTotal"=>$data->SubTotal,
-                        "DiscountType"=>$data->DiscountType,
-                        "DiscountPercentage"=>$data->DiscountPercentage,
-                        "DiscountAmount"=>$data->DiscountAmount,
-                        "CGSTAmount"=>$data->CGSTAmount,
-                        "SGSTAmount"=>$data->SGSTAmount,
-                        "IGSTAmount"=>$data->IGSTAmount,
-                        "TotalAmount"=>$data->TotalAmount,
-                        "AdditionalCost"=>$data->AdditionalCost,
-                        "NetAmount"=>$data->NetAmount,
-                        "PaidAmount"=>0,
-                        "BalanceAmount"=>$data->NetAmount,
-                        "PaymentStatus"=>"Unpaid",
-                        "AdditionalCostData"=> serialize($data->AdditionalCostData),
-                        "CreatedOn"=>now(),
-                        "CreatedBy"=>$this->UserID
-                    ];
-                    $status=DB::table($this->CurrFyDB.'tbl_order')->insert($tdata);
-                    $status=DB::table($this->CurrFyDB.'tbl_enquiry')->where('EnqID', $data->EnqID)->update(['status' => 'Accepted']);
-                    if($status){
-                        DocNum::updateDocNum(docTypes::Order->value, $this->CurrFyDB);
-                        DocNum::updateInvNo(docTypes::Order->value);
-                        $details=$data->Details;
-                        foreach($details as $item){
-                            if($status){
-                                $DetailID=DocNum::getDocNum(docTypes::OrderDetails->value, $this->CurrFyDB,Helper::getCurrentFy());
-                                $tdata=array(
-                                    "DetailID"=>$DetailID,
-                                    "OrderID"=>$OrderID,
-                                    "QID"=>$QID,
-                                    "QDID"=>$item->DetailID,
-                                    "ProductID"=>$item->ProductID,
-                                    "Qty"=>$item->Qty,
-                                    "Price"=>$item->Price,
-                                    "TaxType"=>$item->TaxType,
-                                    "TaxPer"=>$item->TaxPer,
-                                    "Taxable"=>$item->Taxable,
-                                    "DiscountType"=>$item->DiscountType,
-                                    "DiscountPer"=>$item->DiscountPer,
-                                    "DiscountAmt"=>$item->DiscountAmt,
-                                    "TaxAmt"=>$item->TaxAmt,
-                                    "CGSTPer"=>$item->CGSTPer,
-                                    "SGSTPer"=>$item->SGSTPer,
-                                    "IGSTPer"=>$item->IGSTPer,
-                                    "CGSTAmt"=>$item->CGSTAmt,
-                                    "SGSTAmt"=>$item->SGSTAmt,
-                                    "IGSTAmt"=>$item->IGSTAmt,
-                                    "TotalAmt"=>$item->TotalAmt,
-                                    "VendorID"=>$item->VendorID,
-                                    "CreatedOn"=>now(),
-                                    "CreatedBy"=>$this->UserID
-                                );
-                                $status=DB::table($this->CurrFyDB.'tbl_order_details')->insert($tdata);
-                                if($status){
-                                    DocNum::updateDocNum(docTypes::OrderDetails->value, $this->CurrFyDB);
-                                }
-                            }
-                        }
-                    }
-                    //save orders to vendors;
-                    $sql="SELECT OrderID,QID,VendorID,Sum(Taxable) as SubTotal,Sum(TaxAmt) as TaxAmount, Sum(CGSTAmt) as CGSTAmount, Sum(SGSTAmt) as SGSTAmount, Sum(IGSTAmt) as IGSTAmount, Sum(TotalAmt) as TotalAmount  FROM ".$this->CurrFyDB."tbl_order_details Where OrderID='".$OrderID."' Group By OrderID,QID,VendorID";
-                    $result=DB::SELECT($sql);
-                    foreach($result as $item){
+        $CustomerID = $this->ReferID;
+        DB::beginTransaction();
+        try {
+            $AcceptedQData = DB::table($this->CurrFyDB . 'tbl_quotation_details as QD')->leftJoin($this->CurrFyDB . 'tbl_quotation as Q','Q.QID','QD.QID')->where('QD.QID',$QID)->get();
+            $isQIDExists = DB::table($this->CurrFyDB . 'tbl_order')->where('QID',$QID)->exists();
+            if(!$isQIDExists){
+                $defaultExpectedDeliveryDate = (int) DB::table('tbl_settings')->where('KeyName','Order-Delivery-Expected-days')->value('KeyValue');
+                $expectedDelivery = $req->ExpectedDeliveryDate ?? date('Y-m-d', strtotime('+'.$defaultExpectedDeliveryDate.' days'));
+                $OrderID = DocNum::getDocNum(docTypes::Order->value, $this->CurrFyDB,Helper::getCurrentFy());
+                $data=[
+                    'OrderID' => $OrderID,
+                    'OrderNo' =>DocNum::getInvNo(docTypes::Order->value),
+                    'OrderDate' => date('Y-m-d'),
+                    'QID' => $QID,
+                    'EnqID' => $AcceptedQData[0]->EnqID,
+                    'CustomerID' => $AcceptedQData[0]->CustomerID,
+                    'ReceiverName' => $AcceptedQData[0]->ReceiverName,
+                    'ReceiverMobNo' => $AcceptedQData[0]->ReceiverMobNo,
+                    "ExpectedDelivery"=>$expectedDelivery,
+                    'AID' => $AcceptedQData[0]->AID,
+                    'DAddress' => $AcceptedQData[0]->DAddress,
+                    'DCountryID' => $AcceptedQData[0]->DCountryID,
+                    'DStateID' => $AcceptedQData[0]->DStateID,
+                    'DDistrictID' => $AcceptedQData[0]->DDistrictID,
+                    'DTalukID' => $AcceptedQData[0]->DTalukID,
+                    'DCityID' => $AcceptedQData[0]->DCityID,
+                    'DPostalCodeID' => $AcceptedQData[0]->DPostalCodeID,
+                    'TaxAmount' => $AcceptedQData[0]->TaxAmount,
+                    'SubTotal' => $AcceptedQData[0]->SubTotal,
+                    'DiscountType' => $AcceptedQData[0]->DiscountType,
+                    'DiscountPercentage' => $AcceptedQData[0]->DiscountPercent,
+                    'DiscountAmount' => $AcceptedQData[0]->DiscountAmount,
+                    'CGSTAmount' => $AcceptedQData[0]->CGSTAmount,
+                    'SGSTAmount' => $AcceptedQData[0]->SGSTAmount,
+                    'IGSTAmount' => $AcceptedQData[0]->IGSTAmount,
+                    'TotalAmount' => $AcceptedQData[0]->TotalAmount,
+                    'AdditionalCost' => $AcceptedQData[0]->AdditionalCost,
+                    'NetAmount' => $AcceptedQData[0]->OverAllAmount,
+                    'AdditionalCostData' => $AcceptedQData[0]->AdditionalCostData,
+                    "PaidAmount"=>0,
+                    "BalanceAmount"=>$AcceptedQData[0]->OverAllAmount,
+                    "PaymentStatus"=>"Unpaid",
+                    'CreatedOn' => date('Y-m-d'),
+                    'CreatedBy' => $CustomerID,
+                ];
+                $status=DB::table($this->CurrFyDB . 'tbl_order')->insert($data);
+                if($status){
+                    foreach($AcceptedQData as $item){
+                        $OrderDetailID = DocNum::getDocNum(docTypes::OrderDetails->value, $this->CurrFyDB,Helper::getCurrentFy());
+                        $data1=[
+                            'DetailID' => $OrderDetailID,
+                            'OrderID'=>$OrderID,
+                            'QID' => $QID,
+                            "QDID"=>$item->DetailID,
+                            'ProductID'=>$item->ProductID,
+                            'Qty'=>$item->Qty,
+                            'Price'=>$item->Price,
+                            'TaxType'=>$item->TaxType,
+                            'TaxPer'=>$item->TaxPer,
+                            'Taxable'=>$item->Taxable,
+                            'DiscountType'=>$item->DiscountType,
+                            'DiscountPer'=>$item->DiscountPer,
+                            'DiscountAmt'=>$item->DiscountAmt,
+                            'TaxAmt'=>$item->TaxAmt,
+                            'CGSTPer'=>$item->CGSTPer,
+                            'SGSTPer'=>$item->SGSTPer,
+                            'IGSTPer'=>$item->IGSTPer,
+                            'CGSTAmt'=>$item->CGSTAmt,
+                            'SGSTAmt'=>$item->SGSTAmt,
+                            'IGSTAmt'=>$item->IGSTAmt,
+                            'TotalAmt'=>$item->TotalAmt,
+                            'VendorID' => $item->VendorID,
+                            'CreatedOn'=>date('Y-m-d'),
+                            'CreatedBy' => $CustomerID,
+                        ];
+                        $status = DB::table($this->CurrFyDB . 'tbl_order_details')->insert($data1);
                         if($status){
-                            $sql="SELECT AdditionalCost FROM ".$this->CurrFyDB."tbl_vendor_quotation Where VendorID='".$item->VendorID."' and EnqID in(Select EnqID From ".$this->CurrFyDB."tbl_quotation Where QID='".$item->QID."')";
-                            $tmp=DB::SELECT($sql);
-                            $additionalCharges=0;
-                            foreach($tmp as $t){
-                                $additionalCharges+=floatval($t->AdditionalCost);
-                            }
-                            $VOrderID=DocNum::getDocNum(docTypes::VendorOrders->value, $this->CurrFyDB,Helper::getCurrentFy());
-                            $VOrderNo=DocNum::getInvNo(docTypes::VendorOrders->value);
-                            $tdata=[
-                                "VOrderID"=>$VOrderID,
-                                "OrderID"=>$OrderID,
-                                "OrderNo"=>$VOrderNo,
-                                "OrderDate"=>date("Y-m-d"),
-                                "ExpectedDelivery"=>date("Y-m-d",strtotime($req->ExpectedDelivery)),
-                                "QID"=>$QID,
-                                "CustomerID"=>$data->CustomerID,
-                                "AID"=>$data->AID,
-                                "VendorID"=>$item->VendorID,
-                                "ReceiverName"=>$data->ReceiverName,
-                                "ReceiverMobNo"=>$data->ReceiverMobNo,
-                                "DAddress"=>$data->DAddress,
-                                "DCountryID"=>$data->DCountryID,
-                                "DStateID"=>$data->DStateID,
-                                "DDistrictID"=>$data->DDistrictID,
-                                "DTalukID"=>$data->DTalukID,
-                                "DCityID"=>$data->DCityID,
-                                "DPostalCodeID"=>$data->DPostalCodeID,
-                                "Status"=>"New",
-                                "TaxAmount"=>$item->TaxAmount,
-                                "SubTotal"=>$item->SubTotal,
-                                "DiscountType"=>"",
-                                "DiscountPercentage"=>0,
-                                "DiscountAmount"=>0,
-                                "CGSTAmount"=>$item->CGSTAmount,
-                                "SGSTAmount"=>$item->SGSTAmount,
-                                "IGSTAmount"=>$item->IGSTAmount,
-                                "TotalAmount"=>$item->TotalAmount,
-                                "AdditionalCost"=>$additionalCharges,
-                                "NetAmount"=>($item->TotalAmount+$additionalCharges),
-                                "PaidAmount"=>0,
-                                "BalanceAmount"=>($item->TotalAmount+$additionalCharges),
-                                "PaymentStatus"=>"Unpaid",
-                                "AdditionalCostData"=> serialize([]),
-                                "CreatedOn"=>now(),
-                                "CreatedBy"=>$this->UserID
-                            ];
-                            $status=DB::table($this->CurrFyDB.'tbl_vendor_orders')->insert($tdata);
-                            if($status){
-                                DocNum::updateDocNum(docTypes::VendorOrders->value, $this->CurrFyDB);
-                                DocNum::updateInvNo(docTypes::VendorOrders->value);
-                                $Title = "New Order Arrived. Order No " . $VOrderNo . ".";
-                                $Message = "You have a new order! Check now for details and fulfill it promptly.";
-                                Helper::saveNotification($item->VendorID,$Title,$Message,'Orders',$VOrderID);
-                                $status=DB::table($this->CurrFyDB.'tbl_order_details')->where('VendorID',$item->VendorID)->where('QID',$item->QID)->update(["VOrderID"=>$VOrderID,"UpdatedOn"=>now(),"updatedBy"=>$this->UserID]);
-                            }
+                            DocNum::updateDocNum(docTypes::OrderDetails->value,$this->CurrFyDB);
                         }
-
                     }
-                    if($status){
-                        $status=DB::Table($this->CurrFyDB."tbl_quotation")->where('QID',$QID)->update(["Status"=>"Accepted","UpdatedOn"=>now(),"UpdatedBy"=>$this->UserID]);
-                    }
-                }else{
-                    $status=false;
                 }
-            } catch (Exception $e) {
-                logger($e);
-                $status=false;
-                DB::rollback();
-                return response(array('status'=>false,'message'=>$e->getMessage()), 500);
-            }
-            if($status==true){
-                DB::commit();
-                return array('status'=>true,'message'=>"The quote has been successfully moved to orders.", "OrderID" => $OrderID);
+                $data=$this->getQuotes(["QID"=>$QID]);
+                if($status){
+                    $status=$this->SaveVendorOrders($data[0],$OrderID,$QID,$req->ExpectedDeliveryDate);
+                }
             }else{
-                DB::rollback();
-                return array('status'=>false,'message'=>"The attempt to move the quote to orders has failed.");
+                return response()->json(['status' => false,'message' => "Quote already converted to Order!"]);
+                $status = false;
             }
+            if($status){
+                $status = DB::Table($this->CurrFyDB.'tbl_quotation')->where('QID', $QID)->update(['Status'=>'Accepted','AcceptedOn'=>date('Y-m-d'),'UpdatedOn'=>date('Y-m-d H:i:s'),"UpdatedBy"=>$CustomerID]);
+                $EnqID = DB::Table('rpc_fy_2425.tbl_quotation')->where('QID', $QID)->value('EnqID');
+                $status = DB::Table($this->CurrFyDB.'tbl_enquiry')->where('EnqID', $EnqID)->update(['Status'=>'Accepted','UpdatedOn'=>date('Y-m-d H:i:s'),"UpdatedBy"=>$CustomerID]);
+            }
+            $status = true;
+        }catch(Exception $e) {
+            $status=false;
+        }
+        if($status==true){
+            DB::commit();
+            DocNum::updateDocNum(docTypes::Order->value,$this->CurrFyDB);
+            DocNum::updateInvNo(docTypes::Order->value);
+            return array('status'=>true,'message'=>"The quote has been successfully moved to orders.", "OrderID" => $OrderID);
+            return response()->json(['status' => true ,'message' => "Quote Accepted Successfully!"]);
+        }else{
+            DB::rollback();
+            return array('status'=>false,'message'=>"The attempt to move the quote to orders has failed.");
+        }
     }
 
     public function getCancelReasons(Request $req){

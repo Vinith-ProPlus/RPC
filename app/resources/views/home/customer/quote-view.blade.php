@@ -562,8 +562,7 @@
                                                                         class="fa fa-trash" aria-hidden="true"></i>
                                                                 </button>
                                                             @else
-                                                                <span
-                                                                    class=" fw-600 text-danger text-center">Cancelled</span>
+                                                                <span class=" fw-600 text-danger text-center">Cancelled by {{ ($item->CancelledBy != "Customer") ? 'Admin' : 'you' }}</span>
                                                             @endif
                                                         </td>
                                                     @endif
