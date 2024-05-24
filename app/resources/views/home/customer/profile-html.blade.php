@@ -215,8 +215,8 @@
     </div>
     <div id="confirm-modal" class="newsletter-popup mfp-hide bg-img p-6 h-auto" style="background: #f1f1f1 no-repeat center/cover">
         <h2>Are you sure you want to @if($isEdit) Update @else Register @endif ?</h2>
-        <div class="modal-buttons">
-            <button id="btnMConfirm" class="btn btn-primary">@if($isEdit) Update @else Register @endif</button>
+        <div class="modal-buttons text-center">
+            <button id="btnMConfirm" class="btn btn-primary mr-3">@if($isEdit) Update @else Register @endif</button>
             <button id="btnMCancel" class="btn btn-secondary">Cancel</button>
         </div>
     </div>

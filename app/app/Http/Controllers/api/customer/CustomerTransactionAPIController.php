@@ -42,7 +42,7 @@ class CustomerTransactionAPIController extends Controller{
 			return $next($request);
 		});
     }
-    
+
     public function getSettings(){
 		$settings=array();
 		$result=DB::Table('tbl_settings')->get();
@@ -207,7 +207,9 @@ class CustomerTransactionAPIController extends Controller{
             $query->where('E.EnqID',$req->EnqID);
         }
         $QuoteEnq=$query
-        ->select('E.EnqID','E.EnqNo','E.EnqDate','E.EnqExpiryDate','E.ReceiverName','E.ReceiverMobNo','E.ExpectedDeliveryDate','E.Status AS EnqStatus','Q.Status AS QStatus','Q.QID','Q.QNo','Q.QExpiryDate','Q.QDate','Q.TaxAmount','Q.SubTotal','Q.CGSTAmount','Q.SGSTAmount','Q.IGSTAmount','Q.TotalAmount','Q.AdditionalCost','Q.OverAllAmount','CU.CustomerName as CancelledBy')
+        ->select('E.EnqID','E.EnqNo','E.EnqDate','E.EnqExpiryDate','E.ReceiverName','E.ReceiverMobNo','E.ExpectedDeliveryDate',
+            'E.Status AS EnqStatus','Q.Status AS QStatus','Q.QID','Q.QNo','Q.QExpiryDate','Q.QDate','Q.TaxAmount','Q.SubTotal',
+            'Q.CGSTAmount','Q.SGSTAmount','Q.IGSTAmount','Q.TotalAmount','Q.AdditionalCost','Q.OverAllAmount','CU.CustomerName as CancelledBy')
         ->orderBy('E.CreatedOn','desc')
         ->get();
         $CustomerCreditLimit = DB::table('tbl_customer')->where('CustomerID',$this->ReferID)->value('CreditLimit');
@@ -478,7 +480,7 @@ class CustomerTransactionAPIController extends Controller{
 		}
 		return $status;
 	}
-    
+
     public function getQuotes($data=array()){
 		$sql ="SELECT Q.QID, Q.EnqID, Q.QNo, Q.QDate, Q.QExpiryDate, Q.CustomerID, Q.AID, C.CustomerName, C.MobileNo1, C.MobileNo2, C.Email, C.Address as BAddress, C.CountryID as BCountryID, BC.CountryName as BCountryName, ";
 		$sql.=" C.StateID as BStateID, BS.StateName as BStateName, C.DistrictID as BDistrictID, BD.DistrictName as BDistrictName, C.TalukID, BT.TalukName as BTalukName, C.CityID as BCityID, BCI.CityName as BCityName, C.PostalCodeID as BPostalCodeID, ";

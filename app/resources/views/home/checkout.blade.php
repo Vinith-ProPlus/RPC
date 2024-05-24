@@ -201,8 +201,8 @@
 
     <div id="confirm-modal" class="newsletter-popup mfp-hide bg-img p-6 h-auto" style="background: #f1f1f1 no-repeat center/cover">
         <h2>Are you sure you want to request a quote?</h2>
-        <div class="modal-buttons">
-            <button id="btnMConfirm" class="btn btn-primary">Confirm</button>
+        <div class="modal-buttons text-center">
+            <button id="btnMConfirm" class="btn btn-primary mr-3">Confirm</button>
             <button id="btnMCancel" class="btn btn-secondary">Cancel</button>
         </div>
     </div>
@@ -247,7 +247,7 @@
                     src: '#confirm-modal'
                 },
                 type: 'inline',
-                mainClass: 'mfp',
+                mainClass: 'mfp mfp-custom-width',
                 removalDelay: 350
             });
         });

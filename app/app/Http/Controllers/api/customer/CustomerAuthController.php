@@ -648,7 +648,11 @@ class CustomerAuthController extends Controller{
         ->where('P.ActiveStatus', 'Active')->where('P.DFlag', 0)
         ->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)
         ->where('PSC.ActiveStatus', 'Active')->where('PSC.DFlag', 0)
-        ->select('P.ProductName','C.ProductID','C.Qty', 'PC.PCName', 'PC.PCID', 'PSC.PSCName','U.UName','U.UCode','U.UID', 'PSC.PSCID')->get();
+        ->select('P.ProductName','C.ProductID','C.Qty', 'PC.PCName', 'PC.PCID', 'PSC.PSCName','U.UName','U.UCode','U.UID', 'PSC.PSCID','P.ProductImage')
+            ->get()->map(function ($cart) {
+            $cart->ProductImage = (new Helper)->fileCheckAndUrl($cart->ProductImage, 'assets/images/no-image-b.png');
+            return $cart;
+        });
 
         return response()->json(['status' => true,'data' => $Cart]);
     }
@@ -897,9 +901,9 @@ class CustomerAuthController extends Controller{
                 return response()->json(['status' => false,'message' => "This Email is already taken"]);
             }else{
                 $OTP = Helper::getOTP(6);
-    
+
                 $result = Helper::saveEmailOtp($user->EMail,$OTP,"Customer",$user->Name);
-    
+
                 if ($result) {
                     return response()->json(['status' => true, 'message' => 'OTP sent to registered Email successfully']);
                 } else {
@@ -911,13 +915,13 @@ class CustomerAuthController extends Controller{
             if(!$OTP){
                 return response()->json(['status' => false,'message' => "OTP has Expired!"]);
             }else{
-                if($OTP == $req->OTP){ 
+                if($OTP == $req->OTP){
                     if($this->isDataExists($req)){
                         return response()->json(['status' => false,'message' => "This Email is already taken"]);
                     }else{
                         $pwd1=Hash::make($req->Email);
                         $pwd2=Helper::EncryptDecrypt("encrypt",$req->Email);
-                        
+
                         $status = DB::Table('users')->where('UserID',$user->UserID)->update(['UserName'=>$req->Email,'EMail'=>$req->Email,"Password"=>$pwd1,"Password1"=>$pwd2,'UpdatedOn'=>now(),'UpdatedBy'=>$user->UserID]);
                         $status = DB::Table('tbl_customer')->where('CustomerID',$user->ReferID)->update(['Email'=>$req->Email,'UpdatedOn'=>now(),'UpdatedBy'=>$user->ReferID]);
                         if($status){
@@ -951,11 +955,11 @@ class CustomerAuthController extends Controller{
             if(!$OTP){
                 return response()->json(['status' => false,'message' => "OTP has Expired!"]);
             }else{
-                if($OTP == $req->OTP){ 
+                if($OTP == $req->OTP){
                     if($this->isDataExists($req)){
                         return response()->json(['status' => false,'message' => "This Mobile Number is already taken"]);
                     }else{
-                        
+
                         $status = DB::Table('users')->where('UserID',$user->UserID)->update(['MobileNumber'=>$req->MobileNumber,'UpdatedOn'=>now(),'UpdatedBy'=>$user->UserID]);
                         $status = DB::Table('tbl_customer')->where('CustomerID',$user->ReferID)->update(['MobileNo1'=>$req->MobileNumber,'UpdatedOn'=>now(),'UpdatedBy'=>$user->ReferID]);
                         if($status){
@@ -982,5 +986,5 @@ class CustomerAuthController extends Controller{
         }
         return $query->where('LoginType','Customer')->whereNot('UserID',Auth::user()->UserID)->exists();
     }
-    
+
 }

@@ -83,10 +83,14 @@
                                         <span class="errors Customer err-sm" id="lstGender-err"></span>
                                     </div>
                                 </div>
+                                @php
+                                    $minDOB = Carbon\Carbon::now()->subYears(150)->format('Y-m-d');
+                                    $maxDOB = Carbon\Carbon::now()->subYears(10)->format('Y-m-d');
+                                @endphp
                                 <div class="col-sm-6 mt-20">
                                     <div class="form-group">
                                         <label for="txtDOB">DOB <span class="required">*</span></label>
-                                        <input type="date" id="txtDOB" class="form-control " placeholder="Select DOB" value="{{ $isEdit ? ($EditData->DOB ?? '') : '' }}">
+                                        <input type="date" id="txtDOB" class="form-control" placeholder="Select DOB" min="{{ $minDOB }}" max="{{ $maxDOB }}" value="{{ $isEdit ? ($EditData->DOB ?? '') : '' }}">
                                         <span class="errors Customer err-sm" id="txtDOB-err"></span>
                                     </div>
                                 </div>
@@ -219,8 +223,8 @@
 	</div>
     <div id="confirm-modal" class="newsletter-popup mfp-hide bg-img p-6 h-auto" style="background: #f1f1f1 no-repeat center/cover">
         <h2>Are you sure you want to @if($isEdit) Update @else Register @endif ?</h2>
-        <div class="modal-buttons">
-            <button id="btnMConfirm" class="btn btn-primary">@if($isEdit) Update @else Register @endif</button>
+        <div class="modal-buttons text-center">
+            <button id="btnMConfirm" class="btn btn-primary mr-3">@if($isEdit) Update @else Register @endif</button>
             <button id="btnMCancel" class="btn btn-secondary">Cancel</button>
         </div>
     </div>
@@ -544,9 +548,18 @@
             if(Gender === ""){
                 $('#lstGender-err').html('Gender is required.');status=false;
             }
-            if(DOB === ""){
-                $('#txtDOB-err').html('DOB is required.');status=false;
+
+            if (DOB === "") {
+                $('#txtDOB-err').html('DOB is required.');status = false;
+            } else {
+                let minDOB = new Date("{{ $minDOB }}");
+                let maxDOB = new Date("{{ $maxDOB }}");
+                let enteredDOB = new Date(DOB);
+                if (enteredDOB < minDOB || enteredDOB > maxDOB) {
+                    $('#txtDOB-err').html('DOB must be between 10 and 150 years ago.');status = false;
+                }
             }
+
             if(CusType === ""){
                 $('#lstCusType-err').html('Customer type is required.');status=false;
             }
@@ -585,7 +598,6 @@
             }
             if(status==false){$("html, body").animate({ scrollTop: 0 }, "slow");}
 
-			// return true;
 			return status;
 		}
         $(document).on('click','#btnGSearchPostalCode',async function(){
@@ -671,7 +683,7 @@
                         src: '#confirm-modal'
                     },
                     type: 'inline',
-                    mainClass: 'mfp',
+                    mainClass: 'mfp mfp-custom-width',
                     removalDelay: 350
                 });
             }
@@ -867,6 +879,10 @@
 
             if(formData.AddressType==""){
                 $('#txtADAddressType-err').html('Address type is required');status=false;
+            }
+
+            if(formData.Latitude==="" || formData.Latitude===""){
+                $('#txtADMap-err').html('Delivery location is required');status=false;
             }
             // if(formData.TalukID==""){
             //     $('#lstADTaluk-err').html('Taluk is required');status=false;

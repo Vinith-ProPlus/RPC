@@ -992,6 +992,12 @@ button::-moz-focus-inner {
   border: 0;
 }
 
+.mfp-custom-width .mfp-content {
+  width: 420px; /* Set your desired width */
+  max-width: 100%; /* Ensure it doesn't overflow on smaller screens */
+  margin: 0 auto; /* Center the modal horizontally */
+}
+
 .mfp-close {
   width: 44px;
   height: 44px;
