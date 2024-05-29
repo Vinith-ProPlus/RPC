@@ -960,8 +960,9 @@ class HomeController extends Controller
     public function setAidInSession(Request $request)
     {
         $aid = $request->input('aid');
+        $existingAID = Session::get('selected_aid');
         Session::put('selected_aid', $aid);
-        return response()->json(['message' => 'Selected aid set successfully']);
+        return response()->json(['message' => 'Selected aid set successfully', 'isChanged' => $existingAID != $aid]);
     }
     public function setPostalCodeInSession(Request $request){
         $PostalCodeData = DB::table($this->generalDB.'tbl_postalcodes')->where('PostalCode', $request->Pincode)->first();

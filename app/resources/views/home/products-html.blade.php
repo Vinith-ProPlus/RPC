@@ -43,7 +43,6 @@
         </div>
     </nav>
 </div>
-
 @if(count($productDetails) > 0)
     <div class="row no-gutters">
         @foreach($productDetails as $product)
@@ -57,7 +56,7 @@
                         </a>
                         <div class="label-group"></div>
                         <div class="btn-icon-group">
-                            <a href="#" class="btn-icon btn-add-cart product-type-simple btnAddCart" id="{{ $product->ProductID }}">
+                            <a href="#" class="btn-icon product-type-simple {{ collect($cart)->where("ProductID", $product->ProductID)->isNotEmpty() ? 'added-in-cart' : 'btn-add-cart btnAddCart' }}" id="{{ $product->ProductID }}">
                                 <i class="icon-shopping-cart"></i>
                             </a>
                         </div>
@@ -105,13 +104,17 @@
                         <p class="product-description">{!! $product->Description !!}</p>
                         <div class="price-box"></div>
                         <div class="product-action">
-                            <a href="#" class="btn-icon btn-add-cart product-type-simple btnAddCart" id="{{ $product->ProductID }}">
-                                <i class="icon-shopping-cart"></i>
-                                <span>ADD TO CART</span>
-                            </a>
-{{--                            <a href="#" class="btn-icon-wish {{ $product->IsInWishlist ? 'added-wishlist' : '' }}" title="wishlist">--}}
-{{--                                <i class="icon-heart"></i>--}}
-{{--                            </a>--}}
+                            @if(collect($cart)->where("ProductID", $product->ProductID)->isNotEmpty())
+                                <a href="#" class="btn-icon product-type-simple btn-added-cart added-in-cart" id="{{ $product->ProductID }}">
+                                    <i class="icon-shopping-cart"></i>
+                                    <span>ADDED IN CART</span>
+                                </a>
+                            @else
+                                <a href="#" class="btn-icon product-type-simple btn-add-cart btnAddCart" id="{{ $product->ProductID }}">
+                                    <i class="icon-shopping-cart"></i>
+                                    <span>ADD TO CART</span>
+                                </a>
+                            @endif
                             <a href="{{ route('products.quickView', $product->ProductID) }}" class="btn-quickview" title="Quick View">
                                 <i class="fas fa-external-link-alt"></i>
                             </a>

@@ -853,11 +853,14 @@
                         if ($('#wishlistTableHtml').length){
                             var $wishlistButton = $('#wishlistTableHtml').find('.btnAddCart#' + thiss.attr('id'));
                             thiss.removeClass('wishlistCartBtn btnAddCart btn-add-cart add-cart');
-                            thiss.addClass('added-in-cart');
+                            thiss.addClass('btn-added-cart added-in-cart');
                             $wishlistButton.attr('class', thiss.attr('class'));
                             $wishlistButton.html(thiss.html());
                         }
-                        thiss.addClass('added-in-cart');
+                        thiss.find('span').text(function(_, text) {
+                            return text.trim() === 'ADD TO CART' ? 'ADDED IN CART' : text;
+                        });
+                        thiss.addClass('btn-added-cart added-in-cart');
                         thiss.removeClass('wishlistCartBtn btnAddCart btn-add-cart add-cart');
                         LoadCart(response.data);
                         UpdateItemQtyCount(response.data.length);
@@ -900,7 +903,10 @@
             let ProductID = $(this).attr('id');
             var deletedCartElement = $('#' + ProductID);
             if (deletedCartElement.hasClass('added-in-cart')) {
-                deletedCartElement.removeClass('added-in-cart').addClass('btnAddCart');
+                deletedCartElement.removeClass('btn-added-cart added-in-cart').addClass('btn-add-cart btnAddCart');
+                deletedCartElement.find('span').text(function(_, text) {
+                    return text.trim() === 'ADDED IN CART' ? 'ADD TO CART' : text;
+                });
             }
             let FormData = {
                 'ProductID' : ProductID,
@@ -940,6 +946,23 @@
             return cookieValue ? cookieValue.pop() : '';
         }
 
+        function emptyCart(){
+            $.ajax({
+                url: "{{ route('empty-cart') }}",
+                headers: { 'X-CSRF-Token' : '{{ csrf_token() }}' },
+                processData: false,
+                contentType: false,
+                type: "POST",
+                data: {},
+                success: function() {
+                    window.location.reload();
+                },
+                error: function(xhr, status, error) {
+                    console.error(error);
+                }
+            });
+        }
+
         $('#changeCustomerAddressUl li a').on('click', function(e){
             e.preventDefault();
             let selectedAddress = $('#customerSelectedAddress');
@@ -959,7 +982,9 @@
                 type: "POST",
                 data: formData,
                 success: function(response) {
-                    // console.log(response.message);
+                    if(response.isChanged){
+                        emptyCart();
+                    }
                 },
                 error: function(xhr, status, error) {
                     console.error(error);

@@ -974,7 +974,6 @@
                 $('#QuoteCancelModel').modal('show');
             });
             $(document).on('click', '#btnCancelQuote', function () {
-                debugger
                 const validate = (formData) => {
                     let status = true;
                     $('.quote-cancel-err').html('');
