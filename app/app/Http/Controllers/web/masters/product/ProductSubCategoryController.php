@@ -291,8 +291,8 @@ class ProductSubCategoryController extends Controller{
 					$data['PSCImage']="";
 					$data['Images']=serialize(array());
 				}
-				$status=DB::Table('tbl_product_subcategory')->where('PSCID',$PSCID)->update($data);
 				$status=DB::Table('tbl_products')->where('SCID',$PSCID)->update(['CID'=>$req->PCategory]);
+				$status=DB::Table('tbl_product_subcategory')->where('PSCID',$PSCID)->update($data);
 
 				if($status){
 					DB::commit();
