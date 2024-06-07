@@ -13,14 +13,19 @@ class CheckValidCustomer
     /**
      * Handle an incoming request.
      *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * @param \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response) $next
      */
     public function handle(Request $request, Closure $next): Response
     {
         $user = Auth::user();
-        if ($user && Helper::checkValidCustomer($user->ReferID)) {
+        if (!isset($user)) {
+            return redirect('/');
+        } else if (!isset($user->ReferID)) {
+            return redirect('/customer-register');
+        } else if (Helper::checkValidCustomer($user->ReferID)) {
             return $next($request);
+        } else {
+            return redirect('/customer-profile');
         }
-        return redirect('/customer-profile');
     }
 }
