@@ -28,7 +28,7 @@
 		}
 	} );
 
-	var checkoutPageUrl = $('#divCartAction a').attr('href');
+	var checkoutPageUrl = $('#divCartAction a').attr('data-checkOutUrl');
 	var Porto = {
 		initialised: false,
 		mobile: false,
