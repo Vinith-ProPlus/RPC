@@ -1390,9 +1390,10 @@ class HomeAuthController extends Controller
 
         $quotationDetails = DB::table($this->CurrFyDB . 'tbl_enquiry as E')
             ->leftJoin('users as U', 'U.UserID', 'E.CustomerID')
+            ->leftJoin($this->CurrFyDB . 'tbl_quotation as Q', 'Q.EnqID', 'E.EnqID')
             ->where('E.CustomerID', $customerID)
             ->orderBy('E.CreatedOn', $orderBy)
-            ->select('E.EnqNo', 'E.EnqDate', 'E.ExpectedDeliveryDate', 'E.Status', 'E.EnqID')
+            ->select('E.EnqNo', 'E.EnqDate', 'E.ExpectedDeliveryDate', 'E.Status', 'E.EnqID', 'Q.Status as QuotationStatus')
             ->skip(($pageNo - 1) * $productCount)
             ->take($productCount)
             ->get();
@@ -2221,7 +2222,7 @@ class HomeAuthController extends Controller
             }
             if ($status) {
                 $status = DB::Table($this->CurrFyDB . 'tbl_quotation')->where('QID', $QID)->update(['Status' => 'Accepted', 'AcceptedOn' => date('Y-m-d'), 'UpdatedOn' => date('Y-m-d H:i:s'), "UpdatedBy" => $CustomerID]);
-                $EnqID = DB::Table('rpc_fy_2425.tbl_quotation')->where('QID', $QID)->value('EnqID');
+                $EnqID = DB::Table($this->CurrFyDB . 'tbl_quotation')->where('QID', $QID)->value('EnqID');
                 $status = DB::Table($this->CurrFyDB . 'tbl_enquiry')->where('EnqID', $EnqID)->update(['Status' => 'Accepted', 'UpdatedOn' => date('Y-m-d H:i:s'), "UpdatedBy" => $CustomerID]);
             }
             $status = true;

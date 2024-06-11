@@ -65,7 +65,11 @@
                     if($status == "New"){
                         $statusText = "Quote Requested";
                     } elseif ($status == "Converted to Quotation"){
-                        $statusText = "Price Updated";
+                        if($quotationDetail->QuotationStatus === "Rejected"){
+                            $statusText = "Rejected";
+                        } else {
+                            $statusText = "Price Updated";
+                        }
                     } elseif ($status == "Accepted"){
                         $statusText = "Accepted";
                     } elseif ($status == "Rejected"){

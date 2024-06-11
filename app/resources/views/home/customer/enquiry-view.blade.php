@@ -311,10 +311,29 @@
                                             <p class="text-center fs-16 fw-500">Contact Info</p>
                                         </div>
                                         <div class="card-body">
+                                            @php
+                                                $status = $EnqData->Status;
+                                                if($status == "New"){
+                                                    $statusText = "Quote Requested";
+                                                } elseif ($status == "Converted to Quotation"){
+                                                    if($quotationDetail->QuotationStatus === "Rejected"){
+                                                        $statusText = "Rejected";
+                                                    } else {
+                                                        $statusText = "Vendor Price Updated";
+                                                    }
+                                                } elseif ($status == "Accepted"){
+                                                    $statusText = "Accepted";
+                                                } elseif ($status == "Rejected"){
+                                                    $statusText = "Rejected";
+                                                } else {
+                                                    $statusText = "Pending";
+                                                }
+                                            @endphp
                                             @foreach([
                                                 'Receiver Name' => $EnqData->ReceiverName,
                                                 'Contact Number' => $EnqData->ReceiverMobNo ,
-                                                'Quote Enquiry Date' => date('d-M-Y', strtotime($EnqData->EnqDate)),
+                                                'Enquiry Date' => date('d-M-Y', strtotime($EnqData->EnqDate)),
+                                                'Status' => $statusText,
                                             ] as $label => $value)
                                                 <div class="row my-1">
                                                     <div class="col-sm-5 fw-600">{{ $label }}</div>

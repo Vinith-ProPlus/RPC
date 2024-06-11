@@ -380,9 +380,10 @@
                                             </div>
                                             <div class="card-body">
                                                 @foreach([
-                                                    'Contact Person' => ($QData->ReceiverName!="")? $QData->ReceiverName." <span> (".$QData->ReceiverMobNo.")</span>":"",
-                                                    'Contact Number' => $QData->MobileNo1 ,
+                                                    'Contact Person' => ($QData->ReceiverName!="") ? $QData->ReceiverName." <span> (".$QData->ReceiverMobNo.")</span>":"",
+                                                    'Contact Number' => $QData->MobileNo1,
                                                     'Quote Expiry Date' => date('d-M-Y', strtotime($QData->QExpiryDate)),
+                                                    'Status' => ($QData->Status === "New") ? "Action Needed" : $QData->Status,
                                                 ] as $label => $value)
                                                     @if($value!="")
                                                         <div class="row my-1">
