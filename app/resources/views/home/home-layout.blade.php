@@ -787,11 +787,11 @@
             if (count > 0) {
                 itemCountSpan.text(count);
                 itemMblCountSpan.text(count);
-                $('#divCartAction').html(`<a href="{{ route('checkout') }}" class="btn btn-secondary btn-block" data-checkOutUrl="{{ route('checkout') }}>Quote Request</a>`);
+                $('#divCartAction').html(`<a href="{{ route('checkout') }}" class="btn btn-secondary btn-block" data-checkOutUrl="{{ route('checkout') }}">Quote Request</a>`);
             } else {
                 itemCountSpan.text('');
                 itemMblCountSpan.text('');
-                $('#divCartAction').html(`<a href="{{ auth()->check() ? route('products.customer.productsList') : route('products.guest.productsList') }}" class="btn btn-dark btn-block" data-checkOutUrl="{{ route('checkout') }}>Add to Cart</a>`);
+                $('#divCartAction').html(`<a href="{{ auth()->check() ? route('products.customer.productsList') : route('products.guest.productsList') }}" class="btn btn-dark btn-block" data-checkOutUrl="{{ route('checkout') }}">Add to Cart</a>`);
             }
         };
 
