@@ -180,7 +180,7 @@
                     <h6 class="pt-1 line-height-1 text-uppercase text-white">Call us now<a href="tel:{{ $Company['Phone-Number'] ?? ($Company['Mobile-Number'] ?? '') }}"
                             class="d-block text-white ls-10 pt-2">+91 {{ $Company['Phone-Number'] ?? ($Company['Mobile-Number'] ?? '') }}</a></h6>
                 </div>
-                <a href="#" class="btn btn-borders btn-rounded btn-outline-white ls-25">Send Us a
+                <a href="sms:91{{ $Company['Phone-Number'] ?? ($Company['Mobile-Number'] ?? '') }}" class="btn btn-borders btn-rounded btn-outline-white ls-25">Send Us a
                     Message</a>
             </div>
         </div>
