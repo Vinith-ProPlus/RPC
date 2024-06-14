@@ -243,7 +243,7 @@ class QuoteEnquiryController extends Controller{
 						$EnqData = DB::table($this->currfyDB.'tbl_enquiry')->where('EnqID',$EnqID)->select('CustomerID','AID')->first();
 						$CustomerLatLong = DB::table('tbl_customer_address')->where('AID',$EnqData->AID)->select('Latitude','Longitude')->first();
 						if(!$isQuoteRequested){
-							$StockPoints = DB::table('tbl_vendors_stock_point')->where('VendorID',$VendorID)->where('DFlag',0)->select('StockPointID','Latitude','Longitude')->get();
+							$StockPoints = DB::table('tbl_vendors_stock_point')->where('VendorID',$VendorID)->where('DFlag',0)->where('ActiveStatus',1)->select('StockPointID','Latitude','Longitude')->get();
 							$Distance = Helper::findNearestStockPoint($CustomerLatLong, $StockPoints);
 							$VQuoteID = DocNum::getDocNum(docTypes::VendorQuotation->value, $this->currfyDB,Helper::getCurrentFy());
 							$data = [
@@ -379,7 +379,7 @@ class QuoteEnquiryController extends Controller{
 					$isQuoteRequested =  DB::table($this->currfyDB . 'tbl_vendor_quotation')->where('VendorID',$VendorID)->where('EnqID',$EnqID)->first();
 					if(!$isQuoteRequested){
 						$CustomerLatLong = DB::table('tbl_customer_address')->where('AID',$EnqData->AID)->select('Latitude','Longitude')->first();
-						$StockPoints = DB::table('tbl_vendors_stock_point')->where('VendorID',$VendorID)->where('DFlag',0)->select('StockPointID','Latitude','Longitude')->get();
+						$StockPoints = DB::table('tbl_vendors_stock_point')->where('VendorID',$VendorID)->where('DFlag',0)->where('ActiveStatus',1)->select('StockPointID','Latitude','Longitude')->get();
 						$Distance = Helper::findNearestStockPoint($CustomerLatLong, $StockPoints);
 						$VQuoteID = DocNum::getDocNum(docTypes::VendorQuotation->value, $this->currfyDB,Helper::getCurrentFy());
 						$data = [

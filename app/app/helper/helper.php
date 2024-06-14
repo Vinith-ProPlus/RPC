@@ -55,7 +55,7 @@ class helper{
                 ->join('tbl_vendors as V', 'V.VendorID', 'VSP.VendorID')
                 ->where('VSP.ServiceBy', 'Radius')
                 ->where('V.ActiveStatus', "Active")->where('V.DFlag', 0)
-                ->where('VSP.DFlag', 0)->where('V.isApproved', '1')
+                ->where('VSP.DFlag', 0)->where('VSP.ActiveStatus', 1)->where('VSP.ActiveStatus', 1)->where('V.isApproved', '1')
                 ->select('V.VendorID', 'Latitude', 'Longitude', 'Range')->get();
             foreach ($RadiusVendors as $Vendor) {
                 $vendorID = self::findVendorsInRange($AddressData, $Vendor);
@@ -88,7 +88,7 @@ class helper{
                 ->join('tbl_vendors as V', 'V.VendorID', 'VSP.VendorID')
                 ->where('VSP.ServiceBy', 'Radius')
                 ->where('V.ActiveStatus', "Active")->where('V.DFlag', 0)
-                ->where('VSP.DFlag', 0)->where('V.isApproved', '1')
+                ->where('VSP.DFlag', 0)->where('VSP.ActiveStatus', 1)->where('V.isApproved', '1')
                 ->select('V.VendorID', 'Latitude', 'Longitude', 'Range')->get();
             foreach ($RadiusVendors as $Vendor) {
                 $vendorID = self::findVendorsInRange($AddressData, $Vendor);

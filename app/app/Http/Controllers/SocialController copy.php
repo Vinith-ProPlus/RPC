@@ -22,7 +22,7 @@ class SocialController extends Controller{
 
     }
     private function CreateUser($req,$getInfo,$provider){
-        $result=DB::Table('users')->where('UserName',$getInfo->user->email)->where('LoginType','Customer')->first();
+        $result=DB::Table('users')->where('Provider',$provider)->where('ProviderID',$getInfo->id)->first();
         if(!$result){
             DB::beginTransaction();
             $avatar="";
@@ -66,23 +66,15 @@ class SocialController extends Controller{
         }
     }
     private function SocialAuth($req,$getInfo,$provider){
+
         $result=$this->CreateUser($req,$getInfo,$provider);
         if ($result) {
             $remember_me = true;
-            $authResult = Auth::attempt(['UserName' => $getInfo->user->email,'password' => $getInfo->user->email,'LoginType' => 'Customer', 'ActiveStatus' => 'Active', 'DFlag' => 0,'isLogin' => 1], $remember_me);
+            $authResult = Auth::attempt(['UserName' => $getInfo->user->email,'password' => $getInfo->user->email,'ActiveStatus' => 'Active','DFlag' => 0,'isLogin' => 1], $remember_me);
             if ($authResult) {
                 return Helper::getUserInfo(Auth()->user()->UserID);
             } else {
-                $status = DB::table('users')->where('UserName',$getInfo->user->email)->where('LoginType','Customer')->update(['password' =>Hash::make($getInfo->user->email)]);
-                if ($status){
-                    $authResult = Auth::attempt(['UserName' => $getInfo->user->email,'password' => $getInfo->user->email,'LoginType' => 'Customer', 'ActiveStatus' => 'Active', 'DFlag' => 0,'isLogin' => 1], $remember_me);
-                    if ($authResult) {
-                        return Helper::getUserInfo(Auth()->user()->UserID);
-                    }else{
-                        return false;                        
-                    }
-                }
-                return false;
+                return "error.400";
             }
         }
     }
@@ -105,14 +97,13 @@ class SocialController extends Controller{
 			}
 		}
         $result=$this->SocialAuth($req,$getInfo,$provider);
-        logger($result);
         //return $result;
 
         if($result=="auth"){
             return redirect('/auth/redirect/'.$provider);
-        }elseif($result && $result['data']->ReferID){
+        }elseif($result['data']->ReferID){
             return redirect('/');
-        }elseif($result && empty($result['data']->ReferID)){
+        }elseif(empty($result['data']->ReferID)){
             return redirect('/customer-register');
         }else{
             return view("errors.400");

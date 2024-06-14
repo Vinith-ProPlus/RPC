@@ -972,6 +972,7 @@ class VendorAuthController extends Controller{
                                 "MapData"=>$point->MapData,
                                 "ServiceBy"=>$ServiceBy,
                                 "Range"=>$ServiceBy == 'Radius' ? $Range : 0 ,
+                                "ActiveStatus"=>$point->ActiveStatus,
                                 "Address"=>$point->Address,
                                 "PostalID"=>$point->PostalID,
                                 "CityID"=>$point->CityID,
@@ -1653,7 +1654,7 @@ class VendorAuthController extends Controller{
     public function getVendorStockData(Request $req){
         $VendorID = $this->ReferID;
         $StockTableName = Helper::getStockTable($VendorID);
-        $VendorStockPoints= DB::table('tbl_vendors_stock_point')->where('DFlag',0)->where('VendorID',$VendorID)->select('StockPointID','PointName')->get();
+        $VendorStockPoints= DB::table('tbl_vendors_stock_point')->where('DFlag',0)->where('VendorID',$VendorID)->select('StockPointID','PointName','ActiveStatus')->get();
         foreach ($VendorStockPoints as $point) {
             $point->LastUpdatedDate = DB::table($StockTableName)
                 ->where('StockPointID', $point->StockPointID)
@@ -1711,35 +1712,6 @@ class VendorAuthController extends Controller{
             'CurrentPage' => $VendorStockProducts->currentPage(),
             'LastPage' => $VendorStockProducts->lastPage(),
         ]);
-	}
-
-    public function getVendorStockData1(Request $req){
-        $VendorID = $this->ReferID;
-        $StockTableName = Helper::getStockTable($VendorID);
-        $VendorStockPoints= DB::table('tbl_vendors_stock_point')->where('DFlag',0)->where('VendorID',$VendorID)->select('StockPointID','PointName')->get();
-        foreach ($VendorStockPoints as $point) {
-            $point->LastUpdatedDate = DB::table($StockTableName)
-                ->where('StockPointID', $point->StockPointID)
-                ->max('Date');
-        
-            $point->ProductData = DB::table('tbl_vendors_product_mapping as VPM')
-                ->join('tbl_products as P', 'P.ProductID', 'VPM.ProductID')
-                ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')
-                ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'PSC.PCID')
-                ->join('tbl_uom as U', 'U.UID', 'P.UID')
-                ->leftJoin($StockTableName . ' as SP', function ($join) use ($point) {
-                    $join->on('SP.ProductID', 'P.ProductID')
-                        ->where('SP.StockPointID', $point->StockPointID)
-                        ->where('SP.Date', $point->LastUpdatedDate);
-                })
-                ->where('VPM.VendorID', $VendorID)
-                ->where('VPM.Status', 1)
-                ->select('P.ProductID', 'P.ProductName', 'PC.PCName', 'PC.PCID', 'PSC.PSCID', 'PSC.PSCName', 'U.UName', 'U.UCode')
-                ->addSelect(DB::raw('IFNULL(SP.Qty, 0) AS Qty'))
-                ->get();
-        }
-        
-		return response()->json(['status' => true, 'data' => $VendorStockPoints ]);
 	}
 
     public function UpdateStockData(Request $req){
@@ -1817,7 +1789,7 @@ class VendorAuthController extends Controller{
         $VendorID = $this->ReferID;
         $VendorHome = [];
         $StockTableName = Helper::getStockTable($VendorID);
-        $VendorStockPoints= DB::table('tbl_vendors_stock_point')->where('DFlag',0)->where('VendorID',$VendorID)->select('StockPointID','PointName')->take(3)->get();
+        $VendorStockPoints= DB::table('tbl_vendors_stock_point')->where('DFlag',0)->where('VendorID',$VendorID)->select('StockPointID','PointName','ActiveStatus')->take(3)->get();
         foreach ($VendorStockPoints as $point) {
             $point->LastUpdatedDate = DB::table($StockTableName)
                 ->where('StockPointID', $point->StockPointID)
@@ -1888,7 +1860,7 @@ class VendorAuthController extends Controller{
         ->leftJoin($this->generalDB.'tbl_cities as CI', 'CI.CityID', 'VSP.CityID')
         ->leftJoin($this->generalDB.'tbl_postalcodes as PC', 'PC.PID', 'VSP.PostalID')
         ->where('VSP.DFlag',0)->where('VSP.VendorID',$VendorID)
-        ->select('VSP.StockPointID','PointName','C.CountryName','S.StateName','D.DistrictName','T.TalukName','CI.CityName','PC.PostalCode')
+        ->select('VSP.StockPointID','PointName','VSP.ActiveStatus','C.CountryName','S.StateName','D.DistrictName','T.TalukName','CI.CityName','PC.PostalCode')
         ->get();
         
 		return response()->json(['status' => true, 'data' => $VendorHome ]);

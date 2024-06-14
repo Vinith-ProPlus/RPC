@@ -258,7 +258,7 @@ class StockPointsController extends Controller{
 		if($this->general->isCrudAllow($this->CRUD,"edit")==true){
 			DB::beginTransaction();
 			$OldData=$NewData=[];
-            $OldData=DB::table('tbl_vendors_stock_point as VSP')->leftJoin('tbl_vendors_service_locations as VSL','VSL.StockPointID','VSP.StockPointID')->where('VSL.DFlag',0)->where('VSP.StockPointID',$req->StockPointID)->get();
+            $OldData=DB::table('tbl_vendors_stock_point as VSP')->leftJoin('tbl_vendors_service_locations as VSL','VSL.StockPointID','VSP.StockPointID')->where('VSP.StockPointID',$req->StockPointID)->get();
             $MapData = serialize(json_decode($req->MapData));
             $CompleteAddress = Helper::formAddress($req->Address,$req->CityID);
 
@@ -408,6 +408,31 @@ class StockPointsController extends Controller{
 			return response(array('status'=>false,'message'=>"Access Denied"), 403);
 		}
 	}
+	public function ActiveStatus(Request $req){
+		$OldData=$NewData=array();
+		if($this->general->isCrudAllow($this->CRUD,"edit")==true){
+			DB::beginTransaction();
+			$status=false;
+			try{
+				$OldData=DB::table('tbl_vendors_stock_point')->where('StockPointID',$req->StockPointID)->get();
+				$status=DB::table('tbl_vendors_stock_point')->where('StockPointID',$req->StockPointID)->update(array("ActiveStatus"=>$req->ActiveStatus,"UpdatedBy"=>$this->UserID,"UpdatedOn"=>date("Y-m-d H:i:s")));
+			}catch(Exception $e) {
+				
+			}
+			if($status==true){
+				DB::commit();
+				$logData=array("Description"=>"Stock Point has been Deleted ","ModuleName"=>$this->ActiveMenuName,"Action"=>cruds::DELETE->value,"ReferID"=>$req->StockPointID,"OldData"=>$OldData,"NewData"=>$NewData,"UserID"=>$this->UserID,"IP"=>$req->ip());
+				logs::Store($logData);
+                $message = $req->ActiveStatus == 1 ? "Stock Point Activated Successfully" : "Stock Point Deactivated Successfully";
+                return array('status' => true, 'message' => $message);
+			}else{
+				DB::rollback();
+				return array('status'=>false,'message'=>"Stock Point Activate Failed");
+			}
+		}else{
+			return response(array('status'=>false,'message'=>"Access Denied"), 403);
+		}
+	}
 	public function getServiceData(Request $req){
             $SP = DB::table('tbl_vendors_stock_point')
 			->where('StockPointID', $req->StockPointID)
@@ -450,14 +475,34 @@ class StockPointsController extends Controller{
 						return $html;
 					} 
 				),
-				array( 'db' => 'StockPointID', 'dt' => '4',
+				array(
+                    'db' => 'ActiveStatus',
+                    'dt' => '4',
+                    'formatter' => function($d, $row) {
+                        $isEditable = $this->general->isCrudAllow($this->CRUD, "edit");
+                
+                        if ($isEditable) {
+                            $checked = $d == 1 ? 'checked' : '';
+                            $statusClass = $d == 1 ? 'bg-success' : 'bg-danger';
+                            return '<label class="switch mb-0 mt-5">
+                                        <input type="checkbox" ' . $checked . ' class= "btnActiveStatus" data-id="' . $row['StockPointID'] . '">
+                                        <span class="switch-state ' . $statusClass . '"></span>
+                                    </label>';
+                        } else {
+                            $badgeClass = $d == 1 ? 'badge-success' : 'badge-danger';
+                            $statusText = $d == 1 ? 'Active' : 'Inactive';
+                            return "<span class='badge $badgeClass m-1'>$statusText</span>";
+                        }
+                    }
+                ),
+				array( 'db' => 'StockPointID', 'dt' => '5',
 					'formatter' => function( $d, $row ) {
 						$html='';
 						if($this->general->isCrudAllow($this->CRUD,"edit")==true){
-							$html.='<button type="button" data-id="'.$d.'" class="btn  btn-outline-success '.$this->general->UserInfo['Theme']['button-size'].' mr-10 btnEdit" data-original-title="Edit"><i class="fa fa-pencil"></i></button>';
+							$html.='<button type="button" data-id="'.$d.'" class="btn btn-outline-success '.$this->general->UserInfo['Theme']['button-size'].' mr-10 btnEdit" data-original-title="Edit"><i class="fa fa-pencil"></i></button>';
 						}
 						if($this->general->isCrudAllow($this->CRUD,"delete")==true){
-							$html.='<button type="button" data-id="'.$d.'" class="btn  btn-outline-danger '.$this->general->UserInfo['Theme']['button-size'].' btnDelete" data-original-title="Delete"><i class="fa fa-trash" aria-hidden="true"></i></button>';
+							$html.='<button type="button" data-id="'.$d.'" class="btn btn-outline-danger '.$this->general->UserInfo['Theme']['button-size'].' btnDelete" data-original-title="Delete"><i class="fa fa-trash" aria-hidden="true"></i></button>';
 						}
 						return $html;
 					} 
@@ -471,7 +516,7 @@ class StockPointsController extends Controller{
 			$data['COLUMNS1']=$columns;
 			$data['GROUPBY']=null;
 			$data['WHERERESULT']=null;
-			$data['WHEREALL']=" VendorID = '".$request->VendorID."' and DFlag=0 ";
+			$data['WHEREALL']=" VendorID = '".$request->VendorID."' and DFlag = 0 ";
 			return SSP::SSP( $data);
 		}else{
 			return response(array('status'=>false,'message'=>"Access Denied"), 403);

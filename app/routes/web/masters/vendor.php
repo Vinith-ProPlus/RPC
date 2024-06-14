@@ -136,6 +136,7 @@ Route::group(['prefix'=>'stock-points'],function (){
         Route::POST('/edit/{ID}', 'Update');
         Route::POST('/delete/{ID}', 'Delete');
         Route::POST('/restore/{ID}', 'Restore');
+        Route::post('/active-status', 'ActiveStatus');
         Route::post('/trash-data', 'TrashTableView');
 
         Route::post('/get/service-data','getServiceData');

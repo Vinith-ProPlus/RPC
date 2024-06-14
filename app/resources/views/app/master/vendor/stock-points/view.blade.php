@@ -55,6 +55,7 @@
 										<th>Point Name</th>
 										<th>Address</th>
 										<th class="text-center">Service By</th>
+										<th class="text-center">Active Status</th>
 										<th class="text-center noExport">action</th>
 									</tr>
 								</thead>
@@ -100,7 +101,7 @@
 						@if($crud['pdf']==1) ,{extend: 'pdf',className:"{{$Theme['button-size']}}",footer: true,title:  "{{$PageTitle}}","action": DataTableExportOption,exportOptions: {columns: "thead th:not(.noExport)"}} @endif
 					],
 					columnDefs: [
-						{"className": "dt-center", "targets":[3,4]}
+						{"className": "dt-center", "targets":[3,4,5]}
 					]
 				});
 			@endif
@@ -150,6 +151,44 @@
             	});
             });
 		});
+		$(document).on('change', '.btnActiveStatus', function() {
+			let ID = $(this).attr('data-id');
+			let ActiveStatus = $(this).prop('checked') ? 1 : 0;
+			
+			let Switch = $(this).closest('.switch').find('span');
+			ActiveStatus ? $(Switch).addClass('bg-success').removeClass('bg-danger') : $(Switch).addClass('bg-danger').removeClass('bg-success');
+
+			$.ajax({
+				type: "post",
+				url: "{{url('/')}}/admin/master/vendor/stock-points/active-status",
+				headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
+				data: { StockPointID: ID, ActiveStatus: ActiveStatus },
+				dataType: "json",
+				success: function(response) {
+					swal.close();
+					if (response.status) {
+						$('#tblStockPoints').DataTable().ajax.reload();
+						toastr.success(response.message, "Success", {
+							positionClass: "toast-top-right",
+							containerId: "toast-top-right",
+							showMethod: "slideDown",
+							hideMethod: "slideUp",
+							progressBar: true
+						});
+					} else {
+						toastr.error(response.message, "Failed", {
+							positionClass: "toast-top-right",
+							containerId: "toast-top-right",
+							showMethod: "slideDown",
+							hideMethod: "slideUp",
+							progressBar: true
+						});
+					}
+				}
+			});
+		});
+
+
 
     });
 </script>

@@ -48,7 +48,7 @@ class VendorStockPointController extends Controller{
         ->leftJoin($this->generalDB . 'tbl_countries as C', 'C.CountryID', 'H.CountryID')
         ->where('H.VendorID', $this->VendorID)
         ->where('H.DFlag', 0)
-        ->select('StockPointID','UUID','H.PointName','CompleteAddress','Address','ServiceBy','Range','Latitude','Longitude','H.PostalID','P.PostalCode','H.CityID','CI.CityName','H.TalukID','T.TalukName','H.DistrictID','D.DistrictName','H.StateID','S.StateName','H.CountryID','C.CountryName')
+        ->select('StockPointID','UUID','H.PointName','CompleteAddress','Address','ServiceBy','H.ActiveStatus','Range','Latitude','Longitude','H.PostalID','P.PostalCode','H.CityID','CI.CityName','H.TalukID','T.TalukName','H.DistrictID','D.DistrictName','H.StateID','S.StateName','H.CountryID','C.CountryName')
         ->get();
         foreach($StockPoints as $point){
             if($point->ServiceBy!=='Radius'){
@@ -95,6 +95,7 @@ class VendorStockPointController extends Controller{
                     "DistrictID"=>$req->DistrictID,
                     "StateID"=>$req->StateID,
                     "CountryID"=>$req->CountryID,
+                    "ActiveStatus"=>$req->ActiveStatus,
                     "Latitude"=>$req->Latitude,
                     "Longitude"=>$req->Longitude,
                     "MapData"=>$MapData,
@@ -216,6 +217,7 @@ class VendorStockPointController extends Controller{
                 "Longitude"=>$req->Longitude,
                 "MapData"=>$MapData,
                 "ServiceBy"=>$req->ServiceBy,
+                "ActiveStatus"=>$req->ActiveStatus,
                 "Range"=>$req->ServiceBy == 'Radius' ? $req->Range : 0,
                 "UpdatedBy"=>$this->VendorID,
                 "UpdatedOn"=>date("Y-m-d H:i:s"),
