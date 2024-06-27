@@ -379,8 +379,22 @@ class QuoteEnquiryController extends Controller{
 					$isQuoteRequested =  DB::table($this->currfyDB . 'tbl_vendor_quotation')->where('VendorID',$VendorID)->where('EnqID',$EnqID)->first();
 					if(!$isQuoteRequested){
 						$CustomerLatLong = DB::table('tbl_customer_address')->where('AID',$EnqData->AID)->select('Latitude','Longitude')->first();
-						$StockPoints = DB::table('tbl_vendors_stock_point')->where('VendorID',$VendorID)->where('DFlag',0)->where('ActiveStatus',1)->select('StockPointID','Latitude','Longitude')->get();
+						logger(json_encode($CustomerLatLong));
+
+						if(!$CustomerLatLong){
+							return ['status' => false, 'message' =>'Customer Lat Long doesnt exists!'];
+						}
+						
+						$StockPoints = DB::table('tbl_vendors_stock_point')->where('VendorID',$VendorID)->where('DFlag',0)->where('ActiveStatus',1)->select('VendorID','StockPointID','Latitude','Longitude')->get();
+						logger(json_encode($StockPoints));
+						if(count($StockPoints) == 0){
+							return ['status' => false, 'message' =>'Vendor ('.$VendorID.') Stock points not found'];
+						}
+						
 						$Distance = Helper::findNearestStockPoint($CustomerLatLong, $StockPoints);
+						if(!$Distance){
+							return ['status' => false, 'message' =>'Vendor ('.$VendorID.') Distance not found'];
+						}
 						$VQuoteID = DocNum::getDocNum(docTypes::VendorQuotation->value, $this->currfyDB,Helper::getCurrentFy());
 						$data = [
 							"VQuoteID" => $VQuoteID,

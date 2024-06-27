@@ -128,7 +128,7 @@ class helper{
         }
     }
 
-	public static function findNearestStockPointsss($Customer, $VendorStockPoints) {
+	public static function DummyfindNearestStockPoint($Customer, $VendorStockPoints) {
 		$customerLat = $Customer->Latitude;
 		$customerLng = $Customer->Longitude;
 		$earthRadius = 6371;
@@ -187,6 +187,7 @@ class helper{
         $customerLng = $Customer->Longitude;
         $vendorLat = $Vendor->Latitude;
         $vendorLng = $Vendor->Longitude;
+		return [$customerLat, $customerLng, $vendorLat, $vendorLng];
 		$response = $client->get('https://maps.googleapis.com/maps/api/distancematrix/json', [
 			'query' => [
 				'origins' => "$customerLat,$customerLng",
@@ -196,7 +197,7 @@ class helper{
 			]
 		]);
 		$data = json_decode($response->getBody(), true);
-		$distance = $data['rows'][0] ? $data['rows'][0]['elements'][0]['distance']['value'] : 1000;
+		$distance = $data['rows'][0] ? ($data['rows'][0]['elements'][0]['distance'] ? $data['rows'][0]['elements'][0]['distance']['value'] : 1000) : 1000;
 		$distanceInKm = $distance / 1000;
 		// return response()->json(['distance_km' => $distanceInKm]);
 		return $distanceInKm;

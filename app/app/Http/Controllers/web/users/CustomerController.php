@@ -114,7 +114,7 @@ class CustomerController extends Controller{
 				->join($this->generalDB.'tbl_taluks as T', 'T.TalukID', 'CA.TalukID')
 				->join($this->generalDB.'tbl_cities as CI', 'CI.CityID', 'CA.CityID')
 				->join($this->generalDB.'tbl_postalcodes as PC', 'PC.PID', 'CA.PostalCodeID')
-				->select('CA.AID', 'CA.Address', 'CA.isDefault', 'CA.CountryID', 'C.CountryName', 'CA.StateID', 'S.StateName', 'CA.DistrictID', 'D.DistrictName', 'CA.TalukID', 'T.TalukName', 'CA.CityID', 'CI.CityName', 'CA.PostalCodeID', 'PC.PostalCode')
+				->select('CA.AID', 'CA.Address', 'CA.Latitude', 'CA.Longitude', 'CA.isDefault', 'CA.CountryID', 'C.CountryName', 'CA.StateID', 'S.StateName', 'CA.DistrictID', 'D.DistrictName', 'CA.TalukID', 'T.TalukName', 'CA.CityID', 'CI.CityName', 'CA.PostalCodeID', 'PC.PostalCode')
 				->get();
 				return view('app.users.manage-customer.customer',$FormData);
 			}else{
@@ -244,10 +244,11 @@ class CustomerController extends Controller{
 							"DistrictID"=>$CityData->DistrictID,
 							"StateID"=>$CityData->StateID,
 							"CountryID"=>$CityData->CountryID,
-							"Latitude"=>$req->Latitude,
-							"Longitude"=>$req->Longitude,
+							"Latitude"=>$row['Latitude'],
+							"Longitude"=>$row['Longitude'],
 							"MapData"=>$req->MapData,
 							"isDefault"=>$row['isDefault'],
+							"CreatedBy"=>$this->UserID,
 							"CreatedOn"=>date("Y-m-d H:i:s")
 						);
 						$status=DB::Table('tbl_customer_address')->insert($tmp);
@@ -426,10 +427,11 @@ class CustomerController extends Controller{
 								"DistrictID"=>$CityData->DistrictID,
 								"StateID"=>$CityData->StateID,
 								"CountryID"=>$CityData->CountryID,
-								"Latitude"=>$req->Latitude,
-								"Longitude"=>$req->Longitude,
+								"Latitude"=>$row['Latitude'],
+								"Longitude"=>$row['Longitude'],
 								"MapData"=>$req->MapData,
 								"isDefault"=>$row['isDefault'],
+								"UpdatedBy"=>$this->UserID,
 								"UpdatedOn"=>date("Y-m-d H:i:s")
 							);
 							$status=DB::Table('tbl_customer_address')->where('CustomerID',$CustomerID)->where('AID',$row['AID'])->update($data);
@@ -447,8 +449,8 @@ class CustomerController extends Controller{
 								"DistrictID"=>$CityData->DistrictID,
 								"StateID"=>$CityData->StateID,
 								"CountryID"=>$CityData->CountryID,
-								"Latitude"=>$req->Latitude,
-								"Longitude"=>$req->Longitude,
+								"Latitude"=>$row['Latitude'],
+								"Longitude"=>$row['Longitude'],
 								"MapData"=>$req->MapData,
 								"isDefault"=>$row['isDefault'],
 								"CreatedOn"=>date("Y-m-d H:i:s")
