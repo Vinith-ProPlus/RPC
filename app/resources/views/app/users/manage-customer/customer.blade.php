@@ -229,7 +229,7 @@
                                                                     {{ $item->CountryName }} - {{ $item->PostalCode }}.
                                                                 </td>
                                                                 <td class="text-center">
-                                                                    <button type="button" class="btn btn-sm btn-outline-success m-5 btnEditSAddress"><i class="fa fa-pencil"></i></button>
+                                                                    {{-- <button type="button" class="btn btn-sm btn-outline-success m-5 btnEditSAddress"><i class="fa fa-pencil"></i></button> --}}
                                                                     <button type="button" class="btn btn-sm btn-outline-danger m-5 btnDeleteSAddress"><i class="fa fa-trash"></i></button>
                                                                 </td>
                                                                 <td class="d-none">{{ json_encode($item) }}</td>
@@ -768,7 +768,6 @@
                                     ${formData.CountryName} - ${formData.PostalCode}.
                                 </td>
                                 <td class="text-center">
-                                    <button type="button" class="btn btn-sm btn-outline-success m-5 btnEditSAddress"><i class="fa fa-pencil"></i></button>
                                     <button type="button" class="btn btn-sm btn-outline-danger m-5 btnDeleteSAddress"><i class="fa fa-trash"></i></button>
                                 </td>
                                 <td class="d-none">${JSON.stringify(formData)}</td>
