@@ -119,7 +119,7 @@ Route::controller(HomeController::class)->group(function () {
 
 Route::controller(HomeAuthController::class)->group(function () {
     Route::get('/customer-register', 'Register')->name('customer-register');
-    Route::get('/customer-profile', 'Profile');
+    Route::get('/customer-profile', 'Profile')->name('customer-profile');
     Route::post('/save', 'Save');
     Route::post('/update', 'Update');
     Route::get('/customer-home', 'Home');

@@ -655,22 +655,13 @@
         $(document).on("change",'#lstCountry',function(){
             getStates({CountryID:$('#lstCountry').val()},'lstState');
         });
-        $(document).on('click', '#btnSaveAddress', function () {
-            SaveAddress();
-        });
-        $(document).on('click', '.defaultAddress', function () {
-            SetDefaultAddress($(this));
-        });
+
         $(document).on('click', '.btnEditSAddress', function () {
             let Row=$(this).closest('tr');
             let EditData=JSON.parse($(this).closest('tr').find("td:eq(3)").html());
             EditData.EditID=Row.attr('id');
             EditData.AID=Row.attr('data-aid');
             getAddressModal(EditData);
-        });
-        $(document).on('click', '.btnDeleteSAddress', function () {
-            var thiss = $(this);
-            DeleteAddress(thiss);
         });
         $(document).on('click', '#btnEditImage', function () {
             $('#txtCustomerImage').trigger('click');
@@ -724,194 +715,7 @@
         $('#btnMCancel').on('click', function () {
             $.magnificPopup.close();
         });
-        const SaveAddress = async () => {
-            let { status, formData, Address } = await ValidateGetAddress();
-            if (status) {
-                $.ajax({
-                    type:"post",
-                    url:"{{ route('UpdateShippingAddress') }}",
-                    data: formData,
-                    headers: { 'X-CSRF-Token' : '{{ csrf_token() }}' },
-                    // dataType:"html",
-                    async:true,
-                    error:function(e, x, settings, exception){},
-                    success:async(response)=>{
-                        if(response.status === true){
-                            let index = formData.EditID ? formData.EditID : $('#tblShippingAddress tbody tr').length + 1;
 
-                            // ${formData.TalukName},<br>
-                            //     ${formData.DistrictName}, ${formData.StateName},<br>
-                            //     ${formData.CountryName} -
-                            // <button type="button" class="btn btn-sm btn-outline-success m-2 btnEditSAddress"><i class="fas fa-pencil-alt"></i></button>
-
-                            let html = `<tr id="${index}" data-aid="${response.AID}">
-                                <td class="text-right checkbox1 align-middle">
-                                    <div class="radio radio-primary">
-                                        <input id="chkSA${index}" data-aid="${response.AID}" class="defaultAddress" type="radio" name="SAddress" value="${index}">
-                                        <label for="chkSA${index}"></label>
-                                    </div>
-                                </td>
-                                <td class="pointer">
-                                    <b>${formData.AddressType}</b><br>
-                                    <b>${response.data.Address}</b>,<br>
-                                    ${formData.CityName},${formData.PostalCode}.
-                                </td>
-                                <td class="text-center">
-                                    <button type="button" class="btn btn-sm btn-outline-danger m-2 btnDeleteSAddress" data-aid="${response.AID}"><i class="fas fa-trash-alt"></i></button>
-                                </td>
-                                <td class="d-none">${JSON.stringify(formData)}</td>
-                            </tr>`;
-
-                            if (formData.EditID) {
-                                $("#tblShippingAddress tbody tr").each(function () {
-                                    let SNo = $(this).attr('id');
-                                    if (SNo == formData.EditID) {
-                                        $(this).replaceWith(html);
-                                        return false;
-                                    }
-                                });
-                            } else {
-                                $('#tblShippingAddress tbody').append(html);
-                                if($('#tblShippingAddress tbody tr').length === 1){
-                                    $('#tblShippingAddress tbody tr').first().find('.defaultAddress').click();
-                                }
-                            }
-                            toastr.success("Address added successfully!.");
-                        } else {
-                            toastr.warning("Error!.");
-                        }
-                    }
-                });
-                bootbox.hideAll();
-            }
-        };
-        const DeleteAddress = async (thiss) => {
-            let { status, formData, Address } = await ValidateDeleteAddress(thiss.attr('data-aid'));
-            $.ajax({
-                type:"post",
-                url:"{{ route('DeleteShippingAddress') }}",
-                data: formData,
-                headers: { 'X-CSRF-Token' : '{{ csrf_token() }}' },
-                async:true,
-                error:function(e, x, settings, exception){},
-                success:async(response)=>{
-                    if(response.status === true){
-                        toastr.success('Shipping address deleted');
-                        $('tr[data-aid="' + thiss.attr('data-aid') + '"]').remove();
-                    } else {
-                        toastr.warning(response.message);
-                    }
-                }
-            });
-        };
-        const SetDefaultAddress = async (thiss) => {
-            let { status, formData, Address } = await ValidateDefaultAddress(thiss.attr('data-aid'));
-            $.ajax({
-                type:"post",
-                url:"{{ route('SetAddressDefault') }}",
-                data: formData,
-                headers: { 'X-CSRF-Token' : '{{ csrf_token() }}' },
-                async:true,
-                error:function(e, x, settings, exception){},
-                success:async(response)=>{
-                    if(response.status === true){
-                        toastr.success('Default address changed!.');
-                        // $('tr[data-aid="' + thiss.attr('data-aid') + '"]').remove();
-                    } else {
-                        toastr.warning(response.message);
-                    }
-                }
-            });
-        };
-        const ValidateDeleteAddress = async (AID) => {
-            let status = true;
-            let Address = "";
-            var formData={};
-            formData.AID=AID;
-            return { status, formData, Address };
-        };
-        const ValidateDefaultAddress = async (AID) => {
-            let status = true;
-            let Address = "";
-            var formData={};
-            formData.AID=AID;
-            return { status, formData, Address };
-        };
-
-        const ValidateGetAddress = async () => {
-            $(".errors.Address").html("");
-            let status = true;
-            var formData={};
-            formData.EditID=$("#btnSaveAddress").attr('data-edit-id');
-            formData.AID=$("#btnSaveAddress").attr('data-aid');
-            formData.AddressType=$('#txtADAddressType').val();
-            formData.Address=$('#txtADAddress').val();
-            formData.CompleteAddress=$('#txtADAddress').val();
-            formData.Latitude=$('#txtADLatitude').val();
-            formData.Longitude=$('#txtADLongitude').val();
-            formData.mapData=$('#mapData').val();
-            // formData.CountryID=$('#lstADCountry').val();
-            // formData.CountryName=$('#lstADCountry option:selected').attr('data-country-name');
-            // formData.StateID=$('#lstADState').val();
-            // formData.StateName=$('#lstADState option:selected').text();
-            // formData.DistrictID=$('#lstADDistrict').val();
-            // formData.DistrictName=$('#lstADDistrict option:selected').text();
-            // formData.TalukID=$('#lstADTaluk').val();
-            // formData.TalukName=$('#lstADTaluk option:selected').text();
-            formData.CityID=$('#lstADCity').val();
-            formData.CityName=$('#lstADCity option:selected').text();
-            formData.PostalCode=$('#txtADPostalCode').val();
-            formData.PostalCodeID=$('#lstADCity option:selected').attr('data-postal-id');
-            // console.log(formData);
-            let Address ="";
-            if(formData.Address==""){
-                $('#txtADAddress-err').html('Address is required');status=false;
-            }else if(formData.Address.length<5){
-                $('#txtADAddress-err').html('The Address must be greater than 5 characters.');status=false;
-            }else{
-                Address+=",<br>"+formData.Address;
-            }
-            if(formData.CityID==""){
-                $('#lstADCity-err').html('City is required');status=false;
-            }else{
-                Address+=",<br>"+formData.CityName;
-            }
-
-            if(formData.AddressType==""){
-                $('#txtADAddressType-err').html('Address type is required');status=false;
-            }
-
-            if(formData.Latitude==="" || formData.Latitude===""){
-                $('#txtADMap-err').html('Delivery location is required');status=false;
-            }
-            // if(formData.TalukID==""){
-            //     $('#lstADTaluk-err').html('Taluk is required');status=false;
-            // }else{
-            //     Address+=",<br>"+formData.TalukName;
-            // }
-            // if(formData.DistrictID==""){
-            //     $('#lstADDistrict-err').html('District is required');status=false;
-            // }else{
-            //     Address+=",<br>"+formData.DistrictName;
-            // }
-            // if(formData.StateID==""){
-            //     $('#lstADState-err').html('State is required');status=false;
-            // }else{
-            //     Address+=",<br>"+formData.StateName;
-            // }
-            // if(formData.CountryID==""){
-            //     $('#lstADCountry-err').html('Country is required');status=false;
-            // }else{
-            //     Address+=","+formData.CountryName;
-            // }
-            if(formData.PostalCode==""){
-                $('#txtADPostalCode-err').html('Postal Code is required');status=false;
-            }else{
-                Address+=" - "+formData.PostalCode;
-            }
-            // status = true;
-            return { status, formData, Address };
-        };
         const getData=async ()=>{
             let status = await validateForm();
             if(status){

@@ -292,6 +292,7 @@
                                                     , {{ $item->StateName }},{{ $item->CountryName }}
                                                     - {{ $item->PostalCode }}.</a></li>
                                         @endforeach
+                                            <li class="text-center"><a href="#" style="background-color: #2e578f; color: white;" class="addressAddHeaderBtn btnAddAddress">Add Address</a></li>
                                     </ul>
                                 @endif
                             @endif
@@ -778,7 +779,7 @@
 
 <script>
     $(document).ready(function () {
-        $('.notifications').on('click', function(event) {
+        $('.notifications').on('click', function (event) {
             event.stopPropagation();
         });
         const UpdateItemQtyCount = (count) => {
@@ -850,14 +851,14 @@
                         if (thiss.hasClass('wishlistCartBtn')) {
                             thiss.text("Added in cart");
                         }
-                        if ($('#wishlistTableHtml').length){
+                        if ($('#wishlistTableHtml').length) {
                             var $wishlistButton = $('#wishlistTableHtml').find('.btnAddCart#' + thiss.attr('id'));
                             thiss.removeClass('wishlistCartBtn btnAddCart btn-add-cart add-cart');
                             thiss.addClass('btn-added-cart added-in-cart');
                             $wishlistButton.attr('class', thiss.attr('class'));
                             $wishlistButton.html(thiss.html());
                         }
-                        thiss.find('span').text(function(_, text) {
+                        thiss.find('span').text(function (_, text) {
                             return text.trim() === 'ADD TO CART' ? 'ADDED IN CART' : text;
                         });
                         thiss.addClass('btn-added-cart added-in-cart');
@@ -871,21 +872,24 @@
 
         $(document).on('input', '.txtUpdateQty', function () {
             let Qty = $(this).val();
-                if((Qty > 0) && Number.isInteger(parseFloat(Qty))){
+            if ((Qty > 0) && Number.isInteger(parseFloat(Qty))) {
                 let FormData = {
-                    'ProductID' : $(this).attr('id'),
-                    'Qty' : parseInt(Qty),
+                    'ProductID': $(this).attr('id'),
+                    'Qty': parseInt(Qty),
                 }
                 $.ajax({
-                    type:"post",
+                    type: "post",
                     data: FormData,
-                    url:"{{url('/')}}/update-cart",
-                    headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
-                    dataType:"json",
-                    error:function(e, x, settings, exception){ajaxErrors(e, x, settings, exception);},
-                    complete: function(e, x, settings, exception){},
-                    success:function(response){
-                        if(response.status){
+                    url: "{{url('/')}}/update-cart",
+                    headers: {'X-CSRF-Token': $('meta[name=_token]').attr('content')},
+                    dataType: "json",
+                    error: function (e, x, settings, exception) {
+                        ajaxErrors(e, x, settings, exception);
+                    },
+                    complete: function (e, x, settings, exception) {
+                    },
+                    success: function (response) {
+                        if (response.status) {
                             // LoadCart(response.data);
                         }
                     }
@@ -894,7 +898,7 @@
         });
         $(document).on('blur', '.txtUpdateQty', function () {
             let Qty = $(this).val();
-            if((Qty < 0) || !Number.isInteger(parseFloat(Qty))){
+            if ((Qty < 0) || !Number.isInteger(parseFloat(Qty))) {
                 $(this).val(1);
             }
         });
@@ -904,23 +908,26 @@
             var deletedCartElement = $('#' + ProductID);
             if (deletedCartElement.hasClass('added-in-cart')) {
                 deletedCartElement.removeClass('btn-added-cart added-in-cart').addClass('btn-add-cart btnAddCart');
-                deletedCartElement.find('span').text(function(_, text) {
+                deletedCartElement.find('span').text(function (_, text) {
                     return text.trim() === 'ADDED IN CART' ? 'ADD TO CART' : text;
                 });
             }
             let FormData = {
-                'ProductID' : ProductID,
+                'ProductID': ProductID,
             }
             $.ajax({
-                type:"post",
+                type: "post",
                 data: FormData,
-                url:"{{url('/')}}/delete-cart",
-                headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
-                dataType:"json",
-                error:function(e, x, settings, exception){ajaxErrors(e, x, settings, exception);},
-                complete: function(e, x, settings, exception){},
-                success:function(response){
-                    if(response.status){
+                url: "{{url('/')}}/delete-cart",
+                headers: {'X-CSRF-Token': $('meta[name=_token]').attr('content')},
+                dataType: "json",
+                error: function (e, x, settings, exception) {
+                    ajaxErrors(e, x, settings, exception);
+                },
+                complete: function (e, x, settings, exception) {
+                },
+                success: function (response) {
+                    if (response.status) {
                         UpdateItemQtyCount(response.data.length);
                     }
                 }
@@ -946,25 +953,28 @@
             return cookieValue ? cookieValue.pop() : '';
         }
 
-        function emptyCart(){
+        function emptyCart() {
             $.ajax({
                 url: "{{ route('empty-cart') }}",
-                headers: { 'X-CSRF-Token' : '{{ csrf_token() }}' },
+                headers: {'X-CSRF-Token': '{{ csrf_token() }}'},
                 processData: false,
                 contentType: false,
                 type: "POST",
                 data: {},
-                success: function() {
+                success: function () {
                     window.location.reload();
                 },
-                error: function(xhr, status, error) {
+                error: function (xhr, status, error) {
                     console.error(error);
                 }
             });
         }
 
-        $('#changeCustomerAddressUl li a').on('click', function(e){
+        $('#changeCustomerAddressUl li a').on('click', function (e) {
             e.preventDefault();
+            if ($(this).hasClass('addressAddHeaderBtn')) {
+                return;
+            }
             let selectedAddress = $('#customerSelectedAddress');
             selectedAddress.attr('data-aid', $(this).data('aid'));
             selectedAddress.attr('data-selected-postal-id', $(this).data('postal-id'));
@@ -972,21 +982,21 @@
             selectedAddress.attr('data-selected-longitude', $(this).data('longitude'));
             selectedAddress.html($(this).html());
             setCookie('selected_aid', $(this).data('aid'), 30);
-            let formData=new FormData();
+            let formData = new FormData();
             formData.append('aid', $(this).data('aid'));
             $.ajax({
                 url: "{{ route('setAidInSession') }}",
-                headers: { 'X-CSRF-Token' : '{{ csrf_token() }}' },
+                headers: {'X-CSRF-Token': '{{ csrf_token() }}'},
                 processData: false,
                 contentType: false,
                 type: "POST",
                 data: formData,
-                success: function(response) {
-                    if(response.isChanged){
+                success: function (response) {
+                    if (response.isChanged) {
                         emptyCart();
                     }
                 },
-                error: function(xhr, status, error) {
+                error: function (xhr, status, error) {
                     console.error(error);
                 }
             });
@@ -999,7 +1009,7 @@
             $.ajax({
                 url: "{{ route('customerHomeSearch') }}",
                 method: 'POST',
-                headers: { 'X-CSRF-Token': '{{ csrf_token() }}' },
+                headers: {'X-CSRF-Token': '{{ csrf_token() }}'},
                 data: formData,
                 processData: false,
                 contentType: false,
@@ -1023,16 +1033,16 @@
             performSearch('mblSearchResults', $(this).val());
         });
 
-        $('.search-toggle-btn').on('click', function(){
+        $('.search-toggle-btn').on('click', function () {
             var mblSearchDiv = $("#mbl-header-search-div")
-            if(mblSearchDiv.hasClass('d-none')){
+            if (mblSearchDiv.hasClass('d-none')) {
                 mblSearchDiv.removeClass('d-none');
             } else {
                 mblSearchDiv.addClass('d-none');
             }
         });
 
-        $(document).on('click', function(event) {
+        $(document).on('click', function (event) {
             if (!$(event.target).closest('.header-search-wrapper').length) {
                 $('#searchResults').hide();
             }
@@ -1042,6 +1052,7 @@
         if (selected_aid !== "") {
             $('#changeCustomerAddressUl li a[data-aid="' + selected_aid + '"]').click();
         }
+
         function updateNotificationsDropdown(response) {
             var dropdownMenu = $('#customerNotificationUl');
             dropdownMenu.html(response);
@@ -1052,12 +1063,12 @@
                 type: "POST",
                 url: "{{ route('getNotifications') }}",
                 dataType: "html",
-                headers: { 'X-CSRF-Token': '{{ csrf_token() }}' },
-                data: { PageNo: currentNotificationPage },
-                success: function(response) {
+                headers: {'X-CSRF-Token': '{{ csrf_token() }}'},
+                data: {PageNo: currentNotificationPage},
+                success: function (response) {
                     updateNotificationsDropdown(response);
                 },
-                error: function(xhr, status, error) {
+                error: function (xhr, status, error) {
                     console.error('AJAX Error:', error);
                 }
             });
@@ -1066,19 +1077,20 @@
         fetchNotifications($('#notificationPageNo').val());
 
         getNotificationCount();
+
         function getNotificationCount() {
             $.ajax({
                 type: "POST",
                 url: "{{ route('getNotificationsCount') }}",
                 dataType: "json",
-                headers: { 'X-CSRF-Token': '{{ csrf_token() }}' },
+                headers: {'X-CSRF-Token': '{{ csrf_token() }}'},
                 cache: false,
                 processData: false,
                 contentType: false,
                 success: function (response) {
-                    if(response.status === true){
-                        if(response.UnReadCount === 0){
-                            if($('.unread-badge').is(':visible')){
+                    if (response.status === true) {
+                        if (response.UnReadCount === 0) {
+                            if ($('.unread-badge').is(':visible')) {
                                 $('.unread-badge').hide();
                             }
                         } else {
@@ -1086,28 +1098,195 @@
                         }
                     }
                 },
-                error: function(xhr, status, error) {
+                error: function (xhr, status, error) {
                     console.error('AJAX Error:', error);
                 }
             });
         }
 
 
-        $('#notificationPageNo').on('change', function() {
+        $('#notificationPageNo').on('change', function () {
             fetchNotifications($('#notificationPageNo').val());
         });
 
         $('#customerNotificationBtn').on('click', function () {
             $('#customerNotification').attr('style', 'top: 160px !important;');
         });
-        // $('.btn-wrapper .btn').click(function () {
-        //     $('.unread-badge').hide();
-        // });
 
-        $(document).on('click','#btnLogout',async(e)=>{
+        $(document).on('click', '#btnLogout', async (e) => {
             e.preventDefault();
             $('#logoutForm').submit();
         });
+        $(document).on('click', '#btnSaveAddress', function () {
+            SaveAddress();
+        });
+        $(document).on('click', '.defaultAddress', function () {
+            SetDefaultAddress($(this));
+        });
+        $(document).on('click', '.btnDeleteSAddress', function () {
+            var thiss = $(this);
+            DeleteAddress(thiss);
+        });
+
+        const SaveAddress = async () => {
+            let { status, formData, Address } = await ValidateGetAddress();
+            if (status) {
+                $.ajax({
+                    type:"post",
+                    url:"{{ route('UpdateShippingAddress') }}",
+                    data: formData,
+                    headers: { 'X-CSRF-Token' : '{{ csrf_token() }}' },
+                    async:true,
+                    error:function(e, x, settings, exception){},
+                    success:async(response)=>{
+                        if(response.status === true){
+                            if("{{ Route::currentRouteName() }}" !== "customer-profile"){
+                                setCookie('selected_aid', response.AID, 30);
+                                window.location.reload();
+                            } else {
+                                let index = formData.EditID ? formData.EditID : $('#tblShippingAddress tbody tr').length + 1;
+
+                                $('.defaultAddress').prop('checked', false);
+
+                                let html = `<tr id="${index}" data-aid="${response.AID}">
+                                <td class="text-right checkbox1 align-middle">
+                                    <div class="radio radio-primary">
+                                        <input id="chkSA${index}" data-aid="${response.AID}" class="defaultAddress" type="radio" name="SAddress" value="${index}" checked>
+                                        <label for="chkSA${index}"></label>
+                                    </div>
+                                </td>
+                                <td class="pointer">
+                                    <b>${formData.AddressType}</b><br>
+                                    <b>${response.data.Address}</b>,<br>
+                                    ${formData.CityName},${formData.PostalCode}.
+                                </td>
+                                <td class="text-center">
+                                    <button type="button" class="btn btn-sm btn-outline-danger m-2 btnDeleteSAddress" data-aid="${response.AID}"><i class="fas fa-trash-alt"></i></button>
+                                </td>
+                                <td class="d-none">${JSON.stringify(formData)}</td>
+                            </tr>`;
+
+                                if (formData.EditID) {
+                                    $("#tblShippingAddress tbody tr").each(function () {
+                                        let SNo = $(this).attr('id');
+                                        if (SNo == formData.EditID) {
+                                            $(this).replaceWith(html);
+                                            return false;
+                                        }
+                                    });
+                                } else {
+                                    $('#tblShippingAddress tbody').append(html);
+                                    if ($('#tblShippingAddress tbody tr').length === 1) {
+                                        $('#tblShippingAddress tbody tr').first().find('.defaultAddress').click();
+                                    }
+                                }
+                                toastr.success("Address added successfully!.");
+                            }
+                        } else {
+                            toastr.warning("Error!.");
+                        }
+                    }
+                });
+                bootbox.hideAll();
+            }
+        };
+        const DeleteAddress = async (thiss) => {
+            let { status, formData, Address } = await ValidateDeleteAddress(thiss.attr('data-aid'));
+            $.ajax({
+                type:"post",
+                url:"{{ route('DeleteShippingAddress') }}",
+                data: formData,
+                headers: { 'X-CSRF-Token' : '{{ csrf_token() }}' },
+                async:true,
+                error:function(e, x, settings, exception){},
+                success:async(response)=>{
+                    if(response.status === true){
+                        toastr.success('Shipping address deleted');
+                        $('tr[data-aid="' + thiss.attr('data-aid') + '"]').remove();
+                    } else {
+                        toastr.warning(response.message);
+                    }
+                }
+            });
+        };
+        const SetDefaultAddress = async (thiss) => {
+            let { status, formData, Address } = await ValidateDefaultAddress(thiss.attr('data-aid'));
+            $.ajax({
+                type:"post",
+                url:"{{ route('SetAddressDefault') }}",
+                data: formData,
+                headers: { 'X-CSRF-Token' : '{{ csrf_token() }}' },
+                async:true,
+                error:function(e, x, settings, exception){},
+                success:async(response)=>{
+                    if(response.status === true){
+                        toastr.success('Default address changed!.');
+                        // $('tr[data-aid="' + thiss.attr('data-aid') + '"]').remove();
+                    } else {
+                        toastr.warning(response.message);
+                    }
+                }
+            });
+        };
+        const ValidateDeleteAddress = async (AID) => {
+            let status = true;
+            let Address = "";
+            var formData={};
+            formData.AID=AID;
+            return { status, formData, Address };
+        };
+        const ValidateDefaultAddress = async (AID) => {
+            let status = true;
+            let Address = "";
+            var formData={};
+            formData.AID=AID;
+            return { status, formData, Address };
+        };
+
+        const ValidateGetAddress = async () => {
+            $(".errors.Address").html("");
+            let status = true;
+            var formData={};
+            formData.EditID=$("#btnSaveAddress").attr('data-edit-id');
+            formData.AID=$("#btnSaveAddress").attr('data-aid');
+            formData.AddressType=$('#txtADAddressType').val();
+            formData.Address=$('#txtADAddress').val();
+            formData.CompleteAddress=$('#txtADAddress').val();
+            formData.Latitude=$('#txtADLatitude').val();
+            formData.Longitude=$('#txtADLongitude').val();
+            formData.mapData=$('#mapData').val();
+            formData.CityID=$('#lstADCity').val();
+            formData.CityName=$('#lstADCity option:selected').text();
+            formData.PostalCode=$('#txtADPostalCode').val();
+            formData.PostalCodeID=$('#lstADCity option:selected').attr('data-postal-id');
+            let Address ="";
+            if(formData.Address==""){
+                $('#txtADAddress-err').html('Address is required');status=false;
+            }else if(formData.Address.length<5){
+                $('#txtADAddress-err').html('The Address must be greater than 5 characters.');status=false;
+            }else{
+                Address+=",<br>"+formData.Address;
+            }
+            if(formData.CityID==""){
+                $('#lstADCity-err').html('City is required');status=false;
+            }else{
+                Address+=",<br>"+formData.CityName;
+            }
+
+            if(formData.AddressType==""){
+                $('#txtADAddressType-err').html('Address type is required');status=false;
+            }
+
+            if(formData.Latitude==="" || formData.Latitude===""){
+                $('#txtADMap-err').html('Delivery location is required');status=false;
+            }
+            if(formData.PostalCode==""){
+                $('#txtADPostalCode-err').html('Postal Code is required');status=false;
+            }else{
+                Address+=" - "+formData.PostalCode;
+            }
+            return { status, formData, Address };
+        };
     });
 </script>
 
