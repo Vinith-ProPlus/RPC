@@ -947,7 +947,7 @@ class CustomerAuthController extends Controller{
                 return response()->json(['status' => false,'message' => "This Mobile Number is already taken"]);
             }else{
                 $OTP = Helper::getOTP(6);
-                $Message = "You are trying to change your mobile number in the RPC customer app. Please enter $OTP code to verify your request. Do not share this OTP with anyone for security reasons.";
+                $Message = "You are trying to change your mobile number in the RPC software. Please enter $OTP code to verify your request.";
                 return Helper::saveSmsOtp($user->MobileNumber,$OTP,$Message,"Customer");
             }
         }else{

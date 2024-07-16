@@ -1984,7 +1984,7 @@ class VendorAuthController extends Controller{
             }else{
                 $OTP = Helper::getOTP(6);
     
-                $Message = "You are trying to change your mobile number in the RPC vendor app. Please enter $OTP code to verify your request. Do not share this OTP with anyone for security reasons.";
+                $Message = "You are trying to change your mobile number in the RPC software. Please enter $OTP code to verify your request.";
                 return Helper::saveSmsOtp($user->MobileNumber,$OTP,$Message,"Vendor");
             }
         }else{
