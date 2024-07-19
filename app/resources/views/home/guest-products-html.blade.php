@@ -172,7 +172,7 @@
 <script>
     $(document).ready(function () {
         $('.redirectLogin').on('click', function () {
-            window.location.replace($('#loginBtn').attr('href'));
+            $('.openLoginModal').click();
         });
     });
 </script>

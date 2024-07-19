@@ -1140,7 +1140,8 @@
                     error:function(e, x, settings, exception){},
                     success:async(response)=>{
                         if(response.status === true){
-                            if("{{ Route::currentRouteName() }}" !== "customer-profile"){
+                            debugger
+                            if(!["customer-profile", "customer-register"].includes("{{ Route::currentRouteName() }}")){
                                 setCookie('selected_aid', response.AID, 30);
                                 window.location.reload();
                             } else {
