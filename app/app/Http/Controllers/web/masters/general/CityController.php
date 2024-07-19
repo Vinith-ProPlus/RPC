@@ -374,15 +374,17 @@ class CityController extends Controller{
 				array( 'db' => 'S.StateName', 'dt' => '4' ),
 				array( 'db' => 'C.CountryName', 'dt' => '5' ),
 				array( 'db' => 'CI.ActiveStatus', 'dt' => '6'),
+				array( 'db' => 'P.PostalCode', 'dt' => '7'),
 			);
 			$columns1 = array(
 				array( 'db' => 'CityID', 'dt' => '0' ),
 				array( 'db' => 'CityName', 'dt' => '1' ),
-				array( 'db' => 'TalukName', 'dt' => '2' ),
-				array( 'db' => 'DistrictName', 'dt' => '3' ),
-				array( 'db' => 'StateName', 'dt' => '4' ),
-				array( 'db' => 'CountryName', 'dt' => '5' ),
-				array( 'db' => 'ActiveStatus', 'dt' => '6',
+				array( 'db' => 'PostalCode', 'dt' => '2' ),
+				array( 'db' => 'TalukName', 'dt' => '3' ),
+				array( 'db' => 'DistrictName', 'dt' => '4' ),
+				array( 'db' => 'StateName', 'dt' => '5' ),
+				array( 'db' => 'CountryName', 'dt' => '6' ),
+				array( 'db' => 'ActiveStatus', 'dt' => '7',
 					'formatter' => function( $d, $row ) {
 						if($d=="Active"){
 							return "<span class='badge badge-success m-1'>Active</span>";
@@ -391,7 +393,7 @@ class CityController extends Controller{
 						}
 					} 
 				),
-				array( 'db' => 'CityID', 'dt' => '7',
+				array( 'db' => 'CityID', 'dt' => '8',
 					'formatter' => function( $d, $row ) {
 						$html='';
 						if($this->general->isCrudAllow($this->CRUD,"edit")==true){
@@ -416,7 +418,7 @@ class CityController extends Controller{
 			}
 			$data=array();
 			$data['POSTDATA']=$req;
-			$data['TABLE']=$this->generalDB.'tbl_cities as CI LEFT JOIN '.$this->generalDB.'tbl_taluks as T ON T.TalukID = CI.TalukID LEFT JOIN '.$this->generalDB.'tbl_districts as D ON D.DistrictID = CI.DistrictID LEFT JOIN '.$this->generalDB.'tbl_states as S ON S.StateID = CI.StateID LEFT JOIN '.$this->generalDB.'tbl_countries as C ON C.CountryID = CI.CountryID';
+			$data['TABLE']=$this->generalDB.'tbl_cities as CI LEFT JOIN '.$this->generalDB.'tbl_postalcodes as P ON P.PID = CI.PostalID LEFT JOIN '.$this->generalDB.'tbl_taluks as T ON T.TalukID = CI.TalukID LEFT JOIN '.$this->generalDB.'tbl_districts as D ON D.DistrictID = CI.DistrictID LEFT JOIN '.$this->generalDB.'tbl_states as S ON S.StateID = CI.StateID LEFT JOIN '.$this->generalDB.'tbl_countries as C ON C.CountryID = CI.CountryID';
 			$data['PRIMARYKEY']='CityID';
 			$data['COLUMNS']=$columns;
 			$data['COLUMNS1']=$columns1;

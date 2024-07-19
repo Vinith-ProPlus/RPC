@@ -87,6 +87,7 @@
                                     <tr>
                                         <th>City ID</th>
                                         <th>City Name</th>
+                                        <th>Postal Code</th>
                                         <th>Taluk Name</th>
                                         <th>District Name</th>
                                         <th>State Name</th>
@@ -313,7 +314,7 @@
 					@if($crud['pdf']==1) ,{extend: 'pdf',className:"{{$Theme['button-size']}}",footer: true,title: "{{$PageTitle}}","action": DataTableExportOption,exportOptions: {columns: "thead th:not(.noExport)"}} @endif
 				],
 				columnDefs: [
-					{"className": "dt-center", "targets":[7,6]},
+					{"className": "dt-center", "targets":[7,8]},
 				]
 			});
 			@endif
