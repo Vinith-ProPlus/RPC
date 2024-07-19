@@ -1086,8 +1086,12 @@ class helper{
 				'LoginType' => $LoginType,
 				'Message' => $Message,
 			];
+            DB::table(self::getCurrFYDB() . 'tbl_sms_otps')->where('MobileNumber', $MobNo)->update(['isOtpExpired' => 1]);
+
 			$status = DB::table(self::getCurrFYDB() . 'tbl_sms_otps')->insert($Ndata);
-			DB::table(self::getCurrFYDB() . 'tbl_sms_otps')->where('MobileNumber', $MobNo)->whereNot('OTP', $OTP)->update(['isOtpExpired' => 1]);
+//			DB::table(self::getCurrFYDB() . 'tbl_sms_otps')->where('MobileNumber', $MobNo)->whereNot('OTP', $OTP)->update(['isOtpExpired' => 1]);
+            logger("otp status");
+            logger($status);
 			if ($status) {
 				$TextLocal = new TextLocal();
 				$result = $TextLocal->sendOTP($MobNo, $Message);
@@ -1101,6 +1105,7 @@ class helper{
 				DB::rollback();
 			}
 		} catch (Exception $e) {
+            logger($e);
 			DB::rollback();
 			throw $e;
 		}

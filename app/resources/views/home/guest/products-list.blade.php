@@ -84,7 +84,7 @@
                     </div><!-- End .header-dropown -->
                     <ul class="d-none d-xl-flex mb-0 pr-2 align-items-center">
                         <li>
-                            <a href="{{url('/')}}/social/auth/google" style="font-size: 12px;"><i
+                            <a href="#" style="font-size: 12px;" onclick="$('#loginBtn').click();"><i
                                     class="icon-help-circle" style="font-size: 18px;"></i>&nbsp;Help</a>
                         </li>
                     </ul>
@@ -133,7 +133,7 @@
                         </div>
 
                         <span class="separator d-none d-lg-block mr-4"></span>
-                        <a href="{{url('/')}}/social/auth/google" class="d-lg-block d-none" id="loginBtn">
+                        <a href="#" class="d-lg-block d-none openLoginModal" id="loginBtn">
                             <div class="header-user">
                                 <div class="header-userinfo">
                                     <span>Welcome</span>
@@ -464,7 +464,7 @@
             </a>
         </div>
         <div class="sticky-info">
-            <a href="{{url('/')}}/social/auth/google" class="">
+            <a href="#" class="" onclick="$('#loginBtn').click();">
                 <i class="icon-user-2"></i>Account
             </a>
         </div>
@@ -491,7 +491,7 @@
 <script>
     $(document).ready(function () {
         $('.redirectLogin').on('click', function () {
-            window.location.replace($('#loginBtn').attr('href'));
+            $('#loginBtn').click();
         });
     });
 
@@ -633,6 +633,70 @@
             if (!$(event.target).closest('.header-search-wrapper').length) {
                 $('#searchResults').hide();
             }
+        });
+
+
+        $('#btnSubmitMobileNumber').click(function() {
+            var mobileNumber = $('#txtUserMobileNumber').val();
+            if (mobileNumber === '') {
+                $('#txtUserMobileNumber-err').text('Please enter your mobile number.');
+                return;
+            }
+            let formData=new FormData();
+            formData.append('MobileNumber', mobileNumber);
+            formData.append('LoginType', 'Customer');
+            $.ajax({
+                url: '{{ route('web.mobile.login') }}',
+                method: 'POST',
+                headers: { 'X-CSRF-Token' : '{{ csrf_token() }}' },
+                processData: false,
+                contentType: false,
+                data: formData,
+                success: function(response) {
+                    if (response.status) {
+                        $('#divMobileNumber').addClass('d-none');
+                        $('#divOtpInput').removeClass('d-none');
+                        $('#txtUserMobileNumber-err').text('');
+                    } else {
+                        $('#txtUserMobileNumber-err').text('Failed to send OTP. Please try again.');
+                    }
+                },
+                error: function() {
+                    $('#txtUserMobileNumber-err').text('Error sending OTP. Please try again.');
+                }
+            });
+        });
+
+        $('#btnVerifyOtp').click(function() {
+            var mobileNumber = $('#txtUserMobileNumber').val();
+            var otp = $('#txtUserOtp').val();
+            if (otp === '') {
+                $('#txtUserOtp-err').text('Please enter the OTP.');
+                return;
+            }
+            let formData=new FormData();
+            formData.append('MobileNumber', mobileNumber);
+            formData.append('LoginType', 'Customer');
+            formData.append('OTP', otp);
+            $.ajax({
+                url: '{{ route('web.mobile.login') }}',
+                method: 'POST',
+                headers: { 'X-CSRF-Token' : '{{ csrf_token() }}' },
+                processData: false,
+                contentType: false,
+                data: formData,
+                success: function(response) {
+                    if (response.status) {
+                        $('#txtUserOtp-err').text('');
+                        window.location.href = '{{ url('/') }}';
+                    } else {
+                        $('#txtUserOtp-err').text('Invalid OTP. Please try again.');
+                    }
+                },
+                error: function() {
+                    $('#txtUserOtp-err').text('Error verifying OTP. Please try again.');
+                }
+            });
         });
     });
 </script>

@@ -1339,6 +1339,38 @@
 			} );
 		},
 
+		mobileLoginPopup: function () {
+			$('#divMobileNumber').removeClass('d-none');
+			$('#divOtpInput').addClass('d-none');
+			$('#txtUserMobileNumber-err').text('');
+			$('#txtUserMobileNumber').val('');
+			$('#txtUserOtp').val('');
+			var mpInstance = $.magnificPopup.instance;
+			if ( mpInstance.isOpen ) {
+				mpInstance.close();
+				setTimeout( function () {
+					$.magnificPopup.open( {
+						items: {
+							src: '#guest-login-form'
+						},
+						type: 'inline',
+						mainClass: 'mfp-newsletter',
+						removalDelay: 350,
+					} );
+				}, 360 );
+			}
+			else {
+				$.magnificPopup.open( {
+					items: {
+						src: '#guest-login-form'
+					},
+					type: 'inline',
+					mainClass: 'mfp-newsletter',
+					removalDelay: 350,
+				} );
+			}
+
+		},
 		lightBox: function () {
 			// Newsletter popup
 			if ( document.getElementById( 'newsletter-popup-form' ) ) {
@@ -2671,5 +2703,9 @@
 	$( window ).on( 'scroll', function () {
 		Porto.scrollBtnAppear();
 	} );
+
+	$('#loginBtn').on('click', function() {
+		Porto.mobileLoginPopup();
+	});
 } )( jQuery );
 

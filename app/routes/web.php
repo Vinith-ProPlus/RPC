@@ -120,6 +120,7 @@ Route::controller(HomeController::class)->group(function () {
 Route::controller(HomeAuthController::class)->group(function () {
     Route::get('/customer-register', 'Register')->name('customer-register');
     Route::get('/customer-profile', 'Profile')->name('customer-profile');
+    Route::post('/update-contact-details', 'UpdateContactDetails')->name('customer-update.contact.details');
     Route::post('/save', 'Save');
     Route::post('/update', 'Update');
     Route::get('/customer-home', 'Home');
@@ -229,6 +230,7 @@ Route::controller(firebaseController::class)->group(function () {
 Route::group(['prefix'=>'admin'],function (){
     Route::controller(loginController::class)->group(function () {
         Route::post('/auth/login', 'login');
+        Route::post('/mobile-no-register','MobileNoRegister')->name('web.mobile.login');
     });
     Route::middleware('auth')->group(function () {
         Route::controller(dashboardController::class)->group(function () {

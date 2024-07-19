@@ -104,7 +104,7 @@
                 <div class="product-action">
                     <div class="row col-12">
                         <div class="col-6">
-                            <a href="#" class="btn btn-dark add-cart mr-2 redirectLogin" title="Add to Cart" id="{{ $product->ProductID }}">Add to Cart</a>
+                            <a href="#" class="btn btn-dark add-cart mr-2" onclick="$('#loginBtn').click();" title="Add to Cart" id="{{ $product->ProductID }}">Add to Cart</a>
                         </div>
                         @if($product->ProductBrochure)
                             <div class="col-6 text-right">
@@ -138,7 +138,7 @@
         });
 
         $('.redirectLogin').on('click', function () {
-            window.location.replace($('#loginBtn').attr('href'));
+            $('.openLoginModal').click();
         });
     });
 </script>

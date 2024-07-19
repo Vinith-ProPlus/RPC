@@ -8,6 +8,7 @@ use App\Http\Controllers\web\Transaction\QuotationController;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
@@ -2369,4 +2370,114 @@ class HomeAuthController extends Controller
         }
         return $settings;
     }
+
+    public function UpdateContactDetails(Request $req) {
+        $user = Auth::user();
+        $contactType = $req->contactType;
+        $newValue = $req->contactValue;
+        $OTP = $req->OTP;
+
+        if (!$newValue) {
+            return response()->json(['status' => false, 'message' => ucfirst($contactType) . ' is required.']);
+        }
+
+        if (!$OTP) {
+            if ($this->isDataExists($contactType, $newValue)) {
+                return response()->json(['status' => false, 'message' => "This " . ucfirst($contactType) . " is already taken"]);
+            } else {
+                $generatedOTP = Helper::getOTP(6);
+                logger("generatedOTP");
+                logger($generatedOTP);
+
+                if ($contactType === 'email') {
+                    $result = Helper::saveEmailOtp($newValue, $generatedOTP, "Customer", $user->Name ?? "Customer");
+                } else {
+                    $message = "You are trying to change your mobile number in the RPC software. Please enter $generatedOTP code to verify your request.";
+                    $result = Helper::saveSmsOtp($newValue, $generatedOTP, $message, "Customer");
+                }
+//                if ($result) {
+                    return response()->json(['status' => true, 'message' => 'OTP sent successfully']);
+//                } else {
+//                    return response()->json(['status' => false, 'message' => 'Failed to send OTP']);
+//                }
+            }
+        } else {
+            $table = $contactType === 'email' ? 'tbl_email_otps' : 'tbl_sms_otps';
+            $column = $contactType === 'email' ? 'Email' : 'MobileNumber';
+            $otpFromDB = DB::table(Helper::getCurrFYDB() . $table)
+                ->where($column, $newValue)
+                ->where('isOtpExpired', 0)
+                ->whereRaw('TIMESTAMPDIFF(MINUTE, CreatedOn, NOW()) <= 2')
+                ->value('OTP');
+            if (!$otpFromDB) {
+                return response()->json(['status' => false, 'message' => "OTP has Expired!"]);
+            } else {
+                if ($otpFromDB == $OTP) {
+                    if ($this->isDataExists($contactType, $newValue)) {
+                        return response()->json(['status' => false, 'message' => "This " . ucfirst($contactType) . " is already taken"]);
+                    } else {
+                        try {
+                            DB::beginTransaction();
+                            if ($contactType === 'email') {
+                                $pwd1 = Hash::make($newValue);
+                                $pwd2 = Helper::EncryptDecrypt("encrypt", $newValue);
+
+                                $status = DB::table('users')->where('UserID', $user->UserID)->update([
+                                    'UserName' => $newValue,
+                                    'EMail' => $newValue,
+                                    "Password" => $pwd1,
+                                    "Password1" => $pwd2,
+                                    'UpdatedOn' => now()
+                                ]);
+
+                                if($user->ReferID) {
+                                    $status &= DB::table('tbl_customer')->where('CustomerID', $user->ReferID)->update([
+                                        'Email' => $newValue,
+                                        'UpdatedOn' => now()
+                                    ]);
+                                }
+                            } else {
+                                $status = DB::table('users')->where('UserID', $user->UserID)->update([
+                                    'MobileNumber' => $newValue,
+                                    'UpdatedOn' => now()
+                                ]);
+
+                                if($user->ReferID) {
+                                    $status &= DB::table('tbl_customer')->where('CustomerID', $user->ReferID)->update([
+                                        'MobileNo1' => $newValue,
+                                        'UpdatedOn' => now()
+                                    ]);
+                                }
+                            }
+                            if ($status) {
+                                DB::commit();
+                                return response()->json(['status' => true, 'message' => ucfirst($contactType) . " Updated Successfully"]);
+                            } else {
+                                return response()->json(['status' => false, 'message' => ucfirst($contactType) . " Update Failed!"]);
+                            }
+                        } catch (Exception $e){
+                            $status = false;
+                            DB::rollBack();
+                            logger("Error in HomeAuthController::UpdateContactDetails: $e");
+                        }
+                    }
+                } else {
+                    return response()->json(['status' => false, 'message' => "OTP verification failed. Please enter the correct OTP."]);
+                }
+            }
+        }
+    }
+
+    private function isDataExists($contactType, $value) {
+        $query = DB::table('users');
+        if ($contactType === 'email') {
+            $query->where('EMail', $value);
+        } elseif ($contactType === 'mobile') {
+            $query->where('MobileNumber', $value);
+        } else {
+            return false;
+        }
+        return $query->where('LoginType', 'Customer')->where('UserID', '!=', Auth::user()->UserID)->exists();
+    }
+
 }
