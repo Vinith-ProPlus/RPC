@@ -2328,25 +2328,22 @@ class HomeAuthController extends Controller
                 return response()->json(['status' => false, 'message' => "This " . ucfirst($contactType) . " is already taken"]);
             } else {
                 $generatedOTP = Helper::getOTP(6);
-                logger("generatedOTP");
-                logger($generatedOTP);
-
-                if ($contactType === 'email') {
+                if ($contactType === 'email address') {
                     $result = Helper::saveEmailOtp($user->Email, $generatedOTP, "Customer", $user->Name ?? "Customer");
                 } else {
                     $message = "You are trying to change your mobile number in the RPC software. Please enter $generatedOTP code to verify your request.";
                     $result = Helper::saveSmsOtp($user->MobileNumber, $generatedOTP, $message, "Customer");
                 }
-//                if ($result) {
+                if ($result) {
                     return response()->json(['status' => true, 'message' => 'OTP sent successfully']);
-//                } else {
-//                    return response()->json(['status' => false, 'message' => 'Failed to send OTP']);
-//                }
+                } else {
+                    return response()->json(['status' => false, 'message' => 'Failed to send OTP']);
+                }
             }
         } else {
-            $table = $contactType === 'email' ? 'tbl_email_otps' : 'tbl_sms_otps';
-            $column = $contactType === 'email' ? 'Email' : 'MobileNumber';
-            $columnValue = $contactType === 'email' ? $user->Email : $user->MobileNumber;
+            $table = $contactType === 'email address' ? 'tbl_email_otps' : 'tbl_sms_otps';
+            $column = $contactType === 'email address' ? 'Email' : 'MobileNumber';
+            $columnValue = $contactType === 'email address' ? $user->Email : $user->MobileNumber;
             $otpFromDB = DB::table(Helper::getCurrFYDB() . $table)
                 ->where($column, $columnValue)
                 ->where('isOtpExpired', 0)
@@ -2361,7 +2358,7 @@ class HomeAuthController extends Controller
                     } else {
                         try {
                             DB::beginTransaction();
-                            if ($contactType === 'email') {
+                            if ($contactType === 'email address') {
                                 $pwd1 = Hash::make($newValue);
                                 $pwd2 = Helper::EncryptDecrypt("encrypt", $newValue);
 

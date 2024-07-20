@@ -100,11 +100,11 @@
 		}
 		var cancelReasons={};
 		const init=async()=>{
-			
+
 			makeStatus();
 			makeCustomers();
 			makeQuoteDates();
-			
+
 			getFilters();
 			getStatus();
 		}
@@ -141,7 +141,7 @@
 				}
 			});
 		}
-		
+
 		const getFilters=()=>{
 			let status=$('#lstFStatus').val();
 			let customers=$('#lstFCustomers').val();
@@ -173,7 +173,7 @@
 				},
                 success:function(response){ console.log(response)
 					$('#lstFStatus option').remove();
-					let tmp=JSON.parse(filters.status); 
+					let tmp=JSON.parse(filters.status);
 					for(let item of response){
 						let selected="";
 						if(tmp.indexOf(item.Status)>=0){selected="selected";}
@@ -202,7 +202,7 @@
 				},
                 success:function(response){ console.log(response)
 					$('#lstFCustomers option').remove();
-					let tmp=JSON.parse(filters.customers); 
+					let tmp=JSON.parse(filters.customers);
 					for(let item of response){
 						let selected="";
 						if(tmp.indexOf(item.CustomerID)>=0){selected="selected";}
@@ -229,9 +229,9 @@
 					$('#lstFQuoteDates').parent().show();
 					$('#divFQuoteDatesLoader').remove();
 				},
-                success:function(response){ 
+                success:function(response){
 					$('#lstFQuoteDates option').remove();
-					let tmp=JSON.parse(filters.customers); 
+					let tmp=JSON.parse(filters.customers);
 					for(let item of response){
 						let selected="";
 						if(tmp.indexOf(item.QuoteDate.toCustomFormat("Y-m-d"))>=0){selected="selected";}
@@ -262,8 +262,8 @@
 					iDisplayLength: 10,
 					lengthMenu: [[10, 25, 50,100,250,500, -1], [10, 25, 50,100,250,500, "All"]],
 					buttons: [
-						'pageLength' 
-						@if($crud['excel']==1) ,{extend: 'excel',className:"{{$Theme['button-size']}}",footer: true,title: "{{$PageTitle}}","action": DataTableExportOption,exportOptions: {columns: "thead th:not(.noExport)"}} @endif 
+						'pageLength'
+						@if($crud['excel']==1) ,{extend: 'excel',className:"{{$Theme['button-size']}}",footer: true,title: "{{$PageTitle}}","action": DataTableExportOption,exportOptions: {columns: "thead th:not(.noExport)"}} @endif
 						@if($crud['copy']==1) ,{extend: 'copy',className:"{{$Theme['button-size']}}",footer: true,title: "{{$PageTitle}}","action": DataTableExportOption,exportOptions: {columns: "thead th:not(.noExport)"}} @endif
 						@if($crud['csv']==1) ,{extend: 'csv',className:"{{$Theme['button-size']}}",footer: true,title: "{{$PageTitle}}","action": DataTableExportOption,exportOptions: {columns: "thead th:not(.noExport)"}} @endif
 						@if($crud['print']==1) ,{extend: 'print',className:"{{$Theme['button-size']}}",footer: true,title: "{{$PageTitle}}","action": DataTableExportOption,exportOptions: {columns: "thead th:not(.noExport)"}} @endif
@@ -281,7 +281,7 @@
 		$(document).on('click','.btnVendorQuoteView',function(){
 			window.location.replace("{{url('/')}}/admin/transaction/quote-enquiry/view/vendor-quote/"+ $(this).attr('data-id'));
 		});
-		
+
 		$(document).on('click','.btnDelete',function(){
 			let ID=$(this).attr('data-id');
 			swal({

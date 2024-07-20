@@ -67,7 +67,7 @@
                                             </div>
                                             <div class="col-sm-2 d-flex align-items-center">
                                                 <div class="form-group">
-                                                    <button class="btn btn-success changeModelBtn" data-change="email">
+                                                    <button class="btn btn-success changeModelBtn" data-change="email address">
                                                         Change
                                                     </button>
                                                 </div>
@@ -280,7 +280,11 @@
         </div>
     </div>
     <div id="change-modal" class="newsletter-popup mfp-hide bg-img p-6 h-auto" style="background: #f1f1f1 no-repeat center/cover">
-        <h2>Enter your <span id="changeModalType">email</span></h2>
+        <div class="current-contact mb-1">
+            <h2 id="currentContactLabel"></h2>
+            <p id="currentContactValue" class="mb-1"></p>
+        </div>
+        <h2 style="margin-top: 0;">New <span id="changeModalType">email</span></h2>
         <input type="text" id="changeModalField" class="form-control" value="">
         <input type="text" id="otpField" class="form-control d-none" placeholder="Enter OTP">
         <div class="modal-buttons text-center">
@@ -605,6 +609,9 @@
             if (MobileNo2.length > 0 && !mobilePattern.test(MobileNo2)){
                 $("#txtMobileNo2-err").html("Alternate Mobile Number must be 10 digit");status=false;
             }
+            if(Email === ""){
+                $('#txtEmail').html('Email is required.');status=false;
+            }
             if(AddressType === ""){
                 $('#txtADAddressType').html('Address Type is required.');status=false;
             }
@@ -745,11 +752,20 @@
         $('.changeModelBtn').on('click',async function () {
             var contactType = $(this).data('change');
 
-            $('#changeModalType').text(contactType === 'email' ? 'email' : 'mobile number');
-            $('#changeModalField').attr('type', contactType === 'email' ? 'text' : 'number');
+            $('#changeModalType').text(contactType === 'email address' ? 'email address' : 'mobile number');
+            $('#changeModalField').attr('type', contactType === 'email address' ? 'text' : 'number');
             $('#changeModalField').val('').attr('readonly', false);
             $('#otpField').val('').addClass('d-none');
+            $('#btnChangeSubmit').text('SEND OTP');
             $('#btnResendOtp').addClass('d-none');
+
+            $('#currentContactLabel').text('Current ' + (contactType === 'email address' ? 'email address' : 'mobile Number'));
+            if (contactType === 'mobile number') {
+                $('#currentContactValue').text($('#txtMobileNo1').val());
+            } else {
+                $('#currentContactValue').text($('#txtEmail').val());
+            }
+
             $.magnificPopup.open({
                     items: {
                         src: '#change-modal'
@@ -766,7 +782,7 @@
             var otp = $('#otpField').val();
             var valid = false;
 
-            if (contactType === 'email') {
+            if (contactType === 'email address') {
                 var emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                 valid = emailPattern.test(value);
             } else {
@@ -807,6 +823,7 @@
                                 $('#changeModalField').attr('readonly', true);
                                 $('#otpField').removeClass('d-none').val('');
                                 $('#btnResendOtp').removeClass('d-none');
+                                $('#btnChangeSubmit').text('SUBMIT');
                             } else {
                                 $.magnificPopup.close();
                                 if (contactType === 'mobile number') {
@@ -833,7 +850,7 @@
             var value = $('#changeModalField').val();
             var valid = false;
 
-            if (contactType === 'email') {
+            if (contactType === 'email address') {
                 var emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                 valid = emailPattern.test(value);
             } else {
@@ -867,6 +884,7 @@
                                 $('#changeModalField').attr('readonly', true);
                                 $('#otpField').removeClass('d-none');
                                 $('#btnResendOtp').removeClass('d-none');
+                                $('#btnChangeSubmit').text('SUBMIT');
                             }
                             $('#otpField').val('');
                             toastr.success(response.message);
