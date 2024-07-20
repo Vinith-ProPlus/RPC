@@ -52,39 +52,72 @@
                                         <span class="errors Customer err-sm" id="txtCustomerName-err"></span>
                                     </div>
                                 </div>
-                                <div class="col-sm-6">
-                                    <div class="row col-sm-12">
-                                        <div class="col-sm-10">
-                                            <div class="form-group">
-                                                <label for="txtEmail">Email <span class="required">*</span></label>
-                                                <input type="text" id="txtEmail" class="form-control" placeholder="Email" value="@if($isEdit){{$EditData->Email}} @elseif($UserData->EMail){{$UserData->EMail}}@endif" disabled>
-                                                <span class="errors Customer err-sm" id="txtEmail-err"></span>
+                                @if($isEdit)
+                                    <div class="col-sm-6">
+                                        <div class="row col-sm-12">
+                                            <div class="col-sm-10">
+                                                <div class="form-group">
+                                                    <label for="txtEmail">Email <span class="required">*</span></label>
+                                                    <input type="text" id="txtEmail" class="form-control"
+                                                           placeholder="Email"
+                                                           value="@if($isEdit){{$EditData->Email}} @elseif($UserData->EMail){{$UserData->EMail}}@endif"
+                                                           disabled>
+                                                    <span class="errors Customer err-sm" id="txtEmail-err"></span>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div class="col-sm-2 d-flex align-items-center">
-                                            <div class="form-group">
-                                                <button class="btn btn-success changeModelBtn" data-change="email">Change</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-sm-6 mt-20">
-                                    <div class="row col-sm-12">
-                                        <div class="col-sm-10">
-                                            <div class="form-group">
-                                                <label for="txtMobileNo1">Mobile Number <span class="required">*</span></label>
-                                                <input type="text" id="txtMobileNo1" class="form-control" placeholder="Mobile Number" disabled
-                                                       value="@if($isEdit){{$EditData->MobileNo1}} @elseif($UserData->MobileNumber){{$UserData->MobileNumber}}@endif">
-                                                <span class="errors Customer err-sm" id="txtMobileNo1-err"></span>
-                                            </div>
-                                        </div>
-                                        <div class="col-sm-2 d-flex align-items-center">
-                                            <div class="form-group">
-                                                <button class="btn btn-success changeModelBtn" data-change="mobile number">Change</button>
+                                            <div class="col-sm-2 d-flex align-items-center">
+                                                <div class="form-group">
+                                                    <button class="btn btn-success changeModelBtn" data-change="email">
+                                                        Change
+                                                    </button>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
+                                    <div class="col-sm-6 mt-20">
+                                        <div class="row col-sm-12">
+                                            <div class="col-sm-10">
+                                                <div class="form-group">
+                                                    <label for="txtMobileNo1">Mobile Number <span
+                                                            class="required">*</span></label>
+                                                    <input type="text" id="txtMobileNo1" class="form-control"
+                                                           placeholder="Mobile Number" disabled
+                                                           value="@if($isEdit){{$EditData->MobileNo1}} @elseif($UserData->MobileNumber){{$UserData->MobileNumber}}@endif">
+                                                    <span class="errors Customer err-sm" id="txtMobileNo1-err"></span>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-2 d-flex align-items-center">
+                                                <div class="form-group">
+                                                    <button class="btn btn-success changeModelBtn"
+                                                            data-change="mobile number">Change
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @else
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label for="txtEmail">Email <span class="required">*</span></label>
+                                            <input type="text" id="txtEmail" class="form-control"
+                                                   placeholder="Email"
+                                                   value="@if($UserData->EMail){{$UserData->EMail}}@endif"
+                                                   @disabled($UserData->EMail)>
+                                            <span class="errors Customer err-sm" id="txtEmail-err"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 mt-20">
+                                        <div class="form-group">
+                                            <label for="txtMobileNo1">Mobile Number <span
+                                                    class="required">*</span></label>
+                                            <input type="text" id="txtMobileNo1" class="form-control"
+                                                   placeholder="Mobile Number"
+                                                   value="@if($UserData->MobileNumber){{$UserData->MobileNumber}}@endif"
+                                                @disabled($UserData->MobileNumber)>
+                                            <span class="errors Customer err-sm" id="txtMobileNo1-err"></span>
+                                        </div>
+                                    </div>
+                                @endif
                                 <div class="col-sm-6 mt-20">
                                     <div class="form-group">
                                         <label for="txtMobileNo2">Alternate Mobile Number </label>
@@ -253,6 +286,9 @@
         <div class="modal-buttons text-center">
             <button id="btnChangeSubmit" class="btn btn-primary mr-3">Submit</button>
             <button id="btnChangeCancel" class="btn btn-secondary">Cancel</button>
+        </div>
+        <div class="text-center mt-1">
+            <button type="button" class="btn btn-link" id="btnResendOtp">Resend OTP</button>
         </div>
     </div>
 </div>
@@ -713,6 +749,7 @@
             $('#changeModalField').attr('type', contactType === 'email' ? 'text' : 'number');
             $('#changeModalField').val('').attr('readonly', false);
             $('#otpField').val('').addClass('d-none');
+            $('#btnResendOtp').addClass('d-none');
             $.magnificPopup.open({
                     items: {
                         src: '#change-modal'
@@ -768,27 +805,78 @@
                         if (response.status === true) {
                             if ($('#otpField').hasClass('d-none')) {
                                 $('#changeModalField').attr('readonly', true);
-                                $('#otpField').removeClass('d-none');
+                                $('#otpField').removeClass('d-none').val('');
+                                $('#btnResendOtp').removeClass('d-none');
                             } else {
-                                debugger
                                 $.magnificPopup.close();
                                 if (contactType === 'mobile number') {
                                     $('#txtMobileNo1').val(value);
                                 } else {
                                     $('#txtEmail').val(value);
                                 }
-                                // alert(contactType + " updated successfully!");
                             }
+                            toastr.success(response.message);
                         } else {
                             if(response.message === "OTP has Expired!"){
                                 $.magnificPopup.close();
                             }
-                            alert(response.message);
+                            toastr.warning(response.message);
                         }
                     }
                 });
             } else {
-                alert('Please enter a valid ' + contactType);
+                toastr.warning('Please enter a valid ' + contactType);
+            }
+        });
+        $('#btnResendOtp').on('click', function() {
+            var contactType = $('#changeModalType').text();
+            var value = $('#changeModalField').val();
+            var valid = false;
+
+            if (contactType === 'email') {
+                var emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                valid = emailPattern.test(value);
+            } else {
+                var mobilePattern = /^[0-9]{10}$/;
+                valid = mobilePattern.test(value);
+            }
+
+            if (valid) {
+                var formData = new FormData();
+                formData.append('contactType', contactType);
+                formData.append('contactValue', value);
+                $.ajax({
+                    type: "post",
+                    url: '{{ route('customer-update.contact.details') }}',
+                    headers: { 'X-CSRF-Token': "{{ csrf_token() }}" },
+                    data: formData,
+                    cache: false,
+                    processData: false,
+                    contentType: false,
+                    error: function (e, x, settings, exception) {
+                        ajaxErrors(e, x, settings, exception);
+                    },
+                    complete: function (e, x, settings, exception) {
+                        btnReset($('#btnChangeSubmit'));
+                        ajaxIndicatorStop();
+                        $("html, body").animate({ scrollTop: 0 }, "slow");
+                    },
+                    success: function (response) {
+                        if (response.status === true) {
+                            if ($('#otpField').hasClass('d-none')) {
+                                $('#changeModalField').attr('readonly', true);
+                                $('#otpField').removeClass('d-none');
+                                $('#btnResendOtp').removeClass('d-none');
+                            }
+                            $('#otpField').val('');
+                            toastr.success(response.message);
+                        } else {
+                            toastr.warning(response.message);
+                        }
+                    }
+                });
+            } else {
+                toastr.warning('Please enter a valid ' + contactType);
             }
         });
 
@@ -813,6 +901,7 @@
                     if (response.status == true) {
                         window.location.replace("{{url('/')}}");
                     } else {
+                        $.magnificPopup.close();
                         $("html, body").animate({ scrollTop: 0 }, "slow");
                         if (response['errors'] != undefined) {
                             $('.errors').html('');

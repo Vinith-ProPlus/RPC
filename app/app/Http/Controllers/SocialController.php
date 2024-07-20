@@ -22,7 +22,7 @@ class SocialController extends Controller{
 
     }
     private function CreateUser($req,$getInfo,$provider){
-        $result=DB::Table('users')->where('UserName',$getInfo->user->email)->where('LoginType','Customer')->first();
+        $result=DB::Table('users')->where('EMail',$getInfo->user->email)->where('LoginType','Customer')->first();
         if(!$result){
             DB::beginTransaction();
             $avatar="";
@@ -79,7 +79,7 @@ class SocialController extends Controller{
                     if ($authResult) {
                         return Helper::getUserInfo(Auth()->user()->UserID);
                     }else{
-                        return false;                        
+                        return false;
                     }
                 }
                 return false;

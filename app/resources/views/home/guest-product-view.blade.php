@@ -689,6 +689,9 @@
                             <input type="button" class="btn btn-warning" value="Verify" id="btnVerifyOtp">
                         </div>
                         <div class="errors err-sm text-center" id="txtUserOtp-err"></div>
+                        <div class="text-center mt-2">
+                            <button type="button" class="btn btn-link" id="btnResendOtp" onclick="$('#btnSubmitMobileNumber').click();">Resend OTP</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -841,7 +844,11 @@
                     if (response.status) {
                         $('#divMobileNumber').addClass('d-none');
                         $('#divOtpInput').removeClass('d-none');
+                        $('#btnResendOtp').removeClass('d-none');
                         $('#txtUserMobileNumber-err').text('');
+                        $('#txtUserOtp').val('');
+                        $('#txtUserOtp-err').text('');
+                        alert("OTP sent successfully!");
                     } else {
                         $('#txtUserMobileNumber-err').text('Failed to send OTP. Please try again.');
                     }

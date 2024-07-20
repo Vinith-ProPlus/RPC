@@ -1342,6 +1342,7 @@
 		mobileLoginPopup: function () {
 			$('#divMobileNumber').removeClass('d-none');
 			$('#divOtpInput').addClass('d-none');
+			$('#btnResendOtp').addClass('d-none');
 			$('#txtUserMobileNumber-err').text('');
 			$('#txtUserMobileNumber').val('');
 			$('#txtUserOtp').val('');

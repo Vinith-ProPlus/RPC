@@ -35,8 +35,8 @@ class loginController extends Controller
             if (($result->DFlag == 0) && ($result->ActiveStatus == 'Active') && ($result->isLogin == 1)) {
                 logger(json_encode($result));
                 $credentials = [
-                    'UserName' => $req->LoginMethod == "MobileNumber" ? $req->MobileNumber : $req->email,
-                    'password' => $req->LoginMethod == "MobileNumber" ? $req->MobileNumber : $req->email,
+                    'UserName' => $result->UserName,
+                    'password' => $result->UserName,
                     'LoginType' => $req->LoginType,
                     'ActiveStatus' => 1,
                     'DFlag' => 0,

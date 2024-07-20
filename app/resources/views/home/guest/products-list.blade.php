@@ -656,7 +656,11 @@
                     if (response.status) {
                         $('#divMobileNumber').addClass('d-none');
                         $('#divOtpInput').removeClass('d-none');
+                        $('#btnResendOtp').removeClass('d-none');
                         $('#txtUserMobileNumber-err').text('');
+                        $('#txtUserOtp').val('');
+                        $('#txtUserOtp-err').text('');
+                        alert("OTP sent successfully!");
                     } else {
                         $('#txtUserMobileNumber-err').text('Failed to send OTP. Please try again.');
                     }

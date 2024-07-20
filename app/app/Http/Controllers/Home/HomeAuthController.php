@@ -275,6 +275,7 @@ class HomeAuthController extends Controller
 
         $rules = array(
             'MobileNo1' => ['required', 'max:10', new ValidUnique(array("TABLE" => "tbl_customer", "WHERE" => " MobileNo1='" . $req->MobileNo1 . "'  "), "This Mobile Number is already taken.")],
+            'Email' => ['required', 'max:150', new ValidUnique(array("TABLE" => "tbl_customer", "WHERE" => " Email='" . $req->Email . "' and CustomerID <> '" . $CustomerID . "' "), "This Email is already taken.")],
         );
         $message = [];
         $validator = Validator::make($req->all(), $rules, $message);
@@ -332,29 +333,6 @@ class HomeAuthController extends Controller
             );
             $status = DB::Table('tbl_customer')->insert($data);
             DB::Table('tbl_customer_address')->where('CustomerID', $this->UserID)->update(['CustomerID' => $CustomerID]);
-//			if($status){
-//				$SAddress=json_decode($req->SAddress,true);
-//				foreach($SAddress as $row){
-//					$AID=DocNum::getDocNum(docTypes::CustomerAddress->value,"",Helper::getCurrentFY());
-//					$tmp=array(
-//						"AID"=>$AID,
-//						"CustomerID"=>$CustomerID,
-//						"Address"=>$row['Address'],
-//						"PostalCodeID"=>$row['PostalCodeID'],
-//						"CityID"=>$row['CityID'],
-//						"TalukID"=>$row['TalukID'],
-//						"DistrictID"=>$row['DistrictID'],
-//						"StateID"=>$row['StateID'],
-//						"CountryID"=>$row['CountryID'],
-//						"isDefault"=>$row['isDefault'],
-//						"CreatedOn"=>date("Y-m-d H:i:s")
-//					);
-//					$status=DB::Table('tbl_customer_address')->insert($tmp);
-//					if($status==true){
-//						DocNum::updateDocNum(docTypes::CustomerAddress->value);
-//					}
-//				}
-//			}
             if ($status) {
                 $CustomerName = $req->CustomerName;
                 $nameParts = explode(' ', $CustomerName, 2);
@@ -369,6 +347,9 @@ class HomeAuthController extends Controller
                     "GenderID" => $req->GenderID,
                     "DOB" => $req->DOB,
                     "ProfileImage" => $CustomerImage,
+                    "UserName" => $req->Email,
+                    "Email" => $req->Email,
+                    "password" => Hash::make($req->Email),
                     "MobileNumber" => $req->MobileNo1,
                     "Address" => $req->Address,
                     "PostalCodeID" => $req->PostalCodeID,
@@ -382,6 +363,7 @@ class HomeAuthController extends Controller
                 $status = DB::Table('users')->where('UserID', $this->UserID)->update($Udata);
             }
         } catch (Exception $e) {
+            logger($e);
             $status = false;
         }
         if ($status == true) {
@@ -473,49 +455,6 @@ class HomeAuthController extends Controller
                 $data['Images'] = serialize(array());
             }
             $status = DB::Table('tbl_customer')->where('CustomerID', $CustomerID)->update($data);
-//			if($status){
-//				$AIDs=[];
-//				foreach($SAddress as $row){
-//					if($row['AID']){
-//						$AIDs[] = $row['AID'];
-//						$data=array(
-//							"Address"=>$row['Address'],
-//							"PostalCodeID"=>$row['PostalCodeID'],
-//							"CityID"=>$row['CityID'],
-//							"TalukID"=>$row['TalukID'],
-//							"DistrictID"=>$row['DistrictID'],
-//							"StateID"=>$row['StateID'],
-//							"CountryID"=>$row['CountryID'],
-//							"isDefault"=>$row['isDefault'],
-//							"UpdatedOn"=>date("Y-m-d H:i:s")
-//						);
-//						$status=DB::Table('tbl_customer_address')->where('CustomerID',$CustomerID)->where('AID',$row['AID'])->update($data);
-//					}else{
-//						$AID=DocNum::getDocNum(docTypes::CustomerAddress->value,"",Helper::getCurrentFY());
-//						$AIDs[] = $AID;
-//						$tmp=array(
-//							"AID"=>$AID,
-//							"CustomerID"=>$CustomerID,
-//							"Address"=>$row['Address'],
-//							"PostalCodeID"=>$row['PostalCodeID'],
-//							"CityID"=>$row['CityID'],
-//							"TalukID"=>$row['TalukID'],
-//							"DistrictID"=>$row['DistrictID'],
-//							"StateID"=>$row['StateID'],
-//							"CountryID"=>$row['CountryID'],
-//							"isDefault"=>$row['isDefault'],
-//							"CreatedOn"=>date("Y-m-d H:i:s")
-//						);
-//						$status=DB::Table('tbl_customer_address')->insert($tmp);
-//						if($status==true){
-//							DocNum::updateDocNum(docTypes::CustomerAddress->value);
-//						}
-//					}
-//				}
-//			}
-//			if(count($AIDs)>0){
-//				DB::table('tbl_customer_address')->where('CustomerID',$CustomerID)->whereNotIn('AID',$AIDs)->delete();
-//			}
             if ($status) {
                 $CustomerName = $req->CustomerName;
                 $nameParts = explode(' ', $CustomerName, 2);
@@ -529,6 +468,8 @@ class HomeAuthController extends Controller
                     "GenderID" => $req->GenderID,
                     "DOB" => $req->DOB,
                     "ProfileImage" => $CustomerImage,
+                    "UserName" => $req->Email,
+                    "Email" => $req->Email,
                     "MobileNumber" => $req->MobileNo1,
                     "Address" => $req->Address,
                     "PostalCodeID" => $req->PostalCodeID,
@@ -544,6 +485,7 @@ class HomeAuthController extends Controller
             }
 
         } catch (Exception $e) {
+            logger($e);
             $status = false;
         }
         if ($status == true) {
@@ -2390,10 +2332,10 @@ class HomeAuthController extends Controller
                 logger($generatedOTP);
 
                 if ($contactType === 'email') {
-                    $result = Helper::saveEmailOtp($newValue, $generatedOTP, "Customer", $user->Name ?? "Customer");
+                    $result = Helper::saveEmailOtp($user->Email, $generatedOTP, "Customer", $user->Name ?? "Customer");
                 } else {
                     $message = "You are trying to change your mobile number in the RPC software. Please enter $generatedOTP code to verify your request.";
-                    $result = Helper::saveSmsOtp($newValue, $generatedOTP, $message, "Customer");
+                    $result = Helper::saveSmsOtp($user->MobileNumber, $generatedOTP, $message, "Customer");
                 }
 //                if ($result) {
                     return response()->json(['status' => true, 'message' => 'OTP sent successfully']);
@@ -2404,8 +2346,9 @@ class HomeAuthController extends Controller
         } else {
             $table = $contactType === 'email' ? 'tbl_email_otps' : 'tbl_sms_otps';
             $column = $contactType === 'email' ? 'Email' : 'MobileNumber';
+            $columnValue = $contactType === 'email' ? $user->Email : $user->MobileNumber;
             $otpFromDB = DB::table(Helper::getCurrFYDB() . $table)
-                ->where($column, $newValue)
+                ->where($column, $columnValue)
                 ->where('isOtpExpired', 0)
                 ->whereRaw('TIMESTAMPDIFF(MINUTE, CreatedOn, NOW()) <= 2')
                 ->value('OTP');

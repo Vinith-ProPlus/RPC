@@ -189,7 +189,7 @@
                     <span class="separator d-none d-lg-block mr-4"></span>
 
                     @if($isRegister)
-                        <a href="{{url('/')}}/social/auth/google" class="d-lg-block d-none" id="loginBtn">
+                        <a href="#" class="d-lg-block d-none openLoginModal" id="loginBtn">
                             <div class="header-user">
                                 <div class="header-userinfo">
                                     <span>Welcome</span>
@@ -485,7 +485,7 @@
             </a>
         </div>
         <div class="sticky-info">
-            <a href="{{ auth()->check() ? url('/customer-profile') : url('/social/auth/google') }} " class="">
+            <a href="{{ auth()->check() ? url('/customer-profile') : '#' }} " class="" onclick="$('#loginBtn').click();">
                 <i class="icon-user-2"></i>Account
             </a>
         </div>
@@ -548,36 +548,55 @@
     </div>
 </div>
 
-{{-- <div class="newsletter-popup mfp-hide bg-img p-0 h-auto" id="newsletter-popup-form" style="background: #f1f1f1 no-repeat center/cover">
-    <div class="row">
-        <div class="col-sm-7">
-            <div class="row justify-content-center mt-3">
-                <div class="col-6">
-                    <img loading="lazy" src="{{url('/')}}/{{$Company['Logo']}}" alt="Logo" class="logo-newsletter" width="50" height="50">
-                    <span class="ml-3 font-weight-bold text-dark">{{$Company['CompanyName']}}</span>
+<div class="newsletter-popup mfp-hide modal-sm bg-img p-0 h-auto" id="guest-login-form" style="background: #f1f1f1 no-repeat center/cover">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 col-md-12">
+                <div class="row justify-content-center mt-3">
+                    <div class="col-md-4">
+                        <img loading="lazy" src="{{url('/')}}/{{$Company['Logo']}}" alt="{{$Company['CompanyName']}}" class="logo-newsletter" width="50" height="50">
+                        <span class="ml-3 font-weight-bold text-dark">{{$Company['CompanyName']}}</span>
+                    </div>
                 </div>
-            </div>
-            <div class="row justify-content-center">
-                <div class="col-9">
-                    <h2>KINDLY TURN ON YOUR LOCATION</h2>
-                    <p>for location Offers!</p>
+                <div class="row justify-content-center my-3">
+                    <div class="">
+                        <h2>Sign In</h2>
+                    </div>
                 </div>
-            </div>
-            <div class="row my-1 justify-content-center">
-                <div class="col-12 newsletter-popup-content">
-                    <div class="input-group">
-                        <input type="email" class="form-control" id="newsletter-email" name="newsletter-email" placeholder="Enter your delivery location" required />
-                        <input type="submit" class="btn btn-warning" value="locate me" />
+                <div class="row justify-content-center">
+                    <div class="col-md-6 justify-content-center">
+                        <a href="{{url('/')}}/social/auth/google"><button type="button" class="btn btn-info btn-block rounded">Google</button></a>
+                    </div>
+                </div>
+                <div class="row justify-content-center">
+                    <div class="col-md-4">
+                        <h5 class="text-center my-3">or</h5>
+                    </div>
+                </div>
+                <div class="row justify-content-center mb-3">
+                    <div class="col-md-8 newsletter-popup-content" id="divMobileNumber">
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="txtUserMobileNumber" placeholder="Enter your mobile number" required="">
+                            <input type="button" class="btn btn-warning" value="Submit" id="btnSubmitMobileNumber">
+                        </div>
+                        <div class="errors err-sm text-center" id="txtUserMobileNumber-err"></div>
+                    </div>
+                    <div class="col-md-8 newsletter-popup-content d-none" id="divOtpInput">
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="txtUserOtp" placeholder="Enter OTP" required="">
+                            <input type="button" class="btn btn-warning" value="Verify" id="btnVerifyOtp">
+                        </div>
+                        <div class="errors err-sm text-center" id="txtUserOtp-err"></div>
+                        <div class="text-center mt-2">
+                            <button type="button" class="btn btn-link" id="btnResendOtp" onclick="$('#btnSubmitMobileNumber').click();">Resend OTP</button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-sm-5">
-            <img loading="lazy" src="{{url('/')}}/home/assets/images/location-pop-up/MapAnime.gif" alt="">
-        </div>
     </div>
-    <button title="Close (Esc)" type="button" class="mfp-close">×</button>
-</div> --}}
+    <button title="Close (Esc)" type="button" class="mfp-close" id="modal-close-btn">×</button>
+</div>
 
 <a id="scroll-top" href="#top" title="Top" role="button"><i class="icon-angle-up"></i></a>
 
@@ -901,7 +920,7 @@
         window.addEventListener('resize', adjustIframeHeight);
 
         $('.redirectLogin').on('click', function(){
-            window.location.replace($('#loginBtn').attr('href'));
+            $('#loginBtn').click();
         });
 
         $(document).on('click', '#btnSaveAddress', function () {
@@ -1074,6 +1093,73 @@
             }
             return { status, formData, Address };
         };
+
+        $('#btnSubmitMobileNumber').click(function() {
+            var mobileNumber = $('#txtUserMobileNumber').val();
+            if (mobileNumber === '') {
+                $('#txtUserMobileNumber-err').text('Please enter your mobile number.');
+                return;
+            }
+            let formData=new FormData();
+            formData.append('MobileNumber', mobileNumber);
+            formData.append('LoginType', 'Customer');
+            $.ajax({
+                url: '{{ route('web.mobile.login') }}',
+                method: 'POST',
+                headers: { 'X-CSRF-Token' : '{{ csrf_token() }}' },
+                processData: false,
+                contentType: false,
+                data: formData,
+                success: function(response) {
+                    if (response.status) {
+                        $('#divMobileNumber').addClass('d-none');
+                        $('#divOtpInput').removeClass('d-none');
+                        $('#btnResendOtp').removeClass('d-none');
+                        $('#txtUserMobileNumber-err').text('');
+                        $('#txtUserOtp').val('');
+                        $('#txtUserOtp-err').text('');
+                        alert("OTP sent successfully!");
+                    } else {
+                        $('#txtUserMobileNumber-err').text('Failed to send OTP. Please try again.');
+                    }
+                },
+                error: function() {
+                    $('#txtUserMobileNumber-err').text('Error sending OTP. Please try again.');
+                }
+            });
+        });
+
+        $('#btnVerifyOtp').click(function() {
+            var mobileNumber = $('#txtUserMobileNumber').val();
+            var otp = $('#txtUserOtp').val();
+            if (otp === '') {
+                $('#txtUserOtp-err').text('Please enter the OTP.');
+                return;
+            }
+            let formData=new FormData();
+            formData.append('MobileNumber', mobileNumber);
+            formData.append('LoginType', 'Customer');
+            formData.append('OTP', otp);
+            $.ajax({
+                url: '{{ route('web.mobile.login') }}',
+                method: 'POST',
+                headers: { 'X-CSRF-Token' : '{{ csrf_token() }}' },
+                processData: false,
+                contentType: false,
+                data: formData,
+                success: function(response) {
+                    if (response.status) {
+                        $('#txtUserOtp-err').text('');
+                        window.location.href = '{{ url('/') }}';
+                    } else {
+                        $('#txtUserOtp-err').text('Invalid OTP. Please try again.');
+                    }
+                },
+                error: function() {
+                    $('#txtUserOtp-err').text('Error verifying OTP. Please try again.');
+                }
+            });
+        });
     });
 </script>
 
