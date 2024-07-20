@@ -261,7 +261,7 @@ class QuoteEnquiryController extends Controller{
 							$status = DB::table($this->currfyDB . 'tbl_vendor_quotation')->insert($data);
 							if($status){
 								DocNum::updateDocNum(docTypes::VendorQuotation->value, $this->currfyDB);
-								
+
 								$Title = "New Image Enquiry Received.";
 								$Message = "You have a new image enquiry! Check now for details and respond promptly.";
 								Helper::saveNotification($VendorID,$Title,$Message,'ImageEnquiry',$VQuoteID);
@@ -379,18 +379,15 @@ class QuoteEnquiryController extends Controller{
 					$isQuoteRequested =  DB::table($this->currfyDB . 'tbl_vendor_quotation')->where('VendorID',$VendorID)->where('EnqID',$EnqID)->first();
 					if(!$isQuoteRequested){
 						$CustomerLatLong = DB::table('tbl_customer_address')->where('AID',$EnqData->AID)->select('Latitude','Longitude')->first();
-						logger(json_encode($CustomerLatLong));
-
 						if(!$CustomerLatLong){
 							return ['status' => false, 'message' =>'Customer Lat Long doesnt exists!'];
 						}
-						
+
 						$StockPoints = DB::table('tbl_vendors_stock_point')->where('VendorID',$VendorID)->where('DFlag',0)->where('ActiveStatus',1)->select('VendorID','StockPointID','Latitude','Longitude')->get();
-						logger(json_encode($StockPoints));
 						if(count($StockPoints) == 0){
 							return ['status' => false, 'message' =>'Vendor ('.$VendorID.') Stock points not found'];
 						}
-						
+
 						$Distance = Helper::findNearestStockPoint($CustomerLatLong, $StockPoints);
 						if(!$Distance){
 							return ['status' => false, 'message' =>'Vendor ('.$VendorID.') Distance not found'];
@@ -435,6 +432,7 @@ class QuoteEnquiryController extends Controller{
 				}
 				$status = DB::table($this->currfyDB.'tbl_enquiry')->where('EnqID',$EnqID)->update(['Status'=>'Quote Requested','VendorIDs'=>serialize($SelectedVendors),"UpdatedBy"=>$this->UserID,"UpdatedOn"=>date("Y-m-d H:i:s")]);
 			}catch(Exception $e) {
+                logger($e);
 				$status=false;
 			}
 			if($status==true){
@@ -524,6 +522,7 @@ class QuoteEnquiryController extends Controller{
 					$status = DB::Table($this->currfyDB.'tbl_vendor_quotation')->where('VendorID',$req->VendorID)->where('VQuoteID',$req->VQuoteID)->update($data);
 				}
 			}catch(Exception $e) {
+                logger($e);
 				$status=false;
 			}
 			if($status==true){
@@ -548,6 +547,7 @@ class QuoteEnquiryController extends Controller{
 			try {
 				$status = DB::Table($this->currfyDB.'tbl_vendor_quotation')->where('VendorID',$req->VendorID)->where('VQuoteID',$req->VQuoteID)->update(['Status'=>'Rejected','UpdatedOn'=>date('Y-m-d H:i:s')]);
 			}catch(Exception $e) {
+                logger($e);
 				$status=false;
 			}
 			if($status==true){
@@ -597,6 +597,7 @@ class QuoteEnquiryController extends Controller{
 						$status=DB::table($this->currfyDB.'tbl_quotation')->where('QID',$req->QID)->update($data);
 				}
 			}catch(Exception $e) {
+                logger($e);
 				$status=false;
 			}
 			if($status==true){
@@ -841,17 +842,18 @@ class QuoteEnquiryController extends Controller{
 						'db' => 'EnqID',
 						'dt' => '7',
 						'formatter' => function( $d, $row ) {
-							$html='';
+							$html='<div class="d-flex align-items-center">';
 							/* if($this->general->isCrudAllow($this->CRUD,"edit")==true){
 								$html.='<button type="button" data-id="'.$d.'" class="btn  btn-outline-success '.$this->general->UserInfo['Theme']['button-size'].'  mr-10 btnEdit" data-original-title="Edit"><i class="fa fa-pencil"></i></button>';
 							} */
 							if($this->general->isCrudAllow($this->CRUD,"view")==true){
 								// $html.='<button type="button" data-id="'.$d.'" class="btn  btn-outline-info '.$this->general->UserInfo['Theme']['button-size'].'  mr-10 btnView" data-original-title="View Quotation"><i class="fa fa-eye"></i></button>';
-								$html.='<button type="button" data-id="'.$d.'" class="btn btn-outline-info '.$this->general->UserInfo['Theme']['button-size'].'  mr-10 btnView">View Enquiry</button>';
+								$html.='<button type="button" data-id="'.$d.'" class="btn btn-outline-info '.$this->general->UserInfo['Theme']['button-size'].'  mr-10 btnView">View&nbsp;Enquiry</button>';
 							}
 							if($this->general->isCrudAllow($this->CRUD,"delete")==true && $row['Status'] !== "Allocated"){
 								$html.='<button type="button" data-id="'.$d.'" class="btn btn-outline-danger '.$this->general->UserInfo['Theme']['button-size'].'  btnDelete" data-original-title="Delete">Cancel</button>';
 							}
+                            $html .= '</div>';
 							return $html;
 						}
 				)
@@ -1025,13 +1027,13 @@ class QuoteEnquiryController extends Controller{
 				->join($this->generalDB.'tbl_cities as C','C.CityID','V.CityID')
 				->join($this->generalDB.'tbl_postalcodes as P','P.PID','V.PostalCode')
 				->where('V.VendorID',$req->VendorID)->first();
-	
+
 		$createdDate = strtotime($VendorRatings->CreatedOn);
 		$currentDate = time();
 		$difference = $currentDate - $createdDate;
 		$years = floor($difference / (365 * 24 * 60 * 60));
 		$months = floor(($difference - $years * 365 * 24 * 60 * 60) / (30 * 24 * 60 * 60));
-	
+
 		$yearLabel = ($years > 1) ? 'Years' : 'Year';
 		$formattedOutput = date('M Y', $createdDate).' (';
 
@@ -1043,7 +1045,7 @@ class QuoteEnquiryController extends Controller{
 			$formattedOutput .= ')';
 		}
 		$VendorRatings->TotalYears = $formattedOutput;
-	
+
 		$VendorRatings->TotalOrders = DB::table($this->currfyDB.'tbl_vendor_orders')->where('VendorID',$VendorRatings->VendorID)->where('Status','Delivered')->count();
 		$VendorRatings->OrderValue = DB::table($this->currfyDB.'tbl_vendor_orders')->where('VendorID',$VendorRatings->VendorID)->where('Status','Delivered')->sum('NetAmount');
 		$VendorRatings->Outstanding = DB::table($this->currfyDB.'tbl_vendor_orders')->where('VendorID',$VendorRatings->VendorID)->where('Status','Delivered')->sum('BalanceAmount');

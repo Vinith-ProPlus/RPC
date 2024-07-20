@@ -23,11 +23,11 @@
 						<div class="col-sm-4 my-2"><h5>{{$PageTitle}}</h5></div>
 						<div class="col-sm-4 my-2 text-right text-md-right">
 							@if($crud['restore']==1)
-								<a href="{{ url('/') }}/admin/transaction/quote-enquiry/trash" class="btn btn-outline-dark {{$Theme['button-size']}} m-r-10" type="button" > Cancelled Quotations </a>
+								<a href="{{ url('/') }}/admin/transaction/quote-enquiry/trash" class="btn btn-outline-dark {{$Theme['button-size']}} m-r-10 m-3" type="button"> Cancelled Quotations </a>
 							@endif
 							@if($crud['add']==1)
-								<a href="{{ url('/') }}/admin/transaction/quote-enquiry/create" class="btn btn-outline-success btn-air-success {{$Theme['button-size']}} m-r-10" type="button" >Create</a>
-								<a href="{{ url('/') }}/admin/transaction/quote-enquiry/image-quote/create" class="btn btn-outline-success btn-air-success {{$Theme['button-size']}}" type="button" >Image Quote Create</a>
+								<a href="{{ url('/') }}/admin/transaction/quote-enquiry/create" class="btn btn-outline-success btn-air-success {{$Theme['button-size']}} m-r-10 m-3" type="button">Create</a>
+								<a href="{{ url('/') }}/admin/transaction/quote-enquiry/image-quote/create" class="btn btn-outline-success btn-air-success {{$Theme['button-size']}} m-3" type="button">Image Quote Create</a>
 							@endif
 						</div>
 					</div>
