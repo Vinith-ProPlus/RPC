@@ -972,7 +972,6 @@ class VendorAuthController extends Controller{
                                 "MapData"=>$point->MapData,
                                 "ServiceBy"=>$ServiceBy,
                                 "Range"=>$ServiceBy == 'Radius' ? $Range : 0 ,
-                                "ActiveStatus"=>$point->ActiveStatus,
                                 "Address"=>$point->Address,
                                 "PostalID"=>$point->PostalID,
                                 "CityID"=>$point->CityID,
