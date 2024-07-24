@@ -850,7 +850,7 @@
                         $('#txtUserOtp-err').text('');
                         alert("OTP sent successfully!");
                     } else {
-                        $('#txtUserMobileNumber-err').text('Failed to send OTP. Please try again.');
+                        $('#txtUserMobileNumber-err').text(response.message)
                     }
                 },
                 error: function() {
@@ -882,7 +882,7 @@
                         $('#txtUserOtp-err').text('');
                         window.location.href = '{{ url('/') }}';
                     } else {
-                        $('#txtUserOtp-err').text('Invalid OTP. Please try again.');
+                        $('#txtUserOtp-err').text(response.message);
                     }
                 },
                 error: function() {

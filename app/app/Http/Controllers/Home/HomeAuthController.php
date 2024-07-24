@@ -2329,7 +2329,7 @@ class HomeAuthController extends Controller
             } else {
                 $generatedOTP = Helper::getOTP(6);
                 if ($contactType === 'email address') {
-                    $result = Helper::saveEmailOtp($user->Email, $generatedOTP, "Customer", $user->Name ?? "Customer");
+                    $result = Helper::saveEmailOtp($user->EMail, $generatedOTP, "Customer", $user->Name ?? "Customer");
                 } else {
                     $message = "You are trying to change your mobile number in the RPC software. Please enter $generatedOTP code to verify your request.";
                     $result = Helper::saveSmsOtp($user->MobileNumber, $generatedOTP, $message, "Customer");
@@ -2343,7 +2343,7 @@ class HomeAuthController extends Controller
         } else {
             $table = $contactType === 'email address' ? 'tbl_email_otps' : 'tbl_sms_otps';
             $column = $contactType === 'email address' ? 'Email' : 'MobileNumber';
-            $columnValue = $contactType === 'email address' ? $user->Email : $user->MobileNumber;
+            $columnValue = $contactType === 'email address' ? $user->EMail : $user->MobileNumber;
             $otpFromDB = DB::table(Helper::getCurrFYDB() . $table)
                 ->where($column, $columnValue)
                 ->where('isOtpExpired', 0)

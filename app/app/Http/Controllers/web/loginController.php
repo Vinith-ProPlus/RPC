@@ -74,7 +74,7 @@ class loginController extends Controller
             }
         } else {
             $return['message'] = 'Login failed';
-            $return['email'] = 'User name does not exist. Please verify the user name.';
+            $return['mobile number'] = 'Account deactivated.';
         }
         return $return;
     }
@@ -82,10 +82,22 @@ class loginController extends Controller
     public function MobileNoRegister(Request $req)
     {
         if (!$req->OTP) {
-            $OTP = Helper::getOTP(6);
-            $Message = "Your RPC OTP for login is $OTP. Please enter this code to proceed.";
-            Helper::saveSmsOtp($req->MobileNumber, $OTP, $Message, $req->LoginType);
-            return response()->json(['status' => true, 'message' => "OTP sent!"]);
+            $status = false;
+            $result = DB::Table('users')->where('MobileNumber', $req->MobileNumber)->where('LoginType', $req->LoginType)->first();
+            if (is_null($result) || ($result && ($result->DFlag == 0) && ($result->ActiveStatus == 'Active') && ($result->isLogin == 1))) {
+                $OTP = Helper::getOTP(6);
+                $Message = "Your RPC OTP for login is $OTP. Please enter this code to proceed.";
+                Helper::saveSmsOtp($req->MobileNumber, $OTP, $Message, $req->LoginType);
+                $message = 'OTP sent!';
+                $status = true;
+            } elseif ($result->DFlag == 1) {
+                $message = 'Your account has been deleted.';
+            } elseif ($result->ActiveStatus == 'Inactive') {
+                $message = 'Your account has been disabled.';
+            } elseif ($result->isLogin == 0) {
+                $message = 'You do not have login rights.';
+            }
+            return response()->json(['status' => $status, 'message' => $message]);
         } else {
             $OTP = DB::table(Helper::getCurrFYDB() . 'tbl_sms_otps')->where('MobileNumber', $req->MobileNumber)->where('isOtpExpired', 0)->value('OTP');
             if ($OTP == $req->OTP) {
