@@ -15,6 +15,7 @@ enum docTypes:string{
     case BankBranch="Bank-Branches";
     case Stages="Stages";
     case RejectReason="Reject-Reason";
+    case ConstructionType="Construction-Type";
 
     case Departments="Departments";
     case VendorCategory="Vendor-Category";

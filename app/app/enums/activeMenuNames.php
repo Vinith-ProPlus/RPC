@@ -10,6 +10,7 @@ enum activeMenuNames:string{
     case PostalCodes="Postal-Codes";
     case Stages="Stages";
     case RejectReason="Reject-Reason";
+    case ConstructionType="Construction-Type";
 
     case VendorCategory="Vendor-Category";
     case VendorType="Vendor-Type";
@@ -33,7 +34,6 @@ enum activeMenuNames:string{
     case Receipts="Receipts";
     case ProductGroupPrice="Product-Group-Price";
     case CustomerGroups="Customer-Groups";
-    case ManageCustomers="Manage-Customers";
     case Supplier="Manage-Suppliers";
     case PaymentRequest="Payment-Request";
     
@@ -47,6 +47,8 @@ enum activeMenuNames:string{
     case UserRoles="User-and-Roles";
     case Users="Users";
     case Profile="Profile";
+    case ManageCustomers="Manage-Customers";
+    case UnregisteredUsers="Unregistered-Users";
     case PasswordChange="Change-Password";
 
     case Company="Company-Settings";

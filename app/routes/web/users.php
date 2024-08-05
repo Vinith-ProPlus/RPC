@@ -5,6 +5,7 @@ use App\Http\Controllers\web\users\CustomerController;
 use App\Http\Controllers\web\users\userRoleController;
 use App\Http\Controllers\web\users\userController;
 use App\Http\Controllers\web\users\PasswordChangeController;
+use App\Http\Controllers\web\users\UnregisteredUsersController;
 
 Route::group(['prefix'=>'user-roles'],function (){
     Route::controller(userRoleController::class)->group(function () {
@@ -66,6 +67,13 @@ Route::group(['prefix'=>'manage-customers'],function (){
         Route::post('/get/customer-type','getCustomerType')->name('getCustomerType');
 
         Route::post('/get/customer-data','getCustomerData');
+
+    });
+});
+Route::group(['prefix'=>'unregistered-users'],function (){
+    Route::controller(UnregisteredUsersController::class)->group(function () {
+        Route::get('/', 'view');
+        Route::post('/data', 'TableView');
 
     });
 });

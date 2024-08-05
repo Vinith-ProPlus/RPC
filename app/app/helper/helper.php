@@ -1078,6 +1078,14 @@ class helper{
 		$result = false;
 		DB::beginTransaction();
 		try {
+			$isRegistered = DB::table('users')->where('LoginType',$LoginType)->where('MobileNumber',$MobNo)->value('ReferID');
+			if(!$isRegistered){
+				$Tdata = [
+					'MobileNumber' => $MobNo,
+					'LoginType' => $LoginType,
+				];
+				$status = DB::table('tbl_unregistered_users')->insert($Tdata);
+			}
 			$OtpID = DocNum::getDocNum("SMS-OTP", self::getCurrFYDB(), self::getCurrentFY());
 			$Ndata = [
 				'OtpID' => $OtpID,

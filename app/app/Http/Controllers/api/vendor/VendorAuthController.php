@@ -261,6 +261,9 @@ class VendorAuthController extends Controller{
 					"UpdatedBy"=>$VendorID,
                 );
 				$status=DB::Table('users')->where('UserID',$this->UserID)->update($Udata);
+                if($status){
+                    DB::table('tbl_unregistered_users')->where('LoginType','Vendor')->where('MobileNumber',$reqData['MobileNumber1'])->delete();
+                }
             }
         }catch(Exception $e){
             $status=false;

@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\web\masters\general\CityController;
+use App\Http\Controllers\web\masters\general\ConstructionTypeController;
 use App\Http\Controllers\web\masters\general\CountryController;
 use App\Http\Controllers\web\masters\general\DistrictsController;
 use App\Http\Controllers\web\masters\general\PostalCodesController;
@@ -143,5 +144,20 @@ Route::group(['prefix'=>'reject-reason'],function (){
         Route::post('/trash-data', 'TrashTableView');
         
         Route::post('/get/reject-reason', 'GetRejectReason');
+    });
+});
+Route::group(['prefix'=>'construction-type'],function (){
+    Route::controller(ConstructionTypeController::class)->group(function () {
+        Route::get('/', 'view');
+        Route::get('/trash', 'TrashView');
+        Route::get('/create', 'Create');
+        Route::get('/edit/{ID}', 'Edit');
+
+        Route::post('/data', 'TableView');
+        Route::post('/create', 'Save');
+        Route::POST('/edit/{ID}', 'Update');
+        Route::POST('/delete/{ID}', 'Delete');
+        Route::POST('/restore/{ID}', 'Restore');
+        Route::post('/trash-data', 'TrashTableView');
     });
 });

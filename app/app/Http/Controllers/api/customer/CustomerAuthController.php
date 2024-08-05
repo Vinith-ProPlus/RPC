@@ -194,6 +194,9 @@ class CustomerAuthController extends Controller{
                     "UpdatedBy"=>$CustomerID,
                 );
                 $status=DB::Table('users')->where('UserID',$this->UserID)->update($Udata);
+                if($status){
+                    DB::table('tbl_unregistered_users')->where('LoginType','Customer')->where('MobileNumber',$req->MobileNo1)->delete();
+                }
             }
         }catch(Exception $e) {
             $status=false;
