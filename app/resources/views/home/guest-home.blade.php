@@ -903,6 +903,17 @@
                  });
              });
 
+             $('#txtUserOtp').on('input', function () {
+                 let numericValue = $(this).val().replace(/[^0-9]/g, '');
+                 if (numericValue.length > 6) {
+                     numericValue = numericValue.slice(0, 6);
+                 }
+                 $(this).val(numericValue);
+                 if (numericValue.length >= 6) {
+                     $('#btnVerifyOtp').click();
+                 }
+             });
+
              $('#btnVerifyOtp').click(function() {
                  var mobileNumber = $('#txtUserMobileNumber').val();
                  var otp = $('#txtUserOtp').val();
