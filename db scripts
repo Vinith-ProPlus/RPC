@@ -1,0 +1,2 @@
+UPDATE `tbl_page_content` SET `PageName`='Terms & Conditions' WHERE `PageName`='Terms Conditions';
+

@@ -382,7 +382,7 @@
 
                     <div class="col-lg-3 col-sm-6 pb-2 pb-sm-0">
                         <div class="widget">
-                            <h4 class="widget-title pb-1">Customer Services</h4>
+                            <h4 class="widget-title pb-1">Customer Service</h4>
 
                             <ul class="links">
                                 @foreach(DB::table('tbl_page_content')->select('Slug', 'PageName')->get() as $Policy)
