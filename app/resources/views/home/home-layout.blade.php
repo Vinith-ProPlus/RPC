@@ -329,7 +329,7 @@
         <div class="header-middle sticky-header" data-sticky-options="{'mobile': true}">
             <div class="container">
                 <div class="header-left col-lg-2 w-auto pl-0">
-                    <a href="@if($isRegister && !$isEdit) {{ route('homepage') }} @else {{url('/')}}/customer-profile @endif" class="logo">
+                    <a href="{{ route('homepage') }}" class="logo">
                         <img loading="lazy" src="{{url('/')}}/{{$Company['Logo']}}" width="50" height="50" alt="{{$Company['CompanyName']}}">
                     </a>
                     <span class="ml-3 font-weight-bold" style="color:rgb(7, 54, 163)">{{$Company['CompanyName']}}</span>
