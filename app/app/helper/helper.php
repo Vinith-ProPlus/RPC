@@ -187,7 +187,6 @@ class helper{
         $customerLng = $Customer->Longitude;
         $vendorLat = $Vendor->Latitude;
         $vendorLng = $Vendor->Longitude;
-		return [$customerLat, $customerLng, $vendorLat, $vendorLng];
 		$response = $client->get('https://maps.googleapis.com/maps/api/distancematrix/json', [
 			'query' => [
 				'origins' => "$customerLat,$customerLng",
