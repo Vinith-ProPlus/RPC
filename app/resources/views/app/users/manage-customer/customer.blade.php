@@ -795,6 +795,7 @@
             formData.EditID=$("#btnSaveAddress").attr('data-edit-id');
             formData.AID=$("#btnSaveAddress").attr('data-aid');
             formData.AddressType=$('#txtADAddressType').val();
+            formData.OtherAddressType= $('#txtOtherADAddressType').val();
             formData.Address=$('#txtADAddress').val();
             formData.CountryID=$('#lstADCountry').val();
             formData.CountryName=$('#lstADCountry option:selected').attr('data-country-name');
@@ -811,8 +812,6 @@
             formData.Latitude=$('#txtADLatitude').val();
             formData.Longitude=$('#txtADLongitude').val();
             formData.mapData=$('#mapData').val();
-            
-            // console.log(formData);
             let Address ="";
             if(formData.Address==""){
                 $('#txtADAddress-err').html('Address is required');status=false;
@@ -826,8 +825,16 @@
             }else{
                 Address+=",<br>"+formData.CityName;
             }
-            if(formData.AddressType==""){
-                $('#txtADAddressType-err').html('Address type is required');status=false;
+            if (formData.AddressType == "") {
+                $('#txtADAddressType-err').html('Address type is required');
+                status = false;
+            } else if (formData.AddressType === 'Others') {
+                if (formData.OtherAddressType === "") {
+                    $('#txtOtherADAddressType-err').html('Please specify the address type.');
+                    status = false;
+                } else {
+                    formData.AddressType = formData.OtherAddressType;
+                }
             }
             if(formData.TalukID==""){
                 $('#lstADTaluk-err').html('Taluk is required');status=false;

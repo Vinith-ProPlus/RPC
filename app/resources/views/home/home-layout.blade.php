@@ -1250,6 +1250,7 @@
             formData.EditID=$("#btnSaveAddress").attr('data-edit-id');
             formData.AID=$("#btnSaveAddress").attr('data-aid');
             formData.AddressType=$('#txtADAddressType').val();
+            formData.OtherAddressType= $('#txtOtherADAddressType').val();
             formData.Address=$('#txtADAddress').val();
             formData.CompleteAddress=$('#txtADAddress').val();
             formData.Latitude=$('#txtADLatitude').val();
@@ -1273,8 +1274,16 @@
                 Address+=",<br>"+formData.CityName;
             }
 
-            if(formData.AddressType==""){
-                $('#txtADAddressType-err').html('Address type is required');status=false;
+            if (formData.AddressType == "") {
+                $('#txtADAddressType-err').html('Address type is required');
+                status = false;
+            } else if (formData.AddressType === 'Others') {
+                if (formData.OtherAddressType === "") {
+                    $('#txtOtherADAddressType-err').html('Please specify the address type.');
+                    status = false;
+                } else {
+                    formData.AddressType = formData.OtherAddressType;
+                }
             }
 
             if(formData.Latitude==="" || formData.Latitude===""){

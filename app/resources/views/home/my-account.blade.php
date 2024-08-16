@@ -2505,11 +2505,12 @@
                 let status = true;
                 var formData={};
                 formData.EditID=$("#btnSaveAddress").attr('data-edit-id');
-                formData.AID=$("#btnSaveAddress").attr('data-aid');
-                formData.AddressType=$('#txtADAddressType').val();
-                formData.Address=$('#txtADAddress').val();
-                formData.CompleteAddress=$('#txtADAddress').val();
-                formData.Latitude=$('#txtADLatitude').val();
+                formData.AID = $("#btnSaveAddress").attr('data-aid');
+                formData.AddressType = $('#txtADAddressType').val();
+                formData.OtherAddressType = $('#txtOtherADAddressType').val();
+                formData.Address = $('#txtADAddress').val();
+                formData.CompleteAddress = $('#txtADAddress').val();
+                formData.Latitude = $('#txtADLatitude').val();
                 formData.Longitude=$('#txtADLongitude').val();
                 formData.mapData=$('#mapData').val();
                 // formData.CountryID=$('#lstADCountry').val();

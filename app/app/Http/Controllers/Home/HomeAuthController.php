@@ -76,7 +76,7 @@ class HomeAuthController extends Controller
                 ->join($this->generalDB . 'tbl_taluks as T', 'T.TalukID', 'CA.TalukID')
                 ->join($this->generalDB . 'tbl_cities as CI', 'CI.CityID', 'CA.CityID')
                 ->join($this->generalDB . 'tbl_postalcodes as PC', 'PC.PID', 'CA.PostalCodeID')
-                ->select('CA.AID', 'CA.Address', 'CA.isDefault', 'CA.CountryID', 'C.CountryName', 'CA.StateID', 'S.StateName', 'CA.DistrictID', 'D.DistrictName', 'CA.TalukID', 'T.TalukName', 'CA.CityID', 'CI.CityName', 'CA.PostalCodeID', 'PC.PostalCode')
+                ->select('CA.AID', 'CA.AddressType', 'CA.Address', 'CA.isDefault', 'CA.CountryID', 'C.CountryName', 'CA.StateID', 'S.StateName', 'CA.DistrictID', 'D.DistrictName', 'CA.TalukID', 'T.TalukName', 'CA.CityID', 'CI.CityName', 'CA.PostalCodeID', 'PC.PostalCode')
                 ->get();
             return $next($request);
         });
@@ -240,7 +240,7 @@ class HomeAuthController extends Controller
                 ->join($this->generalDB . 'tbl_taluks as T', 'T.TalukID', 'CA.TalukID')
                 ->join($this->generalDB . 'tbl_cities as CI', 'CI.CityID', 'CA.CityID')
                 ->join($this->generalDB . 'tbl_postalcodes as PC', 'PC.PID', 'CA.PostalCodeID')
-                ->select('CA.AID', 'CA.Address', 'CA.isDefault', 'CA.CountryID', 'C.CountryName', 'CA.StateID', 'S.StateName', 'CA.DistrictID', 'D.DistrictName', 'CA.TalukID', 'T.TalukName', 'CA.CityID', 'CI.CityName', 'CA.PostalCodeID', 'PC.PostalCode')
+                ->select('CA.AID', 'CA.Address', 'CA.AddressType', 'CA.isDefault', 'CA.CountryID', 'C.CountryName', 'CA.StateID', 'S.StateName', 'CA.DistrictID', 'D.DistrictName', 'CA.TalukID', 'T.TalukName', 'CA.CityID', 'CI.CityName', 'CA.PostalCodeID', 'PC.PostalCode')
                 ->get();
             $FormData['EditData']->SAddress = DB::table('tbl_customer_address as CA')->where('CustomerID', $CustomerID)->where('CA.DFlag', 0)
                 ->join($this->generalDB . 'tbl_countries as C', 'C.CountryID', 'CA.CountryID')
@@ -249,7 +249,7 @@ class HomeAuthController extends Controller
                 ->join($this->generalDB . 'tbl_taluks as T', 'T.TalukID', 'CA.TalukID')
                 ->join($this->generalDB . 'tbl_cities as CI', 'CI.CityID', 'CA.CityID')
                 ->join($this->generalDB . 'tbl_postalcodes as PC', 'PC.PID', 'CA.PostalCodeID')
-                ->select('CA.AID', 'CA.Address', 'CA.isDefault', 'CA.CountryID', 'C.CountryName', 'CA.StateID', 'S.StateName', 'CA.DistrictID', 'D.DistrictName', 'CA.TalukID', 'T.TalukName', 'CA.CityID', 'CI.CityName', 'CA.PostalCodeID', 'PC.PostalCode')
+                ->select('CA.AID', 'CA.AddressType', 'CA.Address', 'CA.isDefault', 'CA.CountryID', 'C.CountryName', 'CA.StateID', 'S.StateName', 'CA.DistrictID', 'D.DistrictName', 'CA.TalukID', 'T.TalukName', 'CA.CityID', 'CI.CityName', 'CA.PostalCodeID', 'PC.PostalCode')
                 ->get();
             $FormData['ShippingAddress'] = DB::table('tbl_customer_address as CA')->where('CustomerID', $CustomerID)->where('CA.DFlag', 0)
                 ->join($this->generalDB . 'tbl_countries as C', 'C.CountryID', 'CA.CountryID')
@@ -258,7 +258,7 @@ class HomeAuthController extends Controller
                 ->join($this->generalDB . 'tbl_taluks as T', 'T.TalukID', 'CA.TalukID')
                 ->join($this->generalDB . 'tbl_cities as CI', 'CI.CityID', 'CA.CityID')
                 ->join($this->generalDB . 'tbl_postalcodes as PC', 'PC.PID', 'CA.PostalCodeID')
-                ->select('CA.AID', 'CA.Address', 'CA.isDefault', 'CA.CountryID', 'C.CountryName', 'CA.StateID', 'S.StateName', 'CA.DistrictID', 'D.DistrictName', 'CA.TalukID', 'T.TalukName', 'CA.CityID', 'CI.CityName', 'CA.PostalCodeID', 'PC.PostalCode')
+                ->select('CA.AID', 'CA.Address', 'CA.AddressType', 'CA.isDefault', 'CA.CountryID', 'C.CountryName', 'CA.StateID', 'S.StateName', 'CA.DistrictID', 'D.DistrictName', 'CA.TalukID', 'T.TalukName', 'CA.CityID', 'CI.CityName', 'CA.PostalCodeID', 'PC.PostalCode')
                 ->get();
             // return $FormData['EditData'];
             return view('home.register', $FormData);
