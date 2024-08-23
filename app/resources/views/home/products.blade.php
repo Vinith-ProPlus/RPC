@@ -10923,7 +10923,7 @@
                             </h3>
 
                             <div class="collapse show" id="widget-body-1">
-                                <div class="widget-body" id="categories-widget">
+                                <div class="widget-body" id="categories-widget" style="height: 700px; overflow-y: auto;">
                                     <ul class="cat-list">
                                     </ul>
                                 </div><!-- End .widget-body -->
