@@ -13,14 +13,15 @@
             </a>
             <div class="collapse show" id="widget-category-{{ $category->PCID }}">
                 @foreach ($category->PSCData as $subcategory)
-                        @php $subcategoryProductCount = count($subcategory->ProductData); @endphp
-                    <ul class="cat-sublist">
-                        <li>
-                            <a href="#" class="sub-category" data-sub-category-id="{{ $subcategory->PSCID }}">
-                                {{ $subcategory->PSCName }}<span class="products-count">({{ $subcategoryProductCount }})</span>
-                            </a>
-                        </li>
-                    </ul>
+                    @if (count($subcategory->ProductData) > 0)
+                        <ul class="cat-sublist">
+                            <li>
+                                <a href="#" class="sub-category" data-sub-category-id="{{ $subcategory->PSCID }}">
+                                    {{ $subcategory->PSCName }}<span class="products-count">({{ count($subcategory->ProductData) }})</span>
+                                </a>
+                            </li>
+                        </ul>
+                    @endif
                 @endforeach
             </div>
         </li>

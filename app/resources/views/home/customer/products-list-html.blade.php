@@ -29,9 +29,9 @@
                 <a href="#" class="layout-btn btn-grid changeView {{ ($viewType == 'Grid') ? 'active' : '' }}" title="Grid">
                     <i class="icon-mode-grid"></i>
                 </a>
-                <a href="#" class="layout-btn btn-list changeView {{ ($viewType == 'List') ? 'active' : '' }}" title="List">
-                    <i class="icon-mode-list"></i>
-                </a>
+{{--                <a href="#" class="layout-btn btn-list changeView {{ ($viewType == 'List') ? 'active' : '' }}" title="List">--}}
+{{--                    <i class="icon-mode-list"></i>--}}
+{{--                </a>--}}
             </div>
         </div>
     </nav>

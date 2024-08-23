@@ -282,9 +282,9 @@
                                     <a href="#" class="layout-btn btn-grid active" title="Grid">
                                         <i class="icon-mode-grid"></i>
                                     </a>
-                                    <a href="#" class="layout-btn btn-list" title="List">
-                                        <i class="icon-mode-list"></i>
-                                    </a>
+{{--                                    <a href="#" class="layout-btn btn-list" title="List">--}}
+{{--                                        <i class="icon-mode-list"></i>--}}
+{{--                                    </a>--}}
                                 </div><!-- End .layout-modes -->
                             </div><!-- End .toolbox-right -->
                         </nav>
