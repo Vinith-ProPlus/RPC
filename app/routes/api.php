@@ -29,6 +29,9 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::group(['prefix'=>'customer'],function (){
     require __DIR__.'/api/customer-api.php';
 });
+Route::group(['prefix'=>'guest'],function (){
+    require __DIR__.'/api/guest-api.php';
+});
 Route::group(['prefix'=>'vendor'],function (){
     require __DIR__.'/api/vendor-api.php';
 });
