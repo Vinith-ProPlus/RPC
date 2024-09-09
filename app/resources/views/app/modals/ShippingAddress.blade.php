@@ -109,6 +109,54 @@ $(document).ready(function(){
             zoom: 7
         });
 
+        // Check if geolocation is available
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    var pos = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    };
+
+                    marker = new google.maps.Marker({
+                        position: pos,
+                        map: map,
+                        title: 'Your current location'
+                    });
+
+                    map.setCenter(pos);
+
+                    var geocoder = new google.maps.Geocoder();
+                    geocoder.geocode({'location': pos}, function(results, status) {
+                        if (status === 'OK') {
+                            if (results[0]) {
+                                var formattedAddress = results[0].formatted_address;
+                                var lat = results[0].geometry.location.lat();
+                                var lng = results[0].geometry.location.lng();
+                                var mapData = results[0].geometry;
+                                $('#txtADAddress').val(formattedAddress);
+                                $('#txtADLatitude').val(lat);
+                                $('#txtADLongitude').val(lng);
+                                $('#mapData').val(mapData);
+                                var postalCode = extractPostalCodeFromAddressComponents(results[0]);
+                                if (!postalCode) {
+                                    reverseGeocodeWithPlaceId(results[0].place_id);
+                                } else {
+                                    $('#txtADPostalCode').val(postalCode);
+                                    $('#btnADPostalCode').click();
+                                }
+                            }
+                        }
+                    });
+                },
+                function() {
+                    console.log('Geolocation permission denied or error occurred.');
+                }
+            );
+        } else {
+            console.log('Geolocation is not supported by this browser.');
+        }
+
         map.addListener('click', function(event) {
             var geocoder = new google.maps.Geocoder();
             geocoder.geocode({'location': event.latLng}, function(results, status) {
@@ -192,6 +240,6 @@ $(document).ready(function(){
         }
         return null;
     }
-
 </script>
+
 <script async src="https://maps.googleapis.com/maps/api/js?key={{ config('app.map_api_key') }}&callback=initMap"></script>
