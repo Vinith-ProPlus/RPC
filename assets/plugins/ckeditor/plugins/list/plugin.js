@@ -728,7 +728,7 @@
 		mergeSibling( 1 );
 	}
 
-	// Check if node is block element that recieves text.
+	// Check if node is block element that receives text.
 	function isTextBlock( node ) {
 		return node.type == CKEDITOR.NODE_ELEMENT && ( node.getName() in CKEDITOR.dtd.$block || node.getName() in CKEDITOR.dtd.$listItem ) && CKEDITOR.dtd[ node.getName() ][ '#' ];
 	}

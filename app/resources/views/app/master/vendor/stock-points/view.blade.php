@@ -22,9 +22,9 @@
 						<div class="col-12 col-sm-4">	</div>
 						<div class="col-12 col-sm-4 my-2"><h5>{{$PageTitle}}</h5></div>
 						<div class="col-12 col-sm-4 my-2 text-right">
-							@if($crud['restore']==1)
+							{{-- @if($crud['restore']==1)
 								<a href="{{ url('/') }}/admin/master/vendor/stock-points/trash" class="btn  btn-outline-dark {{$Theme['button-size']}} mr-10" type="button" > Trash </a>
-							@endif
+							@endif --}}
 							@if($crud['add']==1)
 								<a href="{{ url('/') }}/admin/master/vendor/stock-points/create" class="btn  btn-outline-success btn-air-success {{$Theme['button-size']}}" type="button" >Create</a> <!-- full-right -->
 							@endif

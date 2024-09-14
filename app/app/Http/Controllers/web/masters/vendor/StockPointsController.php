@@ -434,27 +434,27 @@ class StockPointsController extends Controller{
 		}
 	}
 	public function getServiceData(Request $req){
-            $SP = DB::table('tbl_vendors_stock_point')
-			->where('StockPointID', $req->StockPointID)
-			->select('ServiceBy')->first();
-
-            $ServiceData = DB::table('tbl_vendors_service_locations as VSL')
-            ->leftJoin($this->generalDB.'tbl_states as S', 'S.StateID','VSL.StateID')
-            ->leftJoin($this->generalDB.'tbl_countries as C','C.CountryID','S.CountryID')
-            ->where('ServiceBy',$SP->ServiceBy)
-            ->where('VSL.DFlag', 0)
-            ->where('VSL.StockPointID', $req->StockPointID)
-            ->groupBy('VSL.StateID','S.StateName','C.CountryID')
-            ->select('VSL.StateID','S.StateName','C.CountryID')
-            ->get();
-            foreach ($ServiceData as $item) {
-                $item->Districts = DB::table('tbl_vendors_service_locations as VSL')->join($this->generalDB.'tbl_districts as D','D.DistrictID','VSL.DistrictID')->where('VSL.DFlag', 0)->where('VSL.StateID', $item->StateID)->where('ServiceBy',$SP->ServiceBy)->where('VSL.StockPointID', $req->StockPointID)->groupBy('VSL.DistrictID','D.DistrictName')->select('VSL.DistrictID','D.DistrictName')->get();
-                foreach ($item->Districts as $row){
-                    $row->PostalCodeIDs = DB::table('tbl_vendors_service_locations as VSL')->leftJoin($this->generalDB.'tbl_postalcodes as P','P.PID','VSL.PostalCodeID')->where('VSL.StateID',$item->StateID)->where('VSL.DistrictID',$row->DistrictID)->where('VSL.StockPointID', $req->StockPointID)->where('VSL.ServiceBy',$SP->ServiceBy)->where('VSL.DFlag', 0)->pluck('VSL.PostalCodeID')->toArray();
+            $SP = DB::table('tbl_vendors_stock_point')->where('StockPointID', $req->StockPointID)->where('DFlag', 0)->first();
+            if($SP){
+                $ServiceData = DB::table('tbl_vendors_service_locations as VSL')
+                ->leftJoin($this->generalDB.'tbl_states as S', 'S.StateID','VSL.StateID')
+                ->leftJoin($this->generalDB.'tbl_countries as C','C.CountryID','S.CountryID')
+                ->where('ServiceBy',$SP->ServiceBy)
+                ->where('VSL.DFlag', 0)
+                ->where('VSL.StockPointID', $req->StockPointID)
+                ->groupBy('VSL.StateID','S.StateName','C.CountryID')
+                ->select('VSL.StateID','S.StateName','C.CountryID')
+                ->get();
+                foreach ($ServiceData as $item) {
+                    $item->Districts = DB::table('tbl_vendors_service_locations as VSL')->join($this->generalDB.'tbl_districts as D','D.DistrictID','VSL.DistrictID')->where('VSL.DFlag', 0)->where('VSL.StateID', $item->StateID)->where('ServiceBy',$SP->ServiceBy)->where('VSL.StockPointID', $req->StockPointID)->groupBy('VSL.DistrictID','D.DistrictName')->select('VSL.DistrictID','D.DistrictName')->get();
+                    foreach ($item->Districts as $row){
+                        $row->PostalCodeIDs = DB::table('tbl_vendors_service_locations as VSL')->leftJoin($this->generalDB.'tbl_postalcodes as P','P.PID','VSL.PostalCodeID')->where('VSL.StateID',$item->StateID)->where('VSL.DistrictID',$row->DistrictID)->where('VSL.StockPointID', $req->StockPointID)->where('VSL.ServiceBy',$SP->ServiceBy)->where('VSL.DFlag', 0)->pluck('VSL.PostalCodeID')->toArray();
+                    }
                 }
+                $SP->ServiceData = $ServiceData;
+                $SP->PostalCode = DB::table($this->generalDB.'tbl_postalcodes')->where('PID',$SP->PostalID)->value('PostalCode');
+                return $SP;
             }
-            $SP->ServiceData = $ServiceData;
-            return $SP;
 	}
 	public function TableView(Request $request){
 		if($this->general->isCrudAllow($this->CRUD,"view")==true){

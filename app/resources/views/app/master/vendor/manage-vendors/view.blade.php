@@ -23,10 +23,10 @@
 						<div class="col-12 col-sm-4 my-2"><h5>{{$PageTitle}}</h5></div>
 						<div class="col-12 col-sm-4 my-2 text-right">
 							@if($crud['restore']==1)
-								<a href="{{ url('/') }}/admin/master/vendor/vendors/trash" class="btn  btn-outline-dark {{$Theme['button-size']}} mr-10" type="button" > Trash </a>
+								<a href="{{ url('/') }}/admin/master/vendor/manage-vendors/trash" class="btn  btn-outline-dark {{$Theme['button-size']}} mr-10" type="button" > Trash </a>
 							@endif
 							@if($crud['add']==1)
-								<a href="{{ url('/') }}/admin/master/vendor/vendors/create" class="btn  btn-outline-success btn-air-success {{$Theme['button-size']}}" type="button" >Create</a> <!-- full-right -->
+								<a href="{{ url('/') }}/admin/master/vendor/manage-vendors/create" class="btn  btn-outline-success btn-air-success {{$Theme['button-size']}}" type="button" >Create</a> <!-- full-right -->
 							@endif
 						</div>
 					</div>
@@ -65,7 +65,7 @@
 			$('#tblVendors').dataTable( {
 				"bProcessing": true,
 				"bServerSide": true,
-                "ajax": {"url":"{{url('/')}}/admin/master/vendor/vendors/data?_token="+$('meta[name=_token]').attr('content'),"headers":{ 'X-CSRF-Token' : $('meta[name=_token]').attr('content') } ,"type": "POST"},
+                "ajax": {"url":"{{url('/')}}/admin/master/vendor/manage-vendors/data?_token="+$('meta[name=_token]').attr('content'),"headers":{ 'X-CSRF-Token' : $('meta[name=_token]').attr('content') } ,"type": "POST"},
 				deferRender: true,
 				responsive: true,
 				dom: 'Bfrtip',
@@ -86,14 +86,20 @@
 			@endif
         }
 		$(document).on('click','.btnEdit',function(){
-			window.location.replace("{{url('/')}}/admin/master/vendor/vendors/edit/"+ $(this).attr('data-id'));
+			window.location.replace("{{url('/')}}/admin/master/vendor/manage-vendors/edit/"+ $(this).attr('data-id'));
+		});
+		$(document).on('click','.btnEditServiceLocation',function(){
+			window.location.replace("{{url('/')}}/admin/master/vendor/manage-vendors/edit/service-location/"+ $(this).attr('data-id'));
+		});
+		$(document).on('click','.btnEditProductMap',function(){
+			window.location.replace("{{url('/')}}/admin/master/vendor/vendor-product-mapping/edit/"+ $(this).attr('data-id'));
 		});
 		$(document).on('click', '.btnVendorInfo', function (e) {
             e.preventDefault();
             let VendorName = $(this).attr('data-vendor-name');
             $.ajax({
                 type: "post",
-                url: "{{url('/')}}/admin/master/vendor/vendors/get/vendor-info",
+                url: "{{url('/')}}/admin/master/vendor/manage-vendors/get/vendor-info",
                 data: { VendorID: $(this).attr('data-id') },
                 headers: { 'X-CSRF-Token': $('meta[name=_token]').attr('content') },
                 success: function (response) {
@@ -183,7 +189,7 @@
             function(){swal.close();
             	$.ajax({
             		type:"post",
-                    url:"{{url('/')}}/admin/master/vendor/vendors/approve/"+ID,
+                    url:"{{url('/')}}/admin/master/vendor/manage-vendors/approve/"+ID,
                     headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
                     dataType:"json",
                     success:function(response){
@@ -224,7 +230,7 @@
             function(){swal.close();
             	$.ajax({
             		type:"post",
-                    url:"{{url('/')}}/admin/master/vendor/vendors/delete/"+ID,
+                    url:"{{url('/')}}/admin/master/vendor/manage-vendors/delete/"+ID,
                     headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
                     dataType:"json",
                     success:function(response){

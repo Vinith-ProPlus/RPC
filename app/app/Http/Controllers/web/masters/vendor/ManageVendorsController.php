@@ -20,7 +20,7 @@ use docTypes;
 use cruds;
 use Illuminate\Support\Facades\Hash;
 
-class VendorsController extends Controller{
+class ManageVendorsController extends Controller{
 	private $general;
 	private $DocNum;
 	private $UserID;
@@ -34,7 +34,7 @@ class VendorsController extends Controller{
 	private $currfyDB;
     public function __construct(){
 		$this->ActiveMenuName=activeMenuNames::Vendors->value;
-		$this->PageTitle="Vendors";
+		$this->PageTitle="Manage Vendors";
         $this->middleware('auth');
 		$this->FileTypes=Helper::getFileTypes(array("category"=>array("Images","Documents")));
 		$this->generalDB=Helper::getGeneralDB();
@@ -55,9 +55,9 @@ class VendorsController extends Controller{
             $FormData['crud']=$this->CRUD;
 			$FormData['ActiveMenuName']=$this->ActiveMenuName;
 			$FormData['PageTitle']=$this->PageTitle;
-            return view('app.master.vendor.vendors.view',$FormData);
+            return view('app.master.vendor.manage-vendors.view',$FormData);
         }elseif($this->general->isCrudAllow($this->CRUD,"add")==true){
-			return Redirect::to('/admin/master/vendor/vendors/create');
+			return Redirect::to('/admin/master/vendor/manage-vendors/create');
         }else{
             return view('errors.403');
         }
@@ -69,9 +69,9 @@ class VendorsController extends Controller{
             $FormData['crud']=$this->CRUD;
 			$FormData['ActiveMenuName']=$this->ActiveMenuName;
 			$FormData['PageTitle']=$this->PageTitle;
-            return view('app.master.vendor.vendors.trash',$FormData);
+            return view('app.master.vendor.manage-vendors.trash',$FormData);
         }elseif($this->general->isCrudAllow($this->CRUD,"view")==true){
-			return Redirect::to('/admin/master/vendor/vendors/');
+			return Redirect::to('/admin/master/vendor/manage-vendors/');
         }else{
             return view('errors.403');
         }
@@ -94,10 +94,11 @@ class VendorsController extends Controller{
 			$FormData['ActiveMenuName']=$this->ActiveMenuName;
 			$FormData['PageTitle']=$this->PageTitle;
 			$FormData['isEdit']=false;
+			$FormData['isEditSL']=false;
 			$FormData['FileTypes']=$this->FileTypes;
-            return view('app.master.vendor.vendors.create',$FormData);
+            return view('app.master.vendor.manage-vendors.create',$FormData);
         }elseif($this->general->isCrudAllow($this->CRUD,"view")==true){
-            return Redirect::to('/admin/master/vendor/vendors/');
+            return Redirect::to('/admin/master/vendor/manage-vendors/');
         }else{
             return view('errors.403');
         }
@@ -120,17 +121,53 @@ class VendorsController extends Controller{
 			$FormData['ActiveMenuName']=$this->ActiveMenuName;
 			$FormData['PageTitle']=$this->PageTitle;
 			$FormData['isEdit']=true;
+			$FormData['isEditSL']=false;
 			$FormData['FileTypes']=$this->FileTypes;
 			$FormData['VendorID']=$VendorID;
 			$FormData['data']=$this->getVendor($VendorID);
 			if(count($FormData['data'])>0){
 				$FormData['data']=$FormData['data'][0];
-				return view('app.master.vendor.vendors.create',$FormData);
+				return view('app.master.vendor.manage-vendors.create',$FormData);
 			}else{
 				return view('errors.403');
 			}
         }elseif($this->general->isCrudAllow($this->CRUD,"view")==true){
-            return Redirect::to('/admin/master/vendor/vendors/');
+            return Redirect::to('/admin/master/vendor/manage-vendors/');
+        }else{
+            return view('errors.403');
+        }
+    }
+    public function editServiceLocation(Request $req,$VendorID){
+        if($this->general->isCrudAllow($this->CRUD,"edit")==true){
+            $OtherCruds=array(
+				"Country"=>$this->general->getCrudOperations(activeMenuNames::Country->value),
+				"States"=>$this->general->getCrudOperations(activeMenuNames::States->value),
+				"Districts"=>$this->general->getCrudOperations(activeMenuNames::Districts->value),
+				"Taluks"=>$this->general->getCrudOperations(activeMenuNames::Taluks->value),
+				"PostalCodes"=>$this->general->getCrudOperations(activeMenuNames::PostalCodes->value),
+				"City"=>$this->general->getCrudOperations(activeMenuNames::City->value),
+				"Category"=>$this->general->getCrudOperations(activeMenuNames::VendorCategory->value),
+			);
+            $FormData=$this->general->UserInfo;
+			$FormData['OtherCruds']=$OtherCruds;
+            $FormData['menus']=$this->Menus;
+            $FormData['crud']=$this->CRUD;
+			$FormData['ActiveMenuName']=$this->ActiveMenuName;
+			$FormData['PageTitle']=$this->PageTitle;
+			$FormData['isEdit']=true;
+			$FormData['isEditSL']=true;
+			$FormData['FileTypes']=$this->FileTypes;
+			$FormData['VendorID']=$VendorID;
+			$FormData['data']=$this->getVendor($VendorID);
+			if(count($FormData['data'])>0){
+				$FormData['data']=$FormData['data'][0];
+				// return view('app.master.vendor.manage-vendors.service-location',$FormData);
+				return view('app.master.vendor.manage-vendors.create',$FormData);
+			}else{
+				return view('errors.403');
+			}
+        }elseif($this->general->isCrudAllow($this->CRUD,"view")==true){
+            return Redirect::to('/admin/master/vendor/manage-vendors/');
         }else{
             return view('errors.403');
         }
@@ -145,7 +182,7 @@ class VendorsController extends Controller{
 		$result=DB::SELECT($sql);
 		for($i=0;$i<count($result);$i++){
 			//Documents
-			$Documents=DB::Table('tbl_vendors_document as VD')->leftJoin('tbl_vendor_required_documents as VRD','VRD.DocName','VD.DocName')->where('VD.VendorID',$result[$i]->VendorID)->select('documents','DisplayName','VD.DocName')->get();
+			$Documents=DB::Table('tbl_vendors_document as VD')->leftJoin('tbl_vendor_required_documents as VRD','VRD.DocName','VD.DocName')->where('VD.VendorID',$result[$i]->VendorID)->select('documents','DisplayName')->get();
 			for($k=0;$k<count($Documents);$k++){
 				$Documents[$k]->ext= pathinfo($Documents[$k]->documents,PATHINFO_EXTENSION);
 				$Documents[$k]->fileName= basename($Documents[$k]->documents);
@@ -498,7 +535,7 @@ class VendorsController extends Controller{
 				foreach($RemoveImg as $index=>$Img){
 					Helper::removeFile($Img);
 				}
-				return array('status'=>true,'message'=>"Vendor Created Successfully","VendorID"=>$VendorID);
+				return array('status'=>true,'message'=>"Vendor Created Successfully");
 			}else{
 				DB::rollback();
 				foreach($uploadingImgs as $index=>$Img){
@@ -773,8 +810,6 @@ class VendorsController extends Controller{
 							$status=DB::Table('tbl_vendors_vehicle')->where('UUID',$result[$m]->UUID)->update(array("DFlag"=>1,"DeletedBy"=>$this->UserID,"DeletedOn"=>date("Y-m-d H:i:s")));
 						}
 					}
-				}else if($status && count($VehiclesDetail)==0){
-					$status=DB::Table('tbl_vendors_vehicle')->where('VendorID',$VendorID)->update(array("DFlag"=>1,"DeletedBy"=>$this->UserID,"DeletedOn"=>date("Y-m-d H:i:s")));
 				}
 				//supply details
 				$SupplyDetails=json_decode($req->SupplyDetails);
@@ -945,7 +980,7 @@ class VendorsController extends Controller{
 			return array('status'=>false,'message'=>'Access denined');
 		}
 	}
-    /* public function updateServiceLocation(Request $req,$VendorID){ 
+    public function updateServiceLocation(Request $req,$VendorID){ 
         if($this->general->isCrudAllow($this->CRUD,"edit")==true){
             $OldData=array();$NewData=array();
             
@@ -1060,7 +1095,7 @@ class VendorsController extends Controller{
         }else{
             return array('status'=>false,'message'=>'Access denined');
         }
-    } */
+    }
 	public function Approve(Request $req,$VendorID){ 
 		$OldData=$NewData=array();
 		if($this->general->isCrudAllow($this->CRUD,"edit")==true){

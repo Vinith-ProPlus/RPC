@@ -582,7 +582,7 @@
 		<script src="{{url('/')}}/assets/js/custom.js?r={{date('YmdHis')}}"></script>
 		<script src="{{url('/')}}/assets/js/address.js?r={{date('YmdHis')}}"></script>
 		<script src="{{url('/')}}/assets/js/app-init.js?r={{date('YmdHis')}}"></script>
-		/* <script src="{{url('/')}}/assets/js/firebase-full.js?r={{date('YmdHis')}}"></script> */
+		<script src="{{url('/')}}/assets/js/form-wizard/form-wizard-two.js"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox.min.js"></script>
 		<script src="{{url('/')}}/assets/js/lightbox/js/lightgallery.js?r={{date('dmyHis')}}"></script>
 

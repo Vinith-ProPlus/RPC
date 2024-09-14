@@ -223,7 +223,7 @@
                                 <div class="col-12 col-sm-12 col-lg-12">
                                     <div class="card">
                                         <div class="card-header">
-                                            <h6 class="text-center fw-700">Recieved Quotations</h6>
+                                            <h6 class="text-center fw-700">Received Quotations</h6>
                                         </div>
                                         <div class="card-body table-responsive">
                                             <table class="table table-sm width-max-content" id="tblVendorQuote">

@@ -536,8 +536,8 @@
 
         // Service By District
         const AddDServiceLocations=async(CountryID,StateID,StateName,DistrictIDs)=>{
-            let AddressStateID =  @if($isEdit)"{{$EditData->StateID}}" @else $("#lstState").val() @endif;
-            let AddressDistrictID =  @if($isEdit)"{{$EditData->DistrictID}}" @else $("#lstDistrict").val() @endif;
+            let AddressStateID = $("#lstState").val() ? $("#lstState").val() : @if($isEdit) "{{$EditData->StateID}}" @endif;
+            let AddressDistrictID = $("#lstDistrict").val() ? $("#lstDistrict").val() : @if($isEdit) "{{$EditData->DistrictID}}" @endif;
 
             let html = `<div class="accordion-item" data-country-id="${CountryID}" data-state-id="${StateID}">
                             <h2 class="accordion-header" id="${StateID}-heading">
@@ -617,8 +617,8 @@
 
         // Service By Postal Code
         const AddPServiceLocations=async(CountryID,StateID,DistrictID,DistrictName,PostalCodeIDs)=>{
-            let AddressDistrictID = @if($isEdit)"{{$EditData->DistrictID}}" @else $("#lstDistrict").val() @endif;
-            let AddressPostalCodeID = @if($isEdit)"{{$EditData->PostalID}}" @else $("#lstCity option:selected").attr('data-postal') @endif;
+            let AddressDistrictID = $("#lstDistrict").val() ? $("#lstDistrict").val() : @if($isEdit) "{{$EditData->DistrictID}}" @endif;
+            let AddressPostalCodeID = $("#lstCity option:selected").attr('data-postal') ? $("#lstCity option:selected").attr('data-postal') : @if($isEdit) "{{$EditData->PostalID}}" @endif;
             let html = `<div class="accordion-item" data-country-id="${CountryID}" data-state-id="${StateID}" data-district-id="${DistrictID}">
                             <h2 class="accordion-header" data-district-id="${DistrictID}" id="${DistrictID}-heading">
                                 <button class="accordion-button" type="button" data-district-id="${DistrictID}" data-bs-toggle="collapse" data-bs-target="#panel-${DistrictID}" aria-expanded="true" aria-controls="panel-${DistrictID}">
@@ -754,9 +754,9 @@
             $(".divServiceBy").not("#"+target).addClass('d-none');
             $("#"+target).removeClass('d-none');
 
-            let Country = @if($isEdit)"{{$EditData->CountryID}}" @else $("#lstCountry").val() @endif;
-            let State = @if($isEdit)"{{$EditData->StateID}}" @else $("#lstState").val() @endif;
-            let District = @if($isEdit)"{{$EditData->DistrictID}}" @else $("#lstDistrict").val() @endif;
+            let Country = $("#lstCountry").val() ? $("#lstCountry").val() : @if($isEdit) "{{$EditData->CountryID}}" @endif;
+            let State = $("#lstState").val() ? $("#lstState").val() : @if($isEdit) "{{$EditData->StateID}}" @endif;
+            let District = $("#lstDistrict").val() ? $("#lstDistrict").val() : @if($isEdit) "{{$EditData->DistrictID}}" @endif;
 
             if(Value == "District"){
                 let SLDCountry = $("#lstSLPCountry").val();
@@ -770,8 +770,6 @@
                 $("#lstSLPState").attr("data-selected",State);
                 $("#lstSLPDistrict").attr("data-selected",District);
                 getCountry({},"lstSLPCountry");
-            }else{
-
             }
         });
 
@@ -807,10 +805,10 @@
         }
         const appInit=async()=>{
             @if($isEdit)
-            $('#btnGSearchPostalCode').trigger('click');
-            @if($EditData->ServiceBy != "Radius")
-            loadData();
-            @endif
+                $('#btnGSearchPostalCode').trigger('click');
+                @if($EditData->ServiceBy != "Radius")
+                    loadData();
+                @endif
             @endif
         }
         const formValidation=async()=>{

@@ -7,7 +7,8 @@
 				<ol class="breadcrumb">
 					<li class="breadcrumb-item"><a href="{{ url('/') }}" data-original-title="" title=""><i class="f-16 fa fa-home"></i></a></li>
 					<li class="breadcrumb-item">Vendor Master</li>
-					<li class="breadcrumb-item">{{$PageTitle}}</li>
+					<li class="breadcrumb-item"><a href="{{ url('/') }}/admin/master/vendor/manage-vendors/" data-original-title="" title="">{{$PageTitle}}</a></li>
+					<li class="breadcrumb-item">Trash</li>
 				</ol>
 			</div>
 		</div>
@@ -19,38 +20,37 @@
 			<div class="card">
 				<div class="card-header text-center">
 					<div class="row">
-						<div class="col-12 col-sm-4">	</div>
-						<div class="col-12 col-sm-4 my-2"><h5>{{$PageTitle}}</h5></div>
-						<div class="col-12 col-sm-4 my-2 text-right">
-							@if($crud['restore']==1)
-								<a href="{{ url('/') }}/admin/master/vendor/manage-vendors/trash" class="btn  btn-outline-dark {{$Theme['button-size']}} mr-10" type="button" > Trash </a>
-							@endif
-							@if($crud['add']==1)
-								<a href="{{ url('/') }}/admin/master/vendor/manage-vendors/create" class="btn  btn-outline-success btn-air-success {{$Theme['button-size']}}" type="button" >Create</a> <!-- full-right -->
+						<div class="col-sm-4">	</div>
+						<div class="col-sm-4 my-2"><h5>{{$PageTitle}} Trash</h5></div>
+						<div class="col-sm-4 my-2 text-right text-md-right">
+							@if($crud['view']==1)
+								<a href="{{ url('/') }}/admin/master/vendor/manage-vendors/" class="btn  btn-outline-dark {{$Theme['button-size']}}" type="button" > Back </a>
+							@elseif($crud['add']==1)
+								<a href="{{ url('/') }}/admin/master/vendor/manage-vendors/create" class="btn  btn-outline-dark {{$Theme['button-size']}}" type="button" >Back</a> <!-- full-right -->
 							@endif
 						</div>
 					</div>
-				</div>
-				<div class="card-body " >
-					<div class="row">
-						<div class="col-12 col-sm-12 col-lg-12">
-							<table class="table {{$Theme['table-size']}}" id="tblVendors">
-								<thead>
-									<tr>
-										<th class="text-center">Vendor Name</th>
-										<th class="text-center">Mobile Number</th>
-										<th class="text-center">GST Number</th>
-										<th class="text-center">Vendor Type</th>
-										<th class="text-center">Address</th>
-										<th class="text-center">City</th>
-										<th class="text-center">District</th>
-										<th class="text-center">Postal Code</th>
-										<th class="text-center">Active Status</th>
-										<th class="text-center noExport">action</th>
-									</tr>
-								</thead>
-								<tbody></tbody>
-							</table>
+					<div class="card-body " >
+						<div class="row">
+							<div class="col-sm-12 col-12">
+								<table class="table {{$Theme['table-size']}}" id="tblVendors">
+									<thead>
+										<tr>
+											<th>Vendor Name</th>
+											<th>Mobile Number</th>
+											<th>GST Number</th>
+											<th>Vendor Type</th>
+											<th>Address</th>
+											<th>City</th>
+											<th>District</th>
+											<th>Postal Code</th>
+											<th class="text-center">Active Status</th>
+											<th class="text-center noExport">action</th>
+										</tr>
+									</thead>
+									<tbody></tbody>
+								</table>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -67,7 +67,7 @@
 			$('#tblVendors').dataTable( {
 				"bProcessing": true,
 				"bServerSide": true,
-                "ajax": {"url":"{{url('/')}}/admin/master/vendor/manage-vendors/data?_token="+$('meta[name=_token]').attr('content'),"headers":{ 'X-CSRF-Token' : $('meta[name=_token]').attr('content') } ,"type": "POST"},
+                "ajax": {"url": "{{url('/')}}/admin/master/vendor/manage-vendors/trash-data?_token="+$('meta[name=_token]').attr('content'),"headers":{ 'X-CSRF-Token' : $('meta[name=_token]').attr('content') } ,"type": "POST"},
 				deferRender: true,
 				responsive: true,
 				dom: 'Bfrtip',
@@ -76,10 +76,10 @@
 				buttons: [
 					'pageLength' 
 					@if($crud['excel']==1) ,{extend: 'excel',className:"{{$Theme['button-size']}}",footer: true,title: "{{$PageTitle}}","action": DataTableExportOption,exportOptions: {columns: "thead th:not(.noExport)"}} @endif 
-					@if($crud['copy']==1) ,{extend: 'copy',className:"{{$Theme['button-size']}}",footer: true,title: "{{$PageTitle}}","action": DataTableExportOption,exportOptions: {columns: "thead th:not(.noExport)"}} @endif
+					@if($crud['copy']==1) ,{extend: 'copy',className:"{{$Theme['button-size']}}",footer: true,title:"{{$PageTitle}}","action": DataTableExportOption,exportOptions: {columns: "thead th:not(.noExport)"}} @endif
 					@if($crud['csv']==1) ,{extend: 'csv',className:"{{$Theme['button-size']}}",footer: true,title: "{{$PageTitle}}","action": DataTableExportOption,exportOptions: {columns: "thead th:not(.noExport)"}} @endif
-					@if($crud['print']==1) ,{extend: 'print',className:"{{$Theme['button-size']}}",footer: true,title:  "{{$PageTitle}}","action": DataTableExportOption,exportOptions: {columns: "thead th:not(.noExport)"}} @endif
-					@if($crud['pdf']==1) ,{extend: 'pdf',className:"{{$Theme['button-size']}}",footer: true,title:  "{{$PageTitle}}","action": DataTableExportOption,exportOptions: {columns: "thead th:not(.noExport)"}} @endif
+					@if($crud['print']==1) ,{extend: 'print',className:"{{$Theme['button-size']}}",footer: true,title:"{{$PageTitle}}","action": DataTableExportOption,exportOptions: {columns: "thead th:not(.noExport)"}} @endif
+					@if($crud['pdf']==1) ,{extend: 'pdf',className:"{{$Theme['button-size']}}",footer: true,title: "{{$PageTitle}}","action": DataTableExportOption,exportOptions: {columns: "thead th:not(.noExport)"}} @endif
 				],
 				columnDefs: [
 					{"className": "dt-center", "targets": 8 },
@@ -88,33 +88,25 @@
 			});
 			@endif
         }
-		$(document).on('click','.btnEdit',function(){
-			window.location.replace("{{url('/')}}/admin/master/vendor/manage-vendors/edit/"+ $(this).attr('data-id'));
-		});
-		$(document).on('click','.btnEditServiceLocation',function(){
-			window.location.replace("{{url('/')}}/admin/master/vendor/manage-vendors/edit/service-location/"+ $(this).attr('data-id'));
-		});
-		$(document).on('click','.btnEditProductMap',function(){
-			window.location.replace("{{url('/')}}/admin/master/vendor/vendor-product-mapping/edit/"+ $(this).attr('data-id'));
-		});
-		
-		$(document).on('click','.btnDelete',function(){
+		$(document).on('click','.btnRestore',function(){
 			let ID=$(this).attr('data-id');
 			swal({
                 title: "Are you sure?",
-                text: "You want Delete this vendor!",
+                text: "You want Restore this Vendor!",
                 type: "warning",
                 showCancelButton: true,
-                confirmButtonClass: "btn-outline-danger",
-                confirmButtonText: "Yes, Delete it!",
+                confirmButtonClass: "btn-outline-success",
+                confirmButtonText: "Yes, Restore it!",
                 closeOnConfirm: false
             },
-            function(){swal.close();
+            function(){
+                swal.close();
             	$.ajax({
             		type:"post",
-                    url:"{{url('/')}}/admin/master/vendor/manage-vendors/delete/"+ID,
+                    url:"{{url('/')}}/admin/master/vendor/manage-vendors/restore/"+ID,
                     headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
                     dataType:"json",
+                    error:function(e, x, settings, exception){ajax_errors(e, x, settings, exception);swal.close();},
                     success:function(response){
                     	swal.close();
                     	if(response.status==true){

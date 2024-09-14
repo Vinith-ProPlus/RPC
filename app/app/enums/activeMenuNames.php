@@ -14,7 +14,8 @@ enum activeMenuNames:string{
 
     case VendorCategory="Vendor-Category";
     case VendorType="Vendor-Type";
-    case Vendors="Manage-Vendors";
+    case ManageVendors="Manage-Vendors";
+    case Vendors="Vendors";
     case VendorProductMapping="Vendor-Product-Mapping";
     case VendorStockUpdate="Vendor-Stock-Update";
     case StockPoints="Stock-Points";

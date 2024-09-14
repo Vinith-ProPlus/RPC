@@ -385,6 +385,14 @@
                             @if (!$isEditSL)
                                 <div class="tab-contents" id="general-tab">
                                     <div class="row mt-20">
+                                        <div class="col-4 col-lg-2 d-flex align-items-center"><div >Company Name <span class="required"> * </span></div></div>
+                                        <div class="col-6 col-lg-8">
+                                            <input type="text" id="txtCoName" class="form-control" placeholder="Company Name" value="<?php if($isEdit){ echo $data->VendorCoName;} ?>">
+                                            <div class="errors err-sm" id="txtCoName-err"></div>
+                                        </div>
+                                        <div class="col-1 col-lg-2 d-flex align-items-center"></div>
+                                    </div>
+                                    <div class="row mt-20">
                                         <div class="col-4 col-lg-2 d-flex align-items-center"><div >GST Number {{-- <span class="required"> * </span> --}}</div></div>
                                         <div class="col-6 col-lg-8">
                                             <input type="text" id="txtGSTNo" class="form-control" placeholder="GST Number" value="<?php if($isEdit){ echo $data->GSTNo;} ?>">
@@ -413,7 +421,7 @@
                                         <div class="col-1 col-lg-2 d-flex align-items-center"></div>
                                     </div>
                                     <div class="row mt-20">
-                                        <div class="col-4 col-lg-2 d-flex align-items-center"><div >E-Mail</div></div>
+                                        <div class="col-4 col-lg-2 d-flex align-items-center"><div >E-Mail <span class="required"> * </span></div></div>
                                         <div class="col-6 col-lg-8">
                                             <input type="email" id="txtEmail" class="form-control" placeholder="Email" value="<?php if($isEdit){ echo $data->Email;} ?>">
                                             <div class="errors err-sm" id="txtEmail-err"></div>
@@ -1830,6 +1838,7 @@
                 let isVehicles=false;
                 let data={}
                 data.VendorName=$('#txtVendorName').val();
+                data.CoName=$('#txtCoName').val();
                 data.GSTNo=$('#txtGSTNo').val();
                 data.CID=$('#lstCategory').val();
                 data.VendorType=$('#lstVendorType').val();
@@ -1862,9 +1871,13 @@
                 if(data.VendorType==""){
                     $('#lstVendorType-err').html('Vendor Type is required.');status=false;isGeneral=true;
                 }
-                if(data.MobileNumber1==""){
-                    $('#txtMobileNumber1-err').html('Mobile Number is required.');status=false;isGeneral=true;
+                if(!data.CoName){
+                    $('#txtCoName-err').html('Company Name is required.');status=false;isGeneral=true;
                 }
+                if(!data.Email){
+                    $('#txtEmail-err').html('Email is required.');status=false;isGeneral=true;
+                }
+
                 if(data.CreditDays==""){
                     $('#txtCreditDays-err').html('Credit Days is required.');status=false;isGeneral=true;
                 }else if($.isNumeric(data.CreditDays)==false){
@@ -1908,8 +1921,8 @@
                 }
                 if(data.Address==""){
                     $('#txtAddress-err').html('Address is required.');status=false;
-                }else if(data.Address.length<10){
-                    $('#txtAddress-err').html('Address must be greater than 10 characters');status=false;isAddress=true;
+                }else if(data.Address.length<5){
+                    $('#txtAddress-err').html('Address must be greater than 5 characters');status=false;isAddress=true;
                 }
                 let errorUUID=null;
                 $('#vehicleAccordion .accordion-item').each(function(index){/*
@@ -1975,40 +1988,16 @@
                     }
                 }
             @endif
-            // if (!$('.chkServiceBy:checked').length && status) {
-            //     toastr.error("Please select any service location", "Failed", {positionClass: "toast-top-right",containerId: "toast-top-right",showMethod: "slideDown",hideMethod: "slideUp",progressBar: !0});
-            //     status = false;
-            // } else if ($('.chkServiceBy:checked[data-value="District"]').length) {
-            //     if ($('#ServiceLocationDAccordion .accordion-item').length == 0) {
-            //         toastr.error("Please select any State in Service Location!", "Failed", {positionClass: "toast-top-right",containerId: "toast-top-right",showMethod: "slideDown",hideMethod: "slideUp",progressBar: !0});
-            //         status = false;
-            //     } else {
-            //         $('#ServiceLocationDAccordion .accordion-item').each(function () {
-            //             if ($(this).find('.lstSLDDistricts').val().length == 0) {
-            //                 $(this).find('.accordion-button').hasClass('collapsed') ? $(this).find('.accordion-button').trigger('click') : null;
-            //                 $(this).find('.lstSLDDistricts').focus();
-            //                 $(this).find('.errors').html('Select a District!');
-            //                 status = false;
-            //             }
-            //         });
-            //     }
-            // } else if ($('.chkServiceBy:checked[data-value="PostalCode"]').length) {
-            //     if ($('#ServiceLocationPAccordion .accordion-item').length == 0) {
-            //         toastr.error("Please select any District in Service Location!", "Failed", {positionClass: "toast-top-right",containerId: "toast-top-right",showMethod: "slideDown",hideMethod: "slideUp",progressBar: !0});
-            //         status = false;
-            //     } else {
-            //         $('#ServiceLocationPAccordion .accordion-item').each(function () {
-            //             if ($(this).find('.lstSLPPostalCodes').val().length == 0) {
-            //                 $(this).find('.accordion-button').hasClass('collapsed') ? $(this).find('.accordion-button').trigger('click') : null;
-            //                 $(this).find('.lstSLPPostalCodes').focus();
-            //                 $(this).find('.errors').html('Select a PostalCode!');
-            //                 status = false;
-            //             }
-            //         });
-            //     }
-            // } else{
-            //     $status = false;
-            // }
+
+            if(status){
+                status = await MobNoValidation(data.MobileNumber1);
+            }
+            if(status){
+                status = await EmailValidation(data.Email);
+            }
+            if(status){
+                status = await CoNameValidation(data.CoName);
+            }
             return status;
         }
         const getData=async()=>{
@@ -2039,14 +2028,14 @@
                 t.Images=tmpImages;
                 Vehicles.push(t);
             });
-            // $('#tblStockPoint tbody tr td.tdata').each(function(index){
-            //     try {
-            //         let t=JSON.parse($(this).html());
-            //         stockPoints.push(t);
-            //     } catch (error) {
-            //         console.log(error);
-            //     }
-            // });
+            $('#tblStockPoint tbody tr td.tdata').each(function(index){
+                try {
+                    let t=JSON.parse($(this).html());
+                    stockPoints.push(t);
+                } catch (error) {
+                    console.log(error);
+                }
+            });
             $('#tblSupplyDetails tbody tr td.tdata').each(function(index){
                 try {
                     let t=JSON.parse($(this).html());
@@ -2056,41 +2045,42 @@
                 }
             });
 
-            // if(ServiceLocations.ServiceBy == "District"){
-            //     $('#ServiceLocationDAccordion .accordion-item').each(function () {
-            //         let serviceData = {
-            //                 CountryID: $(this).attr('data-country-id'),
-            //                 StateID: $(this).attr('data-state-id'),
-            //                 Districts: [],
-            //             };
+            if(ServiceLocations.ServiceBy == "District"){
+                $('#ServiceLocationDAccordion .accordion-item').each(function () {
+                    let serviceData = {
+                            CountryID: $(this).attr('data-country-id'),
+                            StateID: $(this).attr('data-state-id'),
+                            Districts: [],
+                        };
 
-            //         let DistrictIDs = $(this).find('.lstSLDDistricts').val();
-            //         DistrictIDs.forEach(function (districtID) {
-            //             serviceData.Districts.push({DistrictID : districtID});
-            //         });
-            //         ServiceLocations.ServiceData.push(serviceData);
-            //     });
-            // } else if(ServiceLocations.ServiceBy == "PostalCode"){
-            //     $('#ServiceLocationPAccordion .accordion-item').each(function () {
-            //         let serviceData = {
-            //                 CountryID: $(this).attr('data-country-id'),
-            //                 StateID: $(this).attr('data-state-id'),
-            //                 Districts: [{
-            //                     DistrictID : $(this).attr('data-district-id'),
-            //                     PostalCodeIDs : $(this).find('.lstSLPPostalCodes').val(),
-            //                 }],
-            //             };
-            //         ServiceLocations.ServiceData.push(serviceData);
-            //     });
-            // }else{
+                    let DistrictIDs = $(this).find('.lstSLDDistricts').val();
+                    DistrictIDs.forEach(function (districtID) {
+                        serviceData.Districts.push({DistrictID : districtID});
+                    });
+                    ServiceLocations.ServiceData.push(serviceData);
+                });
+            } else if(ServiceLocations.ServiceBy == "PostalCode"){
+                $('#ServiceLocationPAccordion .accordion-item').each(function () {
+                    let serviceData = {
+                            CountryID: $(this).attr('data-country-id'),
+                            StateID: $(this).attr('data-state-id'),
+                            Districts: [{
+                                DistrictID : $(this).attr('data-district-id'),
+                                PostalCodeIDs : $(this).find('.lstSLPPostalCodes').val(),
+                            }],
+                        };
+                    ServiceLocations.ServiceData.push(serviceData);
+                });
+            }else{
 
-            // }
+            }
 
             console.log(ServiceLocations);
             let formData=new FormData();
 
             @if(!$isEditSL)
                 formData.append('VendorName',$('#txtVendorName').val());
+                formData.append('VendorCoName',$('#txtCoName').val());
                 formData.append('GSTNo',$('#txtGSTNo').val());
                 formData.append('CID',$('#lstCategory').val());
                 formData.append('VendorType',$('#lstVendorType').val());
@@ -2111,7 +2101,7 @@
                 formData.append('Reference',$('#txtReference').val());
                 formData.append('VehicleData',JSON.stringify(Vehicles));
                 formData.append('SupplyDetails',JSON.stringify(supplyDetails));
-                // formData.append('StockPoints',JSON.stringify(stockPoints));
+                formData.append('StockPoints',JSON.stringify(stockPoints));
                 formData.append('Documents',JSON.stringify(Images.documents));
                 formData.append('deletedImages',JSON.stringify(deletedImages));
 
@@ -2120,7 +2110,7 @@
                     formData.append('Logo', $('#txtVendorLogo')[0].files[0]);
                 }
             @endif
-                // formData.append('ServiceLocations',JSON.stringify(ServiceLocations));
+                formData.append('ServiceLocations',JSON.stringify(ServiceLocations));
             return formData;
         }
         init();
@@ -2530,245 +2520,114 @@
             }
         });
 
-        // Service Locations
-        // Service By District
-        const AddDServiceLocations=async(CountryID,StateID,StateName,DistrictIDs)=>{
-            let AddressStateID =  @if($isEdit)"{{$data->StateID}}" @else $("#lstState").val() @endif;
-            let AddressDistrictID =  @if($isEdit)"{{$data->DistrictID}}" @else $("#lstDistrict").val() @endif;
-
-            let html = `<div class="accordion-item" data-country-id="${CountryID}" data-state-id="${StateID}">
-                            <h2 class="accordion-header" id="${StateID}-heading">
-                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#panel-${StateID}" aria-expanded="true" aria-controls="panel-${StateID}">
-                                    ${StateName}
-                                    <span class="options">
-                                        ${(AddressStateID != StateID) ? `<span class="trash state-trash" data-state-id="${StateID}"><i class="fa fa-trash"></i></span>` : ''}
-                                    </span>
-                                </button>
-                            </h2>
-                            <div id="panel-${StateID}" class="accordion-collapse collapse" aria-labelledby="${StateID}-heading">
-                                <div class="accordion-body">
-                                    <div class="row">
-                                        <div class="col-12">
-                                            <label for="lstSLDDistricts-${StateID}">Districts</label>
-                                            <div class="form-group">
-                                                <select id="lstSLDDistricts-${StateID}" class="form-control select2 lstSLDDistricts" data-selected="${(AddressStateID == StateID ? AddressDistrictID : '')}" multiple></select>
-                                            </div>
-                                        </div>
-                                        <span class="errors err-sm"></span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-            `;
-
-            $('#ServiceLocationDAccordion').append(html);
-
-            $.ajax({
-                type:"post",
-                url:"{{url('/')}}/get/districts",
-                headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
-                data:{CountryID : CountryID, StateID : StateID},
-                dataType:"json",
-                async:true,
-                error:function(e, x, settings, exception){ajaxErrors(e, x, settings, exception);resolve([])},
-                complete: function(e, x, settings, exception){},
-                success:function(response){
-                    for(let Item of response){
-                        let selected="";
-                        if(DistrictIDs){
-                            if(DistrictIDs.indexOf(Item.DistrictID)!=-1){
-                                selected="selected";
+        const MobNoValidation = async (MobNo) => {
+            if (!MobNo) {
+                $('#txtMobileNumber1-err').removeClass('text-success fw-600 fs-12').addClass('errors').html('Mobile Number is required.');
+                return false;
+            } else if (MobNo.length != 10) {
+                $('#txtMobileNumber1-err').removeClass('text-success fw-600 fs-12').addClass('errors').html('Mobile Number must be 10 digits.');
+                return false;
+            } else {
+                return new Promise((resolve, reject) => {
+                    $.ajax({
+                        type: "post",
+                        url: "{{url('/')}}/admin/master/vendor/manage-vendors/unique-validation",
+                        headers: { 'X-CSRF-Token': $('meta[name=_token]').attr('content') },
+                        dataType: "json",
+                        data: { MobNo: MobNo, VendorID : "@if($isEdit){{$data->VendorID}}@endif"},
+                        success: function (response) {
+                            if (response) {
+                                $('#txtMobileNumber1-err').removeClass('text-success fw-600 fs-12').addClass('errors').html('Mobile Number already exists!');
+                                resolve(false);
+                            } else {
+                                $('#txtMobileNumber1-err').removeClass('errors').addClass('text-success fw-600 fs-12').html('Mobile Number available.');
+                                resolve(true);
                             }
-                        }else if(Item.DistrictID==$('#lstSLDDistricts-'+StateID).attr('data-selected')){
-                            selected="selected";
+                        },
+                        error: function (e, x, settings, exception) {
+                            ajaxErrors(e, x, settings, exception);
+                            reject(e);
                         }
-                        $('#lstSLDDistricts-'+StateID).append('<option '+selected+' value="'+Item.DistrictID+'">'+Item.DistrictName+' </option>');
-                    }
-                }
-            });
-            $('#lstSLDDistricts-'+StateID).select2();
-        }
-        $(document).on("change",'#lstSLDCountry',async function(){
-            getStates({CountryID : $(this).val()},"lstSLDState")
-        });
-        $(document).on("change",'#lstSLDState',async function(){
-            $(".errors").html('');
-            let CountryID=$("#lstSLDCountry").val();
-            let StateID=$(this).val();
-            if(StateID){
-                let StateName=$(this).find('option:selected').html();
-                $('#lstSLDState').select2('destroy');
-                $('#lstSLDState option[value="'+StateID+'"]').attr('disabled','disabled');
-                $('#lstSLDState').val("").trigger("change");
-                $('#lstSLDState').select2();
-                $('#ServiceLocationDAccordion .accordion-item[data-state-id="' + StateID + '"]').length === 0 ? AddDServiceLocations(CountryID, StateID, StateName) : null;
+                    });
+                });
             }
-        });
-        $(document).on('click','.state-trash',function(){
-            let StateID=$(this).attr('data-state-id');
-            $('#lstSLDState').select2('destroy');
-            $('#ServiceLocationDAccordion .accordion-item[data-state-id="'+StateID+'"]').remove();
-            $('#lstSLDState option[value="'+StateID+'"]').removeAttr('disabled');
-            $('#lstSLDState').select2();
-        });
+        };
 
-        // Service By Postal Code
-        const AddPServiceLocations=async(CountryID,StateID,DistrictID,DistrictName,PostalCodeIDs)=>{
-            let AddressDistrictID = @if($isEdit)"{{$data->DistrictID}}" @else $("#lstDistrict").val() @endif;
-            let AddressPostalCodeID = @if($isEdit)"{{$data->PostalCodeID}}" @else $("#lstCity option:selected").attr('data-postal') @endif;
-            let html = `<div class="accordion-item" data-country-id="${CountryID}" data-state-id="${StateID}" data-district-id="${DistrictID}">
-                            <h2 class="accordion-header" data-district-id="${DistrictID}" id="${DistrictID}-heading">
-                                <button class="accordion-button" type="button" data-district-id="${DistrictID}" data-bs-toggle="collapse" data-bs-target="#panel-${DistrictID}" aria-expanded="true" aria-controls="panel-${DistrictID}">
-                                    ${DistrictName}
-                                    <span class="options">
-                                        ${(AddressDistrictID != DistrictID) ? `<span class="trash district-trash" data-district-id="${DistrictID}"><i class="fa fa-trash"></i></span>` : ''}
-                                    </span>
-                                </button>
-                            </h2>
-                            <div id="panel-${DistrictID}" class="accordion-collapse collapse" aria-labelledby="${DistrictID}-heading">
-                                <div class="accordion-body">
-                                    <div class="row">
-                                        <div class="col-12">
-                                            <label for="lstSLPPostalCodes-${DistrictID}">Postal Code</label>
-                                            <div class="form-group">
-                                                <select id="lstSLPPostalCodes-${DistrictID}" data-district-id="${DistrictID}" class="form-control select2 lstSLPPostalCodes" data-selected="${(AddressDistrictID == DistrictID ? AddressPostalCodeID : '')}" multiple></select>
-                                            </div>
-                                        </div>
-                                        <span class="errors err-sm"></span>
-                                    </div>
-                                    <div class="row mt-15 mb-10 ">
-                                        <div class="col-12 text-center d-flex justify-content-center align-items-center">
-                                            <button class="btn btn-sm btn-outline-primary mr-10  btnPCodeSelectAll">Select All</button>
-                                            <button class="btn btn-sm btn-outline-primary mr-10 btnPCodeDeselectAll">Deselect All</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-            `;
-
-            $('#ServiceLocationPAccordion').append(html);
-
-            $.ajax({
-                type:"post",
-                url:"{{url('/')}}/get/postal-code",
-                headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
-                data:{CountryID : CountryID, StateID : StateID, DistrictID : DistrictID},
-                dataType:"json",
-                async:true,
-                error:function(e, x, settings, exception){ajaxErrors(e, x, settings, exception);resolve([])},
-                complete: function(e, x, settings, exception){},
-                success:function(response){
-                    for(let Item of response){
-                        let selected="";
-                        if(PostalCodeIDs){
-                            if(PostalCodeIDs.indexOf(Item.PID)!=-1){
-                                selected="selected";
+        const CoNameValidation=async(CoName)=>{
+            if(!CoName){
+                $('#txtCoName-err').removeClass('text-success fw-600 fs-12').addClass('errors').html('Company Name is required.');
+                return false;
+            }else if(CoName.length < 4){
+                $('#txtCoName-err').removeClass('text-success fw-600 fs-12').addClass('errors').html('Company Name must be greater than 3 characters.');
+                return false;
+            }else {
+                return new Promise((resolve, reject) => {
+                    $.ajax({
+                        type: "post",
+                        url: "{{url('/')}}/admin/master/vendor/manage-vendors/unique-validation",
+                        headers: { 'X-CSRF-Token': $('meta[name=_token]').attr('content') },
+                        dataType: "json",
+                        data : {CoName : CoName, VendorID : "@if($isEdit){{$data->VendorID}}@endif"},
+                        success: function (response) {
+                            if (response) {
+                                $('#txtCoName-err').removeClass('text-success fw-600 fs-12').addClass('errors').html('Company Name already exists!');
+                                resolve(false);
+                            } else {
+                                $('#txtCoName-err').removeClass('errors').addClass('text-success fw-600 fs-12').html('Company Name available.');status=true;
+                                resolve(true);
                             }
-                        }else if(Item.PID==$('#lstSLPPostalCodes-'+DistrictID).attr('data-selected')){
-                            selected="selected";
+                        },
+                        error: function (e, x, settings, exception) {
+                            ajaxErrors(e, x, settings, exception);
+                            reject(e);
                         }
-                        $('#lstSLPPostalCodes-'+DistrictID).append('<option '+selected+' value="'+Item.PID+'">'+Item.PostalCode+' </option>');
-                    }
-                }
-            });
-            $('#lstSLPPostalCodes-'+DistrictID).select2();
+                    });
+                });
+            }
         }
-        $(document).on("change",'#lstSLPCountry',async function(){
-            getStates({CountryID : $(this).val()},"lstSLPState")
-        });
-        $(document).on("change",'#lstSLPState',async function(){
-            $(".errors").html('');
-            let ExistingDistricts = [];
-            $('#ServiceLocationPAccordion .accordion-item').each(function(){
-                ExistingDistricts.push($(this).attr('data-district-id'));
-            });
-            $('#lstSLPDistrict').select2('destroy');
-            $('#lstSLPDistrict option').remove();
-            $('#lstSLPDistrict').append('<option value="">Select a District</option>');
-            $.ajax({
-                type:"post",
-                url:"{{url('/')}}/get/districts",
-                headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
-                data:{CountryID : $('#lstSLPCountry').val(), StateID : $(this).val()},
-                dataType:"json",
-                async:true,
-                error:function(e, x, settings, exception){ajaxErrors(e, x, settings, exception);resolve([])},
-                complete: function(e, x, settings, exception){},
-                success:function(response){
-                    for(let Item of response){
-                        let disabled="";
-                        let selected="";
-                        if(ExistingDistricts.indexOf(Item.DistrictID)!=-1){disabled="disabled";}
-                        if(Item.DistrictID==$('#lstSLPDistrict').attr('data-selected')){selected="selected";}
-                        $('#lstSLPDistrict').append('<option '+selected+' '+disabled+' value="'+Item.DistrictID+'">'+Item.DistrictName+' </option>');
-                    }
-                    if($('#lstSLPDistrict').val()!=""){
-                        $('#lstSLPDistrict').trigger('change');
-                    }
-                }
-            });
-            $('#lstSLPDistrict').select2();
-        });
-        $(document).on("change",'#lstSLPDistrict',function(){
-            $(".errors").html('');
-            let CountryID=$("#lstSLPCountry").val();
-            let StateID=$("#lstSLPState").val();
-            let DistrictID=$(this).val();
-            if(DistrictID){
-                let DistrictName=$(this).find('option:selected').html();
-                $('#lstSLPDistrict').select2('destroy');
-                $('#lstSLPDistrict option[value="'+DistrictID+'"]').attr('disabled','disabled');
-                $('#lstSLPDistrict').val("").trigger("change");
-                $('#lstSLPDistrict').select2();
-                $('#ServiceLocationPAccordion .accordion-item[data-district-id="' + DistrictID + '"]').length === 0 ? AddPServiceLocations(CountryID,StateID,DistrictID,DistrictName) : null;
+
+        const EmailValidation=async(Email)=>{
+            let emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if(!Email){
+                $('#txtEmail-err').removeClass('text-success fw-600 fs-12').addClass('errors').html('Email is required.');
+                return false;
+            }else if (Email.length > 0 && !emailPattern.test(Email)) {
+                $("#txtEmail-err").removeClass('text-success fw-600 fs-12').addClass('errors').html("Enter a valid email address!");
+                return false;
+            }else {
+                return new Promise((resolve, reject) => {
+                    $.ajax({
+                        type: "post",
+                        url: "{{url('/')}}/admin/master/vendor/manage-vendors/unique-validation",
+                        headers: { 'X-CSRF-Token': $('meta[name=_token]').attr('content') },
+                        dataType: "json",
+                        data : {Email : Email, VendorID : "@if($isEdit){{$data->VendorID}}@endif"},
+                        success: function (response) {
+                            if (response) {
+                                $('#txtEmail-err').removeClass('text-success fw-600 fs-12').addClass('errors').html('This Email already exists!');
+                                resolve(false);
+                            } else {
+                                $('#txtEmail-err').removeClass('errors').addClass('text-success fw-600 fs-12').html('Email available.');
+                                resolve(true);
+                            }
+                        },
+                        error: function (e, x, settings, exception) {
+                            ajaxErrors(e, x, settings, exception);
+                            reject(e);
+                        }
+                    });
+                });
             }
+        }
+
+        $("#txtMobileNumber1").keyup(function () {
+            MobNoValidation($(this).val());
         });
-        $(document).on('click','.district-trash',function(){
-            let DistrictID=$(this).attr('data-district-id');
-            $('#lstSLPDistrict').select2('destroy');
-            $('#ServiceLocationPAccordion .accordion-item[data-district-id="'+DistrictID+'"]').remove();
-            $('#lstSLPDistrict option[value="'+DistrictID+'"]').removeAttr('disabled');
-            $('#lstSLPDistrict').select2();
+        $("#txtEmail").keyup(function () {
+            EmailValidation($(this).val());
         });
-        $(document).on('click', '.btnPCodeSelectAll', function () {
-            let accordionBody = $(this).closest('.accordion-body');
-
-            accordionBody.find('.lstSLPPostalCodes').select2('destroy');
-            accordionBody.find('.lstSLPPostalCodes option').prop('selected', true);
-            accordionBody.find('.lstSLPPostalCodes').select2();
-        });
-        $(document).on('click','.btnPCodeDeselectAll',function(){
-            let accordionBody = $(this).closest('.accordion-body');
-
-            accordionBody.find('.lstSLPPostalCodes').select2('destroy');
-            accordionBody.find('.lstSLPPostalCodes option').prop('selected', false);
-            accordionBody.find('.lstSLPPostalCodes').select2();
-        });
-        $(".chkServiceBy").change(function() {
-            var target = $(this).data('target');
-            var Value = $(this).data('value');
-            $(".divServiceBy").not("#"+target).addClass('d-none');
-            $("#"+target).removeClass('d-none');
-
-            let Country = @if($isEdit)"{{$data->CountryID}}" @else $("#lstCountry").val() @endif;
-            let State = @if($isEdit)"{{$data->StateID}}" @else $("#lstState").val() @endif;
-            let District = @if($isEdit)"{{$data->DistrictID}}" @else $("#lstDistrict").val() @endif;
-
-            if(Value == "District"){
-                let SLDCountry = $("#lstSLPCountry").val();
-                $("#lstSLDCountry").attr("data-selected",Country);
-                getCountry({},"lstSLDCountry");
-            }else if(Value == "PostalCode"){
-                let SLPCountry = $("#lstSLPCountry").val();
-                let SLPState = $("#lstSLPState").val();
-                $("#lstSLPCountry").attr("data-selected",Country);
-                $("#lstSLPState").attr("data-selected",State);
-                $("#lstSLPDistrict").attr("data-selected",District);
-                getCountry({},"lstSLPCountry");
-            }else{
-
-            }
+        $("#txtCoName").keyup(function () {
+            CoNameValidation($(this).val());
         });
 
     });
