@@ -30,7 +30,7 @@ class StockPointsController extends Controller{
     private $Menus;
     private $generalDB;
     public function __construct(){
-		$this->ActiveMenuName=activeMenuNames::StockPoints->value;
+		$this->ActiveMenuName=activeMenuNames::Vendors->value;
 		$this->PageTitle="Stock Points";
 		$this->generalDB=Helper::getGeneralDB();
         $this->middleware('auth');

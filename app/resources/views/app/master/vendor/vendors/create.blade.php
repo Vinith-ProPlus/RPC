@@ -19,9 +19,10 @@
         border-radius:0px !important;
         position: relative;
         border: 1px solid #c3c4c7;
-        box-shadow: 0 1px 1px rgba(0,0,0,.04);
         background: #fff;
-        border
+    }
+    .card{
+        box-shadow: 0 1px 1px rgba(0,0,0,.04);
     }
     .registration .card .card-header{
         font-size: 14px;

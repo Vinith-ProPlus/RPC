@@ -29,7 +29,7 @@ class VendorStockUpdateController extends Controller{
     private $Menus;
 	
     public function __construct(){
-		$this->ActiveMenuName=activeMenuNames::VendorStockUpdate->value;
+		$this->ActiveMenuName=activeMenuNames::Vendors->value;
 		$this->PageTitle="Vendor Stock Update";
         $this->middleware('auth');
 		$this->middleware(function ($request, $next) {

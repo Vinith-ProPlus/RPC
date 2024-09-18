@@ -332,8 +332,8 @@ class ProductSubCategoryController extends Controller{
 			DB::beginTransaction();
 			$status=false;
 			try{
-				$OldData=DB::table('tbl_product_subcategory')->where('PSCI',$PSCID)->get();
-				$OldData=ProductSubcategory::where('PSCI',$PSCID)->get();
+				$OldData=DB::table('tbl_product_subcategory')->where('PSCID',$PSCID)->get();
+				$OldData=ProductSubcategory::where('PSCID',$PSCID)->get();
 				$status=DB::table('tbl_product_subcategory')->where('PSCID',$PSCID)->update(array("DFlag"=>1,"DeletedBy"=>$this->UserID,"DeletedOn"=>date("Y-m-d H:i:s")));
 			}catch(Exception $e) {
 				

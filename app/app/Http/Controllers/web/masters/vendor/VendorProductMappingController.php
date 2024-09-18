@@ -29,7 +29,7 @@ class VendorProductMappingController extends Controller{
     private $Menus;
 
     public function __construct(){
-		$this->ActiveMenuName=activeMenuNames::VendorProductMapping->value;
+		$this->ActiveMenuName=activeMenuNames::Vendors->value;
 		$this->PageTitle="Vendor Product Mapping";
         $this->middleware('auth');
 		$this->middleware(function ($request, $next) {

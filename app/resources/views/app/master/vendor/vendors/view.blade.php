@@ -41,7 +41,8 @@
 										<th>Vendor Name</th>
 										<th>Mobile Number</th>
 										<th>Vendor Type</th>
-										<th>District Name</th>
+										<th>District</th>
+										<th class="text-center">No.of.Stockpoints</th>
 										<th>Created Date</th>
 										<th class="text-center">Active Status</th>
 										<th class="text-center noExport">action</th>
@@ -80,7 +81,7 @@
 					@if($crud['pdf']==1) ,{extend: 'pdf',className:"{{$Theme['button-size']}}",footer: true,title:  "{{$PageTitle}}","action": DataTableExportOption,exportOptions: {columns: "thead th:not(.noExport)"}} @endif
 				],
 				columnDefs: [
-					{"className": "dt-center", "targets": [7,6]},
+					{"className": "dt-center", "targets": [5,7,8]},
 				]
 			});
 			@endif
