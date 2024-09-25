@@ -924,6 +924,8 @@
                             <tr>
                               <th class="align-middle">Products</th>
                               <th class="text-center align-middle">Availablity</th>
+                              <th class="text-center align-middle">Wholesale / Retail</th>
+                              <th class="text-center align-middle">VendorType</th>
                               <th class="text-center align-middle">Price</th>
                             </tr>
                           </thead>
@@ -2125,40 +2127,77 @@
 								tableBody.append(SubCategoryRow);
 	
 								for (let item of response[SubCategory]) {
-									let newRow = `<tr data-product-id="${item.ProductID}" data-pcid="${item.PCID}" data-pscid="${item.PSCID}">
-													<td><span class="pl-15">${item.ProductName}</span></td>
-													<td class="align-middle">
-														<div class="flex-grow-1 text-center icon-state switch-outline pt-10">
-															<label class="switch">
-																<input class="chkAvailable" type="checkbox"><span class="switch-state bg-secondary"></span>
-															</label>
-														</div>
-													</td>
-													<td>
-														<div class="row justify-content-center">
-															<div class="col-sm-4">
-																<input class="form-control txtPrice" type="number" value="${item.PRate}" disabled>
-																<span class="errors txtPrice-err"></span>
-															</div>
-														</div>
-													</td>
-												</tr>`;
+									let newRow = `
+                                                <tr data-product-id="${item.ProductID}" data-pcid="${item.PCID}" data-pscid="${item.PSCID}" data-enable="0">
+                                                    <td><span class="pl-15">${item.ProductName}</span></td>
+                                                    <td class="align-middle">
+                                                        <div class="flex-grow-1 text-center icon-state switch-outline pt-10">
+                                                            <label class="switch">
+                                                                <input class="chkAvailable" type="checkbox"><span class="switch-state bg-secondary"></span>
+                                                            </label>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div class="row justify-content-center">
+                                                            <div class="col-sm-10">
+                                                                <select class="form-control lstPMSupplyType select2 PMInputs" disabled>
+                                                                    <option value="WholeSale">WholeSale</option>
+                                                                    <option value="Retail">Retail</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div class="row justify-content-center">
+                                                            <div class="col-sm-10">
+                                                                <select class="form-control lstPMVendorType select2 PMInputs" data-select="" disabled>
+                                                                    <option value="">Select a Vendor Type</option>
+                                                                </select>
+                                                                <span class="errors err-sm lstPMVendorType-err"></span>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div class="row justify-content-center">
+                                                            <div class="col-sm-6">
+                                                                <input class="form-control txtPMPrice PMInputs" type="number" value="${item.PRate}" disabled>
+                                                                <span class="errors err-sm txtPMPrice-err"></span>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                    `;
 									tableBody.append(newRow);
 									if(VendorProductData.length > 0) {
 										const matchingProduct = VendorProductData.find(product => product.ProductID === item.ProductID && product.VendorID === VendorID);
 										if (matchingProduct) {
-											const checkbox = tableBody.find(`[data-product-id="${item.ProductID}"] .chkAvailable`);
-											const priceInput = tableBody.find(`[data-product-id="${item.ProductID}"] .txtPrice`);
-		
-											checkbox.prop('checked', true);
-											priceInput.val(matchingProduct.VendorPrice).prop('disabled', false);
-										}
+                                            const row = tableBody.find(`[data-product-id="${item.ProductID}"]`);
+                                            row.attr('data-enable', 1);
+                                            row.find('.txtPMPrice').val(matchingProduct.VendorPrice);
+                                            row.find('.lstPMVendorType').attr('data-select', matchingProduct.VendorTypeID);
+                                            row.find(`.lstPMSupplyType option[value="${matchingProduct.SupplyType}"]`).prop('selected', true);
+                                            row.find('.chkAvailable').prop('checked', true);
+                                        }
 									}
 								}
 							}
 						},
-	
 					});
+                    
+                    $('.lstPMSupplyType, .lstPMVendorType').select2({minimumResultsForSearch: -1});
+
+                    let status = await getVendorType('.lstPMVendorType');
+
+                    tableBody.find('tr[data-enable="1"] .PMInputs').prop('disabled', false);
+                    if(status){
+                        tableBody.find('tr[data-enable="1"] .lstPMVendorType').each(function() {
+                            $(this).select2('destroy');
+                            const selectedValue = $(this).attr('data-select');
+                            $(this).find(`option[value="${selectedValue}"]`).prop('selected', true);
+                            $(this).select2();
+                        });
+                    }
+
 				}else{
 					tableBody.html("");
 				}
@@ -2254,23 +2293,29 @@
 			let productData=[];
 			let nothingSelected = true;
 			let VendorID = $("#txtVendorID").val();
-			if(!VendorID) {
-				$("#txtVendorID-err").html("Vendor Name is required");status = false;
-			}
 			$("#tblVendProdMapping tbody tr").each(function () {
 				let isChecked = $(this).find(".chkAvailable").prop("checked");
-				let Price = $(this).find(".txtPrice").val();
+				let Price = $(this).find(".txtPMPrice").val();
+				let SupplyType = $(this).find(".lstPMSupplyType").val();
+				let VendorType = $(this).find(".lstPMVendorType").val();
 				if(isChecked){
 					nothingSelected = false;
-					if(!Price){
-						$(this).find(".txtPrice-err").html("Price is required");status = false;
+					if(!VendorType){
+						$(this).find(".lstPMVendorType").focus();
+						$(this).find(".lstPMVendorType-err").html("Vendor Type is required");status = false;
+						return false;
+					}else if(!Price){
+						$(this).find(".txtPMPrice").focus();
+						$(this).find(".txtPMPrice-err").html("Price is required");status = false;
 						return false;
 					}else{
 						let PData = {
 							ProductID : $(this).attr("data-product-id"),
 							PCID : $(this).attr("data-pcid"),
 							PSCID : $(this).attr("data-pscid"),
-							VendorPrice : $(this).find(".txtPrice").val(),
+							VendorPrice : $(this).find(".txtPMPrice").val(),
+							SupplyType : $(this).find(".lstPMSupplyType").val(),
+							VendorType : $(this).find(".lstPMVendorType").val(),
 						}
 						productData.push(PData);
 					}
@@ -2280,7 +2325,6 @@
 				toastr.error("Select a Product", "Failed", {positionClass: "toast-top-right",containerId: "toast-top-right",showMethod: "slideDown",hideMethod: "slideUp",progressBar: !0});
 				status = false;
 			}
-			if(status==false){$("html, body").animate({ scrollTop: 0 }, "slow");}
 			let formData = new FormData();
 			formData.append('VendorID', VendorID);
 			formData.append('ProductData', JSON.stringify(productData));
@@ -2290,12 +2334,15 @@
             getPMPSubCategory();
             PMShowHideRows();
         });
+		$(document).on('change','.lstPMVendorType',function(){
+            $(".errors").html("");
+        });
 		$(document).on('change','#lstPMPSubCategory',function(){
 			PMShowHideRows();
         });
 		$(document).on('change', '.chkAvailable', function() {
-			const priceInput = $(this).closest('tr').find('.txtPrice');
-			priceInput.prop('disabled', !this.checked);
+			const Inputs = $(this).closest('tr').find('.txtPMPrice, .lstPMVendorType, .lstPMSupplyType');
+			Inputs.prop('disabled', !this.checked);
 		});
 		$('#btnPMSave').click(async function(){
 			let { formData , status } = await validatePMGetData();
@@ -2575,7 +2622,7 @@
 					let stockPointData = {
 						StockPointID: $(this).attr("data-spid"),
 						Qty: $(this).val(),
-						Price: $(this).closest('tr').find(`.txtPrice[data-spid='${$(this).attr("data-spid")}']`).val(),
+						Price: $(this).closest('tr').find(`.txtPMPrice[data-spid='${$(this).attr("data-spid")}']`).val(),
 					};
 					if (stockData.ProductID) {
 						StockData.push({ ...stockData, ...stockPointData });
@@ -2601,11 +2648,10 @@
 			if (inputValue < 0) {errorElement.text("Quantity cannot be less than 0");} else {errorElement.text("");}
 			$(this).val(inputValue);
 		});
-		$(document).on('input', '.txtPrice', function () {
-			let errorElement = $(this).closest('.divInput').find('.txtPrice-err');
-			let inputValue = parseFloat($(this).val());
-			if (isNaN(inputValue)) {inputValue = 0;}
-			if ($(this).val() < 0) {errorElement.text("Price cannot be less than 0");} else {errorElement.text("");}
+		$(document).on('input', '.txtPMPrice', function () {
+			let errorElement = $(this).closest('.divInput').find('.txtPMPrice-err');
+			let inputValue = $(this).val();
+			if (inputValue < 0) {errorElement.text("Price cannot be less than 0");inputValue = 0;} else {errorElement.text("");}
 			$(this).val(inputValue);
 		});
 
@@ -2665,7 +2711,7 @@
         const init=async()=>{
             showTabs();
             getVendorCategory();
-            getVendorType();
+            getVendorType('#lstVendorType');
             getCountry({},'lstCountry');
             getPCategory();
             getVendor();
@@ -2835,7 +2881,7 @@
                 type:"post",
                 url:"{{url('/')}}/admin/master/vendor/vendors/get/vendor",
                 headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
-                data:{VendorID:"<?php if($isEdit){ echo $VendorID;} ?>"},
+                data:{VendorID:$('#txtVendorID').val()},
                 dataType:"json",
                 async:true,
                 error:function(e, x, settings, exception){ajaxErrors(e, x, settings, exception);},
@@ -3075,31 +3121,41 @@
             });
             $('#lstCategory').select2();
         }
-        const getVendorType=async()=>{
-            $('#lstVendorType').select2('destroy');
-            $('#lstVendorType option').remove();
-            $('#lstVendorType').append('<option value="" selected>Select a Vendor Type</option>');
-            $.ajax({
-                type:"post",
-                url:"{{url('/')}}/admin/master/vendor/vendors/get/vendor-type",
-                headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
-                dataType:"json",
-                async:true,
-                error:function(e, x, settings, exception){ajaxErrors(e, x, settings, exception);},
-                complete: function(e, x, settings, exception){},
-                success:function(response){
-                    for(let Item of response){
-                        let selected="";
-                        if(Item.VendorTypeID==$('#lstVendorType').attr('data-selected')){selected="selected";}
-                        $('#lstVendorType').append('<option '+selected+' value="'+Item.VendorTypeID+'">'+Item.VendorType+' </option>');
+        const getVendorType = async (elem) => {
+            let status = false;
+            $(elem).select2('destroy');
+            $(elem + ' option').remove();
+            $(elem).append('<option value="" selected>Select a Vendor Type</option>');
+
+            const result = await new Promise((resolve, reject) => {
+                $.ajax({
+                    type: "post",
+                    url: "{{url('/')}}/admin/master/vendor/vendors/get/vendor-type",
+                    headers: { 'X-CSRF-Token': $('meta[name=_token]').attr('content') },
+                    dataType: "json",
+                    async: true,
+                    error: function(e, x, settings, exception) {
+                        ajaxErrors(e, x, settings, exception); // Handle any errors
+                        reject(false); // Reject the promise if there's an error
+                    },
+                    success: function(response) {
+                        for (let Item of response) {
+                            let selected = "";
+                            if (Item.VendorTypeID == $(elem).attr('data-selected')) {
+                                selected = "selected";
+                            }
+                            // Append the options based on the response data
+                            $(elem).append('<option ' + selected + ' value="' + Item.VendorTypeID + '">' + Item.VendorType + ' </option>');
+                        }
+                        status = true;
+                        resolve(true); // Resolve the promise successfully
                     }
-                    if($('#lstVendorType').val()!=""){
-                        $('#lstVendorType').trigger('change');
-                    }
-                }
+                });
             });
-            $('#lstVendorType').select2();
-        }
+            $(elem).select2();
+            return result;
+        };
+
         const getCity=async(data)=>{
             return await new Promise((resolve,reject)=>{
                 $.ajax({
@@ -3862,6 +3918,8 @@
             }
         });
         $(document).on('click','#btnSave',async function(){
+            
+            btnLoading($('#btnSave'));
             let status=await formValidation();
             if(status){
                 swal({
@@ -3872,72 +3930,78 @@
                     confirmButtonClass: "btn-outline-success",
                     confirmButtonText: "Yes, @if($isEdit==true)Update @else Save @endif it!",
                     closeOnConfirm: false
-                },async function(){
-                    swal.close();
-                    let formData=await getData();
-                    btnLoading($('#btnSave'));
-                    let postUrl= @if($isEdit) "{{url('/')}}/admin/master/vendor/vendors/edit/{{$VendorID}}";  @else "{{url('/')}}/admin/master/vendor/vendors/create"; @endif
-                    $.ajax({
-                        type:"post",
-                        url:postUrl,
-                        headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
-                        data:formData,
-                        cache: false,
-                        processData: false,
-                        contentType: false,
-                        xhr: function() {
-                            var xhr = new window.XMLHttpRequest();
-                            xhr.upload.addEventListener("progress", function(evt) {
-                                if (evt.lengthComputable) {
-                                    var percentComplete = (evt.loaded / evt.total) * 100;
-                                    percentComplete=parseFloat(percentComplete).toFixed(2);
-                                    $('#divProcessText').html(percentComplete+'% Completed.<br> Please wait for until upload process complete.');
-                                    //Do something with upload progress here
-                                }
-                            }, false);
-                            return xhr;
-                        },
-                        beforeSend: function() {
-                            ajaxIndicatorStart("Please wait Upload Process on going.");
-
-                            var percentVal = '0%';
-                            setTimeout(() => {
-                            $('#divProcessText').html(percentVal+' Completed.<br> Please wait for until upload process complete.');
-                            }, 100);
-                        },
-                        error:function(e, x, settings, exception){ajaxErrors(e, x, settings, exception);},
-                        complete: function(e, x, settings, exception){btnReset($('#btnSave'));ajaxIndicatorStop();$("html, body").animate({ scrollTop: 0 }, "slow");},
-                        success:function(response){
-                            if(response.status==true){
-                                $('#txtVendorID').val(response.VendorID);
-                                toastr.success(response.message, "Success", { positionClass: "toast-top-right", containerId: "toast-top-right", showMethod: "slideDown", hideMethod: "slideUp", progressBar: !0});
-                            }else{
-                                toastr.error(response.message, "Failed", { positionClass: "toast-top-right", containerId: "toast-top-right", showMethod: "slideDown", hideMethod: "slideUp", progressBar: !0});
-                                if(response['errors']!=undefined){
-                                    $('.errors').html('');
-                                    $.each( response['errors'], function( KeyName, KeyValue ) {
-                                        var key=KeyName;
-                                        if(key=="VendorName"){$('#txtVendorName-err').html(KeyValue);}
-                                        if(key=="GSTNo"){$('#txtGSTNo-err').html(KeyValue);}
-                                        if(key=="CID"){$('#lstCategory-err').html(KeyValue);}
-                                        if(key=="VendorType"){$('#lstVendorType-err').html(KeyValue);}
-                                        if(key=="Email"){$('#txtEmail-err').html(KeyValue);}
-                                        if(key=="MobileNumber1"){$('#txtMobileNumber1-err').html(KeyValue);}
-                                        if(key=="MobileNumber2"){$('#txtMobileNumber2-err').html(KeyValue);}
-                                        if(key=="Address"){$('#txtAddress-err').html(KeyValue);}
-                                        if(key=="PostalCode"){$('#txtPostalCode-err').html(KeyValue);}
-                                        if(key=="CityID"){$('#lstCity-err').html(KeyValue);}
-                                        if(key=="TalukID"){$('#lstTaluk-err').html(KeyValue);}
-                                        if(key=="DistrictID"){$('#lstDistricts-err').html(KeyValue);}
-                                        if(key=="StateID"){$('#lstState-err').html(KeyValue);}
-                                        if(key=="CountryID"){$('#lstCountry-err').html(KeyValue);}
-                                        if(key=="ActiveStatus"){$('#lstActiveStatus-err').html(KeyValue);}
-                                    });
+                },async function(isConfirm){
+                    console.log(isConfirm);
+                    if(isConfirm){
+                        swal.close();
+                        let formData=await getData();
+                        let postUrl= @if($isEdit) "{{url('/')}}/admin/master/vendor/vendors/edit/{{$VendorID}}";  @else "{{url('/')}}/admin/master/vendor/vendors/create"; @endif
+                        $.ajax({
+                            type:"post",
+                            url:postUrl,
+                            headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
+                            data:formData,
+                            cache: false,
+                            processData: false,
+                            contentType: false,
+                            xhr: function() {
+                                var xhr = new window.XMLHttpRequest();
+                                xhr.upload.addEventListener("progress", function(evt) {
+                                    if (evt.lengthComputable) {
+                                        var percentComplete = (evt.loaded / evt.total) * 100;
+                                        percentComplete=parseFloat(percentComplete).toFixed(2);
+                                        $('#divProcessText').html(percentComplete+'% Completed.<br> Please wait for until upload process complete.');
+                                        //Do something with upload progress here
+                                    }
+                                }, false);
+                                return xhr;
+                            },
+                            beforeSend: function() {
+                                ajaxIndicatorStart("Please wait Upload Process on going.");
+    
+                                var percentVal = '0%';
+                                setTimeout(() => {
+                                $('#divProcessText').html(percentVal+' Completed.<br> Please wait for until upload process complete.');
+                                }, 100);
+                            },
+                            error:function(e, x, settings, exception){ajaxErrors(e, x, settings, exception);},
+                            complete: function(e, x, settings, exception){btnReset($('#btnSave'));ajaxIndicatorStop();$("html, body").animate({ scrollTop: 0 }, "slow");},
+                            success:function(response){
+                                if(response.status==true){
+                                    response.VendorID ? $('#txtVendorID').val(response.VendorID) : null;
+                                    toastr.success(response.message, "Success", { positionClass: "toast-top-right", containerId: "toast-top-right", showMethod: "slideDown", hideMethod: "slideUp", progressBar: !0});
+                                }else{
+                                    toastr.error(response.message, "Failed", { positionClass: "toast-top-right", containerId: "toast-top-right", showMethod: "slideDown", hideMethod: "slideUp", progressBar: !0});
+                                    if(response['errors']!=undefined){
+                                        $('.errors').html('');
+                                        $.each( response['errors'], function( KeyName, KeyValue ) {
+                                            var key=KeyName;
+                                            if(key=="VendorName"){$('#txtVendorName-err').html(KeyValue);}
+                                            if(key=="GSTNo"){$('#txtGSTNo-err').html(KeyValue);}
+                                            if(key=="CID"){$('#lstCategory-err').html(KeyValue);}
+                                            if(key=="VendorType"){$('#lstVendorType-err').html(KeyValue);}
+                                            if(key=="Email"){$('#txtEmail-err').html(KeyValue);}
+                                            if(key=="MobileNumber1"){$('#txtMobileNumber1-err').html(KeyValue);}
+                                            if(key=="MobileNumber2"){$('#txtMobileNumber2-err').html(KeyValue);}
+                                            if(key=="Address"){$('#txtAddress-err').html(KeyValue);}
+                                            if(key=="PostalCode"){$('#txtPostalCode-err').html(KeyValue);}
+                                            if(key=="CityID"){$('#lstCity-err').html(KeyValue);}
+                                            if(key=="TalukID"){$('#lstTaluk-err').html(KeyValue);}
+                                            if(key=="DistrictID"){$('#lstDistricts-err').html(KeyValue);}
+                                            if(key=="StateID"){$('#lstState-err').html(KeyValue);}
+                                            if(key=="CountryID"){$('#lstCountry-err').html(KeyValue);}
+                                            if(key=="ActiveStatus"){$('#lstActiveStatus-err').html(KeyValue);}
+                                        });
+                                    }
                                 }
                             }
-                        }
-                    });
+                        });
+                    }else{
+                        btnReset($('#btnSave'));
+                    }
                 });
+            }else{
+                btnReset($('#btnSave'));
             }
         });
 
@@ -3955,7 +4019,7 @@
                         url: "{{url('/')}}/admin/master/vendor/vendors/unique-validation",
                         headers: { 'X-CSRF-Token': $('meta[name=_token]').attr('content') },
                         dataType: "json",
-                        data: { MobNo: MobNo, VendorID : "@if($isEdit){{$data->VendorID}}@endif"},
+                        data: { MobNo: MobNo, VendorID : $('#txtVendorID').val()},
                         success: function (response) {
                             if (response) {
                                 $('#txtMobileNumber1-err').removeClass('text-success fw-600 fs-12').addClass('errors').html('Mobile Number already exists!');
@@ -3988,7 +4052,7 @@
                         url: "{{url('/')}}/admin/master/vendor/vendors/unique-validation",
                         headers: { 'X-CSRF-Token': $('meta[name=_token]').attr('content') },
                         dataType: "json",
-                        data : {CoName : CoName, VendorID : "@if($isEdit){{$data->VendorID}}@endif"},
+                        data : {CoName : CoName, VendorID : $('#txtVendorID').val()},
                         success: function (response) {
                             if (response) {
                                 $('#txtCoName-err').removeClass('text-success fw-600 fs-12').addClass('errors').html('Company Name already exists!');
@@ -4022,7 +4086,7 @@
                         url: "{{url('/')}}/admin/master/vendor/vendors/unique-validation",
                         headers: { 'X-CSRF-Token': $('meta[name=_token]').attr('content') },
                         dataType: "json",
-                        data : {Email : Email, VendorID : "@if($isEdit){{$data->VendorID}}@endif"},
+                        data : {Email : Email, VendorID : $('#txtVendorID').val()},
                         success: function (response) {
                             if (response) {
                                 $('#txtEmail-err').removeClass('text-success fw-600 fs-12').addClass('errors').html('This Email already exists!');

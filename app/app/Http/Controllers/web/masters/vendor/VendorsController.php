@@ -31,14 +31,12 @@ class VendorsController extends Controller{
 	private $FileTypes;
     private $Menus;
 	private $generalDB;
-	private $currfyDB;
     public function __construct(){
 		$this->ActiveMenuName=activeMenuNames::Vendors->value;
 		$this->PageTitle="Vendors";
         $this->middleware('auth');
 		$this->FileTypes=Helper::getFileTypes(array("category"=>array("Images","Documents")));
 		$this->generalDB=Helper::getGeneralDB();
-		$this->currfyDB=Helper::getcurrfyDB();
 		$this->middleware(function ($request, $next) {
 			$this->UserID=auth()->user()->UserID;
 			$this->general=new general($this->UserID,$this->ActiveMenuName);
@@ -170,7 +168,7 @@ class VendorsController extends Controller{
 			}
 			//Supply details
 			$sql="SELECT VS.DetailID, VS.VendorID, VS.PCID, PC.PCName, VS.PSCID, PSC.PSCName, VS.DFlag FROM tbl_vendors_supply as VS LEFT JOIN tbl_product_category as PC ON PC.PCID=VS.PCID ";
-			$sql.=" LEFT JOIN tbl_product_subcategory as PSC ON PSC.PSCID=VS.PSCID Where VS.VendorID='".$result[$i]->VendorID."'";
+			$sql.=" LEFT JOIN tbl_product_subcategory as PSC ON PSC.PSCID=VS.PSCID Where VS.DFlag = 0 and VS.VendorID='".$result[$i]->VendorID."'";
 			$SupplyDetails=DB::SELECT($sql);
 
 			//Stock points
@@ -510,7 +508,7 @@ class VendorsController extends Controller{
 			return array('status'=>false,'message'=>'Access denined');
 		}
 	}
-    public function update(Request $req,$VendorID){
+	public function update(Request $req,$VendorID){
 		if($this->general->isCrudAllow($this->CRUD,"edit")==true){
 			$OldData=array();$NewData=array();
 			$ValidDB=array();
@@ -600,7 +598,6 @@ class VendorsController extends Controller{
 			$uploadingImgs=array();// if save failed than upload images remove
 			$isDeleteImage=false;
 			$OldData=$this->getVendor($VendorID);
-			// return $OldData;
 			try {
 				$dir="uploads/master/vendor/manage-vendors/".$VendorID."/";
 				$vdir="uploads/master/vendor/manage-vendors/".$VendorID."/vehicles/";
@@ -652,16 +649,20 @@ class VendorsController extends Controller{
 				}else if($req->removeLogo=="1"){
 					$data['Logo']="";
 				}
-				$pwd = Hash::make($req->Email);
-				$status=DB::table('users')->where('ReferID',$VendorID)->update([
-					"ActiveStatus"=>$req->ActiveStatus,
-					"EMail"=>$req->Email,
-					"UserName"=>$req->Email,
-					"password"=>$pwd,
-					"UpdatedBy"=>$this->UserID,
-					"UpdatedOn"=>date("Y-m-d H:i:s")]);
 				$status=DB::Table('tbl_vendors')->where('VendorID',$VendorID)->update($data);
-
+				if($status){
+					$pwd = Hash::make($req->Email);
+					$status=DB::table('users')->where('ReferID',$VendorID)->update(
+						[
+							"ActiveStatus"=>$req->ActiveStatus,
+							"EMail"=>$req->Email,
+							"UserName"=>$req->Email,
+							"password"=>$pwd,
+							"UpdatedBy"=>$this->UserID,
+							"UpdatedOn"=>date("Y-m-d H:i:s")
+						]
+					);
+				}
 				//Vehicles
 				$VehiclesDetail=array();
 				if($status){
@@ -758,7 +759,7 @@ class VendorsController extends Controller{
 								for($m=0;$m<count($result);$m++){
 									if($status){
 										$RemoveImg[]=$result[$m]->gImage;
-										$status=DB::Table('tbl_vendors_vehicle_images')->where('SLNO',$result[$m]->SLNO)->delete();
+										DB::Table('tbl_vendors_vehicle_images')->where('SLNO',$result[$m]->SLNO)->delete();
 									}
 								}
 							}
@@ -770,48 +771,40 @@ class VendorsController extends Controller{
 					$result=DB::SELECT($sql);
 					for($m=0;$m<count($result);$m++){
 						if($status){
-							$status=DB::Table('tbl_vendors_vehicle')->where('UUID',$result[$m]->UUID)->update(array("DFlag"=>1,"DeletedBy"=>$this->UserID,"DeletedOn"=>date("Y-m-d H:i:s")));
+							DB::Table('tbl_vendors_vehicle')->where('UUID',$result[$m]->UUID)->update(array("DFlag"=>1,"DeletedBy"=>$this->UserID,"DeletedOn"=>date("Y-m-d H:i:s")));
 						}
 					}
 				}else if($status && count($VehiclesDetail)==0){
-					$status=DB::Table('tbl_vendors_vehicle')->where('VendorID',$VendorID)->update(array("DFlag"=>1,"DeletedBy"=>$this->UserID,"DeletedOn"=>date("Y-m-d H:i:s")));
+					DB::Table('tbl_vendors_vehicle')->where('VendorID',$VendorID)->update(array("DFlag"=>1,"DeletedBy"=>$this->UserID,"DeletedOn"=>date("Y-m-d H:i:s")));
 				}
+
 				//supply details
 				$SupplyDetails=json_decode($req->SupplyDetails);
-				$tSupplyDetails=array();
-				foreach($SupplyDetails as $RowIndex=>$data){
-					if($status){
-						$t=DB::Table('tbl_vendors_supply')->where('VendorID',$VendorID)->Where('PCID',$data->PCID)->Where('PSCID',$data->PSCID)->get();
-						if(count($t)<=0){
-							$DetailID = DocNum::getDocNum(docTypes::VendorSupply->value,"",Helper::getCurrentFY());
-							$tSupplyDetails[]=$DetailID;
-							$tdata=array(
-								"DetailID"=>$DetailID,
-								"VendorID"=>$VendorID,
-								"PCID"=>$data->PCID,
-								"PSCID"=>$data->PSCID,
-								"CreatedBy"=>$this->UserID,
-								"CreatedOn"=>date("Y-m-d H:i:s")
-							);
-							$status=DB::Table('tbl_vendors_supply')->insert($tdata);
-							if($status){
-								DocNum::updateDocNum(docTypes::VendorSupply->value);
-							}
-						}else{
-							$tSupplyDetails[]=$t[0]->DetailID;
-						}
-					}
-				}
-				if($status && count($tSupplyDetails)>0){
-					$sql="Select DetailID From tbl_vendors_supply Where VendorID='".$VendorID."' and DetailID not in('".implode("','",$tSupplyDetails)."')";
-					$result=DB::SELECT($sql);
-					for($m=0;$m<count($result);$m++){
+				$PSCIDs=[];
+				foreach($SupplyDetails as $data){
+					$PSCIDs[]=$data->PSCID;
+					$t=DB::Table('tbl_vendors_supply')->where('VendorID',$VendorID)->Where('PCID',$data->PCID)->Where('PSCID',$data->PSCID)->first();
+					if(!$t){
+						$DetailID = DocNum::getDocNum(docTypes::VendorSupply->value,"",Helper::getCurrentFY());
+						$tdata=array(
+							"DetailID"=>$DetailID,
+							"VendorID"=>$VendorID,
+							"PCID"=>$data->PCID,
+							"PSCID"=>$data->PSCID,
+							"CreatedOn"=>date("Y-m-d H:i:s")
+						);
+						$status=DB::Table('tbl_vendors_supply')->insert($tdata);
 						if($status){
-							$status=DB::Table('tbl_vendors_supply')->where('VendorID',$VendorID)->where('DetailID',$result[$m]->DetailID)->update(array("DFlag"=>1,"DeletedBy"=>$this->UserID,"DeletedOn"=>date("Y-m-d H:i:s")));
+							DocNum::updateDocNum(docTypes::VendorSupply->value);
 						}
 					}
 				}
-				
+				if (!empty($PSCIDs)) {
+					DB::Table('tbl_vendors_supply')->where('VendorID',$VendorID)->WhereIn('PSCID',$PSCIDs)->update(['DFlag'=>0,'UpdatedOn'=>date('Y-m-d H:i:s')]);
+					DB::Table('tbl_vendors_supply')->where('VendorID',$VendorID)->WhereNotIn('PSCID',$PSCIDs)->update(['DFlag'=>1,'UpdatedOn'=>date('Y-m-d H:i:s')]);
+					$status=true;
+				}
+
 				//Documents
 				$Documents=json_decode($req->Documents);
 				$tDocuments=array();
@@ -850,7 +843,7 @@ class VendorsController extends Controller{
 					}
 				}
 				if($status && count($tDocuments)>0){
-					$sql="Select SLNO,documents From tbl_vendors_document Where VendorID='".$VendorID."'  and ImgID not in('".implode("','",$tDocuments)."')";
+					$sql="Select SLNO,documents From tbl_vendors_document Where VendorID='".$VendorID."' and ImgID not in('".implode("','",$tDocuments)."')";
 					$result=DB::SELECT($sql);
 					for($m=0;$m<count($result);$m++){
 						if($status){

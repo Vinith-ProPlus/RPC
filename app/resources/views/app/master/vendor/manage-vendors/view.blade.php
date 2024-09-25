@@ -41,7 +41,8 @@
 										<th>Vendor Name</th>
 										<th>Mobile Number</th>
 										<th>Vendor Type</th>
-										<th>District Name</th>
+										<th>District</th>
+										<th class="text-center">No.of.Stockpoints</th>
 										<th>Created Date</th>
 										<th class="text-center">Active Status</th>
 										<th class="text-center noExport">action</th>
@@ -68,7 +69,7 @@
                 "ajax": {"url":"{{url('/')}}/admin/master/vendor/manage-vendors/data?_token="+$('meta[name=_token]').attr('content'),"headers":{ 'X-CSRF-Token' : $('meta[name=_token]').attr('content') } ,"type": "POST"},
 				deferRender: true,
 				responsive: true,
-				dom: 'Bfrtip',
+				dom: 'QBfrtip',
 				"iDisplayLength": 10,
 				"lengthMenu": [[10, 25, 50,100,250,500, -1], [10, 25, 50,100,250,500, "All"]],
 				buttons: [
@@ -80,19 +81,35 @@
 					@if($crud['pdf']==1) ,{extend: 'pdf',className:"{{$Theme['button-size']}}",footer: true,title:  "{{$PageTitle}}","action": DataTableExportOption,exportOptions: {columns: "thead th:not(.noExport)"}} @endif
 				],
 				columnDefs: [
-					{"className": "dt-center", "targets": [7,6]},
-				]
+					{"className": "dt-center", "targets": [5,7,8]},
+				],
+				searchBuilder: {
+					conditions: {
+						string: {
+							'=': {
+								conditionName: 'Equals',
+								init: function (that, column) {
+									return $('<input/>').attr('type', 'text').on('input', function () {
+										that.searchBuilder.rebuild([column, 'equal', $(this).val()]);
+									});
+								}
+							},
+							'!=': {
+								conditionName: 'Not Equals',
+								init: function (that, column) {
+									return $('<input/>').attr('type', 'text').on('input', function () {
+										that.searchBuilder.rebuild([column, 'notEqual', $(this).val()]);
+									});
+								}
+							},
+						}
+					}
+				},
 			});
 			@endif
         }
 		$(document).on('click','.btnEdit',function(){
 			window.location.replace("{{url('/')}}/admin/master/vendor/manage-vendors/edit/"+ $(this).attr('data-id'));
-		});
-		$(document).on('click','.btnEditServiceLocation',function(){
-			window.location.replace("{{url('/')}}/admin/master/vendor/manage-vendors/edit/service-location/"+ $(this).attr('data-id'));
-		});
-		$(document).on('click','.btnEditProductMap',function(){
-			window.location.replace("{{url('/')}}/admin/master/vendor/vendor-product-mapping/edit/"+ $(this).attr('data-id'));
 		});
 		$(document).on('click', '.btnVendorInfo', function (e) {
             e.preventDefault();

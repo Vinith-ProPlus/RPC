@@ -92,6 +92,8 @@ class VendorProductMappingController extends Controller{
 							"DetailID"=>$DetailID,
 							"VendorID"=>$req->VendorID,
 							"ProductID"=>$data['ProductID'],
+							"SupplyType"=>$data['SupplyType'],
+							"VendorTypeID"=>$data['VendorType'],
 							"VendorPrice"=>$data['VendorPrice'],
 							"PCID"=>$data['PCID'],
 							"PSCID"=>$data['PSCID'],
@@ -104,10 +106,15 @@ class VendorProductMappingController extends Controller{
 						}
 						
 					}else{
-						$ExistingPrice=DB::Table('tbl_vendors_product_mapping')->where('VendorID',$req->VendorID)->Where('ProductID',$data['ProductID'])->value('VendorPrice');
-						if($ExistingPrice != $data['VendorPrice']){
-							$status=DB::Table('tbl_vendors_product_mapping')->where('VendorID',$req->VendorID)->Where('ProductID',$data['ProductID'])->update(['VendorPrice' => $data['VendorPrice'],"UpdatedBy"=>$this->UserID,"UpdatedOn"=>date("Y-m-d H:i:s")]);
-						}
+						$status=DB::Table('tbl_vendors_product_mapping')->where('VendorID',$req->VendorID)->Where('ProductID',$data['ProductID'])->update(
+							[
+								"SupplyType"=>$data['SupplyType'],
+								"VendorTypeID"=>$data['VendorType'],
+								'VendorPrice' => $data['VendorPrice'],
+								"UpdatedBy"=>$this->UserID,
+								"UpdatedOn"=>date("Y-m-d H:i:s")
+							]
+						);
 					}
 				}
 				if(count($ProductIDs)>0){
@@ -197,7 +204,7 @@ class VendorProductMappingController extends Controller{
 	}
 	
 	public function getVendorProducts(Request $req){
-		$VendorData= DB::Table('tbl_vendors_product_mapping')->where('Status',1)->Where('VendorID',$req->VendorID)->select('VendorID','ProductID','PCID','PSCID','VendorPrice')->get();
+		$VendorData= DB::Table('tbl_vendors_product_mapping')->where('Status',1)->Where('VendorID',$req->VendorID)->select('VendorID','ProductID','PCID','PSCID','VendorPrice','SupplyType','VendorTypeID')->get();
 		return $VendorData;
 	}
     public function getProducts(Request $req){
