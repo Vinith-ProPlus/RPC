@@ -36,6 +36,55 @@
         s.parentNode.insertBefore( wf, s );
     } )( document );
 </script>
+    <style>
+        a.btn.text-right.text-white:hover {
+            background-color: #0f3b70!important;
+        }
+        #get-app {
+            padding: 15%;
+        }
+        #send-app-link-mobile {
+            margin: 40px 0 40px;
+        }
+        #send-app-link-mobile input[type=text] {
+            border: 1px solid #C4C4C4;
+            border-left: none;
+            border-top-right-radius: 4px;
+            border-bottom-right-radius: 4px;
+            padding: 9px 10px 9px;
+            margin-left: -5px;
+        }
+        #send-app-link-mobile label {
+            border: 1px solid #C4C4C4;
+            border-top-left-radius: 4px;
+            border-bottom-left-radius: 4px;
+            padding: 9px 5px;
+            font-size: 1.4rem;
+            color: #333333;
+        }
+        .app-img {
+            max-width: 300px;
+        }
+
+        .sent-me-link-btn {
+            background-color: #1a67c5;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            margin: 0;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+        .sent-me-link-btn::first-letter {
+            text-transform: uppercase;
+        }
+        #appLinkMobileNumberInput:focus-visible {
+                outline: 0px;
+            }
+        .sent-me-link-btn:hover {
+            background-color: #0f3b70!important;
+        }
+    </style>
 
 </head>
 
@@ -201,6 +250,7 @@
                             </li>
                         </ul>
                     </nav>
+                    <a href="#AppLinkDiv" class="btn text-right text-white" style="background-color: #1a67c5;">Become a vendor</a>
                 </div><!-- End .container -->
             </div><!-- End .header-bottom -->
         </header><!-- End .header -->
@@ -443,38 +493,82 @@
             <section class="subcats-section container">
                 <div class="row">
                     <div class="col-md-4 part-item appear-animate" data-animation-name="fadeInLeftShorter">
-                        <h4>Popular Categories:</h4>
-                        <ul class="list-unstyled mb-0">
-                            @foreach ($PCategories->take(4) as $category)
-                                <li><a href="{{ route('products.guest.subCategoryList', ['CID' => $category->PCID]) }}">{{ $category->PCName }}</a></li>
-                            @endforeach
-                            <li><a class="show-action" href="{{ route('products.guest.categoriesList') }}">Show All</a></li>
-                        </ul>
+                        <div class="col-md-6">
+                            <h4>Popular Categories:</h4>
+                        </div>
+                        <div class="col-md-6">
+                            <ul class="list-unstyled mb-0">
+                                @foreach ($PCategories->take(4) as $category)
+                                    <li>
+                                        <a href="{{ route('products.guest.subCategoryList', ['CID' => $category->PCID]) }}">{{ $category->PCName }}</a>
+                                    </li>
+                                @endforeach
+                                <li><a class="show-action" href="{{ route('products.guest.categoriesList') }}">Show
+                                        All</a></li>
+                            </ul>
+                        </div>
                     </div>
                     <div class="col-md-4 part-item appear-animate" data-animation-name="fadeInLeftShorter"
-                        data-animation-delay="200">
-                        <h3>Popular Sub-Catgeories:</h3>
-                        <ul class="list-unstyled mb-0">
-                            @foreach ($PCategories->shuffle()->take(4) as $category)
-                                <li><a href="{{ route('products.guest.subCategoryList', ['CID' => $category->PCID]) }}">{{ $category->PCName }}</a></li>
-                            @endforeach
-                            <li><a class="show-action" href="{{ route('products.guest.categoriesList') }}">Show All</a></li>
-                        </ul>
+                         data-animation-delay="200">
+                        <div class="col-md-6">
+                            <h3>Popular Sub-Categories:</h3>
+                        </div>
+                        <div class="col-md-6">
+                            <ul class="list-unstyled mb-0">
+                                @foreach ($PCategories->shuffle()->take(4) as $category)
+                                    <li>
+                                        <a href="{{ route('products.guest.subCategoryList', ['CID' => $category->PCID]) }}">{{ $category->PCName }}</a>
+                                    </li>
+                                @endforeach
+                                <li><a class="show-action" href="{{ route('products.guest.categoriesList') }}">Show
+                                        All</a></li>
+                            </ul>
+                        </div>
                     </div>
                     <div class="col-md-4 part-item appear-animate" data-animation-name="fadeInLeftShorter"
-                        data-animation-delay="400">
-                        <h3>Popular Products:</h3>
-                        <ul class="list-unstyled mb-0">
-                            @foreach ($PCategories->shuffle()->take(4) as $category)
-                                <li><a href="{{ route('products.guest.subCategoryList', ['CID' => $category->PCID]) }}">{{ $category->PCName }}</a></li>
-                            @endforeach
-                            <li><a class="show-action" href="{{ route('products.guest.categoriesList') }}">Show All</a></li>
-                        </ul>
+                         data-animation-delay="400">
+                        <div class="col-md-6">
+                            <h3>Popular Products:</h3>
+                        </div>
+                        <div class="col-md-6">
+                            <ul class="list-unstyled mb-0">
+                                @foreach ($PCategories->shuffle()->take(4) as $category)
+                                    <li>
+                                        <a href="{{ route('products.guest.subCategoryList', ['CID' => $category->PCID]) }}">{{ $category->PCName }}</a>
+                                    </li>
+                                @endforeach
+                                <li><a class="show-action" href="{{ route('products.guest.categoriesList') }}">Show
+                                        All</a></li>
+                            </ul>
+                        </div>
                     </div>
-
                 </div>
             </section>
-
+            <div class="container" id="AppLinkDiv" style="border-top: 1px solid #e7e7e7;">
+                <div class="row" style="padding: 50px 15px;">
+                    <div class="col-md-4 col-sm-12 d-flex justify-content-center align-items-center">
+                        <div style="padding: 15px;">
+                            <img src="https://hm.imimg.com/imhome_gifs/app-img.png" alt="Get RPC App" class="app-img">
+                        </div>
+                    </div>
+                    <div class="col-md-8 col-sm-12 d-flex justify-content-center align-items-center">
+                        <div id="get-app">
+                            <h3><b>Get RPC App</b></h3>
+                            <p>Search for products/services and connect with verified sellers on the go!</p>
+                            <div id="send-app-link-mobile">
+                                <label style="font-weight: 600; margin: 0;">+91</label>
+                                <input type="text" placeholder="Enter Mobile Number" id="appLinkMobileNumberInput" maxlength="10" autocomplete="off">
+                                <button class="sent-me-link-btn">Sent me the link</button>
+                                <div id="app-link-err-msg"></div>
+                                <p>We will send you a link, open it on your phone to download the App</p>
+                            </div>
+                            <div id="download-app-buttons" style="width: 150px !important;">
+                                <a target="_blank" href="{{ $AndroidAppUrl ?? '#' }}"><img alt="Google PlayStore logo" src="{{ url('assets/images/logo/google-play-badge-logo.png') }}" style="width:150px;"></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </main>
         <!-- End .main -->
 
@@ -772,6 +866,11 @@
              }
 
              setInterval(showNextSlide, 5000);
+
+             $('#appLinkMobileNumberInput').on('input', function() {
+                 var sanitizedValue = $(this).val().replace(/\D/g, '');
+                 $(this).val(sanitizedValue);
+             });
 
              $('.redirectLogin').on('click', function(){
                  $('#loginBtn').click();

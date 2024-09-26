@@ -103,6 +103,17 @@
 											</div>
 										</div>
 									</div>
+									<div class="form-row mt-20">
+										<div class="col-sm-6"><b>Android App URL :</b></div>
+										<div class="col-sm-6">
+											<div class="form-group">
+												<div class="input-group">
+													<input type="text" class="form-control" id="txtAndroidAppUrl" value="{{ $Settings['android-app-url'] ?? '' }}" @if($crud['edit']==false) disabled @endif>
+												</div>
+												<div class="errors" id="txtAndroidAppUrl-err"></div>
+											</div>
+										</div>
+									</div>
 									{{-- <div class="form-row">
 										<div class="col-sm-6"><b>Front End Loading Text :</b></div>
 										<div class="col-sm-6">
@@ -126,7 +137,7 @@
 										</div>
 									</div> --}}
                                 </div>
-                                
+
                                 <div class="tab-pane fade" id="pills-map" role="tabpanel" aria-labelledby="pills-map-tab">
                                     <div class="row d-flex justify-content-center mb-10">
                                         <div class="col-sm-3 col-11">
@@ -151,7 +162,7 @@
                                 </div>
 
                                 <div class="tab-pane fade  " id="pills-social-media-links" role="tabpanel" aria-labelledby="pills-social-media-links-tab">
-                                    
+
 									<div class="form-row">
 										<div class="col-sm-4 pt-15"><b>Facebook :</b></div>
 										<div class="col-sm-8">
@@ -241,6 +252,7 @@
 				formData.append('price-decimals',$('#lstPrice').val());
 				formData.append('percentage-decimals',$('#lstPercentage').val());
 				formData.append('upload-limit',$('#txtImgUploadSize').val()+$('#lstImgUploadSizeType').val());
+				formData.append('android-app-url',$('#txtAndroidAppUrl').val());
 				// formData.append('home-page-loading-text',$('#txtLoadingText').val());
 				// formData.append('home-page-loading-text-font-size',$('#lstLoadingTextSize').val());
             }
@@ -260,7 +272,7 @@
             }
         });
         $(document).on('click','#btnUpdate',function(){
-            
+
 			let formData= getData();
 			swal({
 				title: "Are you sure?",
@@ -287,14 +299,14 @@
 					success:function(response){
 						document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
 						if(response.status==true){
-							
+
 							toastr.success(response.message, "Success", {
 								positionClass: "toast-top-right",
 								containerId: "toast-top-right",
 								showMethod: "slideDown",
 								hideMethod: "slideUp",
 								progressBar: !0
-							})   
+							})
 						}else{
 							toastr.error(response.message, "Failed", {
 								positionClass: "toast-top-right",
