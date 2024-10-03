@@ -400,7 +400,7 @@
                                       <li class="general_options active"><a href="#general-tab"><span>General</span></a></li>
                                       <li class="address_options "><a href="#address-tab"><span>Address</span></a></li>
                                       <li class="transport_details_options "><a href="#transport-tab"><span>Transport Details</span></a></li>
-                                      <li class="supply_details_options  " ><a href="#supply-details-tab"><span>Supply Details</span></a></li>
+                                      <li class="supply_details_options"  ><a href="#supply-details-tab"><span>Supply Details</span></a></li>
                                       <li class="documents_options " ><a href="#vendor-documents-tab"><span>Documents</span></a></li>
                                   </ul>
                                   <div class="tab-contents" id="general-tab">
@@ -924,8 +924,8 @@
                             <tr>
                               <th class="align-middle">Products</th>
                               <th class="text-center align-middle">Availablity</th>
-                              <th class="text-center align-middle">Wholesale / Retail</th>
-                              <th class="text-center align-middle">VendorType</th>
+                              <th class="text-center align-middle">Supply Type</th>
+                              <th class="text-center align-middle">Vendor Type</th>
                               <th class="text-center align-middle">Price</th>
                             </tr>
                           </thead>
@@ -2095,11 +2095,13 @@
 			let status = await getVendorProducts();
 			if(status){
 				const tableBody = $("#tblVendProdMapping tbody");
+                tableBody.html("");
 				if(VendorID){
 					let FormData = {
 						PCID:[],
 						PSCID:[],
 					}
+					
 					$('#tblSupplyDetails tbody tr td.tdata').each(function(index){
 						let t=JSON.parse($(this).html());
 						if (!FormData.PCID.includes(t.PCID)) {
@@ -2109,97 +2111,99 @@
 							FormData.PSCID.push(t.PSCID);
 						}
 					});
-					$.ajax({
-						type: "post",
-						url: "{{url('/')}}/admin/master/vendor/vendor-product-mapping/get/product-data",
-						headers: { 'X-CSRF-Token': $('meta[name=_token]').attr('content') },
-						dataType: "json",
-						data: FormData,
-						async: false,
-						error: function (e, x, settings, exception) {
-							ajaxErrors(e, x, settings, exception);
-						},
-						complete: function (e, x, settings, exception) {},
-						success: async function (response) {
-							tableBody.html("");
-							for (let SubCategory in response) {
-								const SubCategoryRow = `<tr data-pcid="${response[SubCategory][0].PCID}" data-pscid="${response[SubCategory][0].PSCID}"><th colspan="3" class="text-dark font-weight-bold fs-15">${response[SubCategory][0].PCName} - ${SubCategory}</th></tr>`;
-								tableBody.append(SubCategoryRow);
-	
-								for (let item of response[SubCategory]) {
-									let newRow = `
-                                                <tr data-product-id="${item.ProductID}" data-pcid="${item.PCID}" data-pscid="${item.PSCID}" data-enable="0">
-                                                    <td><span class="pl-15">${item.ProductName}</span></td>
-                                                    <td class="align-middle">
-                                                        <div class="flex-grow-1 text-center icon-state switch-outline pt-10">
-                                                            <label class="switch">
-                                                                <input class="chkAvailable" type="checkbox"><span class="switch-state bg-secondary"></span>
-                                                            </label>
-                                                        </div>
-                                                    </td>
-                                                    <td>
-                                                        <div class="row justify-content-center">
-                                                            <div class="col-sm-10">
-                                                                <select class="form-control lstPMSupplyType select2 PMInputs" disabled>
-                                                                    <option value="WholeSale">WholeSale</option>
-                                                                    <option value="Retail">Retail</option>
-                                                                </select>
+                    if(FormData.PSCID.length < 1) {
+                        toastr.error("Please Add Supply Details!", "Failed", { positionClass: "toast-top-right", containerId: "toast-top-right", showMethod: "slideDown", hideMethod: "slideUp", progressBar: !0});
+                        $('div.setup-panel div a.btn-primary').first().trigger('click');
+                        $('li.supply_details_options a[href="#supply-details-tab"]').trigger('click');
+                    }else{
+                        $.ajax({
+                            type: "post",
+                            url: "{{url('/')}}/admin/master/vendor/vendor-product-mapping/get/product-data",
+                            headers: { 'X-CSRF-Token': $('meta[name=_token]').attr('content') },
+                            dataType: "json",
+                            data: FormData,
+                            async: false,
+                            error: function (e, x, settings, exception) {
+                                ajaxErrors(e, x, settings, exception);
+                            },
+                            complete: function (e, x, settings, exception) {},
+                            success: async function (response) {
+                                for (let SubCategory in response) {
+                                    const SubCategoryRow = `<tr data-pcid="${response[SubCategory][0].PCID}" data-pscid="${response[SubCategory][0].PSCID}"><th colspan="3" class="text-dark font-weight-bold fs-15">${response[SubCategory][0].PCName} - ${SubCategory}</th></tr>`;
+                                    tableBody.append(SubCategoryRow);
+                                    for (let item of response[SubCategory]) {
+                                        let newRow = `
+                                                    <tr data-product-id="${item.ProductID}" data-pcid="${item.PCID}" data-pscid="${item.PSCID}" data-enable="0">
+                                                        <td><span class="pl-15">${item.ProductName}</span></td>
+                                                        <td class="align-middle">
+                                                            <div class="flex-grow-1 text-center icon-state switch-outline pt-10">
+                                                                <label class="switch">
+                                                                    <input class="chkAvailable" type="checkbox"><span class="switch-state bg-secondary"></span>
+                                                                </label>
                                                             </div>
-                                                        </div>
-                                                    </td>
-                                                    <td>
-                                                        <div class="row justify-content-center">
-                                                            <div class="col-sm-10">
-                                                                <select class="form-control lstPMVendorType select2 PMInputs" data-select="" disabled>
-                                                                    <option value="">Select a Vendor Type</option>
-                                                                </select>
-                                                                <span class="errors err-sm lstPMVendorType-err"></span>
+                                                        </td>
+                                                        <td>
+                                                            <div class="row justify-content-center">
+                                                                <div class="col-sm-10">
+                                                                    <select class="form-control lstPMSupplyType select2 PMInputs" disabled>
+                                                                        <option value="WholeSale">WholeSale</option>
+                                                                        <option value="Retail">Retail</option>
+                                                                        <option value="Both">Both</option>
+                                                                    </select>
+                                                                </div>
                                                             </div>
-                                                        </div>
-                                                    </td>
-                                                    <td>
-                                                        <div class="row justify-content-center">
-                                                            <div class="col-sm-6">
-                                                                <input class="form-control txtPMPrice PMInputs" type="number" value="${item.PRate}" disabled>
-                                                                <span class="errors err-sm txtPMPrice-err"></span>
+                                                        </td>
+                                                        <td>
+                                                            <div class="row justify-content-center">
+                                                                <div class="col-sm-10">
+                                                                    <select class="form-control lstPMVendorType select2 PMInputs" data-select="" disabled>
+                                                                        <option value="">Select a Vendor Type</option>
+                                                                    </select>
+                                                                    <span class="errors err-sm lstPMVendorType-err"></span>
+                                                                </div>
                                                             </div>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                    `;
-									tableBody.append(newRow);
-									if(VendorProductData.length > 0) {
-										const matchingProduct = VendorProductData.find(product => product.ProductID === item.ProductID && product.VendorID === VendorID);
-										if (matchingProduct) {
-                                            const row = tableBody.find(`[data-product-id="${item.ProductID}"]`);
-                                            row.attr('data-enable', 1);
-                                            row.find('.txtPMPrice').val(matchingProduct.VendorPrice);
-                                            row.find('.lstPMVendorType').attr('data-select', matchingProduct.VendorTypeID);
-                                            row.find(`.lstPMSupplyType option[value="${matchingProduct.SupplyType}"]`).prop('selected', true);
-                                            row.find('.chkAvailable').prop('checked', true);
+                                                        </td>
+                                                        <td>
+                                                            <div class="row justify-content-center">
+                                                                <div class="col-sm-6">
+                                                                    <input class="form-control txtPMPrice PMInputs" type="number" value="${item.PRate}" disabled>
+                                                                    <span class="errors err-sm txtPMPrice-err"></span>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                        `;
+                                        tableBody.append(newRow);
+                                        if(VendorProductData.length > 0) {
+                                            const matchingProduct = VendorProductData.find(product => product.ProductID === item.ProductID && product.VendorID === VendorID);
+                                            if (matchingProduct) {
+                                                const row = tableBody.find(`[data-product-id="${item.ProductID}"]`);
+                                                row.attr('data-enable', 1);
+                                                row.find('.txtPMPrice').val(matchingProduct.VendorPrice);
+                                                row.find('.lstPMVendorType').attr('data-select', matchingProduct.VendorTypeID);
+                                                row.find(`.lstPMSupplyType option[value="${matchingProduct.SupplyType}"]`).prop('selected', true);
+                                                row.find('.chkAvailable').prop('checked', true);
+                                            }
                                         }
-									}
-								}
-							}
-						},
-					});
-                    
-                    $('.lstPMSupplyType, .lstPMVendorType').select2({minimumResultsForSearch: -1});
-
-                    let status = await getVendorType('.lstPMVendorType');
-
-                    tableBody.find('tr[data-enable="1"] .PMInputs').prop('disabled', false);
-                    if(status){
-                        tableBody.find('tr[data-enable="1"] .lstPMVendorType').each(function() {
-                            $(this).select2('destroy');
-                            const selectedValue = $(this).attr('data-select');
-                            $(this).find(`option[value="${selectedValue}"]`).prop('selected', true);
-                            $(this).select2();
+                                    }
+                                }
+                            },
                         });
+                        
+                        $('.lstPMSupplyType, .lstPMVendorType').select2({minimumResultsForSearch: -1});
+    
+                        let status = await getVendorType('.lstPMVendorType');
+    
+                        tableBody.find('tr[data-enable="1"] .PMInputs').prop('disabled', false);
+                        if(status){
+                            tableBody.find('tr[data-enable="1"] .lstPMVendorType').each(function() {
+                                $(this).select2('destroy');
+                                const selectedValue = $(this).attr('data-select');
+                                $(this).find(`option[value="${selectedValue}"]`).prop('selected', true);
+                                $(this).select2();
+                            });
+                        }
                     }
-
-				}else{
-					tableBody.html("");
 				}
 			}
 		}
@@ -2419,14 +2423,21 @@
 		const LoadStockData = async () => {
 			$(".errors").html("");
 			await recreateSUTable();
+            let status = true;
 			let VendorID=$("#txtVendorID").val();
 			let stockUpdateTable = $("#tblVendStockUpdate");
 			let stockUpdateTableHead = $("#tblVendStockUpdate thead");
 			let stockUpdateTableBody = $("#tblVendStockUpdate tbody");
 
 			if(VendorID){
-				let status = await getVendorStockData(VendorID);
-				if(status){
+                if($('#tblSupplyDetails tbody tr').length < 1){
+                    toastr.error("Please Add Supply Details!", "Failed", { positionClass: "toast-top-right", containerId: "toast-top-right", showMethod: "slideDown", hideMethod: "slideUp", progressBar: !0});
+                    $('div.setup-panel div a.btn-primary').first().trigger('click');
+                    $('li.supply_details_options a[href="#supply-details-tab"]').trigger('click');
+                    status = false;
+                }
+
+				if(status && await getVendorStockData(VendorID)){
 					let FormData = {
 						VendorID: VendorID,
 					}
@@ -2556,7 +2567,7 @@
             $('#tblSupplyDetails tbody tr td.tdata').each(function(index){
                 let t=JSON.parse($(this).html());
                 if (PCID == t.PCID && !PSCIDs.includes(t.PSCID)) {
-                PSCIDs.push(t.PSCID);
+                    PSCIDs.push(t.PSCID);
                 }
             });
             $('#lstSUPSubCategory').select2('destroy');
@@ -3565,6 +3576,12 @@
                     }
                 }
             }
+			if($('#tblSupplyDetails tbody tr').length < 1){
+                toastr.error("Please Add Supply Details!", "Failed", { positionClass: "toast-top-right", containerId: "toast-top-right", showMethod: "slideDown", hideMethod: "slideUp", progressBar: !0});
+                $('div.setup-panel div a.btn-primary').first().trigger('click');
+                $('li.supply_details_options a[href="#supply-details-tab"]').trigger('click');
+                status = false;
+            }
 
             if(status){
                 status = await MobNoValidation(data.MobileNumber1);
@@ -3601,12 +3618,8 @@
                 Vehicles.push(t);
             });
             $('#tblSupplyDetails tbody tr td.tdata').each(function(index){
-                try {
-                    let t=JSON.parse($(this).html());
-                    supplyDetails.push(t);
-                } catch (error) {
-                    console.log(error);
-                }
+                let t=JSON.parse($(this).html());
+                supplyDetails.push(t);
             });
 
             let formData=new FormData();
@@ -3878,11 +3891,6 @@
                     }
                 }
                 if (status && !ExistStatus) {
-                    let TableLength = $("#tblSupplyDetails tbody tr").length;
-                    if (TableLength == 1){
-                        //let table = $('#tblSupplyDetails').DataTable();
-                        //table.destroy();
-                    }
                     PData.forEach(function (data) {
                         let html = '<tr >';
                         html += '<td>' + data.PCName + '</td>';
@@ -3892,8 +3900,6 @@
                         html += '</tr>';
                         $('#tblSupplyDetails tbody').append(html);
                     });
-                    //$('#tblSupplyDetails').DataTable();
-
                     $('#lstPCategory').val('').trigger('change');
                 }
 
@@ -3931,7 +3937,6 @@
                     confirmButtonText: "Yes, @if($isEdit==true)Update @else Save @endif it!",
                     closeOnConfirm: false
                 },async function(isConfirm){
-                    console.log(isConfirm);
                     if(isConfirm){
                         swal.close();
                         let formData=await getData();

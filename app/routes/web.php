@@ -12,6 +12,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Home\HomeController;
 use App\Http\Controllers\SocialController;
 use App\Http\Controllers\web\SupportController;
+use App\Http\Controllers\web\tableConfigController;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 
@@ -117,6 +118,10 @@ Route::controller(HomeController::class)->group(function () {
     Route::get('/', 'GuestView')->name('homepage');
 });
 
+Route::controller(tableConfigController::class)->group(function () {
+    Route::post('/get/table/config/{UserID}/{module}', 'getTableConfig')->name('admin.get.table.config');
+    Route::post('/save/table/config/{UserID}/{module}', 'saveTableConfig')->name('admin.save.table.config');
+});
 Route::controller(HomeAuthController::class)->group(function () {
     Route::get('/customer-register', 'Register')->name('customer-register');
     Route::get('/customer-profile', 'Profile')->name('customer-profile');

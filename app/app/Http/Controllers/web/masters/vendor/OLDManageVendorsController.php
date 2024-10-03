@@ -31,12 +31,14 @@ class ManageVendorsController extends Controller{
 	private $FileTypes;
     private $Menus;
 	private $generalDB;
+	private $currfyDB;
     public function __construct(){
-		$this->ActiveMenuName=activeMenuNames::ManageVendors->value;
+		$this->ActiveMenuName=activeMenuNames::Vendors->value;
 		$this->PageTitle="Manage Vendors";
         $this->middleware('auth');
 		$this->FileTypes=Helper::getFileTypes(array("category"=>array("Images","Documents")));
 		$this->generalDB=Helper::getGeneralDB();
+		$this->currfyDB=Helper::getcurrfyDB();
 		$this->middleware(function ($request, $next) {
 			$this->UserID=auth()->user()->UserID;
 			$this->general=new general($this->UserID,$this->ActiveMenuName);
@@ -92,6 +94,7 @@ class ManageVendorsController extends Controller{
 			$FormData['ActiveMenuName']=$this->ActiveMenuName;
 			$FormData['PageTitle']=$this->PageTitle;
 			$FormData['isEdit']=false;
+			$FormData['isEditSL']=false;
 			$FormData['FileTypes']=$this->FileTypes;
             return view('app.master.vendor.manage-vendors.create',$FormData);
         }elseif($this->general->isCrudAllow($this->CRUD,"view")==true){
@@ -118,11 +121,47 @@ class ManageVendorsController extends Controller{
 			$FormData['ActiveMenuName']=$this->ActiveMenuName;
 			$FormData['PageTitle']=$this->PageTitle;
 			$FormData['isEdit']=true;
+			$FormData['isEditSL']=false;
 			$FormData['FileTypes']=$this->FileTypes;
 			$FormData['VendorID']=$VendorID;
 			$FormData['data']=$this->getVendor($VendorID);
 			if(count($FormData['data'])>0){
 				$FormData['data']=$FormData['data'][0];
+				return view('app.master.vendor.manage-vendors.create',$FormData);
+			}else{
+				return view('errors.403');
+			}
+        }elseif($this->general->isCrudAllow($this->CRUD,"view")==true){
+            return Redirect::to('/admin/master/vendor/manage-vendors/');
+        }else{
+            return view('errors.403');
+        }
+    }
+    public function editServiceLocation(Request $req,$VendorID){
+        if($this->general->isCrudAllow($this->CRUD,"edit")==true){
+            $OtherCruds=array(
+				"Country"=>$this->general->getCrudOperations(activeMenuNames::Country->value),
+				"States"=>$this->general->getCrudOperations(activeMenuNames::States->value),
+				"Districts"=>$this->general->getCrudOperations(activeMenuNames::Districts->value),
+				"Taluks"=>$this->general->getCrudOperations(activeMenuNames::Taluks->value),
+				"PostalCodes"=>$this->general->getCrudOperations(activeMenuNames::PostalCodes->value),
+				"City"=>$this->general->getCrudOperations(activeMenuNames::City->value),
+				"Category"=>$this->general->getCrudOperations(activeMenuNames::VendorCategory->value),
+			);
+            $FormData=$this->general->UserInfo;
+			$FormData['OtherCruds']=$OtherCruds;
+            $FormData['menus']=$this->Menus;
+            $FormData['crud']=$this->CRUD;
+			$FormData['ActiveMenuName']=$this->ActiveMenuName;
+			$FormData['PageTitle']=$this->PageTitle;
+			$FormData['isEdit']=true;
+			$FormData['isEditSL']=true;
+			$FormData['FileTypes']=$this->FileTypes;
+			$FormData['VendorID']=$VendorID;
+			$FormData['data']=$this->getVendor($VendorID);
+			if(count($FormData['data'])>0){
+				$FormData['data']=$FormData['data'][0];
+				// return view('app.master.vendor.manage-vendors.service-location',$FormData);
 				return view('app.master.vendor.manage-vendors.create',$FormData);
 			}else{
 				return view('errors.403');
@@ -143,7 +182,7 @@ class ManageVendorsController extends Controller{
 		$result=DB::SELECT($sql);
 		for($i=0;$i<count($result);$i++){
 			//Documents
-			$Documents=DB::Table('tbl_vendors_document as VD')->leftJoin('tbl_vendor_required_documents as VRD','VRD.DocName','VD.DocName')->where('VD.VendorID',$result[$i]->VendorID)->select('documents','DisplayName','VD.DocName')->get();
+			$Documents=DB::Table('tbl_vendors_document as VD')->leftJoin('tbl_vendor_required_documents as VRD','VRD.DocName','VD.DocName')->where('VD.VendorID',$result[$i]->VendorID)->select('documents','DisplayName')->get();
 			for($k=0;$k<count($Documents);$k++){
 				$Documents[$k]->ext= pathinfo($Documents[$k]->documents,PATHINFO_EXTENSION);
 				$Documents[$k]->fileName= basename($Documents[$k]->documents);
@@ -168,7 +207,7 @@ class ManageVendorsController extends Controller{
 			}
 			//Supply details
 			$sql="SELECT VS.DetailID, VS.VendorID, VS.PCID, PC.PCName, VS.PSCID, PSC.PSCName, VS.DFlag FROM tbl_vendors_supply as VS LEFT JOIN tbl_product_category as PC ON PC.PCID=VS.PCID ";
-			$sql.=" LEFT JOIN tbl_product_subcategory as PSC ON PSC.PSCID=VS.PSCID Where VS.DFlag = 0 and VS.VendorID='".$result[$i]->VendorID."'";
+			$sql.=" LEFT JOIN tbl_product_subcategory as PSC ON PSC.PSCID=VS.PSCID Where VS.VendorID='".$result[$i]->VendorID."'";
 			$SupplyDetails=DB::SELECT($sql);
 
 			//Stock points
@@ -496,7 +535,7 @@ class ManageVendorsController extends Controller{
 				foreach($RemoveImg as $index=>$Img){
 					Helper::removeFile($Img);
 				}
-				return array('status'=>true,'message'=>"Vendor Created Successfully","VendorID"=>$VendorID);
+				return array('status'=>true,'message'=>"Vendor Created Successfully");
 			}else{
 				DB::rollback();
 				foreach($uploadingImgs as $index=>$Img){
@@ -508,7 +547,7 @@ class ManageVendorsController extends Controller{
 			return array('status'=>false,'message'=>'Access denined');
 		}
 	}
-	public function update(Request $req,$VendorID){
+    public function update(Request $req,$VendorID){
 		if($this->general->isCrudAllow($this->CRUD,"edit")==true){
 			$OldData=array();$NewData=array();
 			$ValidDB=array();
@@ -598,6 +637,7 @@ class ManageVendorsController extends Controller{
 			$uploadingImgs=array();// if save failed than upload images remove
 			$isDeleteImage=false;
 			$OldData=$this->getVendor($VendorID);
+			// return $OldData;
 			try {
 				$dir="uploads/master/vendor/manage-vendors/".$VendorID."/";
 				$vdir="uploads/master/vendor/manage-vendors/".$VendorID."/vehicles/";
@@ -649,20 +689,16 @@ class ManageVendorsController extends Controller{
 				}else if($req->removeLogo=="1"){
 					$data['Logo']="";
 				}
+				$pwd = Hash::make($req->Email);
+				$status=DB::table('users')->where('ReferID',$VendorID)->update([
+					"ActiveStatus"=>$req->ActiveStatus,
+					"EMail"=>$req->Email,
+					"UserName"=>$req->Email,
+					"password"=>$pwd,
+					"UpdatedBy"=>$this->UserID,
+					"UpdatedOn"=>date("Y-m-d H:i:s")]);
 				$status=DB::Table('tbl_vendors')->where('VendorID',$VendorID)->update($data);
-				if($status){
-					$pwd = Hash::make($req->Email);
-					$status=DB::table('users')->where('ReferID',$VendorID)->update(
-						[
-							"ActiveStatus"=>$req->ActiveStatus,
-							"EMail"=>$req->Email,
-							"UserName"=>$req->Email,
-							"password"=>$pwd,
-							"UpdatedBy"=>$this->UserID,
-							"UpdatedOn"=>date("Y-m-d H:i:s")
-						]
-					);
-				}
+
 				//Vehicles
 				$VehiclesDetail=array();
 				if($status){
@@ -759,7 +795,7 @@ class ManageVendorsController extends Controller{
 								for($m=0;$m<count($result);$m++){
 									if($status){
 										$RemoveImg[]=$result[$m]->gImage;
-										DB::Table('tbl_vendors_vehicle_images')->where('SLNO',$result[$m]->SLNO)->delete();
+										$status=DB::Table('tbl_vendors_vehicle_images')->where('SLNO',$result[$m]->SLNO)->delete();
 									}
 								}
 							}
@@ -771,40 +807,46 @@ class ManageVendorsController extends Controller{
 					$result=DB::SELECT($sql);
 					for($m=0;$m<count($result);$m++){
 						if($status){
-							DB::Table('tbl_vendors_vehicle')->where('UUID',$result[$m]->UUID)->update(array("DFlag"=>1,"DeletedBy"=>$this->UserID,"DeletedOn"=>date("Y-m-d H:i:s")));
+							$status=DB::Table('tbl_vendors_vehicle')->where('UUID',$result[$m]->UUID)->update(array("DFlag"=>1,"DeletedBy"=>$this->UserID,"DeletedOn"=>date("Y-m-d H:i:s")));
 						}
 					}
-				}else if($status && count($VehiclesDetail)==0){
-					DB::Table('tbl_vendors_vehicle')->where('VendorID',$VendorID)->update(array("DFlag"=>1,"DeletedBy"=>$this->UserID,"DeletedOn"=>date("Y-m-d H:i:s")));
 				}
-
 				//supply details
 				$SupplyDetails=json_decode($req->SupplyDetails);
-				$PSCIDs=[];
-				foreach($SupplyDetails as $data){
-					$PSCIDs[]=$data->PSCID;
-					$t=DB::Table('tbl_vendors_supply')->where('VendorID',$VendorID)->Where('PCID',$data->PCID)->Where('PSCID',$data->PSCID)->first();
-					if(!$t){
-						$DetailID = DocNum::getDocNum(docTypes::VendorSupply->value,"",Helper::getCurrentFY());
-						$tdata=array(
-							"DetailID"=>$DetailID,
-							"VendorID"=>$VendorID,
-							"PCID"=>$data->PCID,
-							"PSCID"=>$data->PSCID,
-							"CreatedOn"=>date("Y-m-d H:i:s")
-						);
-						$status=DB::Table('tbl_vendors_supply')->insert($tdata);
-						if($status){
-							DocNum::updateDocNum(docTypes::VendorSupply->value);
+				$tSupplyDetails=array();
+				foreach($SupplyDetails as $RowIndex=>$data){
+					if($status){
+						$t=DB::Table('tbl_vendors_supply')->where('VendorID',$VendorID)->Where('PCID',$data->PCID)->Where('PSCID',$data->PSCID)->get();
+						if(count($t)<=0){
+							$DetailID = DocNum::getDocNum(docTypes::VendorSupply->value,"",Helper::getCurrentFY());
+							$tSupplyDetails[]=$DetailID;
+							$tdata=array(
+								"DetailID"=>$DetailID,
+								"VendorID"=>$VendorID,
+								"PCID"=>$data->PCID,
+								"PSCID"=>$data->PSCID,
+								"CreatedBy"=>$this->UserID,
+								"CreatedOn"=>date("Y-m-d H:i:s")
+							);
+							$status=DB::Table('tbl_vendors_supply')->insert($tdata);
+							if($status){
+								DocNum::updateDocNum(docTypes::VendorSupply->value);
+							}
+						}else{
+							$tSupplyDetails[]=$t[0]->DetailID;
 						}
 					}
 				}
-				if (!empty($PSCIDs)) {
-					DB::Table('tbl_vendors_supply')->where('VendorID',$VendorID)->WhereIn('PSCID',$PSCIDs)->update(['DFlag'=>0,'UpdatedOn'=>date('Y-m-d H:i:s')]);
-					DB::Table('tbl_vendors_supply')->where('VendorID',$VendorID)->WhereNotIn('PSCID',$PSCIDs)->update(['DFlag'=>1,'UpdatedOn'=>date('Y-m-d H:i:s')]);
-					$status=true;
+				if($status && count($tSupplyDetails)>0){
+					$sql="Select DetailID From tbl_vendors_supply Where VendorID='".$VendorID."' and DetailID not in('".implode("','",$tSupplyDetails)."')";
+					$result=DB::SELECT($sql);
+					for($m=0;$m<count($result);$m++){
+						if($status){
+							$status=DB::Table('tbl_vendors_supply')->where('VendorID',$VendorID)->where('DetailID',$result[$m]->DetailID)->update(array("DFlag"=>1,"DeletedBy"=>$this->UserID,"DeletedOn"=>date("Y-m-d H:i:s")));
+						}
+					}
 				}
-
+				
 				//Documents
 				$Documents=json_decode($req->Documents);
 				$tDocuments=array();
@@ -843,7 +885,7 @@ class ManageVendorsController extends Controller{
 					}
 				}
 				if($status && count($tDocuments)>0){
-					$sql="Select SLNO,documents From tbl_vendors_document Where VendorID='".$VendorID."' and ImgID not in('".implode("','",$tDocuments)."')";
+					$sql="Select SLNO,documents From tbl_vendors_document Where VendorID='".$VendorID."'  and ImgID not in('".implode("','",$tDocuments)."')";
 					$result=DB::SELECT($sql);
 					for($m=0;$m<count($result);$m++){
 						if($status){
@@ -938,6 +980,122 @@ class ManageVendorsController extends Controller{
 			return array('status'=>false,'message'=>'Access denined');
 		}
 	}
+    public function updateServiceLocation(Request $req,$VendorID){ 
+        if($this->general->isCrudAllow($this->CRUD,"edit")==true){
+            $OldData=array();$NewData=array();
+            
+            DB::beginTransaction();
+            $status=false;
+            try{
+                $OldData=$this->getVendor($VendorID);
+                $ServiceLocations=json_decode($req->ServiceLocations);
+				return $ServiceLocations;
+				$ServiceBy = $ServiceLocations->ServiceBy;
+				$ServiceData = $ServiceLocations->ServiceData;
+				if($ServiceBy == "District"){
+					$DistrictIDs=[];
+					foreach($ServiceData as $data){
+						foreach($data->Districts as $item){
+							$DistrictIDs[] = $item->DistrictID;
+							$t=DB::Table('tbl_vendors_service_locations')->where('VendorID',$VendorID)->where('ServiceBy',$ServiceBy)->Where('DistrictID',$item->DistrictID)->first();
+							if(!$t){
+								$PostalCodeIDs = DB::table($this->generalDB.'tbl_postalcodes')->where('DistrictID',$item->DistrictID)->where('ActiveStatus','Active')->where('DFlag',0)->pluck('PID')->toArray();
+								if (!empty($PostalCodeIDs)) {
+									foreach($PostalCodeIDs as $row){
+										$DetailID = DocNum::getDocNum(docTypes::VendorServiceLocation->value,"",Helper::getCurrentFY());
+										$tdata=array(
+											"DetailID"=>$DetailID,
+											"VendorID"=>$VendorID,
+											"ServiceBy"=>$ServiceBy,
+											"StateID" => $data->StateID,
+											"DistrictID"=>$item->DistrictID,
+											"PostalCodeID"=>$row,
+											"CreatedBy"=>$this->UserID,
+											"CreatedOn"=>date("Y-m-d H:i:s")
+										);
+										$status=DB::Table('tbl_vendors_service_locations')->insert($tdata);
+										if($status){
+											DocNum::updateDocNum(docTypes::VendorServiceLocation->value);
+										}
+									}
+								}else{
+									$DetailID = DocNum::getDocNum(docTypes::VendorServiceLocation->value,"",Helper::getCurrentFY());
+									$tdata=array(
+										"DetailID"=>$DetailID,
+										"VendorID"=>$VendorID,
+										"ServiceBy"=>$ServiceBy,
+										"StateID" => $data->StateID,
+										"DistrictID"=>$item->DistrictID,
+										"CreatedBy"=>$this->UserID,
+										"CreatedOn"=>date("Y-m-d H:i:s")
+									);
+									$status=DB::Table('tbl_vendors_service_locations')->insert($tdata);
+									if($status){
+										DocNum::updateDocNum(docTypes::VendorServiceLocation->value);
+									}
+								}
+							}
+						}
+					}
+					if (!empty($DistrictIDs)) {
+						DB::Table('tbl_vendors_service_locations')->where('VendorID',$VendorID)->where('ServiceBy',$ServiceBy)->WhereIn('DistrictID',$DistrictIDs)->update(['DFlag'=>0,'UpdatedOn'=>date('Y-m-d H:i:s'),'UpdatedBy'=>$this->UserID]);
+						DB::Table('tbl_vendors_service_locations')->where('VendorID',$VendorID)->where('ServiceBy',$ServiceBy)->WhereNotIn('DistrictID',$DistrictIDs)->update(['DFlag'=>1,'UpdatedOn'=>date('Y-m-d H:i:s'),'UpdatedBy'=>$this->UserID]);
+						$status=true;
+					}
+				}elseif($ServiceBy == "PostalCode"){
+					$PostalCodeIDs=[];
+					foreach($ServiceData as $data){
+						foreach($data->Districts as $item){
+							foreach($item->PostalCodeIDs as $row){
+								$PostalCodeIDs[] = $row;
+								$t=DB::Table('tbl_vendors_service_locations')->where('VendorID',$VendorID)->where('ServiceBy',$ServiceBy)->Where('PostalCodeID',$row)->first();
+								if(!$t){
+									$DetailID = DocNum::getDocNum(docTypes::VendorServiceLocation->value,"",Helper::getCurrentFY());
+									$tdata=array(
+										"DetailID"=>$DetailID,
+										"VendorID"=>$VendorID,
+										"ServiceBy"=>$ServiceBy,
+										"StateID" => $data->StateID,
+										"DistrictID"=>$item->DistrictID,
+										"PostalCodeID"=>$row,
+										"CreatedBy"=>$this->UserID,
+										"CreatedOn"=>date("Y-m-d H:i:s")
+									);
+									$status=DB::Table('tbl_vendors_service_locations')->insert($tdata);
+									if($status){
+										DocNum::updateDocNum(docTypes::VendorServiceLocation->value);
+									}
+								}
+							}
+						}
+					}
+					if (!empty($PostalCodeIDs)) {
+						DB::Table('tbl_vendors_service_locations')->where('VendorID',$VendorID)->where('ServiceBy',$ServiceBy)->WhereIn('PostalCodeID',$PostalCodeIDs)->update(['DFlag'=>0,'UpdatedOn'=>date('Y-m-d H:i:s'),'UpdatedBy'=>$this->UserID]);
+						DB::Table('tbl_vendors_service_locations')->where('VendorID',$VendorID)->where('ServiceBy',$ServiceBy)->WhereNotIn('PostalCodeID',$PostalCodeIDs)->update(['DFlag'=>1,'UpdatedOn'=>date('Y-m-d H:i:s'),'UpdatedBy'=>$this->UserID]);
+						$status=true;
+					}
+				}else{
+					$status = false;
+				}
+				DB::table('tbl_vendors')->where('VendorID',$VendorID)->update(['ServiceBy'=>$ServiceBy]);
+				DB::Table('tbl_vendors_service_locations')->where('VendorID',$VendorID)->whereNot('ServiceBy',$ServiceBy)->update(['DFlag'=>1,'UpdatedOn'=>date('Y-m-d H:i:s'),'UpdatedBy'=>$this->UserID]);
+            }catch(Exception $e) {
+                $status=false;
+            }
+            if($status==true){
+                $NewData=$this->getVendor($VendorID);
+                DB::commit();
+                $logData=array("Description"=>"Vendor Service Location Updated","ModuleName"=>$this->ActiveMenuName,"Action"=>cruds::UPDATE->value,"ReferID"=>$VendorID,"OldData"=>$OldData,"NewData"=>$NewData,"UserID"=>$this->UserID,"IP"=>$req->ip());
+                // logs::Store($logData);
+                return array('status'=>true,'message'=>"Vendor Service Location Updated Successfully");
+            }else{
+                DB::rollback();
+                return array('status'=>false,'message'=>"Vendor Service Location Update Failed");
+            }
+        }else{
+            return array('status'=>false,'message'=>'Access denined');
+        }
+    }
 	public function Approve(Request $req,$VendorID){ 
 		$OldData=$NewData=array();
 		if($this->general->isCrudAllow($this->CRUD,"edit")==true){
@@ -1016,81 +1174,48 @@ class ManageVendorsController extends Controller{
 			return response(array('status'=>false,'message'=>"Access Denied"), 403);
 		}
 	}
-	public function TableView(Request $request){ 
+	public function TableView(Request $request){
 		$generalDB=Helper::getGeneralDB();
-
 		if($this->general->isCrudAllow($this->CRUD,"view")==true){
-			
-			DB::statement("CREATE TEMPORARY TABLE temp_vendors AS 
-				SELECT 
-					V.VendorCoName, 
-					V.VendorName, 
-					V.MobileNumber1, 
-					VT.VendorType, 
-					D.DistrictName, 
-					COUNT(CASE WHEN VSP.DFlag = 0 AND VSP.ActiveStatus = 1 THEN VSP.VendorID END) as VendorStockPointCount, 
-					V.CreatedOn, 
-					V.ActiveStatus, 
-					V.VendorID, 
-					V.isApproved, 
-					GROUP_CONCAT(CASE WHEN VSP.DFlag = 0 AND VSP.ActiveStatus = 1 THEN VSP.PointName END) as StockPointNames
-				FROM tbl_vendors as V
-				LEFT JOIN tbl_vendor_type as VT ON VT.VendorTypeID = V.VendorType
-				LEFT JOIN tbl_vendors_stock_point as VSP ON VSP.VendorID = V.VendorID
-				LEFT JOIN " . $generalDB . "tbl_postalcodes as P ON P.PID = V.PostalCode
-				
-				LEFT JOIN " . $generalDB . "tbl_taluks as T ON T.TalukID = V.TalukID
-				LEFT JOIN " . $generalDB . "tbl_districts as D ON D.DistrictID = V.DistrictID
-				WHERE V.DFlag = 0
-				GROUP BY V.VendorCoName, V.VendorName, V.MobileNumber1, VT.VendorType, D.DistrictName, V.CreatedOn, V.ActiveStatus, V.VendorID, V.isApproved;
-			");
 			$columns = array(
+				array( 'db' => 'V.VendorCoName', 'dt' => '0' ),
+				array( 'db' => 'V.VendorName', 'dt' => '1' ),
+				array( 'db' => 'V.MobileNumber1', 'dt' => '2' ),
+				array( 'db' => 'VT.VendorType', 'dt' => '3' ),
+				array( 'db' => 'D.DistrictName', 'dt' => '4' ),
+				array( 'db' => 'V.CreatedOn', 'dt' => '5' ),
+				array( 'db' => 'V.ActiveStatus', 'dt' => '6'),
+				array( 'db' => 'V.VendorID', 'dt' => '7'),
+				array( 'db' => 'V.isApproved', 'dt' => '8'),
+			);
+			$columns1 = array(
 				array( 'db' => 'VendorCoName', 'dt' => '0' ),
 				array( 'db' => 'VendorName', 'dt' => '1' ),
 				array( 'db' => 'MobileNumber1', 'dt' => '2' ),
 				array( 'db' => 'VendorType', 'dt' => '3' ),
 				array( 'db' => 'DistrictName', 'dt' => '4' ),
-				array( 'db' => 'VendorStockPointCount', 'dt' => '5'),
-				array( 'db' => 'CreatedOn', 'dt' => '6' ),
-				array( 'db' => 'ActiveStatus', 'dt' => '7'),
-				array( 'db' => 'VendorID', 'dt' => '8'),
-				array( 'db' => 'isApproved', 'dt' => '9'),
-				array( 'db' => 'StockPointNames', 'dt' => '10'),
-			);
-			$columns1 = array(
-				array('db' => 'VendorCoName', 'dt' => '0'),
-				array('db' => 'VendorName', 'dt' => '1'),
-				array('db' => 'MobileNumber1', 'dt' => '2'),
-				array('db' => 'VendorType', 'dt' => '3'),
-				array('db' => 'DistrictName', 'dt' => '4'),
-				array('db' => 'VendorStockPointCount', 'dt' => '5',
+				array( 'db' => 'CreatedOn', 'dt' => '5','formatter' => function( $d, $row ) {return date($this->Settings['date-format'],strtotime($d));} ),
+				array( 
+					'db' => 'ActiveStatus', 
+					'dt' => '6',
 					'formatter' => function( $d, $row ) {
-						return "<span title=\"" . str_replace(',', ',&#10;', htmlspecialchars($row['StockPointNames'], ENT_QUOTES, 'UTF-8')) . ".\" class='badge badge-" . ($d > 0 ? "info" : "danger") . " m-1'>" . htmlspecialchars($d, ENT_QUOTES, 'UTF-8') . "</span>";
-					}
-
-				),
-				array('db' => 'CreatedOn', 'dt' => '6',
-					'formatter' => function ($d, $row) {
-						return date($this->Settings['date-format'], strtotime($d));
-					}
-				),
-				array('db' => 'ActiveStatus','dt' => '7',
-					'formatter' => function ($d, $row) {
-						if ($row['isApproved'] == 0) {
+						if($row['isApproved']==0){
 							return "<span class='badge badge-info m-1'>Not Approved</span>";
-						} elseif ($d == "Active") {
+						}elseif($d=="Active"){
 							return "<span class='badge badge-success m-1'>Active</span>";
-						} else {
+						}else{
 							return "<span class='badge badge-danger m-1'>Inactive</span>";
 						}
-					}
+					} 
 				),
-				array( 'db' => 'VendorID', 'dt' => '8',
+				array( 
+					'db' => 'VendorID', 
+					'dt' => '7',
 					'formatter' => function( $d, $row ) {
 						$html='';
 						if($this->general->isCrudAllow($this->CRUD,"edit")==true && $row['isApproved'] == 1){
 							// $html.='<button type="button" data-id="'.$d.'" class="btn btn-outline-info '.$this->general->UserInfo['Theme']['button-size'].' me-2 mb-2 btnStockPoint" title="Edit Stock Point"><i class="fa fa-map-marker" aria-hidden="true"></i></button>';
-							// $html.='<button type="button" data-id="'.$d.'" class="btn btn-outline-dark '.$this->general->UserInfo['Theme']['button-size'].' me-2 mb-2 btnEditProductMap" title="Edit Product Mapping"><i class="fa fa-dropbox" aria-hidden="true"></i></button>';
+							$html.='<button type="button" data-id="'.$d.'" class="btn btn-outline-dark '.$this->general->UserInfo['Theme']['button-size'].' me-2 mb-2 btnEditProductMap" title="Edit Product Mapping"><i class="fa fa-dropbox" aria-hidden="true"></i></button>';
 							$html.='<button type="button" data-id="'.$d.'" class="btn btn-outline-success '.$this->general->UserInfo['Theme']['button-size'].' me-2 mb-2 btnEdit" title="Edit"><i class="fa fa-pencil"></i></button>';
 						}else if ($this->general->isCrudAllow($this->CRUD,"edit")==true && $row['isApproved'] == 0){
 							$html.='<button type="button" data-id="'.$d.'" data-vendor-name="'.$row['VendorCoName'].'" class="btn btn-outline-info '.$this->general->UserInfo['Theme']['button-size'].' me-2 mb-2 btnVendorInfo" title="View"><i class="fa fa-eye" aria-hidden="true"></i></button>';
@@ -1105,13 +1230,13 @@ class ManageVendorsController extends Controller{
 			);
 			$data=array();
 			$data['POSTDATA']=$request;
-			$data['TABLE']='temp_vendors';
-			$data['PRIMARYKEY']='VendorID';
+			$data['TABLE']='tbl_vendors as V LEFT JOIN tbl_vendor_type as VT ON VT.VendorTypeID=V.VendorType LEFT JOIN '.$generalDB.'tbl_postalcodes as P ON P.PID=V.PostalCode LEFT JOIN '.$generalDB.'tbl_cities as CI ON CI.CityID=V.CityID LEFT JOIN '.$generalDB.'tbl_taluks as T ON T.TalukID=V.TalukID LEFT JOIN '.$generalDB.'tbl_districts as D ON D.DistrictID=V.DistrictID';
+			$data['PRIMARYKEY']='V.VendorID';
 			$data['COLUMNS']=$columns;
 			$data['COLUMNS1']=$columns1;
 			$data['GROUPBY']=null;
 			$data['WHERERESULT']=null;
-			$data['WHEREALL']=" 1=1";
+			$data['WHEREALL']=" V.DFlag=0 ";
 			return SSP::SSP( $data);
 		}else{
 			return response(array('status'=>false,'message'=>"Access Denied"), 403);

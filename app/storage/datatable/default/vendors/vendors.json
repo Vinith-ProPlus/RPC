@@ -1,0 +1,135 @@
+{
+    "tableSize": "table-sm",
+    "background": "none",
+    "sortingBy": 0,
+    "sortingOrder": "desc",
+    "height": "400",
+    "fixedColumns": {
+        "left": 0,
+        "right": 0
+    },
+    "isFixedHeading": "Disabled",
+    "isFixedColumns": "Disabled",
+    "isSearchEnabled": "Enabled",
+    "isPageInfoEnabled": "Enabled",
+    "isPaginationEnabled": "Enabled",
+    "isSearchBuilderEnabled": "Disabled",
+    "searchBuilderText":"Custom Filter",
+    "searchBuilderLabel":"",
+    "defaultPageLength": "10",
+    "pageLength": "10",
+    "tableID": "ppl-521e55ed45f-21",
+    "footer": [],
+    "header": [
+        [
+            {
+                "columnName": "VendorCoName",
+                "headingName": "Company Name",
+                "display": "Show",
+                "align": "left",
+                "searchBuilder":{ "status":"Disabled", "type": "string" },
+                "attr": {},
+                "others": {
+                    "type": "",
+                    "format": ""
+                }
+            },
+            {
+                "columnName": "VendorName",
+                "headingName": "Vendor Name",
+                "display": "Show",
+                "align": "left",
+                "searchBuilder":{ "status":"Enabled", "type": "string" },
+                "attr": {},
+                "others": {
+                    "type": "",
+                    "format": ""
+                }
+            },
+            {
+                "columnName": "MobileNumber1",
+                "headingName": "Mobile Number",
+                "display": "Show",
+                "align": "left",
+                "searchBuilder":{ "status":"Enabled", "type": "string" },
+                "attr": {},
+                "others": {
+                    "type": "",
+                    "format": ""
+                }
+            },
+            {
+                "columnName": "VendorType",
+                "headingName": "Vendor Type",
+                "display": "Show",
+                "align": "left",
+                "searchBuilder":{ "status":"Enabled", "type": "string" },
+                "attr": {},
+                "others": {
+                    "type": "",
+                    "format": ""
+                }
+            },
+            {
+                "columnName": "DistrictName",
+                "headingName": "District",
+                "display": "Show",
+                "align": "left",
+                "searchBuilder":{ "status":"Enabled", "type": "string" },
+                "attr": {},
+                "others": {
+                    "type": "",
+                    "format": ""
+                }
+            },
+            {
+                "columnName": "VendorStockPointCount",
+                "headingName": "No.of.StockPoints",
+                "display": "Show",
+                "align": "left",
+                "searchBuilder":{ "status":"Enabled", "type": "int" },
+                "attr": {},
+                "others": {
+                    "type": "",
+                    "format": ""
+                }
+            },
+            {
+                "columnName": "CreatedOn",
+                "headingName": "Created Date",
+                "display": "Show",
+                "align": "left",
+                "searchBuilder":{ "status":"Enabled", "type": "date" },
+                "attr": {},
+                "others": {
+                    "type": "",
+                    "format": ""
+                }
+            },
+            {
+                "columnName": "ActiveStatus",
+                "headingName": "Active Status",
+                "display": "Show",
+                "align": "left",
+                "searchBuilder":{ "status":"Enabled", "type": "string" },
+                "attr": {},
+                "others": {
+                    "type": "",
+                    "format": ""
+                }
+            },
+            {
+                "columnName": "Action",
+                "headingName": "Action",
+                "display": "Show",
+                "align": "center",
+                "searchBuilder":{ "status":"Disabled", "type": "string" },
+                "attr": {},
+                "others": {
+                    "type": "",
+                    "format": ""
+                }
+            }
+        ]
+    ]
+}

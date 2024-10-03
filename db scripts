@@ -6,4 +6,4 @@ Import tbl_mobile_guest_users table
 
 240924
 
-ALTER TABLE `tbl_vendors_product_mapping` ADD `SupplyType` ENUM('WholeSale','Retail') NOT NULL DEFAULT 'WholeSale' AFTER `VendorPrice`, ADD `VendorTypeID` VARCHAR(50) NULL DEFAULT NULL AFTER `SupplyType`;
+ALTER TABLE `tbl_vendors_product_mapping` ADD `SupplyType` ENUM('WholeSale','Retail','Both') NOT NULL DEFAULT 'WholeSale' AFTER `VendorPrice`, ADD `VendorTypeID` VARCHAR(50) NULL DEFAULT NULL AFTER `SupplyType`;
