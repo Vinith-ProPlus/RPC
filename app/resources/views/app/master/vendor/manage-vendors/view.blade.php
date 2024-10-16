@@ -33,7 +33,7 @@
 				</div>
 				<div class="card-body " >
 					<div class="row">
-						<div class="col-12 col-sm-12 col-lg-12" id="Vendors">
+						<div class="col-12 col-sm-12 col-lg-12 table-responsive" id="Vendors">
 						</div>
 					</div>
 				</div>
@@ -64,51 +64,7 @@
 @section('scripts')
 <script>
     $(document).ready(function(){
-        const LoadTable=async()=>{
-			@if($crud['view']==1)
-			/* $('#Vendors').dataTable( {
-				"bProcessing": true,
-				"bServerSide": true,
-                "ajax": {"url":"{{url('/')}}/admin/master/vendor/manage-vendors/data?_token="+$('meta[name=_token]').attr('content'),"headers":{ 'X-CSRF-Token' : $('meta[name=_token]').attr('content') } ,"type": "POST"},
-				deferRender: true,
-				responsive: true,
-				dom: 'QBfrtip',
-				"iDisplayLength": 10,
-				"lengthMenu": [[10, 25, 50,100,250,500, -1], [10, 25, 50,100,250,500, "All"]],
-				buttons: [
-					'pageLength'
-					@if($crud['excel']==1) ,{extend: 'excel',className:"{{$Theme['button-size']}}",footer: true,title: "{{$PageTitle}}","action": DataTableExportOption,exportOptions: {columns: "thead th:not(.noExport)"}} @endif
-					@if($crud['copy']==1) ,{extend: 'copy',className:"{{$Theme['button-size']}}",footer: true,title: "{{$PageTitle}}","action": DataTableExportOption,exportOptions: {columns: "thead th:not(.noExport)"}} @endif
-					@if($crud['csv']==1) ,{extend: 'csv',className:"{{$Theme['button-size']}}",footer: true,title: "{{$PageTitle}}","action": DataTableExportOption,exportOptions: {columns: "thead th:not(.noExport)"}} @endif
-					@if($crud['print']==1) ,{extend: 'print',className:"{{$Theme['button-size']}}",footer: true,title:  "{{$PageTitle}}","action": DataTableExportOption,exportOptions: {columns: "thead th:not(.noExport)"}} @endif
-					@if($crud['pdf']==1) ,{extend: 'pdf',className:"{{$Theme['button-size']}}",footer: true,title:  "{{$PageTitle}}","action": DataTableExportOption,exportOptions: {columns: "thead th:not(.noExport)"}} @endif
-				],
-				columnDefs: [
-					{"className": "dt-center", "targets": [5,7,8]},
-				],
-				searchBuilder: {
-					conditions: {
-						string: {
-							'=': {
-								conditionName: 'Equals',
-								init: function (that, column) {
-									return $('<input/>').attr('type', 'text').on('input', function () {
-										that.searchBuilder.rebuild([column, 'equal', $(this).val()]);
-									});
-								}
-							},
-							'!=': {
-								conditionName: 'Not Equals',
-								init: function (that, column) {
-									return $('<input/>').attr('type', 'text').on('input', function () {
-										that.searchBuilder.rebuild([column, 'notEqual', $(this).val()]);
-									});
-								}
-							},
-						}
-					}
-				},
-			}); */
+		@if($crud['view']==1)
 			const Vendors=$('#Vendors').pplDataTable({
                 processing: true,
                 serverSide: true,
@@ -125,9 +81,7 @@
                 permissions:JSON.parse('<?php echo json_encode($crud); ?>'),
                 tableName:"vendors"
             });
-			@endif
-        }
-		// $('#tblVendors').DataTable();
+		@endif
 		$(document).on('click','.btnEdit',function(){
 			window.location.replace("{{url('/')}}/admin/master/vendor/manage-vendors/edit/"+ $(this).attr('data-id'));
 		});
@@ -232,7 +186,7 @@
                     success:function(response){
                     	swal.close();
                     	if(response.status==true){
-                    		$('#Vendors').DataTable().ajax.reload();
+                    		Vendors.ajaxReload();
                     		toastr.success(response.message, "Success", {
                                 positionClass: "toast-top-right",
                                 containerId: "toast-top-right",
@@ -273,7 +227,7 @@
                     success:function(response){
                     	swal.close();
                     	if(response.status==true){
-                    		$('#Vendors').DataTable().ajax.reload();
+                    		Vendors.ajaxReload();
                     		toastr.success(response.message, "Success", {
                                 positionClass: "toast-top-right",
                                 containerId: "toast-top-right",
@@ -294,7 +248,6 @@
             	});
             });
 		});
-        LoadTable();
     });
 </script>
 @endsection

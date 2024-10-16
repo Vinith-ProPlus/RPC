@@ -95,6 +95,18 @@
                 }
             },
             {
+                "columnName": "Products",
+                "headingName": "Products",
+                "display": "Show",
+                "align": "left",
+                "searchBuilder":{ "status":"Enabled", "type": "string" },
+                "attr": {},
+                "others": {
+                    "type": "",
+                    "format": ""
+                }
+            },
+            {
                 "columnName": "CreatedOn",
                 "headingName": "Created Date",
                 "display": "Show",
@@ -124,6 +136,30 @@
                 "display": "Show",
                 "align": "center",
                 "searchBuilder":{ "status":"Disabled", "type": "string" },
+                "attr": {},
+                "others": {
+                    "type": "",
+                    "format": ""
+                }
+            },
+            {
+                "columnName": "FullProductNames",
+                "headingName": "Product - SupplyType - VendorType",
+                "display": "Hide",
+                "align": "left",
+                "searchBuilder":{ "status":"Enabled", "type": "string" },
+                "attr": {},
+                "others": {
+                    "type": "",
+                    "format": ""
+                }
+            },
+            {
+                "columnName": "ProductVendorType",
+                "headingName": "Product - VendorType",
+                "display": "Hide",
+                "align": "left",
+                "searchBuilder":{ "status":"Enabled", "type": "string" },
                 "attr": {},
                 "others": {
                     "type": "",

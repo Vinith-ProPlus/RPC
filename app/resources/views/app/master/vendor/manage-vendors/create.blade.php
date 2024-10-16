@@ -346,7 +346,7 @@
 				<ol class="breadcrumb">
 					<li class="breadcrumb-item"><a href="{{ url('/') }}" data-original-title="" title=""><i class="f-16 fa fa-home"></i></a></li>
 					<li class="breadcrumb-item">Vendor Master</li>
-					<li class="breadcrumb-item"><a href="{{url('/')}}/admin/master/vendor/vendors">{{$PageTitle}}</a></li>
+					<li class="breadcrumb-item"><a href="{{url('/')}}/admin/master/vendor/manage-vendors">{{$PageTitle}}</a></li>
                     <li class="breadcrumb-item">@if($isEdit)Update @else Create @endif</li>
 				</ol>
 			</div>
@@ -654,7 +654,7 @@
                   </div>
                   <div class="row">
                       <div class="col-12 text-right">
-                          <a href="{{url('/')}}/admin/master/vendor/vendors" class="btn btn-outline-dark mr-10">Cancel</a>
+                          <a href="{{url('/')}}/admin/master/vendor/manage-vendors" class="btn btn-outline-dark mr-10">Cancel</a>
                           <button type="button" class="btn btn-outline-success mr-10" id="btnSave">@if($isEdit)Update  @else Save @endif</button>
                       </div>
                   </div>
@@ -2890,7 +2890,7 @@
         const getVendor=async()=>{
             $.ajax({
                 type:"post",
-                url:"{{url('/')}}/admin/master/vendor/vendors/get/vendor",
+                url:"{{url('/')}}/admin/master/vendor/manage-vendors/get/vendor",
                 headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
                 data:{VendorID:$('#txtVendorID').val()},
                 dataType:"json",
@@ -3113,7 +3113,7 @@
             $('#lstCategory').append('<option value="" selected>Select a Vendor Category</option>');
             $.ajax({
                 type:"post",
-                url:"{{url('/')}}/admin/master/vendor/vendors/get/vendor-category",
+                url:"{{url('/')}}/admin/master/vendor/manage-vendors/get/vendor-category",
                 headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
                 dataType:"json",
                 async:true,
@@ -3141,7 +3141,7 @@
             const result = await new Promise((resolve, reject) => {
                 $.ajax({
                     type: "post",
-                    url: "{{url('/')}}/admin/master/vendor/vendors/get/vendor-type",
+                    url: "{{url('/')}}/admin/master/vendor/manage-vendors/get/vendor-type",
                     headers: { 'X-CSRF-Token': $('meta[name=_token]').attr('content') },
                     dataType: "json",
                     async: true,
@@ -3940,7 +3940,7 @@
                     if(isConfirm){
                         swal.close();
                         let formData=await getData();
-                        let postUrl= @if($isEdit) "{{url('/')}}/admin/master/vendor/vendors/edit/{{$VendorID}}";  @else "{{url('/')}}/admin/master/vendor/vendors/create"; @endif
+                        let postUrl= @if($isEdit) "{{url('/')}}/admin/master/vendor/manage-vendors/edit/{{$VendorID}}";  @else "{{url('/')}}/admin/master/vendor/manage-vendors/create"; @endif
                         $.ajax({
                             type:"post",
                             url:postUrl,
@@ -4021,7 +4021,7 @@
                 return new Promise((resolve, reject) => {
                     $.ajax({
                         type: "post",
-                        url: "{{url('/')}}/admin/master/vendor/vendors/unique-validation",
+                        url: "{{url('/')}}/admin/master/vendor/manage-vendors/unique-validation",
                         headers: { 'X-CSRF-Token': $('meta[name=_token]').attr('content') },
                         dataType: "json",
                         data: { MobNo: MobNo, VendorID : $('#txtVendorID').val()},
@@ -4054,7 +4054,7 @@
                 return new Promise((resolve, reject) => {
                     $.ajax({
                         type: "post",
-                        url: "{{url('/')}}/admin/master/vendor/vendors/unique-validation",
+                        url: "{{url('/')}}/admin/master/vendor/manage-vendors/unique-validation",
                         headers: { 'X-CSRF-Token': $('meta[name=_token]').attr('content') },
                         dataType: "json",
                         data : {CoName : CoName, VendorID : $('#txtVendorID').val()},
@@ -4088,7 +4088,7 @@
                 return new Promise((resolve, reject) => {
                     $.ajax({
                         type: "post",
-                        url: "{{url('/')}}/admin/master/vendor/vendors/unique-validation",
+                        url: "{{url('/')}}/admin/master/vendor/manage-vendors/unique-validation",
                         headers: { 'X-CSRF-Token': $('meta[name=_token]').attr('content') },
                         dataType: "json",
                         data : {Email : Email, VendorID : $('#txtVendorID').val()},

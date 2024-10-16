@@ -1028,16 +1028,22 @@ class ManageVendorsController extends Controller{
 					V.MobileNumber1, 
 					VT.VendorType, 
 					D.DistrictName, 
-					COUNT(CASE WHEN VSP.DFlag = 0 AND VSP.ActiveStatus = 1 THEN VSP.VendorID END) as VendorStockPointCount, 
+					COUNT(DISTINCT CASE WHEN VSP.DFlag = 0 AND VSP.ActiveStatus = 1 THEN VSP.StockPointID END) as VendorStockPointCount, 
+					GROUP_CONCAT(DISTINCT CASE WHEN VSP.DFlag = 0 AND VSP.ActiveStatus = 1 THEN VSP.PointName END) as StockPointNames,
+					GROUP_CONCAT(DISTINCT CASE WHEN VPM.Status = 1 AND VPM.VendorID = V.VendorID THEN P.ProductName END) as Products,
+        			GROUP_CONCAT(DISTINCT CASE WHEN VPM.Status = 1 AND VPM.VendorID = V.VendorID THEN CONCAT(P.ProductName, ' - ', VPM.SupplyType, IF(PMVT.VendorType IS NOT NULL, CONCAT(' - ', PMVT.VendorType), '')) END) as FullProductNames,
+        			GROUP_CONCAT(DISTINCT CASE WHEN VPM.Status = 1 AND VPM.VendorID = V.VendorID THEN CONCAT(P.ProductName, IF(PMVT.VendorType IS NOT NULL, CONCAT(' - ', PMVT.VendorType), '')) END) as ProductVendorType,
 					V.CreatedOn, 
 					V.ActiveStatus, 
 					V.VendorID, 
-					V.isApproved, 
-					GROUP_CONCAT(CASE WHEN VSP.DFlag = 0 AND VSP.ActiveStatus = 1 THEN VSP.PointName END) as StockPointNames
+					V.isApproved
 				FROM tbl_vendors as V
 				LEFT JOIN tbl_vendor_type as VT ON VT.VendorTypeID = V.VendorType
 				LEFT JOIN tbl_vendors_stock_point as VSP ON VSP.VendorID = V.VendorID
-				LEFT JOIN " . $generalDB . "tbl_postalcodes as P ON P.PID = V.PostalCode
+				LEFT JOIN tbl_vendors_product_mapping as VPM ON VSP.VendorID = V.VendorID
+				LEFT JOIN tbl_vendor_type as PMVT ON VPM.VendorTypeID = PMVT.VendorTypeID
+				LEFT JOIN tbl_products as P ON VPM.ProductID = P.ProductID
+				LEFT JOIN " . $generalDB . "tbl_postalcodes as PC ON PC.PID = V.PostalCode
 				
 				LEFT JOIN " . $generalDB . "tbl_taluks as T ON T.TalukID = V.TalukID
 				LEFT JOIN " . $generalDB . "tbl_districts as D ON D.DistrictID = V.DistrictID
@@ -1051,11 +1057,14 @@ class ManageVendorsController extends Controller{
 				array( 'db' => 'VendorType', 'dt' => '3' ),
 				array( 'db' => 'DistrictName', 'dt' => '4' ),
 				array( 'db' => 'VendorStockPointCount', 'dt' => '5'),
-				array( 'db' => 'CreatedOn', 'dt' => '6' ),
-				array( 'db' => 'ActiveStatus', 'dt' => '7'),
-				array( 'db' => 'VendorID', 'dt' => '8'),
-				array( 'db' => 'isApproved', 'dt' => '9'),
-				array( 'db' => 'StockPointNames', 'dt' => '10'),
+				array( 'db' => 'Products', 'dt' => '6'),
+				array( 'db' => 'CreatedOn', 'dt' => '7' ),
+				array( 'db' => 'ActiveStatus', 'dt' => '8'),
+				array( 'db' => 'VendorID', 'dt' => '9'),
+				array( 'db' => 'FullProductNames', 'dt' => '10'),
+				array( 'db' => 'ProductVendorType', 'dt' => '11'),
+				array( 'db' => 'StockPointNames', 'dt' => '12'),
+				array( 'db' => 'isApproved', 'dt' => '13'),
 			);
 			$columns1 = array(
 				array('db' => 'VendorCoName', 'dt' => '0'),
@@ -1067,14 +1076,26 @@ class ManageVendorsController extends Controller{
 					'formatter' => function( $d, $row ) {
 						return "<span title=\"" . str_replace(',', ',&#10;', htmlspecialchars($row['StockPointNames'], ENT_QUOTES, 'UTF-8')) . ".\" class='badge badge-" . ($d > 0 ? "info" : "danger") . " m-1'>" . htmlspecialchars($d, ENT_QUOTES, 'UTF-8') . "</span>";
 					}
-
 				),
-				array('db' => 'CreatedOn', 'dt' => '6',
+				array('db' => 'Products', 'dt' => '6',
+					'formatter' => function( $d, $row ) {
+						$d = explode(",", $d);
+						$displayText = '';
+						
+						if (count($d) > 3) {
+							$displayText = implode(", ", array_slice($d, 0, 3)) . ', etc.';
+						} else if (count($d) > 1 ) {
+							$displayText = implode(", ", $d) . '.';
+						}
+						return "<span title=\"" . str_replace(',', ',&#10;', htmlspecialchars($row['FullProductNames'], ENT_QUOTES, 'UTF-8')) . ".\" class='m-1'>" . $displayText . "</span>";
+					}
+				),
+				array('db' => 'CreatedOn', 'dt' => '7',
 					'formatter' => function ($d, $row) {
 						return date($this->Settings['date-format'], strtotime($d));
 					}
 				),
-				array('db' => 'ActiveStatus','dt' => '7',
+				array('db' => 'ActiveStatus','dt' => '8',
 					'formatter' => function ($d, $row) {
 						if ($row['isApproved'] == 0) {
 							return "<span class='badge badge-info m-1'>Not Approved</span>";
@@ -1085,7 +1106,7 @@ class ManageVendorsController extends Controller{
 						}
 					}
 				),
-				array( 'db' => 'VendorID', 'dt' => '8',
+				array( 'db' => 'VendorID', 'dt' => '9',
 					'formatter' => function( $d, $row ) {
 						$html='';
 						if($this->general->isCrudAllow($this->CRUD,"edit")==true && $row['isApproved'] == 1){
@@ -1102,6 +1123,8 @@ class ManageVendorsController extends Controller{
 						return $html;
 					} 
 				),
+				array('db' => 'FullProductNames', 'dt' => '10'),
+				array('db' => 'ProductVendorType', 'dt' => '11'),
 			);
 			$data=array();
 			$data['POSTDATA']=$request;
@@ -1190,7 +1213,6 @@ class ManageVendorsController extends Controller{
 		} elseif ($req->Email) {
 			$query->where('Email', 'like',$req->Email);
 		}
-	
 		if ($req->VendorID) {
 			$query->whereNot('VendorID', $req->VendorID);
 		}
