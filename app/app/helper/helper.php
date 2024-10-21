@@ -1083,7 +1083,10 @@ class helper{
 					'MobileNumber' => $MobNo,
 					'LoginType' => $LoginType,
 				];
-				$status = DB::table('tbl_unregistered_users')->insert($Tdata);
+				$exists = DB::table('tbl_unregistered_users')->where('MobileNumber', $MobNo)->where('LoginType', $LoginType)->exists();
+				if (!$exists) {
+					DB::table('tbl_unregistered_users')->insert($Tdata);
+				}
 			}
 			$OtpID = DocNum::getDocNum("SMS-OTP", self::getCurrFYDB(), self::getCurrentFY());
 			$Ndata = [

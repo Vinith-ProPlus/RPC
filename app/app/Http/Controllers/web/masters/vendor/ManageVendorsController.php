@@ -31,12 +31,14 @@ class ManageVendorsController extends Controller{
 	private $FileTypes;
     private $Menus;
 	private $generalDB;
+    private $tmpDB;
     public function __construct(){
 		$this->ActiveMenuName=activeMenuNames::ManageVendors->value;
 		$this->PageTitle="Manage Vendors";
         $this->middleware('auth');
 		$this->FileTypes=Helper::getFileTypes(array("category"=>array("Images","Documents")));
 		$this->generalDB=Helper::getGeneralDB();
+		$this->tmpDB=Helper::getTmpDB();
 		$this->middleware(function ($request, $next) {
 			$this->UserID=auth()->user()->UserID;
 			$this->general=new general($this->UserID,$this->ActiveMenuName);
@@ -1021,7 +1023,7 @@ class ManageVendorsController extends Controller{
 
 		if($this->general->isCrudAllow($this->CRUD,"view")==true){
 			
-			DB::statement("CREATE TEMPORARY TABLE temp_vendors AS 
+			DB::statement("CREATE TEMPORARY TABLE ".$this->tmpDB."temp_vendors AS 
 				SELECT 
 					V.VendorCoName, 
 					V.VendorName, 
@@ -1043,9 +1045,6 @@ class ManageVendorsController extends Controller{
 				LEFT JOIN tbl_vendors_product_mapping as VPM ON VSP.VendorID = V.VendorID
 				LEFT JOIN tbl_vendor_type as PMVT ON VPM.VendorTypeID = PMVT.VendorTypeID
 				LEFT JOIN tbl_products as P ON VPM.ProductID = P.ProductID
-				LEFT JOIN " . $generalDB . "tbl_postalcodes as PC ON PC.PID = V.PostalCode
-				
-				LEFT JOIN " . $generalDB . "tbl_taluks as T ON T.TalukID = V.TalukID
 				LEFT JOIN " . $generalDB . "tbl_districts as D ON D.DistrictID = V.DistrictID
 				WHERE V.DFlag = 0
 				GROUP BY V.VendorCoName, V.VendorName, V.MobileNumber1, VT.VendorType, D.DistrictName, V.CreatedOn, V.ActiveStatus, V.VendorID, V.isApproved;
@@ -1128,7 +1127,7 @@ class ManageVendorsController extends Controller{
 			);
 			$data=array();
 			$data['POSTDATA']=$request;
-			$data['TABLE']='temp_vendors';
+			$data['TABLE']=$this->tmpDB.'temp_vendors';
 			$data['PRIMARYKEY']='VendorID';
 			$data['COLUMNS']=$columns;
 			$data['COLUMNS1']=$columns1;

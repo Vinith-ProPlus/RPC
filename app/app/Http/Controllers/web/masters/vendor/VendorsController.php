@@ -1029,8 +1029,6 @@ class VendorsController extends Controller{
 				array( 'db' => 'V.ActiveStatus', 'dt' => '6'),
 				array( 'db' => 'V.VendorID', 'dt' => '7'),
 				array( 'db' => 'V.isApproved', 'dt' => '8'),
-				array( 'db' => 'COUNT(CASE WHEN VSP.DFlag = 0 AND VSP.ActiveStatus = 1 THEN VSP.VendorID END) as VendorStockPointCount', 'dt' => '9'),
-				array( 'db' => 'GROUP_CONCAT(CASE WHEN VSP.DFlag = 0 AND VSP.ActiveStatus = 1 THEN VSP.PointName END) as StockPointNames', 'dt' => '10'),
 			);
 			$columns1 = array(
 				array('db' => 'VendorCoName', 'dt' => '0'),
@@ -1038,18 +1036,19 @@ class VendorsController extends Controller{
 				array('db' => 'MobileNumber1', 'dt' => '2'),
 				array('db' => 'VendorType', 'dt' => '3'),
 				array('db' => 'DistrictName', 'dt' => '4'),
-				array('db' => 'VendorStockPointCount', 'dt' => '5', 
+				array('db' => 'VendorID', 'dt' => '5',
 					'formatter' => function( $d, $row ) {
-						return "<span title=\"" . str_replace(',', ',&#10;', htmlspecialchars($row['StockPointNames'], ENT_QUOTES, 'UTF-8')) . ".\" class='badge badge-" . ($d > 0 ? "info" : "danger") . " m-1'>" . htmlspecialchars($d, ENT_QUOTES, 'UTF-8') . "</span>";
+						$VendorStockPointCount = DB::table('tbl_vendors_stock_point')->where('ActiveStatus',1)->where('DFlag',0)->where('VendorID',$d)->count();
+						$StockPointNames = DB::table('tbl_vendors_stock_point')->where('ActiveStatus',1)->where('DFlag',0)->where('VendorID',$d)->pluck('PointName')->toArray();
+						$StockPointNamesImploded = implode(",&#10;", array_map('htmlspecialchars', $StockPointNames, array_fill(0, count($StockPointNames), ENT_QUOTES)));
+    					return "<span title=\"" . $StockPointNamesImploded . "\" class='badge badge-" . ($VendorStockPointCount > 0 ? "info" : "danger") . " m-1'>" . htmlspecialchars($VendorStockPointCount, ENT_QUOTES, 'UTF-8') . "</span>";
 					}
 
 				),
 				array('db' => 'CreatedOn', 'dt' => '6', 'formatter' => function ($d, $row) {
 					return date($this->Settings['date-format'], strtotime($d));
 				}),
-				array(
-					'db' => 'ActiveStatus',
-					'dt' => '7',
+				array('db' => 'ActiveStatus','dt' => '7',
 					'formatter' => function ($d, $row) {
 						if ($row['isApproved'] == 0) {
 							return "<span class='badge badge-info m-1'>Not Approved</span>";
@@ -1081,11 +1080,11 @@ class VendorsController extends Controller{
 			);
 			$data=array();
 			$data['POSTDATA']=$request;
-			$data['TABLE']='tbl_vendors as V LEFT JOIN tbl_vendor_type as VT ON VT.VendorTypeID=V.VendorType LEFT JOIN tbl_vendors_stock_point as VSP ON VSP.VendorID=V.VendorID LEFT JOIN '.$generalDB.'tbl_postalcodes as P ON P.PID=V.PostalCode LEFT JOIN '.$generalDB.'tbl_cities as CI ON CI.CityID=V.CityID LEFT JOIN '.$generalDB.'tbl_taluks as T ON T.TalukID=V.TalukID LEFT JOIN '.$generalDB.'tbl_districts as D ON D.DistrictID=V.DistrictID';
+			$data['TABLE']='tbl_vendors as V LEFT JOIN tbl_vendor_type as VT ON VT.VendorTypeID=V.VendorType LEFT JOIN '.$generalDB.'tbl_districts as D ON D.DistrictID=V.DistrictID';
 			$data['PRIMARYKEY']='V.VendorID';
 			$data['COLUMNS']=$columns;
 			$data['COLUMNS1']=$columns1;
-			$data['GROUPBY']='V.VendorCoName, V.VendorName, V.MobileNumber1, VT.VendorType, D.DistrictName, V.CreatedOn, V.ActiveStatus, V.VendorID, V.isApproved';
+			$data['GROUPBY']=null;
 			$data['WHERERESULT']=null;
 			$data['WHEREALL']=" V.DFlag=0";
 			return SSP::SSP( $data);
