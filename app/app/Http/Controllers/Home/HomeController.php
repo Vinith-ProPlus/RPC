@@ -173,6 +173,8 @@ class HomeController extends Controller
                 $FormData['HotProducts'] = $RecentProducts->shuffle();
                 $FormData['RecentProducts'] = $RecentProducts->shuffle();
             }
+            $FormData['AndroidAppUrl'] = DB::table('tbl_settings')->where('KeyName','android-app-url')->value('KeyValue');
+
             return view('home.guest-home', $FormData);
         }
     }

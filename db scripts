@@ -7,3 +7,6 @@ Import tbl_mobile_guest_users table
 240924
 
 ALTER TABLE `tbl_vendors_product_mapping` ADD `SupplyType` ENUM('WholeSale','Retail','Both') NOT NULL DEFAULT 'WholeSale' AFTER `VendorPrice`, ADD `VendorTypeID` VARCHAR(50) NULL DEFAULT NULL AFTER `SupplyType`;
+
+240926
+INSERT INTO `tbl_settings` (`SLNO`, `KeyName`, `KeyValue`, `SType`, `Description`, `UpdatedOn`, `UpdatedBy`, `UKey`) VALUES (NULL, 'android-app-url', '1', 'text', 'android app url', '2023-08-24 14:54:28', 'U2023-0000001', '');
