@@ -24,204 +24,6 @@
 							</div>
 							<div class="people-list" id="people-list">
 								<ul class="list mt-10">
-									<li class="clearfix">
-										<div class="people-details">
-											<div class="icon"><i class="fa fa-envelope-open"></i></div>
-											<div class="name">Anandhan AS <span class="mobile-number">- 7708679203</span></div>
-											<div class="full-right">
-												<div class="timestamp">1 month</div>
-												<div class="options dropdown" >
-													<span data-bs-toggle="dropdown"><i class="fa fa-ellipsis-v"></i></span>
-													<ul class="dropdown-menu">
-														<li><a class="dropdown-item" href="#"> <i class="fa fa-trash"></i> Delete</a></li>
-														<li><a class="dropdown-item" href="#"> <i class="fa fa-ban"></i> Block</a></li>
-													</ul>
-												</div>
-											</div>
-										</div>
-										<div class="locations">Coimbatore, Tamil Nadu</div>
-										<div class="last-msg">I am not satisfied with quotation, you have sent I am not satisfied with quotation, you have sent</div>
-									</li>
-									<li class="clearfix">
-										<div class="people-details">
-											<div class="icon"><i class="fa fa-envelope"></i></div>
-											<div class="name">Anandhan AS <span class="mobile-number">- 7708679203</span></div>
-											<div class="full-right">
-												<div class="timestamp">1 month</div>
-												<div class="options dropdown" >
-													<span data-bs-toggle="dropdown"><i class="fa fa-ellipsis-v"></i></span>
-													<ul class="dropdown-menu">
-														<li><a class="dropdown-item" href="#"> <i class="fa fa-trash"></i> Delete</a></li>
-														<li><a class="dropdown-item" href="#"> <i class="fa fa-ban"></i> Block</a></li>
-													</ul>
-												</div>
-											</div>
-										</div>
-										<div class="locations">Coimbatore, Tamil Nadu</div>
-										<div class="last-msg">I am not satisfied with quotation, you have sent I am not satisfied with quotation, you have sent</div>
-									</li>
-									<li class="clearfix">
-										<div class="people-details">
-											<div class="icon"><i class="fa fa-envelope-open"></i></div>
-											<div class="name">Anandhan AS <span class="mobile-number">- 7708679203</span></div>
-											<div class="full-right">
-												<div class="timestamp">1 month</div>
-												<div class="options dropdown" >
-													<span data-bs-toggle="dropdown"><i class="fa fa-ellipsis-v"></i></span>
-													<ul class="dropdown-menu">
-														<li><a class="dropdown-item" href="#"> <i class="fa fa-trash"></i> Delete</a></li>
-														<li><a class="dropdown-item" href="#"> <i class="fa fa-ban"></i> Block</a></li>
-													</ul>
-												</div>
-											</div>
-										</div>
-										<div class="locations">Coimbatore, Tamil Nadu</div>
-										<div class="last-msg">I am not satisfied with quotation, you have sent I am not satisfied with quotation, you have sent</div>
-									</li>
-									<li class="clearfix">
-										<div class="people-details">
-											<div class="icon"><i class="fa fa-envelope-open"></i></div>
-											<div class="name">Anandhan AS <span class="mobile-number">- 7708679203</span></div>
-											<div class="full-right">
-												<div class="timestamp">1 month</div>
-												<div class="options dropdown" >
-													<span data-bs-toggle="dropdown"><i class="fa fa-ellipsis-v"></i></span>
-													<ul class="dropdown-menu">
-														<li><a class="dropdown-item" href="#"> <i class="fa fa-trash"></i> Delete</a></li>
-														<li><a class="dropdown-item" href="#"> <i class="fa fa-ban"></i> Block</a></li>
-													</ul>
-												</div>
-											</div>
-										</div>
-										<div class="locations">Coimbatore, Tamil Nadu</div>
-										<div class="last-msg">I am not satisfied with quotation, you have sent I am not satisfied with quotation, you have sent</div>
-									</li>
-									<li class="clearfix">
-										<div class="people-details">
-											<div class="icon"><i class="fa fa-envelope-open"></i></div>
-											<div class="name">Anandhan AS <span class="mobile-number">- 7708679203</span></div>
-											<div class="full-right">
-												<div class="timestamp">1 month</div>
-												<div class="options dropdown" >
-													<span data-bs-toggle="dropdown"><i class="fa fa-ellipsis-v"></i></span>
-													<ul class="dropdown-menu">
-														<li><a class="dropdown-item" href="#"> <i class="fa fa-trash"></i> Delete</a></li>
-														<li><a class="dropdown-item" href="#"> <i class="fa fa-ban"></i> Block</a></li>
-													</ul>
-												</div>
-											</div>
-										</div>
-										<div class="locations">Coimbatore, Tamil Nadu</div>
-										<div class="last-msg">I am not satisfied with quotation, you have sent I am not satisfied with quotation, you have sent</div>
-									</li>
-									<li class="clearfix">
-										<div class="people-details">
-											<div class="icon"><i class="fa fa-envelope-open"></i></div>
-											<div class="name">Anandhan AS <span class="mobile-number">- 7708679203</span></div>
-											<div class="full-right">
-												<div class="timestamp">1 month</div>
-												<div class="options dropdown" >
-													<span data-bs-toggle="dropdown"><i class="fa fa-ellipsis-v"></i></span>
-													<ul class="dropdown-menu">
-														<li><a class="dropdown-item" href="#"> <i class="fa fa-trash"></i> Delete</a></li>
-														<li><a class="dropdown-item" href="#"> <i class="fa fa-ban"></i> Block</a></li>
-													</ul>
-												</div>
-											</div>
-										</div>
-										<div class="locations">Coimbatore, Tamil Nadu</div>
-										<div class="last-msg">I am not satisfied with quotation, you have sent I am not satisfied with quotation, you have sent</div>
-									</li>
-									<li class="clearfix">
-										<div class="people-details">
-											<div class="icon"><i class="fa fa-envelope-open"></i></div>
-											<div class="name">Anandhan AS <span class="mobile-number">- 7708679203</span></div>
-											<div class="full-right">
-												<div class="timestamp">1 month</div>
-												<div class="options dropdown" >
-													<span data-bs-toggle="dropdown"><i class="fa fa-ellipsis-v"></i></span>
-													<ul class="dropdown-menu">
-														<li><a class="dropdown-item" href="#"> <i class="fa fa-trash"></i> Delete</a></li>
-														<li><a class="dropdown-item" href="#"> <i class="fa fa-ban"></i> Block</a></li>
-													</ul>
-												</div>
-											</div>
-										</div>
-										<div class="locations">Coimbatore, Tamil Nadu</div>
-										<div class="last-msg">I am not satisfied with quotation, you have sent I am not satisfied with quotation, you have sent</div>
-									</li>
-									<li class="clearfix">
-										<div class="people-details">
-											<div class="icon"><i class="fa fa-envelope-open"></i></div>
-											<div class="name">Anandhan AS <span class="mobile-number">- 7708679203</span></div>
-											<div class="full-right">
-												<div class="timestamp">1 month</div>
-												<div class="options dropdown" >
-													<span data-bs-toggle="dropdown"><i class="fa fa-ellipsis-v"></i></span>
-													<ul class="dropdown-menu">
-														<li><a class="dropdown-item" href="#"> <i class="fa fa-trash"></i> Delete</a></li>
-														<li><a class="dropdown-item" href="#"> <i class="fa fa-ban"></i> Block</a></li>
-													</ul>
-												</div>
-											</div>
-										</div>
-										<div class="locations">Coimbatore, Tamil Nadu</div>
-										<div class="last-msg">I am not satisfied with quotation, you have sent I am not satisfied with quotation, you have sent</div>
-									</li>
-									<li class="clearfix">
-										<div class="people-details">
-											<div class="icon"><i class="fa fa-envelope-open"></i></div>
-											<div class="name">Anandhan AS <span class="mobile-number">- 7708679203</span></div>
-											<div class="full-right">
-												<div class="timestamp">1 month</div>
-												<div class="options dropdown" >
-													<span data-bs-toggle="dropdown"><i class="fa fa-ellipsis-v"></i></span>
-													<ul class="dropdown-menu">
-														<li><a class="dropdown-item" href="#"> <i class="fa fa-trash"></i> Delete</a></li>
-														<li><a class="dropdown-item" href="#"> <i class="fa fa-ban"></i> Block</a></li>
-													</ul>
-												</div>
-											</div>
-										</div>
-										<div class="locations">Coimbatore, Tamil Nadu</div>
-										<div class="last-msg">I am not satisfied with quotation, you have sent I am not satisfied with quotation, you have sent</div>
-									</li>
-									<li class="clearfix">
-										<div class="people-details">
-											<div class="icon"><i class="fa fa-envelope-open"></i></div>
-											<div class="name">Anandhan AS <span class="mobile-number">- 7708679203</span></div>
-											<div class="full-right">
-												<div class="timestamp">1 month</div>
-												<div class="options dropdown" >
-													<span data-bs-toggle="dropdown"><i class="fa fa-ellipsis-v"></i></span>
-													<ul class="dropdown-menu">
-														<li><a class="dropdown-item" href="#"> <i class="fa fa-trash"></i> Delete</a></li>
-														<li><a class="dropdown-item" href="#"> <i class="fa fa-ban"></i> Block</a></li>
-													</ul>
-												</div>
-											</div>
-										</div>
-										<div class="locations">Coimbatore, Tamil Nadu</div>
-										<div class="last-msg">I am not satisfied with quotation, you have sent I am not satisfied with quotation, you have sent</div>
-									</li>
-									<li class="clearfix">
-										<div class="people-details">
-											<div class="icon"><i class="fa fa-envelope-open"></i></div>
-											<div class="name">Anandhan AS <span class="mobile-number">- 7708679203</span></div>
-											<div class="full-right">
-												<div class="timestamp">1 month</div>
-												<div class="options dropdown" >
-													<span data-bs-toggle="dropdown"><i class="fa fa-ellipsis-v"></i></span>
-													<ul class="dropdown-menu">
-														<li><a class="dropdown-item" href="#"> <i class="fa fa-trash"></i> Delete</a></li>
-														<li><a class="dropdown-item" href="#"> <i class="fa fa-ban"></i> Block</a></li>
-													</ul>
-												</div>
-											</div>
-										</div>
-										<div class="locations">Coimbatore, Tamil Nadu</div>
-										<div class="last-msg">I am not satisfied with quotation, you have sent I am not satisfied with quotation, you have sent</div>
-									</li>
 								</ul>
 							</div>
 						</div>
@@ -313,6 +115,133 @@
 </div>
 @endsection
 @section('scripts')
+<script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
 <script>
+
+    // Enable pusher logging - don't include this in production
+    Pusher.logToConsole = false;
+
+    var pusher = new Pusher('a7ff093c69a29c4158b8', {
+      cluster: 'ap2'
+    });
+
+    var channel = pusher.subscribe('my-channel');
+    channel.bind('my-event', function(data) {
+      alert(JSON.stringify(data));
+    });
+</script>
+<script>
+	$(document).ready(function(){
+		var chatList=[];
+		const init=async()=>{
+			getChatList();
+			chatListPositionChange();
+			detectChatTimeChange();
+		}
+		const getChatList=async()=>{
+			
+			const getList=async()=>{
+				$.ajax({
+					type:"post",
+					url:"{{route('admin.chat.get.chat-list')}}",
+					headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
+					dataType:"json",
+					async:true,
+					success:function(response){
+						$('#people-list > ul').html('')
+						loadChatList(response);
+					}
+				});
+			}
+			const loadChatList=async(chatData)=>{
+				tmpChatList=[];
+				const checkChatList=async(chatID)=>{
+					return $('#people-list > ul > li[data-id="'+chatID+'"]').length>0;
+				}
+				const getHtmlContent=async(data)=>{
+					let content='';
+						content+='<div class="people-details">';
+							if(parseInt(data.isRead)==0){
+								content+='<div class="icon"><i class="fa fa-envelope"></i></div>';
+							}else{
+								content+='<div class="icon"><i class="fa fa-envelope-open"></i></div>';
+							}
+							content+='<div class="name">'+data.sendFromName+' <span class="mobile-number">- '+data.MobileNumber+'</span></div>';
+							content+='<div class="full-right">';
+								content+='<div class="options dropdown" >';
+									content+='<span data-bs-toggle="dropdown"><i class="fa fa-ellipsis-v"></i></span>';
+									content+='<ul class="dropdown-menu">';
+										content+='<li><a class="dropdown-item" href="#" data-id="'+data.ChatID+'"> <i class="fa fa-trash"></i> Delete</a></li>';
+										content+='<li><a class="dropdown-item" href="#" data-id="'+data.ChatID+'"> <i class="fa fa-ban"></i> Block</a></li>';
+									content+='</ul>';
+								content+='</div>';
+							content+='</div>';
+						content+='</div>';
+						content+='<div class="locations">'+data.DistrictName+", "+data.StateName+'</div>';
+						content+='<div class="last-msg">'+data.LastMessage+'</div>';
+						content+='<div class="timestamp">'+data.LastMessageOnHuman+'</div>';
+					return content;
+				}
+				for(let data of chatData){
+					tmpChatList.push(data.ChatID);
+					let status=await checkChatList(data.ChatID);
+					let htmlContent=await getHtmlContent(data);
+					if(status){
+						$('#people-list > ul > li[data-id="'+data.ChatID+'"]').html(htmlContent);
+					}else{
+						$('#people-list > ul').append('<li class="clearfix" data-id="'+data.ChatID+'" data-time="'+data.LastMessageOn+'">'+htmlContent+'</li>');
+					}
+				}
+				chatListPositionChange();
+				detectChatTimeChange();
+			}
+			getList();
+		}
+		const detectChatTimeChange=async()=>{
+			const debounce = (func, delay) => {
+				let timeout;
+				return function(...args) {
+					const context = this;
+					clearTimeout(timeout);
+					timeout = setTimeout(() => func.apply(context, args), delay);
+				};
+			};
+
+			const handleChange = debounce((mutations) => {
+				mutations.forEach(mutation => {
+					if (mutation.type === 'attributes' && mutation.attributeName === 'data-time') {
+						chatListPositionChange();
+					}
+				});
+			}, 300); // Adjust the delay as needed
+
+			const observer = new MutationObserver(handleChange);
+
+			// Observe each chat message for attribute changes
+			const messages = document.querySelectorAll('#people-list > ul > li');
+			messages.forEach(message => {
+				observer.observe(message, {
+					attributes: true // Observe attribute changes
+				});
+			});
+		}
+
+
+		const chatListPositionChange=async()=>{
+			const chatList = document.querySelector('#people-list > ul');
+			const messages = Array.from(chatList.children);
+
+			// Sort messages based on data-chat-time
+			messages.sort((a, b) => {
+				return new Date(b.getAttribute('data-time')) - new Date(a.getAttribute('data-time'));
+			});
+			console.log(chatList.children)
+			// Insert sorted messages back into the list
+			messages.forEach((message, index) => {
+				chatList.insertBefore(message, chatList.children[index]);
+			});
+		}
+		init();
+	});
 </script>
 @endsection

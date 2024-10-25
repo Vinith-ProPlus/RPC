@@ -212,6 +212,8 @@ return [
     */
 
     'aliases' => Facade::defaultAliases()->merge([
+        //events
+        'chatApp' => App\Events\chatApp::class,
         //helpers
         'Helper' => App\helper\helper::class,
         'dynamicField' => App\helper\dynamicField::class,
