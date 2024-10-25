@@ -284,6 +284,9 @@ Route::group(['prefix'=>'admin'],function (){
             require __DIR__.'/web/users.php';
         });
 
+        Route::group(['prefix'=>'chat'],function (){
+            require __DIR__.'/web/chat.php';
+        });
     });
 });
 require __DIR__.'/auth.php';
