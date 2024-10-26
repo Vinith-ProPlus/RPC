@@ -47,7 +47,7 @@ class general extends Model{
 	}
 	public function getUserInfo($UserID){
 		$return=array();
-		$sql="Select U.ID,U.UserID,U.RoleID,UR.RoleName,U.Name,U.EMail,U.FirstName,U.LastName,U.DOB,U.GenderID,G.Gender,U.Address,U.CityID,CI.CityName,U.StateID,S.StateName,U.CountryID,CO.CountryName,CO.PhoneCode,U.PostalCodeID,PC.PostalCode,U.EMail,U.MobileNumber,U.ProfileImage,U.ActiveStatus,U.DFlag From users AS U  left join ".$this->generalDB."tbl_cities AS CI On CI.CityID=U.CityID Left Join ".$this->generalDB."tbl_countries AS CO ON CO.CountryID=U.CountryID LEFT JOIN ".$this->generalDB."tbl_states as S On S.StateID=U.StateID  Left Join ".$this->generalDB."tbl_postalcodes as PC On PC.PID=U.PostalCodeID Left Join ".$this->generalDB."tbl_genders as G On G.GID=U.GenderID Left join tbl_user_roles as UR ON UR.RoleID=U.RoleID Where U.UserID='".$UserID."'";
+		$sql="Select U.ID,U.UserID,U.RoleID,UR.RoleName,U.Name,U.EMail,U.FirstName,U.LastName,U.DOB,U.GenderID,G.Gender,U.Address,U.CityID,CI.CityName,U.StateID,S.StateName,U.CountryID,CO.CountryName,CO.PhoneCode,U.PostalCodeID,PC.PostalCode,U.EMail,U.MobileNumber,U.ProfileImage,U.ActiveStatus,U.DFlag, U.LoginType From users AS U  left join ".$this->generalDB."tbl_cities AS CI On CI.CityID=U.CityID Left Join ".$this->generalDB."tbl_countries AS CO ON CO.CountryID=U.CountryID LEFT JOIN ".$this->generalDB."tbl_states as S On S.StateID=U.StateID  Left Join ".$this->generalDB."tbl_postalcodes as PC On PC.PID=U.PostalCodeID Left Join ".$this->generalDB."tbl_genders as G On G.GID=U.GenderID Left join tbl_user_roles as UR ON UR.RoleID=U.RoleID Where U.UserID='".$UserID."'";
 		$return=DB::select($sql);
 		return $return;
     }

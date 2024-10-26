@@ -12,22 +12,12 @@ use Illuminate\Queue\SerializesModels;
 
 class chatApp implements ShouldBroadcast{
     use Dispatchable, InteractsWithSockets, SerializesModels;
-
     public $message;
     public $UserID;
-    /**
-     * Create a new event instance.
-     */
-    public function __construct($UserID,$LoginType,$data){
+    public function __construct($UserID,$data){
         $this->message=$data;
-        $this->UserID=$LoginType=="Admin"?"RPC-".$LoginType:$UserID;
+        $this->UserID=$UserID;
     }
-
-    /**
-     * Get the channels the event should broadcast on.
-     *
-     * @return array<int, \Illuminate\Broadcasting\Channel>
-     */
     public function broadcastOn(){
         return ['rpc-chat-202'];
     }

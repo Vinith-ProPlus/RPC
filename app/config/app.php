@@ -41,6 +41,15 @@ return [
     // GOOGLE MAPS
     'map_api_key' => env('GOOGLE_MAPS_API_KEY', ''),
 
+    //Pusher
+    'PUSHER_APP_ID'=>env("PUSHER_APP_ID"),
+    'PUSHER_APP_KEY'=>env("PUSHER_APP_KEY"),
+    'PUSHER_APP_SECRET'=>env("PUSHER_APP_SECRET"),
+    'PUSHER_HOST'=>env("PUSHER_HOST"),
+    'PUSHER_PORT'=>env("PUSHER_PORT"),
+    'PUSHER_SCHEME'=>env("PUSHER_SCHEME"),
+    'PUSHER_APP_CLUSTER'=>env("PUSHER_APP_CLUSTER"),
+    
     // FIREBASE
     'firebase_server_key' => env('FIREBASE_SERVER_KEY', ''),
     'geo_names_user_name' => env('GEO_NAMES_USER_NAME', ''),
@@ -213,7 +222,7 @@ return [
 
     'aliases' => Facade::defaultAliases()->merge([
         //events
-        'chatApp' => App\Events\chatApp::class,
+        'chatApp' => App\Events\ChatApp::class,
         //helpers
         'Helper' => App\helper\helper::class,
         'dynamicField' => App\helper\dynamicField::class,

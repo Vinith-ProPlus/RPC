@@ -446,8 +446,8 @@
     padding: 15px;
   }
   .chat-right-aside {
-    flex: 0 0 60%;
-    max-width: 60%;
+    flex: 0 0 100%;
+    max-width: 100%;
     overflow: hidden;
   }
   .chat-right-aside .chat .chat-message .smiley-box {
@@ -4205,8 +4205,8 @@
     padding: 0.5em 0.62em;
   }
   .chat-box .chat-right-aside {
-    flex: 0 0 96%;
-    max-width: 96%;
+    flex: 0 0 100%;
+    max-width: 100%;
   }
   .chat-box .chat-right-aside .chat .chat-message {
     width: calc(100% - 20px);

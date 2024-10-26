@@ -256,6 +256,9 @@
 .no-border-left{
     border-left: 0px !important;
 }
+.chat-box .chat-right-aside .chat .chat-msg-box > ul > li{
+    margin-bottom: 30px;
+}
 .chat-box .chat-right-aside .chat .chat-msg-box .message{
     color: #2c323f;
     padding: 0px;
@@ -307,6 +310,16 @@
     font-weight: 400;
     padding-left:10px ;
 }
+.chat-box .chat-right-aside .chat .chat-msg-box .sender .message.my-message{
+    width: auto;
+    max-width: 50%;
+    display: inline-grid;
+}
+.chat-box .chat-right-aside .chat .chat-msg-box .reply .message.other-message{
+    width: auto;
+    max-width: 50%;
+    display: grid;
+}
 .chat-box .chat-right-aside .chat .chat-msg-box .reply .message p{
     color: #fff;
     font-size: 14px;
@@ -319,6 +332,8 @@
     border-top-right-radius: 10px;
     border-bottom-left-radius: 10px;
     margin-bottom: 0;
+    min-width: 80px;
+    text-align: center;
 }
 .chat-box .chat-right-aside .chat .chat-msg-box .reply .message p:before{
     display: block;
