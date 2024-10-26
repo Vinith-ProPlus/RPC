@@ -10,3 +10,24 @@ ALTER TABLE `tbl_vendors_product_mapping` ADD `SupplyType` ENUM('WholeSale','Ret
 
 240926
 INSERT INTO `tbl_settings` (`SLNO`, `KeyName`, `KeyValue`, `SType`, `Description`, `UpdatedOn`, `UpdatedBy`, `UKey`) VALUES (NULL, 'android-app-url', '1', 'text', 'android app url', '2023-08-24 14:54:28', 'U2023-0000001', '');
+
+241025
+
+INSERT INTO `tbl_menus` (`MID`, `Slug`, `MenuName`, `ActiveName`, `Icon`, `PageUrl`, `ParentID`, `Level`, `hasSubMenu`, `Ordering`, `isCheckSetting`, `SettingsName`, `DefaultOrdering`, `ActiveStatus`, `DFlag`, `UpdatedOn`, `UpdatedBy`) VALUES ('M2023-0000062', 'chat-suggestions', 'Chat Suggestions', 'Chat-Suggestions', NULL, 'admin/settings/chat-suggestions', 'M2023-0000007', 'L002', '0', '5', '0', NULL, '1', '1', '0', '2022-12-07 01:19:35', NULL);
+INSERT INTO `tbl_cruds` (`MID`, `add`, `view`, `edit`, `delete`, `copy`, `excel`, `csv`, `print`, `pdf`, `restore`, `showpwd`) VALUES ('M2023-0000062', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '0');
+INSERT INTO `tbl_docnum` (`SLNO`, `DocType`, `Prefix`, `Length`, `CurrNum`, `Suffix`, `Year`) VALUES ('65', 'Chat-Suggestions', 'CS', '8', '1', '', '2024');
+
+CREATE TABLE `tbl_chat_suggestions` (
+  `CSID` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `Question` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `Answer` LONGTEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `ActiveStatus` enum('Active','Inactive') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT 'Active',
+  `DFlag` int(11) NOT NULL DEFAULT 0,
+  `CreatedOn` timestamp NOT NULL DEFAULT current_timestamp(),
+  `UpdatedOn` timestamp NULL DEFAULT NULL ON UPDATE current_timestamp(),
+  `DeletedOn` timestamp NULL DEFAULT NULL,
+  `CreatedBy` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `UpdatedBy` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `DeletedBy` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  PRIMARY KEY (`CSID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;

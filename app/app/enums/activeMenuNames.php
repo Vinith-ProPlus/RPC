@@ -27,7 +27,7 @@ enum activeMenuNames:string{
     case Brands="Brands";
     case Attributes="Attributes";
     case Products="Products";
-    
+
     case QuoteEnquiry="Quote-Enquiry";
     case Quotation="Quotation";
     case Order="Order";
@@ -37,14 +37,14 @@ enum activeMenuNames:string{
     case CustomerGroups="Customer-Groups";
     case Supplier="Manage-Suppliers";
     case PaymentRequest="Payment-Request";
-    
+
     case rptLedger="Ledger";
     case rptOutstandings="Outstandings";
     case rptPerformanceAnalysis="Performance-Analysis";
     case rptOrdersDue="Orders-Due-Report";
     case rptDeliveryStatus="Delivery-Status-Report";
     case rptCommision="Commision-Report";
-    
+
     case UserRoles="User-and-Roles";
     case Users="Users";
     case Profile="Profile";
@@ -54,5 +54,6 @@ enum activeMenuNames:string{
 
     case Company="Company-Settings";
     case SupportTickets="Support-Tickets";
+    case ChatSuggestions="Chat-Suggestions";
 
 }

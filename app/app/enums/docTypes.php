@@ -38,7 +38,7 @@ enum docTypes:string{
     case Attributes="Attributes";
     case AttributeValues="Attribute-Values";
     case AttributeValueCategory="Attribute-Value-Category";
-    
+
     case Product="Products";
     case ProductAttributes="Product-Attributes";
     case ProductStages="Product-Stages";
@@ -46,7 +46,7 @@ enum docTypes:string{
     case ProductVariation="Product-Variation";
     case ProductVariationDetails="Product-Variation-Details";
     case ProductVariationGallery="Product-Variation-Gallery";
-    
+
     case VehicleType="Vehicle-Type";
     case VehicleBrand="Vehicle-Brand";
     case VehicleModel="Vehicle-Model";
@@ -73,12 +73,13 @@ enum docTypes:string{
     case CustomerAddress="Customer-Address";
     case LeadSource="Lead-Source";
     case Charges="Charges";
-    
+
     case Support="Support";
     case SupportDetails="Support-Details";
     case SupportAttachments="Support-Attachments";
-    
+
     case Withdraw="Withdraw";
     case Notification="Notification";
+    case ChatSuggestions="Chat-Suggestions";
 
 }
