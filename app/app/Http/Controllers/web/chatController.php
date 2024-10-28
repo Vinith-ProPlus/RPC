@@ -48,6 +48,25 @@ class chatController extends Controller{
         $FormData['PageTitle']=$this->PageTitle;
         $FormData['menus']=$this->Menus;
         $FormData['crud']=$this->CRUD;
+        $products = DB::table('tbl_products as P')->join('tbl_product_subcategory as PSC','PSC.PSCID','P.SCID')->join('tbl_product_category as PC','PC.PCID','PSC.PCID')->join('tbl_uom as UOM','UOM.UID','P.UID')
+		->where('P.DFlag',0)->where('P.ActiveStatus','Active')
+		->where('PSC.DFlag',0)->where('PSC.ActiveStatus','Active')
+		->where('PC.DFlag',0)->where('PC.ActiveStatus','Active')
+		->select('P.ProductName','P.ProductID','PC.PCID','PC.PCName','PSC.PSCID','PSC.PSCName','P.PRate','P.Description', DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'))
+		->take(10)
+		->get();
+		foreach ($products as $product) {
+			$imageUrl = $product->ProductImage;
+		
+			$headers = @get_headers($imageUrl);
+			if (!$headers || strpos($headers[0], '404') !== false) {
+				$product->ProductImage = url('assets/images/no-image-b.png');
+			}
+		}
+		
+		$FormData['Products'] = $products;
+		$FormData['PCategory'] = DB::table('tbl_product_category')->where('DFlag',0)->where('ActiveStatus','Active')->get();
+		$FormData['PSCategory'] = DB::table('tbl_product_subcategory')->where('DFlag',0)->where('ActiveStatus','Active')->get();
         return view('app.chat.chat',$FormData);
     }
 	public function getChatList(Request $req){
