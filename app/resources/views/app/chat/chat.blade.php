@@ -32,8 +32,8 @@
 				</div>
 			</div>
 		</div>
-		<div class="col call-chat-body" >
-			<div class="card">
+		<div class="col call-chat-body " >
+			<div class="card show">
 				<div class="card-body p-0" >
 					<div class="row chat-box">
 						<!-- Chat right side start-->
@@ -56,7 +56,7 @@
 								</div>
 								<!-- chat-header end-->
 								<div class="chat-history chat-msg-box custom-scrollbar">
-									<div class="load-chat-more"></div>
+									<div class="load-chat-more"><a href="#">Load More</a></div>
 									<ul>
 										<li class="sender">
 											<div class="message my-message">
@@ -70,11 +70,31 @@
 												<span class="time">10:20 am</span>
 											</div>
 										</li>
+										<li data-id="CM2024-000000000000051" class="clearfix reply">
+											<div class="message other-message pull-right">
+												<p class="pdf"> <a href="https://css4.pub/2015/textbook/somatosensory.pdf" target="_blank" download><span class="icon"></span>somatosensory.pdf</a></p>
+												<span class="time" data-time="2024-10-26 16:48:59">1 day</span>
+											</div>
+										</li>
+										<li data-id="CM2024-000000000000051" class="clearfix reply">
+											<div class="message other-message pull-right">
+												<p class="attachment-img"> <a href="https://upload.wikimedia.org/wikipedia/commons/b/b6/Image_created_with_a_mobile_phone.png" target="_blank" download><img src="https://upload.wikimedia.org/wikipedia/commons/b/b6/Image_created_with_a_mobile_phone.png" alt=""></a></p>
+												<span class="time" data-time="2024-10-26 16:48:59">1 day</span>
+											</div>
+										</li>
+										<li data-id="CM2024-000000000000051" class="clearfix reply">
+											<div class="message other-message pull-right">
+												<p class="pdf"> <a href="https://file-examples.com/wp-content/storage/2017/02/file-sample_100kB.doc" target="_blank" download>file-sample_100kB.doc</a></p>
+												<span class="time" data-time="2024-10-26 16:48:59">1 day</span>
+											</div>
+										</li>
+
+										
 									</ul>
 								</div>
 								<!-- end chat-history-->
 								<div class="chat-message clearfix shadow">
-									<div class="row">
+									<div class="row chat-input">
 										<div class="col-12 d-flex">
 											<div class="input-group ">
 												<div class="input-group-text"><div class="chat-opt btnSendQuote" id="btnSendQuote" data-bs-toggle="modal" data-bs-target="#quoteModal"><div class="chat-opt-icon" ><img src="data:image/png;base64,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" alt=""></div><div class="chat-opt-name">Quotation</div></div></div>
@@ -84,8 +104,16 @@
 												<div class="input-group-text">
 													<a class="btnSendMessage" id="btnSendMessage" style="display:none"><img src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAATCAYAAACdkl3yAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAADlSURBVHgBpZOBEYIwEAQvYgGUkA60BKhASqAVO9AKsASpgJEGtAPsQBrQeCFBBEcC4WZ+COR/uTwPVIGUIbFU6oKKoVSJbAlwhRdyQ0TKu8oXuGKce088gRp0Y9Q/OzOBoqkpUbAwcmSe8MRexLjjjyMwIYdLDofGUYGQSVcuJaZq4FD0XqqBwNaG5O6GodehEwiHLDyh42wkrRaDAtm4CehEr5V1NgLgHB55PbQ9krqRmK4OEJvRWduNxBfQyoAC7HgML0ArYT/9wxfw7ShaAuhA/WPNBnQg8495Az5ijxI7Q4v0BlVBdW4a0d5nAAAAAElFTkSuQmCC'/></a>
 												</div>
+												
 											</div>
 										</div>
+										
+										<div style="display:none">
+											<input type="file" id="txtAttachments" accept=".jpg, .jpeg, .png, .gif, .bmp, .tiff, .tif, .webp, .svg, .heic', .heif, .ico, .jfif, .doc, .docx, .xls, .xlsx, .pdf">
+										</div>
+									</div>
+									<div class="row blocked-content">
+										<div class="col-12">Can't send a message to blocked contact</div>
 									</div>
 								</div>
 								<!-- end chat-message-->
@@ -133,12 +161,13 @@
 		const pusherInit=async()=>{
 			Pusher.logToConsole = false;
 	
-			var pusher = new Pusher("a7ff093c69a29c4158b8", {
+			var pusher = new Pusher("{{config('app.PUSHER_APP_KEY')}}", {
 				cluster: "ap2",
 			});
-			var channel = pusher.subscribe("rpc-chat-202");
+			var channel = pusher.subscribe("rpc-chat-582");
 				channel.bind('Admin', async function(message) {
-			})
+					console.log(message);
+				})
 		}
 		const getChatList=async()=>{
 			
@@ -164,18 +193,19 @@
 				const getHtmlContent=async(data)=>{
 					let content='';
 						content+='<div class="people-details">';
-							if(parseInt(data.isRead)==0){
-								content+='<div class="icon"><i class="fa fa-envelope"></i></div>';
-							}else{
-								content+='<div class="icon"><i class="fa fa-envelope-open"></i></div>';
-							}
+							content+='<div class="icon" data-read-status="'+data.isRead+'"><span></span></div>';
 							content+='<div class="name">'+data.sendFromName+' <span class="mobile-number">- '+data.MobileNumber+'</span></div>';
 							content+='<div class="full-right">';
 								content+='<div class="options dropdown" >';
 									content+='<span data-bs-toggle="dropdown"><i class="fa fa-ellipsis-v"></i></span>';
 									content+='<ul class="dropdown-menu">';
-										content+='<li><a class="dropdown-item" href="#" data-id="'+data.ChatID+'"> <i class="fa fa-trash"></i> Delete</a></li>';
-										content+='<li><a class="dropdown-item" href="#" data-id="'+data.ChatID+'"> <i class="fa fa-ban"></i> Block</a></li>';
+										content+='<li><a class="dropdown-item btnDeleteChat" href="#" data-id="'+data.ChatID+'"> <i class="fa fa-trash"></i> Delete</a></li>';
+										if(data.Status=="Blocked"){
+											content+='<li><a class="dropdown-item btnUnblock" href="#" data-id="'+data.ChatID+'"> <i class="fa fa-repeat fa-flip-horizontal"></i> Unblock</a></li>';
+										}else{
+											content+='<li><a class="dropdown-item btnBlock" href="#" data-id="'+data.ChatID+'"> <i class="fa fa-ban"></i> Block</a></li>';
+										}
+										
 									content+='</ul>';
 								content+='</div>';
 							content+='</div>';
@@ -192,7 +222,7 @@
 					if(status){
 						$('#people-list > ul > li[data-id="'+data.ChatID+'"]').html(htmlContent);
 					}else{
-						$('#people-list > ul').append('<li data-send-from="'+data.sendFromID+'" data-send-to="'+data.sendTo+'" data-chat-name="'+data.sendFromName +' - '+data.MobileNumber+'" class="clearfix" data-id="'+data.ChatID+'" data-time="'+data.LastMessageOn+'">'+htmlContent+'</li>');
+						$('#people-list > ul').append('<li data-send-from="'+data.sendFromID+'" data-status="'+data.Status+'" data-send-to="'+data.sendTo+'" data-chat-name="'+data.sendFromName +' - '+data.MobileNumber+'" class="clearfix" data-id="'+data.ChatID+'" data-time="'+data.LastMessageOn+'">'+htmlContent+'</li>');
 					}
 				}
 				chatListPositionChange();
@@ -306,19 +336,30 @@
 				}
 			});
 		}
-		const addChatMessages=async(data)=>{
-			let html = `<li data-id="${data.SLNO}" class="clearfix ${data.MType === "sender" ? "sender" : "reply"}"><div class="message ${data.MType === "sender" ? "my-message" : "other-message pull-right"}"><p>${data.Message}</p><span class="time" data-time="${data.CreatedOn}">${data.CreatedOnHuman}</span></div></li>`;
+		const addChatMessages=async(data)=>{ 
+			let html='';
+			if(data.Type=="Attachment"){
+				let attchmentType=await getFileType(data.Attachments);
+				let fileName=data.Attachments.split("/").pop();
+				if(attchmentType=="PDF"){
+					html = `<li data-id="${data.SLNO}" class="clearfix ${data.MType === "sender" ? "sender" : "reply"}"><div class="message ${data.MType === "sender" ? "my-message" : "other-message pull-right"}"><p class="pdf"><a href="${data.Attachments}" target="_blank" download><span class="icon"></span>${fileName}</a></p><span class="time" data-time="${data.CreatedOn}">${data.CreatedOnHuman}</span></div></li>`;
+				}else if(attchmentType=="Image"){
+					html = `<li data-id="${data.SLNO}" class="clearfix ${data.MType === "sender" ? "sender" : "reply"}"><div class="message ${data.MType === "sender" ? "my-message" : "other-message pull-right"}"><p class="attachment-img"><a href="${data.Attachments}" target="_blank" download><img src="${data.Attachments}" alt="${fileName}"></a></p><span class="time" data-time="${data.CreatedOn}">${data.CreatedOnHuman}</span></div></li>`;
+				}else{
+					html = `<li data-id="${data.SLNO}" class="clearfix ${data.MType === "sender" ? "sender" : "reply"}"><div class="message ${data.MType === "sender" ? "my-message" : "other-message pull-right"}"><p class="pdf"><a href="${data.Attachments}" target="_blank" download>${fileName}</a></p><span class="time" data-time="${data.CreatedOn}">${data.CreatedOnHuman}</span></div></li>`;
+				}
+				
+			}else{
+				html = `<li data-id="${data.SLNO}" class="clearfix ${data.MType === "sender" ? "sender" : "reply"}"><div class="message ${data.MType === "sender" ? "my-message" : "other-message pull-right"}"><p>${data.Message}</p><span class="time" data-time="${data.CreatedOn}">${data.CreatedOnHuman}</span></div></li>`;
+			}
 			$('.chat-history.chat-msg-box ul').append(html);
 		}
-		const sendMessage=async()=>{
-			let message=$('#txtMessage').val();
-			if(message!=""){
-				let type="Text";
+		const sendMessage=async(type="Text",message="",attachments={})=>{
 				$.ajax({
 					type:"post",
 					url:"{{route('admin.chat.send.message','_chatID_')}}".replace('_chatID_',activeChatID),
 					headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
-					data:{message,type,messageTo,messageFrom},
+					data:{message,type,messageTo,messageFrom,attachments:JSON.stringify(attachments)},
 
 					async:true,
 					success:function(response){
@@ -335,7 +376,37 @@
 						}
 					}
 				});
-			}
+		}
+		const sendAttachment=async(attachment)=>{
+				let formData=new FormData();
+				formData.append('message',"");
+				formData.append('type',"Attachment");
+				formData.append('messageTo',messageTo);
+				formData.append('messageFrom',messageFrom);
+				formData.append('attachments',attachment);
+				$.ajax({
+					type:"post",
+					url:"{{route('admin.chat.send.attachment','_chatID_')}}".replace('_chatID_',activeChatID),
+					headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
+					data:formData,
+					async:true,
+                    cache: false,
+                    processData: false,
+                    contentType: false,
+					success:function(response){
+						$('#txtMessage').val('');
+						if(response.status && response.SLNO!=""){
+							getChatHistory(response.SLNO)
+							chatScrollDown();
+							if(response.LastMessage!=""){
+								$('.people-list ul.list > li[data-id="'+activeChatID+'"] .last-msg').html(response.LastMessage)
+							}
+							
+							$('.people-list ul.list > li[data-id="'+activeChatID+'"] .timestamp').html(response.LastMessageOnHuman)
+							$('.people-list ul.list > li[data-id="'+activeChatID+'"]').attr('data-time',response.LastMessageOn);
+						}
+					}
+				});
 		}
 		const timeAgo=(date)=> {
 			const seconds = Math.floor((new Date() - date) / 1000);
@@ -363,19 +434,58 @@
 				el.textContent =  timeAgo(time);
 			});
 		}
+		const getFileType=async(url)=> {
+			// Get the file extension
+			var extension = url.split('.').pop().toLowerCase();
+
+			// Check the file type based on the extension
+			if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'tiff', 'tif', 'webp', 'svg', 'heic', 'heif', 'ico', 'jfif'].includes(extension)) {
+				return 'Image';
+			} else if (['pdf'].includes(extension)) {
+				return 'PDF';
+			} else if (['doc', 'docx', 'xls', 'xlsx'].includes(extension)) {
+				return 'Document';
+			} else {
+				return 'Other';
+			}
+		}
+		const validateAttachements=async(fileName)=>{
+			var fileExtension = fileName.split('.').pop().toLowerCase();
+
+			// List of allowed extensions
+			var allowedExtensions = [
+				'jpg', 'jpeg', 'png', 'gif', 'bmp', 'tiff', 'tif', 
+				'webp', 'svg', 'heic', 'heif', 'ico', 'jfif', 
+				'doc', 'docx', 'xls', 'xlsx', 'pdf'
+			];
+
+			// Check if the file extension is in the allowed list
+			if ($.inArray(fileExtension, allowedExtensions) === -1) {
+				return false;
+			}
+			return true;
+		}
 		init();
 		$(document).on('click','#btnSearch',searchChatList);
 		$(document).on('click','#people-list > ul > li',function(){
-			$('.chat-history.chat-msg-box ul li').remove();
-			activeChatID=$(this).attr('data-id');
+			if(activeChatID!=$(this).attr('data-id')){
+				let chatStatus=$(this).attr('data-status')
+				$('.chat-history.chat-msg-box ul li').remove();
 
-			messageTo=$(this).attr('data-send-from')
-			messageFrom=$(this).attr('data-send-to')
-			$('#people-list > ul > li').removeClass('active');
-			$('#people-list > ul > li[data-id="'+activeChatID+'"]').addClass('active')
-			getChatAccountDetails();
-			getChatHistory();
-			$('.call-chat-body .card').removeClass('show').addClass('show')
+				activeChatID=$(this).attr('data-id');
+
+				messageTo=$(this).attr('data-send-from')
+				messageFrom=$(this).attr('data-send-to')
+				$('#people-list > ul > li').removeClass('active');
+				$('#people-list > ul > li[data-id="'+activeChatID+'"]').addClass('active')
+				$('#people-list > ul > li[data-id="'+activeChatID+'"] .people-details .icon').attr('data-read-status',1);
+				getChatAccountDetails();
+				getChatHistory();
+				$('.call-chat-body .card').removeClass('show').addClass('show');
+				if(chatStatus=="Blocked"){
+					$('.chat-box .chat-right-aside .chat .chat-message').removeClass('blocked').addClass('blocked');
+				}
+			}
 		});
 		$(document).on('keyup','#txtMessage',function(){
 			let message=$('#txtMessage').val();
@@ -388,10 +498,84 @@
 		$(document).on('keydown','#txtMessage',function(){
 			let message=$('#txtMessage').val();
 			if (event.key === 'Enter' && message!="") {
-				sendMessage();
+				if($('#txtMessage').val()!=""){
+					sendMessage("Text",$('#txtMessage').val())
+				}
 			}
 		})
-		$(document).on('click','#btnSendMessage',sendMessage);
+		$(document).on('click','#btnSendMessage',function(){
+			if($('#txtMessage').val()!=""){
+				sendMessage("Text",$('#txtMessage').val())
+			}
+			
+		});
+		$(document).on('click','.btnDeleteChat',function(){
+			let ChatID=$(this).attr('data-id');
+			
+			$.ajax({
+				type:"post",
+				url:"{{route('admin.chat.delete','_chatID_')}}".replace('_chatID_',ChatID),
+				headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
+				async:true,
+				success:function(response){
+					$('#people-list > ul > li[data-id="'+ChatID+'"]').remove();
+					if(ChatID==activeChatID){
+						$('.call-chat-body .card').removeClass('show')
+					}
+				}
+			});
+		});
+		$(document).on('click','.btnBlock',function(){
+			let _this=$(this);
+			let ChatID=$(this).attr('data-id');
+			$.ajax({
+				type:"post",
+				url:"{{route('admin.chat.block','_chatID_')}}".replace('_chatID_',ChatID),
+				headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
+				async:true,
+				success:function(response){
+					_this.attr('data-status','Blocked');
+					_this.html('<i class="fa fa-repeat fa-flip-horizontal"></i> Unblock');
+					_this.removeClass('btnBlock').addClass('btnUnblock');
+					if(ChatID==activeChatID){
+						$('.chat-box .chat-right-aside .chat .chat-message').removeClass('blocked').addClass('blocked');
+					}
+				}
+			});
+		});
+		$(document).on('click','.btnUnblock',function(){
+			let _this=$(this);
+			let ChatID=$(this).attr('data-id');
+			$.ajax({
+				type:"post",
+				url:"{{route('admin.chat.unblock','_chatID_')}}".replace('_chatID_',ChatID),
+				headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
+				async:true,
+				success:function(response){
+					_this.attr('data-status','Active');
+					_this.html('<i class="fa fa-ban"></i> Block');
+					_this.removeClass('btnUnblock').addClass('btnBlock');
+					if(ChatID==activeChatID){
+						$('.chat-box .chat-right-aside .chat .chat-message').removeClass('blocked');
+					}
+				}
+			});
+		});
+		$(document).on('click','#btnSendAttachment',function(){
+			$('#txtAttachments').trigger('click');
+		});
+		$(document).on('change','#txtAttachments',async function(){
+			if($('#txtAttachments').val()!=""){
+				var fileInput = $('#txtAttachments')[0];
+				if (fileInput.files.length > 0) {
+					let status=await validateAttachements(fileInput.files[0].name);
+					if(status){
+						sendAttachment(fileInput.files[0])
+					}
+				}
+				
+			}
+		});
 	});
 </script>
 @endsection

@@ -19,7 +19,7 @@ class chatApp implements ShouldBroadcast{
         $this->UserID=$UserID;
     }
     public function broadcastOn(){
-        return ['rpc-chat-202'];
+        return ['rpc-chat-582'];
     }
     public function broadcastAs(){
         return $this->UserID;
