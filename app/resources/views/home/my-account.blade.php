@@ -1442,11 +1442,12 @@
             const pusherInit = async () => {
                 Pusher.logToConsole = false;
 
-                var pusher = new Pusher("a7ff093c69a29c4158b8", {
+                var pusher = new Pusher("{{ config('app.PUSHER_APP_KEY') }}", {
                     cluster: "ap2",
                 });
-                var channel = pusher.subscribe("rpc-chat-202");
-                channel.bind('Admin', async function (message) {
+                var channel = pusher.subscribe("rpc-chat-582");
+                channel.bind("{{ $Chat->sendFrom ?? '' }}", async function (message) {
+                    console.log(message);
                 })
             }
             const detectChatTimeChange = async () => {
@@ -1505,7 +1506,7 @@
             }
             const sendMessage = async () => {
                 let message = $('#txtMessage').val();
-                if (message != "") {
+                if (message !== "") {
                     let type = "Text";
                     $.ajax({
                         type: "post",

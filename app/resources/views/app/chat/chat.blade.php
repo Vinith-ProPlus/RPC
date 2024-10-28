@@ -117,7 +117,7 @@
 @section('scripts')
 <script src="https://js.pusher.com/8.0.1/pusher.min.js"></script>
 <script>
-	
+
 </script>
 <script>
 	$(document).ready(function(){
@@ -132,7 +132,7 @@
 		}
 		const pusherInit=async()=>{
 			Pusher.logToConsole = false;
-	
+
 			var pusher = new Pusher("a7ff093c69a29c4158b8", {
 				cluster: "ap2",
 			});
@@ -141,7 +141,7 @@
 			})
 		}
 		const getChatList=async()=>{
-			
+
 			const getList=async()=>{
 				$.ajax({
 					type:"post",
@@ -277,7 +277,7 @@
 						$('.chat-right-aside .mobile-number a').attr('href','tel:'+response.MobileNumber);
 						$('.chat-right-aside .email').html(response.email);
 					}
-					
+
 				}
 			});
 		}
@@ -329,7 +329,7 @@
 							if(response.LastMessage!=""){
 								$('.people-list ul.list > li[data-id="'+activeChatID+'"] .last-msg').html(response.LastMessage)
 							}
-							
+
 							$('.people-list ul.list > li[data-id="'+activeChatID+'"] .timestamp').html(response.LastMessageOnHuman)
 							$('.people-list ul.list > li[data-id="'+activeChatID+'"]').attr('data-time',response.LastMessageOn);
 						}

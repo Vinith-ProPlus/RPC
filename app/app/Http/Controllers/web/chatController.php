@@ -55,7 +55,7 @@ class chatController extends Controller{
 		$sql.=" FROM ".$this->SupportDB."tbl_chat as C LEFT JOIN users as SF ON SF.UserID=C.sendFrom  LEFT JOIN ".$this->generalDB."tbl_cities as CI ON CI.CityID=SF.CityID ";
 		$sql.=" LEFT JOIN ".$this->generalDB."tbl_taluks as T ON T.TalukID=SF.TalukID  LEFT JOIN ".$this->generalDB."tbl_districts as D ON D.DistrictID=SF.DistrictID ";
 		$sql.=" LEFT JOIN ".$this->generalDB."tbl_states as S ON S.StateID=SF.StateID LEFT JOIN ".$this->generalDB."tbl_countries as CO ON CO.CountryID=SF.CountryID ";
-		$sql.=" LEFT JOIN ".$this->generalDB."tbl_postalcodes as PS ON PS.PID=SF.PostalCodeID Where C.Status<>'Deleted'";
+		$sql.=" LEFT JOIN ".$this->generalDB."tbl_postalcodes as PS ON PS.PID=SF.PostalCodeID Where C.Status<>'Deleted' AND C.isAdminChat = 1";
 		$result=DB::SELECT($sql);
 		for($i=0;$i<count($result);$i++){
 			$LastMessageOnHuman=Carbon::parse($result[$i]->LastMessageOn)->diffForHumans();
@@ -93,7 +93,7 @@ class chatController extends Controller{
 		$sql.=" Order By CreatedOn asc";
 		$return= DB::SELECT($sql);
 		for($i=0;$i<count($return);$i++){
-			
+
 			$MsgOnHuman=Carbon::parse($return[$i]->CreatedOn)->diffForHumans();
 			$MsgOnHuman=str_replace('minutes','min',$MsgOnHuman);
 			$MsgOnHuman=str_replace('seconds','sec',$MsgOnHuman);
@@ -109,7 +109,7 @@ class chatController extends Controller{
 		DB::beginTransaction();$SLNO="";
 		$status=false;
 		$LastMessageOn=now();
-		
+
 		$LastMessage="";
 		try {
 			$SLNO=DocNum::getDocNum(docTypes::ChatMessage->value);
@@ -143,7 +143,7 @@ class chatController extends Controller{
 		}
 		if($status==true){
 			DB::commit();
-			
+
 		}else{
 			DB::rollback();
 		}
