@@ -44,6 +44,7 @@ class HomeTransactionController extends Controller{
     public function __construct()
     {
         $this->dateFormat = 'd-M-Y';
+        $this->supportDB = Helper::getSupportDB();
         $this->generalDB = Helper::getGeneralDB();
         $this->tmpDB = Helper::getTmpDB();
         $this->logDB = Helper::getLogDB();
@@ -154,6 +155,23 @@ class HomeTransactionController extends Controller{
         $FormData['isRegister'] = false;
         $FormData['Cart'] = $this->getCart();
         $FormData['ShippingAddress'] = $this->shippingAddress;
+        $chatExist = DB::table($this->supportDB.'tbl_chat')->where('sendFrom', $this->UserID)->exists();
+        if(!$chatExist) {
+            $chatStatus = DB::table($this->supportDB . 'tbl_chat')->insert([
+                "ChatID" => DocNum::getDocNum(docTypes::Chat->value),
+                "sendFrom" => $this->UserID,
+                "sendTo" => "Admin",
+                "Status" => "Active",
+                "isRead" => 0,
+                "LastMessageOn" => now(),
+                "CreatedOn" => now(),
+            ]);
+            if($chatStatus) {
+                DocNum::updateDocNum(docTypes::Chat->value);
+            }
+        }
+
+        $FormData['Chat'] = DB::table($this->supportDB.'tbl_chat')->where('sendFrom', $this->UserID)->first();
         return view('home.my-account', $FormData);
     }
 
