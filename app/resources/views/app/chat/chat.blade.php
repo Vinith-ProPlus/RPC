@@ -608,7 +608,18 @@
 				} catch (error) {
 					console.log(error)
 				}
-			}else{
+			} else if(data.Type === "Html"){
+                try {
+                        html+=`<li data-id="${data.SLNO}" class="clearfix ${data.MType === "sender" ? "sender" : "reply"}">`;
+                        html+=`<div class="message ${data.MType === "sender" ? "my-message" : "other-message pull-right"}">`;
+                        html+=`<div>${data.Message}</div>`;
+                        html+=`<span class="time" data-time="${data.CreatedOn}">${data.CreatedOnHuman}</span>`;
+                        html+=`</div>`;
+                        html+=`</li>`;
+                } catch (error) {
+                    console.log(error)
+                }
+            } else{
 				html = `<li data-id="${data.SLNO}" class="clearfix ${data.MType === "sender" ? "sender" : "reply"}"><div class="message ${data.MType === "sender" ? "my-message" : "other-message pull-right"}"><p>${data.Message}</p><span class="time" data-time="${data.CreatedOn}">${data.CreatedOnHuman}</span></div></li>`;
 			}
 			$('.chat-history.chat-msg-box ul').append(html);

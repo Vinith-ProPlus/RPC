@@ -1010,8 +1010,14 @@
             display: flex;
             flex-direction: column-reverse;
         }
+        .chat-box .chat-right-aside .chat .chat-msg-box > ul > li {
+            margin-bottom: 0px !important;
+        }
 
-
+        .highlight {
+            background-color: #ffc107; /* Light yellow background for highlighted search */
+            transition: background-color 0.3s;
+        }
 
 
 
@@ -1187,7 +1193,7 @@
                                                                     <div class="input-group" style="width: 220px;">
                                                                         <input type="text" class="form-control search-bar" placeholder="Search..." aria-label="Search" style="height: 30px; border-radius: 3px 0px 0px 3px;">
                                                                         <div class="input-group-append">
-                                                                            <span class="input-group-text bg-white border-left-0" style="cursor: pointer;"><i class="fas fa-search"></i></span>
+                                                                            <span class="input-group-text bg-white border-left-0" style="cursor: pointer;" id="searchBtn"><i class="fas fa-search"></i></span>
                                                                             <span class="input-group-text bg-white border-left-0" style="cursor: pointer;"><i class="fas fa-chevron-up"></i></span>
                                                                             <span class="input-group-text bg-white border-left-0" style="cursor: pointer;"><i class="fas fa-chevron-down"></i></span>
                                                                         </div>
@@ -1197,13 +1203,13 @@
                                                         </div>
                                                         <!-- chat-header end-->
                                                         <div class="chat-history chat-msg-box custom-scrollbar">
-                                                            <div class="load-chat-more"></div>
+                                                            <div class="load-chat-more"><a href="#">Load More</a></div>
                                                             <div class="suggestion-buttons px-3">
                                                                 @foreach($ChatSuggestions ?? [] as $ChatSuggestion)
                                                                 <button class="btn suggestion-btn" data-question="{{ $ChatSuggestion->Question ?? '' }}" data-answer="{!! $ChatSuggestion->Answer ?? '' !!}">{{ $ChatSuggestion->Question ?? '' }}</button>
                                                                 @endforeach
                                                             </div>
-                                                            <ul>
+                                                            <ul id="chatBox">
 {{--                                                                <li data-id="CM2024-000000000000000" class="clearfix sender"><div class="message my-message"><p>Hi Welcome</p><span class="time" data-time="2024-10-26 12:21:04">1 d ago</span></div></li>--}}
 {{--                                                                <li data-id="CM2024-000000000000002" class="clearfix reply"><div class="message other-message pull-right"><p>hi welcome</p><span class="time" data-time="2024-10-26 12:26:05">1 d ago</span></div></li>--}}
                                                             </ul>
@@ -1229,6 +1235,12 @@
                                                                         </div>
                                                                     </div>
                                                                 </div>
+                                                                <div style="display:none">
+                                                                    <input type="file" id="txtAttachments" accept=".jpg, .jpeg, .png, .gif, .bmp, .tiff, .tif, .webp, .svg, .heic', .heif, .ico, .jfif, .doc, .docx, .xls, .xlsx, .pdf">
+                                                                </div>
+                                                            </div>
+                                                            <div class="row blocked-content">
+                                                                <div class="col-12">Can't send a message to blocked contact</div>
                                                             </div>
                                                         </div>
                                                         <!-- end chat-message-->
@@ -1451,10 +1463,11 @@
     <script src="https://js.pusher.com/8.0.1/pusher.min.js"></script>
     <script>
         $(document).ready(function () {
-            var chatList = [];
             var activeChatID = "{{ $Chat->ChatID ?? '' }}";
             var messageTo = "Admin";
             var messageFrom = "{{ $Chat->sendFrom ?? '' }}";
+            var pageLimit=20;
+            var pageNo=1;
             const init = async () => {
                 pusherInit();
                 detectChatTimeChange();
@@ -1465,11 +1478,11 @@
             const pusherInit = async () => {
                 Pusher.logToConsole = false;
 
-                var pusher = new Pusher("{{ config('app.PUSHER_APP_KEY') }}", {
+                var pusher = new Pusher("{{config('app.PUSHER_APP_KEY')}}", {
                     cluster: "ap2",
                 });
                 var channel = pusher.subscribe("rpc-chat-582");
-                channel.bind("{{ $Chat->sendFrom ?? '' }}", async function (message) {
+                channel.bind("{{ $Chat->sendFrom ?? '' }}", async function(message) {
                     console.log(message);
                 })
             }
@@ -1499,64 +1512,156 @@
                     });
                 }
             }
-            const chatScrollDown = async () => {
-                const el = document.querySelector('.chat-history.chat-msg-box.custom-scrollbar');
+            const chatScrollDown=async()=>{
+                // Scroll to the bottom smoothly
+                const el = document.querySelector('.chat-history.chat-msg-box');
                 el.scrollTo({
                     top: el.scrollHeight,
                     behavior: 'smooth'
                 });
             }
-            const getChatHistory = async (MessageID = "") => {
+            const getChatHistory=async(MessageID="",isScrollDown=false)=>{
                 $.ajax({
-                    type: "post",
-                    url: "{{route('admin.chat.get.chat-history','_chatID_')}}".replace('_chatID_', activeChatID),
-                    headers: {'X-CSRF-Token': $('meta[name=_token]').attr('content')},
-                    data: {MessageID},
-                    dataType: "json",
-                    async: true,
-                    success: function (response) {
-                        for (let data of response) {
-                            addChatMessages(data);
+                    type:"post",
+                    url:"{{route('admin.chat.get.chat-history','_chatID_')}}".replace('_chatID_',activeChatID),
+                    headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
+                    data:{MessageID},
+                    dataType:"json",
+                    async:true,
+                    success:async(response)=>{
+                        for(let data of response){
+                            await addChatMessages(data);
                         }
-                        chatScrollDown();
+                        if(isScrollDown){
+                            chatScrollDown();
+                        }
                         setInterval(updateTimeElements, 60000);
                     }
                 });
             }
-            const addChatMessages = async (data) => {
-                let html = `<li data-id="${data.SLNO}" class="clearfix ${data.MType === "reply" ? "sender" : "reply"}"><div class="message ${data.MType === "sender" ? "my-message" : "other-message pull-right"}"><p>${data.Message}</p><span class="time" data-time="${data.CreatedOn}">${data.CreatedOnHuman}</span></div></li>`;
-                $('.chat-history.chat-msg-box ul').append(html);
-            }
-            const sendMessage = async () => {
-                let message = $('#txtMessage').val();
-                if (message !== "") {
-                    let type = "Text";
-                    $.ajax({
-                        type: "post",
-                        url: "{{route('admin.chat.send.message','_chatID_')}}".replace('_chatID_', activeChatID),
-                        headers: {'X-CSRF-Token': $('meta[name=_token]').attr('content')},
-                        data: {message, type, messageTo, messageFrom},
-
-                        async: true,
-                        success: function (response) {
-                            $('#txtMessage').val('');
-                            if (response.status && response.SLNO != "") {
-                                getChatHistory(response.SLNO)
-                                chatScrollDown();
-                            }
+            const addChatMessages=async(data)=>{
+                let html='';
+                if(data.Type=="Attachment"){
+                    let attchmentType=await getFileType(data.Attachments);
+                    let fileName=data.Attachments.split("/").pop();
+                    if(attchmentType=="PDF"){
+                        html = `<li data-id="${data.SLNO}" class="clearfix ${data.MType === "reply" ? "sender" : "reply"}"><div class="message ${data.MType === "reply" ? "my-message" : "other-message pull-right"}"><p class="pdf"><a href="${data.Attachments}" target="_blank" download><span class="icon"></span>${fileName}</a></p><span class="time" data-time="${data.CreatedOn}">${data.CreatedOnHuman}</span></div></li>`;
+                    }else if(attchmentType=="Image"){
+                        html = `<li data-id="${data.SLNO}" class="clearfix ${data.MType === "reply" ? "sender" : "reply"}"><div class="message ${data.MType === "reply" ? "my-message" : "other-message pull-right"}"><p class="attachment-img"><a href="${data.Attachments}" target="_blank" download><img src="${data.Attachments}" alt="${fileName}"></a></p><span class="time" data-time="${data.CreatedOn}">${data.CreatedOnHuman}</span></div></li>`;
+                    }else{
+                        html = `<li data-id="${data.SLNO}" class="clearfix ${data.MType === "reply" ? "sender" : "reply"}"><div class="message ${data.MType === "reply" ? "my-message" : "other-message pull-right"}"><p class="pdf"><a href="${data.Attachments}" target="_blank" download>${fileName}</a></p><span class="time" data-time="${data.CreatedOn}">${data.CreatedOnHuman}</span></div></li>`;
+                    }
+                }else if(data.Type=="Quotation"){
+                    let attchmentType=await getFileType(data.Attachments);
+                    let fileName=data.Attachments.split("/").pop();
+                    html = `<li data-id="${data.SLNO}" class="clearfix ${data.MType === "reply" ? "sender" : "reply"}"><div class="message ${data.MType === "reply" ? "my-message" : "other-message pull-right"}"><p class="pdf"><a href="${data.Attachments}" target="_blank" download><span class="icon"></span>${fileName}</a></p><span class="time" data-time="${data.CreatedOn}">${data.CreatedOnHuman}</span></div></li>`;
+                }else if(data.Type === "Products"){
+                    try {
+                        data.Attachments=JSON.parse(data.Attachments)
+                        for(let product of data.Attachments){
+                            let ProductUrl="{{route('guest.product.view','_productID_')}}".replace("_productID_",product.ProductID);
+                            html+=`<li data-id="${data.SLNO}" class="clearfix ${data.MType === "reply" ? "sender" : "reply"}">`;
+                            html+=`<div class="message ${data.MType === "reply" ? "my-message" : "other-message pull-right"}">`;
+                            html+=`<div>`;
+                            html+=`<div class="product">`;
+                            html+=`<div class="product-img"><img src="${product.ProductImage}" alt="${product.ProductName}"></div>`;
+                            html+=`<div class="product-infos">`;
+                            html+=`<div class="product-name">${product.ProductName}</div>`;
+                            html+=`<div class="product-desc">${product.Description}</div>`;
+                            html+=`</div>`;
+                            html+=`<div class="product-view"><a href="${ProductUrl}" target="_blank">View Product</a></div>`;
+                            html+=`</div>`;
+                            html+=`</div>`;
+                            html+=`<span class="time" data-time="${data.CreatedOn}">${data.CreatedOnHuman}</span>`;
+                            html+=`</div>`;
+                            html+=`</li>`;
                         }
-                    });
+                    } catch (error) {
+                        console.log(error)
+                    }
+                } else if(data.Type === "Html"){
+                    try {
+                        html+=`<li style="display: block;" data-id="${data.SLNO}" class="clearfix ${data.MType === "reply" ? "sender" : "reply"}">`;
+                        @if($chatMessageCount === 0)
+                            html += `<div class="satisfaction-msg d-flex align-items-center justify-content-between mb-3" style="font-family: Poppins, sans-serif; font-size: 11.66px; border-radius: 17.55px; padding: 10px 20px; background-color: #f8f9fa; border: 1px solid #dee2e6; color: black; font-weight: normal; width: 50%;">
+                                        <p class="mb-0" style="font-size: 11.7px;">Are you satisfied with the answer?</p>
+                                        <div class="ml-auto">
+                                            <button class="btn btn-light border mr-2" style="padding: 10px; border-radius: 5px; transition: background-color 0.3s, color 0.3s;" id="suggestionNoBtn" onmouseover="this.style.backgroundColor='#4169e1'; this.style.color='white'; this.style.borderColor='#4169e1';" onmouseout="this.style.backgroundColor=''; this.style.color=''; this.style.borderColor='';">
+                                                No
+                                            </button>
+                                            <button class="btn btn-light border" style="padding: 10px; border-radius: 5px; transition: background-color 0.3s, color 0.3s;" id="suggestionYesBtn" onmouseover="this.style.backgroundColor='#4169e1'; this.style.color='white'; this.style.borderColor='#4169e1';" onmouseout="this.style.backgroundColor=''; this.style.color=''; this.style.borderColor='';">
+                                                Yes
+                                            </button>
+                                        </div>
+                                    </div>`;
+                        @endif
+                        html+=`<div class="message ${data.MType === "reply" ? "my-message" : "other-message pull-right"}">`;
+                        html+=`<div>${data.Message}</div>`;
+                        html+=`<span class="time" data-time="${data.CreatedOn}">${data.CreatedOnHuman}</span>`;
+                        html+=`</div>`;
+                        html+=`</li>`;
+                    } catch (error) {
+                        console.log(error)
+                    }
+                }else{
+                    html = `<li data-id="${data.SLNO}" class="clearfix ${data.MType === "reply" ? "sender" : "reply"}"><div class="message ${data.MType === "reply" ? "my-message" : "other-message pull-right"}"><p>${data.Message}</p><span class="time" data-time="${data.CreatedOn}">${data.CreatedOnHuman}</span></div></li>`;
                 }
+                $('#chatBox').append(html);
             }
-            const timeAgo = (date) => {
+            const sendMessage=async(type="Text",message="",isAdminChat=0,attachments={})=>{
+                $.ajax({
+                    type:"post",
+                    url:"{{route('admin.chat.send.message','_chatID_')}}".replace('_chatID_',activeChatID),
+                    headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
+                    data:{message,type,messageTo,messageFrom,isAdminChat,attachments:JSON.stringify(attachments)},
+                    async:true,
+                    success:async(response)=>{
+                        $('#txtMessage').val('');
+                        if (response.status && response.SLNO !== "") {
+                            getChatHistory(response.SLNO, true)
+                        }
+                    }
+                });
+                return true
+            }
+            const sendAttachment=async(attachment)=>{
+                let formData=new FormData();
+                formData.append('message',"");
+                formData.append('type',"Attachment");
+                formData.append('messageTo',messageTo);
+                formData.append('messageFrom',messageFrom);
+                formData.append('attachments',attachment);
+                $.ajax({
+                    type:"post",
+                    url:"{{route('admin.chat.send.attachment','_chatID_')}}".replace('_chatID_',activeChatID),
+                    headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
+                    data:formData,
+                    async:true,
+                    cache: false,
+                    processData: false,
+                    contentType: false,
+                    success:async(response)=>{
+                        $('#txtMessage').val('');
+                        if(response.status && response.SLNO!=""){
+                            getChatHistory(response.SLNO,true)
+                            if(response.LastMessage!==""){
+                                $('.people-list ul.list > li[data-id="'+activeChatID+'"] .last-msg').html(response.LastMessage)
+                            }
+                            $('.people-list ul.list > li[data-id="'+activeChatID+'"] .timestamp').html(response.LastMessageOnHuman)
+                            $('.people-list ul.list > li[data-id="'+activeChatID+'"]').attr('data-time',response.LastMessageOn);
+                        }
+                    }
+                });
+            }
+            const timeAgo=(date)=> {
                 const seconds = Math.floor((new Date() - date) / 1000);
                 const intervals = [
-                    {label: "yr", plural: "yrs", seconds: 31536000},
-                    {label: "mo", plural: "mos", seconds: 2592000},
-                    {label: "d", plural: "d", seconds: 86400},
-                    {label: "hr", plural: "hrs", seconds: 3600},
-                    {label: "min", plural: "mins", seconds: 60},
-                    {label: "sec", plural: "secs", seconds: 1},
+                    { label: "yr", plural: "yrs", seconds: 31536000 },
+                    { label: "mo", plural: "mos", seconds: 2592000 },
+                    { label: "d", plural: "d", seconds: 86400 },
+                    { label: "hr", plural: "hrs", seconds: 3600 },
+                    { label: "min", plural: "mins", seconds: 60 },
+                    { label: "sec", plural: "secs", seconds: 1 },
                 ];
 
                 for (const interval of intervals) {
@@ -1567,12 +1672,60 @@
                 }
                 return "just now";
             }
-            const updateTimeElements = async () => {
+            const updateTimeElements=async()=>{
                 document.querySelectorAll('.chat-history.chat-msg-box ul .time').forEach(el => {
                     const dataTime = el.getAttribute('data-time');
                     const time = new Date(dataTime);
-                    el.textContent = timeAgo(time);
+                    el.textContent =  timeAgo(time);
                 });
+            }
+            const getFileType=async(url)=> {
+                // Get the file extension
+                var extension = url.split('.').pop().toLowerCase();
+
+                // Check the file type based on the extension
+                if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'tiff', 'tif', 'webp', 'svg', 'heic', 'heif', 'ico', 'jfif'].includes(extension)) {
+                    return 'Image';
+                } else if (['pdf'].includes(extension)) {
+                    return 'PDF';
+                } else if (['doc', 'docx', 'xls', 'xlsx'].includes(extension)) {
+                    return 'Document';
+                } else {
+                    return 'Other';
+                }
+            }
+            const validateAttachements=async(fileName)=>{
+                var fileExtension = fileName.split('.').pop().toLowerCase();
+
+                // List of allowed extensions
+                var allowedExtensions = [
+                    'jpg', 'jpeg', 'png', 'gif', 'bmp', 'tiff', 'tif',
+                    'webp', 'svg', 'heic', 'heif', 'ico', 'jfif',
+                    'doc', 'docx', 'xls', 'xlsx', 'pdf'
+                ];
+
+                // Check if the file extension is in the allowed list
+                if ($.inArray(fileExtension, allowedExtensions) === -1) {
+                    return false;
+                }
+                return true;
+            }
+
+            const formatOption = async(option)=> {
+                if (!option.id) {
+                    return option.text;
+                }
+
+                const imgUrl = $(option.element).data('image');
+                console.log(imgUrl);
+
+                const img = `<img src="${imgUrl}" alt="${option.text}" style="width: 100px; height: 100px; margin-right: 10px;">`;
+                const text = `<span>${option.text}</span>`;
+
+                return $(`<span>${img} ${text}</span>`);
+            }
+            const stripHtmlTags=(input)=> {
+                return $('<div>').html(input).text().split("\t").join("").split("\n").join("");
             }
             init();
             $(document).on('click', '#btnSearch', searchChatList);
@@ -1587,13 +1740,24 @@
             $(document).on('keydown', '#txtMessage', function () {
                 let message = $('#txtMessage').val();
                 if (event.key === 'Enter' && message !== "") {
-                    sendMessage();
+                    sendMessage("Text", $('#txtMessage').val(), 1);
+                    if ($('.suggestion-buttons').length) {
+                        $('.suggestion-buttons').remove();
+                    }
                 }
             })
-            $(document).on('click', '#btnSendMessage', sendMessage);
+            $(document).on('click','#btnSendMessage',function(){
+                if($('#txtMessage').val() !== ""){
+                    sendMessage("Text", $('#txtMessage').val(), 1);
+                    if ($('.suggestion-buttons').length) {
+                        $('.suggestion-buttons').remove();
+                    }
+                }
+            });
             $(document).on('click', '.suggestion-btn', function (){
                 let question = $(this).data('question');
                 let answer = $(this).data('answer');
+                $('.suggestion-buttons').remove();
                 $.ajax({
                     type: "post",
                     url: "{{route('admin.chat.send.message','_chatID_')}}".replace('_chatID_', activeChatID),
@@ -1606,21 +1770,24 @@
                     },
                     async: true,
                     success: function (response) {
-                        if (response.status && response.SLNO != "") {
+                        if (response.status && response.SLNO !== "") {
                             getChatHistory(response.SLNO)
+                            let formData=new FormData();
+                            formData.append('message', answer);
+                            formData.append('type',"Html");
+                            formData.append('messageTo',messageFrom);
+                            formData.append('messageFrom',messageTo);
                             $.ajax({
                                 type: "post",
                                 url: "{{route('admin.chat.send.message','_chatID_')}}".replace('_chatID_', activeChatID),
                                 headers: {'X-CSRF-Token': $('meta[name=_token]').attr('content')},
-                                data: {
-                                    message: answer,
-                                    type: "Text",
-                                    messageFrom: messageTo,
-                                    messageTo: messageFrom
-                                },
-                                async: true,
+                                data:formData,
+                                async:true,
+                                cache: false,
+                                processData: false,
+                                contentType: false,
                                 success: function (response) {
-                                    if (response.status && response.SLNO != "") {
+                                    if (response.status && response.SLNO !== "") {
                                         getChatHistory(response.SLNO)
                                         chatScrollDown();
                                     }
@@ -1630,15 +1797,116 @@
                     }
                 });
             });
+            $(document).on('click', '#suggestionNoBtn', function (){
+                $.ajax({
+                    type: "post",
+                    url: "{{route('admin.chat.send.message','_chatID_')}}".replace('_chatID_', activeChatID),
+                    headers: {'X-CSRF-Token': $('meta[name=_token]').attr('content')},
+                    data: {
+                        message: "Tell us your problem, and we’ll provide the solution",
+                        type: "Text",
+                        messageFrom: messageTo,
+                        messageTo: messageFrom,
+                        isAdminChat: 1
+                    },
+                    async: true,
+                    success: function (response) {
+                        if (response.status && response.SLNO !== "") {
+                            getChatHistory(response.SLNO);
+                            $('.satisfaction-msg').remove();
+                        }
+                    }
+                });
+            });
+            $(document).on('click', '#suggestionYesBtn', function (){
+                $('.satisfaction-msg').remove();
+            });
+
+            $(document).on('click','#btnSendAttachment',function(){
+                $('#txtAttachments').trigger('click');
+            });
+            $(document).on('change','#txtAttachments',async function(){
+                if($('#txtAttachments').val()!=""){
+                    var fileInput = $('#txtAttachments')[0];
+                    if (fileInput.files.length > 0) {
+                        let status=await validateAttachements(fileInput.files[0].name);
+                        if(status){
+                            sendAttachment(fileInput.files[0])
+                        }
+                    }
+
+                }
+            });
+
+
+
+
+
+
+
+
+
+            const searchChatMessages = (searchText) => {
+                if(searchText === ""){
+                    $(".highlight").removeClass("highlight");
+                } else {
+                    searchResults = [];
+                    currentIndex = 0;
+                    $.ajax({
+                        type: "post",
+                        url: "{{ route('admin.chat.get.chat-history', '_chatID_') }}".replace('_chatID_', activeChatID),
+                        headers: {'X-CSRF-Token': $('meta[name=_token]').attr('content')},
+                        data: {searchText},
+                        dataType: "json",
+                        success: (response) => {
+                            searchResults = response.filter(data => data.Message && data.Message.includes(searchText));
+                            highlightCurrentSearchResult();
+                        }
+                    });
+                }
+            };
+
+            const highlightCurrentSearchResult = () => {
+                if (searchResults.length === 0) {
+                    alert("No results found.");
+                    return;
+                }
+                $(".highlight").removeClass("highlight");
+                const currentResult = searchResults[currentIndex];
+                const messageElement = $(`li[data-id="${currentResult.SLNO}"]`);
+                if (messageElement.length) {
+                    messageElement.addClass("highlight");
+                    messageElement[0].scrollIntoView({ behavior: "smooth", block: "center" });
+                } else {
+                    console.warn("Message element not found for ID:", currentResult.SLNO);
+                }
+            };
+
+            const nextSearchResult = () => {
+                if (searchResults.length > 0) {
+                    currentIndex = (currentIndex + 1) % searchResults.length;
+                    highlightCurrentSearchResult();
+                }
+            };
+
+            const prevSearchResult = () => {
+                if (searchResults.length > 0) {
+                    currentIndex = (currentIndex - 1 + searchResults.length) % searchResults.length;
+                    highlightCurrentSearchResult();
+                }
+            };
+
+            $("#searchBtn").on("click", function () {
+                const searchText = $('.search-bar').val();
+                if (searchText) {
+                    searchChatMessages(searchText);
+                }
+            });
+
+            $(".fa-chevron-up").on("click", prevSearchResult);
+            $(".fa-chevron-down").on("click", nextSearchResult);
         });
     </script>
-
-
-
-
-
-
-
 
     <script>
         $(document).ready(function(){
@@ -1977,9 +2245,6 @@
             }
         });
     </script>
-
-
-
 
     <!-- Image Crop Script Start -->
     <script>

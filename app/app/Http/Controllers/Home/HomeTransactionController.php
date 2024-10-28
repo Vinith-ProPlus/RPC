@@ -173,8 +173,8 @@ class HomeTransactionController extends Controller{
         }
 
         $FormData['Chat'] = DB::table($this->supportDB.'tbl_chat')->where('sendFrom', $this->UserID)->first();
-        $chatMessageCount = DB::table($this->supportDB.'tbl_chat_message')->where('ChatID', $FormData['Chat']->ChatID)->count();
-        if($chatMessageCount === 0){
+        $FormData['chatMessageCount'] = DB::table($this->supportDB.'tbl_chat_message')->where('ChatID', $FormData['Chat']->ChatID)->count();
+        if($FormData['chatMessageCount'] === 0){
             $FormData['ChatSuggestions'] = DB::Table('tbl_chat_suggestions')->where('ActiveStatus', 'Active')->where('DFlag', 0)->get();
         }
         return view('home.my-account', $FormData);

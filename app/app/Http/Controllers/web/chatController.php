@@ -101,6 +101,8 @@ class chatController extends Controller{
 		return $result;
 	}
 	public function getChatHistory(Request $req, $ChatID){
+
+        logger(json_encode($req->all()));
 		DB::Table($this->SupportDB."tbl_chat")->where('ChatID',$ChatID)->update(["isRead"=>1]);
 		$sql1 ="SELECT *, 'sender' as MType FROM ".$this->SupportDB."tbl_chat_message  WHERE SendTo='Admin' AND Status<>'Deleted' AND ChatID='".$ChatID."'";
 		$sql1.=" UNION ";
@@ -110,8 +112,13 @@ class chatController extends Controller{
 		if($req->MessageID!=""){
 			$sql.=" AND SLNO='".$req->MessageID."'";
 		}
+        if ($req->searchText != "") {
+            $sql .= " AND Message LIKE '%".$req->searchText."%'";
+        }
 		$sql.=" Order By CreatedOn asc";
 		$return= DB::SELECT($sql);
+        logger("json_encode(return)");
+        logger(json_encode($return));
 		for($i=0;$i<count($return);$i++){
 			if($return[$i]->Type=="Attachments"){
 				$return[$i]->Attachments=url('/'.$return[$i]->Attachments);
@@ -129,6 +136,7 @@ class chatController extends Controller{
 		return $return;
 	}
 	public function sendMessage(Request $req,$ChatID){
+        logger(json_encode($req->all()));
 		DB::beginTransaction();$SLNO="";
 		$status=false;
 		$LastMessageOn=now();
@@ -147,6 +155,11 @@ class chatController extends Controller{
 				"CreatedOn"=>now(),
 				"DeliveredOn"=>now()
 			);
+            if(isset($req->isAdminChat) && ($req->isAdminChat === "1")){
+                DB::Table($this->SupportDB.'tbl_chat')->where('ChatID', $ChatID)->update(['isAdminChat' => 1]);
+            }
+            logger("data");
+            logger($data);
 			$status=DB::Table($this->SupportDB.'tbl_chat_message')->insert($data);
 			if($status){
 				DocNum::updateDocNum(docTypes::ChatMessage->value);
@@ -154,16 +167,16 @@ class chatController extends Controller{
 					"isRead"=>0,
 					"LastMessageOn"=>$LastMessageOn,
 				];
-				if($req->type=="Text"){
-					$data['LastMessage']=$req->message;
-					$LastMessage=$req->message;
-				}else if($req->type=="Attachment"){
-					$LastMessage="sent a attachment file";
-				}else if($req->type=="Quotation"){
-					$LastMessage="sent a Quotattion";
-				}else if($req->type=="Products"){
-					$LastMessage="sent Products links";
-				}
+                if ($req->type === "Text") {
+                    $data['LastMessage'] = $req->message;
+                    $LastMessage = $req->message;
+                } else if ($req->type === "Attachment") {
+                    $LastMessage = "sent a attachment file";
+                } else if ($req->type === "Quotation") {
+                    $LastMessage = "sent a Quotation";
+                } else if ($req->type === "Products") {
+                    $LastMessage = "sent Products links";
+                }
 				$status=DB::Table($this->SupportDB.'tbl_chat')->where('ChatID',$ChatID)->update($data);
 			}
 			//event(new chatApp($req->message));

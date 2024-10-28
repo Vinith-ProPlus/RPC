@@ -378,6 +378,12 @@
 }
 .chat-box .chat-right-aside .chat .chat-msg-box .message p.pdf{
     padding: 12px 6px;
+    display: inline-flex;
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 .chat-box .chat-right-aside .chat .chat-msg-box .message p a{
     padding: 0px;
