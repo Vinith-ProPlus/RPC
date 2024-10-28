@@ -984,6 +984,32 @@
             border-right: 0px solid #ccc !important;
         }
 
+        .suggestion-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .suggestion-buttons button {
+            font-size: 11.66px;
+            border-radius: 17.55px;
+            padding: 10px 20px;
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            cursor: pointer;
+            color: black;
+            font-weight: normal;
+        }
+        .suggestion-buttons button:hover {
+            background-color: #e2e6ea;
+        }
+
+        .chat-history {
+            flex: 1;
+            display: flex;
+            flex-direction: column-reverse;
+        }
 
 
 
@@ -1153,14 +1179,10 @@
                                                             <div class="row">
                                                                 <div class="col-6">
                                                                     <div>
-                                                                        <div class="d-flex align-items-center"><img src="http://localhost/RPC/assets/images/chat-admin-logo.png" class="mr-2" alt="Admin Icon" style="width: 34px;height: 34px;"><span style="font-size: 19px;">Admin</span></div>
+                                                                        <div class="d-flex align-items-center"><img src="{{ url('assets/images/chat-admin-logo.png') }}" class="mr-2" alt="Admin Icon" style="width: 34px;height: 34px;"><span style="font-size: 19px;">Admin</span></div>
                                                                         <div class="text-light mt-1" style="font-size: 13px !important;">Support mail ID - <span class="mail text-warning">rpcadminsupport@gmail.com</span></div>
                                                                     </div>
                                                                 </div>
-
-
-
-
                                                                 <div class="col-6 d-flex justify-content-end align-items-center">
                                                                     <div class="input-group" style="width: 220px;">
                                                                         <input type="text" class="form-control search-bar" placeholder="Search..." aria-label="Search" style="height: 30px; border-radius: 3px 0px 0px 3px;">
@@ -1171,15 +1193,16 @@
                                                                         </div>
                                                                     </div>
                                                                 </div>
-
-
-
-
                                                             </div>
                                                         </div>
                                                         <!-- chat-header end-->
                                                         <div class="chat-history chat-msg-box custom-scrollbar">
                                                             <div class="load-chat-more"></div>
+                                                            <div class="suggestion-buttons px-3">
+                                                                @foreach($ChatSuggestions ?? [] as $ChatSuggestion)
+                                                                <button class="btn suggestion-btn" data-question="{{ $ChatSuggestion->Question ?? '' }}" data-answer="{!! $ChatSuggestion->Answer ?? '' !!}">{{ $ChatSuggestion->Question ?? '' }}</button>
+                                                                @endforeach
+                                                            </div>
                                                             <ul>
 {{--                                                                <li data-id="CM2024-000000000000000" class="clearfix sender"><div class="message my-message"><p>Hi Welcome</p><span class="time" data-time="2024-10-26 12:21:04">1 d ago</span></div></li>--}}
 {{--                                                                <li data-id="CM2024-000000000000002" class="clearfix reply"><div class="message other-message pull-right"><p>hi welcome</p><span class="time" data-time="2024-10-26 12:26:05">1 d ago</span></div></li>--}}
@@ -1568,6 +1591,45 @@
                 }
             })
             $(document).on('click', '#btnSendMessage', sendMessage);
+            $(document).on('click', '.suggestion-btn', function (){
+                let question = $(this).data('question');
+                let answer = $(this).data('answer');
+                $.ajax({
+                    type: "post",
+                    url: "{{route('admin.chat.send.message','_chatID_')}}".replace('_chatID_', activeChatID),
+                    headers: {'X-CSRF-Token': $('meta[name=_token]').attr('content')},
+                    data: {
+                        message: question,
+                        type: "Text",
+                        messageFrom: messageFrom,
+                        messageTo: messageTo
+                    },
+                    async: true,
+                    success: function (response) {
+                        if (response.status && response.SLNO != "") {
+                            getChatHistory(response.SLNO)
+                            $.ajax({
+                                type: "post",
+                                url: "{{route('admin.chat.send.message','_chatID_')}}".replace('_chatID_', activeChatID),
+                                headers: {'X-CSRF-Token': $('meta[name=_token]').attr('content')},
+                                data: {
+                                    message: answer,
+                                    type: "Text",
+                                    messageFrom: messageTo,
+                                    messageTo: messageFrom
+                                },
+                                async: true,
+                                success: function (response) {
+                                    if (response.status && response.SLNO != "") {
+                                        getChatHistory(response.SLNO)
+                                        chatScrollDown();
+                                    }
+                                }
+                            });
+                        }
+                    }
+                });
+            });
         });
     </script>
 

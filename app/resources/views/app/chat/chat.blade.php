@@ -67,7 +67,7 @@
 					<div class="chat-box">
 						<!-- Chat left side Start-->
 						<div class="chat-left-aside">
-							<div >
+							<div>
 								<div class="about">
 									<div class="name f-w-600">All Contacts (<span class="spaTotalContacts">0</span>)</div>
 								</div>
