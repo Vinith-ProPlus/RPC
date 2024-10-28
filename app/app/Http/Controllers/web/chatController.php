@@ -113,7 +113,10 @@ class chatController extends Controller{
 		$sql.=" Order By CreatedOn asc";
 		$return= DB::SELECT($sql);
 		for($i=0;$i<count($return);$i++){
-			$return[$i]->Attachments=url('/'.$return[$i]->Attachments);
+			if($return[$i]->Type=="Attachments"){
+				$return[$i]->Attachments=url('/'.$return[$i]->Attachments);
+			}
+			
 			$MsgOnHuman=Carbon::parse($return[$i]->CreatedOn)->diffForHumans();
 			$MsgOnHuman=str_replace('minutes','min',$MsgOnHuman);
 			$MsgOnHuman=str_replace('seconds','sec',$MsgOnHuman);

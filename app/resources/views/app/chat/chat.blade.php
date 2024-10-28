@@ -91,7 +91,7 @@
 			</div>
 		</div>
 		<div class="col call-chat-body " >
-			<div class="card show">
+			<div class="card">
 				<div class="card-body p-0" >
 					<div class="row chat-box">
 						<!-- Chat right side start-->
@@ -142,11 +142,28 @@
 										</li>
 										<li data-id="CM2024-000000000000051" class="clearfix reply">
 											<div class="message other-message pull-right">
-												<p class="pdf"> <a href="https://file-examples.com/wp-content/storage/2017/02/file-sample_100kB.doc" target="_blank" download>file-sample_100kB.doc</a></p>
+												<div class="pdf"> <a href="https://file-examples.com/wp-content/storage/2017/02/file-sample_100kB.doc" target="_blank" download>file-sample_100kB.doc</a></div>
 												<span class="time" data-time="2024-10-26 16:48:59">1 day</span>
 											</div>
 										</li>
 
+										<li data-id="CM2024-000000000000051" class="clearfix reply">
+											<div class="message other-message pull-right">
+												<div>
+													<div class="product">
+														<div class="product-img"><img src="http://localhost/proplus/2024/RPC/App/assets/images/no-image-b.png" alt="M Sand"></div>
+														<div class="product-infos">
+															<div class="product-name">M Sand</div>
+															<div class="product-desc">
+																	RPC M sand is produced by crushing the hard granite, a rock which helps to provide an aggregate construction material for clients. RPC-M Sand is manufacturing this product by introducing the world‘s best crusher technology - Vertical Shaft Impactor (VSI Technology)from Finland.This Rock-on-Rock technology makes RPC  M-sand more cubical which gives more strength and bonding when applied with allied building materials.1. VSI quality2. Higher durability3. Higher Concrete Strength4. Zone – II (IS:383 Code Standard)5. PWD Approved Quality6. Less Water Absorption property7. Lesser Slit Content8. Economic for use9. Eco-friendly product 
+															</div>
+														</div>
+														<div class="product-view"><a href="#">View Product</a></div>
+													</div>
+												</div>
+												<span class="time" data-time="2024-10-26 16:48:59">1 day</span>
+											</div>
+										</li>
 										
 									</ul>
 								</div>
@@ -357,15 +374,18 @@
 		var chatList=[];
 		var activeChatID="";
 		var messageTo="";var messageFrom="";
+		var pageLimit=20;
+		var pageNo=1;
 		const init=async()=>{
 			pusherInit();
 			getChatList();
 			chatListPositionChange();
 			detectChatTimeChange();
-			$('#btnSendProduct').click();
+			//$('#btnSendProduct').click();
 			$('#lstPCategory, #lstPSCategory').select2({
 				dropdownParent: $('#productModal'),
 			});
+
 		}
 		const pusherInit=async()=>{
 			Pusher.logToConsole = false;
@@ -528,7 +548,7 @@
 				behavior: 'smooth'
 			});
 		}
-		const getChatHistory=async(MessageID="")=>{
+		const getChatHistory=async(MessageID="",isScrollDown=false)=>{
 			$.ajax({
 				type:"post",
 				url:"{{route('admin.chat.get.chat-history','_chatID_')}}".replace('_chatID_',activeChatID),
@@ -536,11 +556,14 @@
 				data:{MessageID},
 				dataType:"json",
 				async:true,
-				success:function(response){
+				success:async(response)=>{
 					for(let data of response){
-						addChatMessages(data);
+						await addChatMessages(data);
 					}
-					chatScrollDown();
+					if(isScrollDown){
+						chatScrollDown();
+					}
+					
 					setInterval(updateTimeElements, 60000);
 				}
 			});
@@ -557,65 +580,90 @@
 				}else{
 					html = `<li data-id="${data.SLNO}" class="clearfix ${data.MType === "sender" ? "sender" : "reply"}"><div class="message ${data.MType === "sender" ? "my-message" : "other-message pull-right"}"><p class="pdf"><a href="${data.Attachments}" target="_blank" download>${fileName}</a></p><span class="time" data-time="${data.CreatedOn}">${data.CreatedOnHuman}</span></div></li>`;
 				}
-				
+			}else if(data.Type=="Quotation"){
+				let attchmentType=await getFileType(data.Attachments);
+				let fileName=data.Attachments.split("/").pop();
+				html = `<li data-id="${data.SLNO}" class="clearfix ${data.MType === "sender" ? "sender" : "reply"}"><div class="message ${data.MType === "sender" ? "my-message" : "other-message pull-right"}"><p class="pdf"><a href="${data.Attachments}" target="_blank" download><span class="icon"></span>${fileName}</a></p><span class="time" data-time="${data.CreatedOn}">${data.CreatedOnHuman}</span></div></li>`;
+			}else if(data.Type=="Products"){
+				try {
+					data.Attachments=JSON.parse(data.Attachments)
+					for(let product of data.Attachments){
+						let ProductUrl="{{route('guest.product.view','_productID_')}}".replace("_productID_",product.ProductID);
+						html+=`<li data-id="${data.SLNO}" class="clearfix ${data.MType === "sender" ? "sender" : "reply"}">`;
+							html+=`<div class="message ${data.MType === "sender" ? "my-message" : "other-message pull-right"}">`;
+								html+=`<div>`;
+									html+=`<div class="product">`;
+										html+=`<div class="product-img"><img src="${product.ProductImage}" alt="${product.ProductName}"></div>`;
+										html+=`<div class="product-infos">`;
+											html+=`<div class="product-name">${product.ProductName}</div>`;
+											html+=`<div class="product-desc">${product.Description}</div>`;
+										html+=`</div>`;
+										html+=`<div class="product-view"><a href="${ProductUrl}" target="_blank">View Product</a></div>`;
+									html+=`</div>`;
+								html+=`</div>`;
+								html+=`<span class="time" data-time="${data.CreatedOn}">${data.CreatedOnHuman}</span>`;
+							html+=`</div>`;
+						html+=`</li>`;
+					}
+				} catch (error) {
+					console.log(error)
+				}
 			}else{
 				html = `<li data-id="${data.SLNO}" class="clearfix ${data.MType === "sender" ? "sender" : "reply"}"><div class="message ${data.MType === "sender" ? "my-message" : "other-message pull-right"}"><p>${data.Message}</p><span class="time" data-time="${data.CreatedOn}">${data.CreatedOnHuman}</span></div></li>`;
 			}
 			$('.chat-history.chat-msg-box ul').append(html);
 		}
 		const sendMessage=async(type="Text",message="",attachments={})=>{
-				$.ajax({
-					type:"post",
-					url:"{{route('admin.chat.send.message','_chatID_')}}".replace('_chatID_',activeChatID),
-					headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
-					data:{message,type,messageTo,messageFrom,attachments:JSON.stringify(attachments)},
-
-					async:true,
-					success:function(response){
-						$('#txtMessage').val('');
-						if(response.status && response.SLNO!=""){
-							getChatHistory(response.SLNO)
-							chatScrollDown();
-							if(response.LastMessage!=""){
-								$('.people-list ul.list > li[data-id="'+activeChatID+'"] .last-msg').html(response.LastMessage)
-							}
+			$.ajax({
+				type:"post",
+				url:"{{route('admin.chat.send.message','_chatID_')}}".replace('_chatID_',activeChatID),
+				headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
+				data:{message,type,messageTo,messageFrom,attachments:JSON.stringify(attachments)},
+				async:true,
+				success:async(response)=>{
+					$('#txtMessage').val('');
+					if(response.status && response.SLNO!=""){
+						getChatHistory(response.SLNO,true)
 							
-							$('.people-list ul.list > li[data-id="'+activeChatID+'"] .timestamp').html(response.LastMessageOnHuman)
-							$('.people-list ul.list > li[data-id="'+activeChatID+'"]').attr('data-time',response.LastMessageOn);
+						if(response.LastMessage!=""){
+							$('.people-list ul.list > li[data-id="'+activeChatID+'"] .last-msg').html(response.LastMessage)
 						}
+							
+						$('.people-list ul.list > li[data-id="'+activeChatID+'"] .timestamp').html(response.LastMessageOnHuman)
+						$('.people-list ul.list > li[data-id="'+activeChatID+'"]').attr('data-time',response.LastMessageOn);
 					}
-				});
+				}
+			});
+			return true
 		}
 		const sendAttachment=async(attachment)=>{
-				let formData=new FormData();
-				formData.append('message',"");
-				formData.append('type',"Attachment");
-				formData.append('messageTo',messageTo);
-				formData.append('messageFrom',messageFrom);
-				formData.append('attachments',attachment);
-				$.ajax({
-					type:"post",
-					url:"{{route('admin.chat.send.attachment','_chatID_')}}".replace('_chatID_',activeChatID),
-					headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
-					data:formData,
-					async:true,
-                    cache: false,
-                    processData: false,
-                    contentType: false,
-					success:function(response){
-						$('#txtMessage').val('');
-						if(response.status && response.SLNO!=""){
-							getChatHistory(response.SLNO)
-							chatScrollDown();
-							if(response.LastMessage!=""){
-								$('.people-list ul.list > li[data-id="'+activeChatID+'"] .last-msg').html(response.LastMessage)
-							}
-							
-							$('.people-list ul.list > li[data-id="'+activeChatID+'"] .timestamp').html(response.LastMessageOnHuman)
-							$('.people-list ul.list > li[data-id="'+activeChatID+'"]').attr('data-time',response.LastMessageOn);
+			let formData=new FormData();
+			formData.append('message',"");
+			formData.append('type',"Attachment");
+			formData.append('messageTo',messageTo);
+			formData.append('messageFrom',messageFrom);
+			formData.append('attachments',attachment);
+			$.ajax({
+				type:"post",
+				url:"{{route('admin.chat.send.attachment','_chatID_')}}".replace('_chatID_',activeChatID),
+				headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
+				data:formData,
+				async:true,
+                cache: false,
+                processData: false,
+                contentType: false,
+				success:async(response)=>{
+					$('#txtMessage').val('');
+					if(response.status && response.SLNO!=""){
+						getChatHistory(response.SLNO,true)
+						if(response.LastMessage!=""){
+							$('.people-list ul.list > li[data-id="'+activeChatID+'"] .last-msg').html(response.LastMessage)
 						}
+						$('.people-list ul.list > li[data-id="'+activeChatID+'"] .timestamp').html(response.LastMessageOnHuman)
+						$('.people-list ul.list > li[data-id="'+activeChatID+'"]').attr('data-time',response.LastMessageOn);
 					}
-				});
+				}
+			});
 		}
 		const timeAgo=(date)=> {
 			const seconds = Math.floor((new Date() - date) / 1000);
@@ -688,6 +736,9 @@
 
             return $(`<span>${img} ${text}</span>`);
         }
+		const stripHtmlTags=(input)=> {
+    		return $('<div>').html(input).text().split("\t").join("").split("\n").join("");
+		}
 
 		$('#quoteModal').on('shown.bs.modal', function () {
 			$('#lstQProducts').select2({
@@ -858,7 +909,7 @@
 				const productCard = $(this).closest('.divProduct');
 
 				const productName = productCard.data('product');
-				const description = productCard.data('description');
+				const description = stripHtmlTags(productCard.data('desc'));
 				const productImage = productCard.find('img').attr('src');
 
 				SelectedProducts.push({
@@ -869,10 +920,10 @@
 				});
 			});
 			if (SelectedProducts.length > 0) {
-				console.log(SelectedProducts);
-				let status = await sendMessage(SelectedProducts);
+				let status = await sendMessage("Products","Sent Product Details",SelectedProducts);
 				resetProductModal();
 				if(status){
+					$('#productModal').modal('hide');
 				}
 			} else {
 				toastr.error("Please select any product", "Failed", {positionClass: "toast-top-right",containerId: "toast-top-right",showMethod: "slideDown",hideMethod: "slideUp",progressBar: !0});
@@ -895,7 +946,7 @@
 				$('#people-list > ul > li[data-id="'+activeChatID+'"]').addClass('active')
 				$('#people-list > ul > li[data-id="'+activeChatID+'"] .people-details .icon').attr('data-read-status',1);
 				getChatAccountDetails();
-				getChatHistory();
+				getChatHistory("",true);
 				$('.call-chat-body .card').removeClass('show').addClass('show');
 				if(chatStatus=="Blocked"){
 					$('.chat-box .chat-right-aside .chat .chat-message').removeClass('blocked').addClass('blocked');
