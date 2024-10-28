@@ -3,6 +3,7 @@ namespace App\Http\Controllers\Home;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\web\masters\general\TaluksController;
+use App\Http\Controllers\web\Settings\ChatSuggestionsController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Redirect;
@@ -172,6 +173,10 @@ class HomeTransactionController extends Controller{
         }
 
         $FormData['Chat'] = DB::table($this->supportDB.'tbl_chat')->where('sendFrom', $this->UserID)->first();
+        $chatMessageCount = DB::table($this->supportDB.'tbl_chat_message')->where('ChatID', $FormData['Chat']->ChatID)->count();
+        if($chatMessageCount === 0){
+            $FormData['ChatSuggestions'] = DB::Table('tbl_chat_suggestions')->where('ActiveStatus', 'Active')->where('DFlag', 0)->get();
+        }
         return view('home.my-account', $FormData);
     }
 

@@ -18,3 +18,26 @@ INSERT INTO `tbl_docnum` (`SLNO`, `DocType`, `Prefix`, `Length`, `CurrNum`, `Suf
 CREATE TABLE rpc_support.tbl_chat (ChatID varchar(50) PRIMARY KEY NOT NULL, sendFrom varchar(50) DEFAULT NULL, sendTo varchar(50) DEFAULT NULL, Status enum('Active','Deleted','Blocked') NOT NULL DEFAULT 'Active', LastMessage longtext DEFAULT NULL, LastMessageOn timestamp NOT NULL DEFAULT current_timestamp(), CreatedOn timestamp NOT NULL DEFAULT current_timestamp(), DeletedOn timestamp NULL DEFAULT NULL, BlockedOn timestamp NULL DEFAULT NULL, BlockedBy varchar(50) DEFAULT NULL, CreatedBy varchar(50) DEFAULT NULL, UpdatedOn timestamp NULL DEFAULT NULL, DeletedBy varchar(50) DEFAULT NULL );
 CREATE TABLE rpc_support.tbl_chat_message (SLNO varchar(50) PRIMARY KEY NOT NULL, ChatID varchar(50) DEFAULT NULL, SendFrom varchar(50) DEFAULT NULL, SendTo varchar(50) DEFAULT NULL, Message longtext DEFAULT NULL, Type enum('Text','Attachment','Products','Product-Url','Product-Attachment') NOT NULL DEFAULT 'Text', Status enum('Sent','Delivered','Read','Deleted') NOT NULL DEFAULT 'Sent', CreatedOn timestamp NOT NULL DEFAULT current_timestamp(), DeliveredOn timestamp NULL DEFAULT NULL, ReadOn timestamp NULL DEFAULT NULL, DeletedOn timestamp NULL DEFAULT NULL);
 ALTER TABLE rpc_support.tbl_chat ADD isRead INT(1) NOT NULL DEFAULT '0' AFTER 'Status';
+
+
+241025
+
+INSERT INTO `tbl_menus` (`MID`, `Slug`, `MenuName`, `ActiveName`, `Icon`, `PageUrl`, `ParentID`, `Level`, `hasSubMenu`, `Ordering`, `isCheckSetting`, `SettingsName`, `DefaultOrdering`, `ActiveStatus`, `DFlag`, `UpdatedOn`, `UpdatedBy`) VALUES ('M2023-0000062', 'chat-suggestions', 'Chat Suggestions', 'Chat-Suggestions', NULL, 'admin/settings/chat-suggestions', 'M2023-0000007', 'L002', '0', '5', '0', NULL, '1', '1', '0', '2022-12-07 01:19:35', NULL);
+INSERT INTO `tbl_cruds` (`MID`, `add`, `view`, `edit`, `delete`, `copy`, `excel`, `csv`, `print`, `pdf`, `restore`, `showpwd`) VALUES ('M2023-0000062', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '0');
+INSERT INTO `tbl_docnum` (`SLNO`, `DocType`, `Prefix`, `Length`, `CurrNum`, `Suffix`, `Year`) VALUES (NULL, 'Chat-Suggestions', 'CS', '8', '1', '', '2024');
+
+CREATE TABLE `tbl_chat_suggestions` (
+  `CSID` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `Question` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `Answer` LONGTEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `ActiveStatus` enum('Active','Inactive') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT 'Active',
+  `DFlag` int(11) NOT NULL DEFAULT 0,
+  `CreatedOn` timestamp NOT NULL DEFAULT current_timestamp(),
+  `UpdatedOn` timestamp NULL DEFAULT NULL ON UPDATE current_timestamp(),
+  `DeletedOn` timestamp NULL DEFAULT NULL,
+  `CreatedBy` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `UpdatedBy` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `DeletedBy` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  PRIMARY KEY (`CSID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
