@@ -101,8 +101,8 @@ class chatController extends Controller{
 		return $result;
 	}
 	public function getChatHistory(Request $req, $ChatID){
-        $pageLimit = intval($req->pageLimit); // Number of records per page
-        $pageNo = intval($req->pageNo); // Current page number (you can update this as needed)
+        $pageLimit = (int)$req->pageLimit; // Number of records per page
+        $pageNo = (int)$req->pageNo; // Current page number (you can update this as needed)
         $offset = ($pageNo - 1) * $pageLimit;// Calculate the offset
 
 		$totalChats = DB::Table($this->SupportDB."tbl_chat_message")->where("ChatID",$ChatID)->count();
