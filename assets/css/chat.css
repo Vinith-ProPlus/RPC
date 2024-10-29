@@ -5,14 +5,20 @@
 .chat-box{
     font-family: "Poppins", sans-serif;
 }
-.call-chat-sidebar .card,
-.call-chat-body .card{
+.page-wrapper .call-chat-sidebar .card,
+.page-wrapper .call-chat-body .card{
     background: #f4f4f4;
     box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
     padding-bottom: 0px;
     margin-bottom: 0px;
     max-height: calc(100vh - 120px);
     height: calc(100vh - 120px);
+}
+
+.page-wrapper.horizontal-wrapper .call-chat-sidebar .card,
+.page-wrapper.horizontal-wrapper .call-chat-body .card{
+    max-height: calc(100vh - 160px);
+    height: calc(100vh - 160px);
 }
 .call-chat-body .chat-box{
     height: 100%;
@@ -22,7 +28,7 @@
     padding-left: 0px;
 }
 .page-wrapper .chat-left-aside .people-list{
-    height: calc(100vh - 230px);
+    height: 100%;
     overflow: auto;
 }
 
@@ -46,6 +52,9 @@
 
 .page-wrapper .chat-box .chat-right-aside .chat .chat-msg-box{
     height: calc(100vh - 360px);
+}
+.page-wrapper.horizontal-wrapper .chat-box .chat-right-aside .chat .chat-msg-box{
+    height: calc(100vh - 400px);
 }
 .people-list ul.list > li{
     background: #e7e7e7;
@@ -508,6 +517,6 @@
     font-weight: 600;
     box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
 }
-.load-chat-more a.show{
+.load-chat-more.show{
     display: block;
 }

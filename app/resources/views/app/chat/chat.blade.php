@@ -91,7 +91,7 @@
 			</div>
 		</div>
 		<div class="col call-chat-body " >
-			<div class="card show">
+			<div class="card">
 				<div class="card-body p-0" >
 					<div class="row chat-box">
 						<!-- Chat right side start-->
@@ -347,8 +347,13 @@
 				channel.bind('Admin', async function(data) {
 					try {
 						data.message=JSON.parse(data.message);
-						for(let item of data.message.message){
-							addChatMessages(item,true);
+						if(data.message.type=="load_message" && activeChatID==data.message.ChatID){
+							for(let item of data.message.message){
+								addChatMessages(item,true);
+							}
+						}else if(data.message.type=="update_last_seen"  && activeChatID==data.message.ChatID){
+							$('.chat-box .chat-right-aside .chat .chat-header .name .last-seen > span').attr('data-time',data.message.message);
+							lastSeenFormat();
 						}
 					} catch (error) {
 						console.log(error);
