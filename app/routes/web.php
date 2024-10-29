@@ -228,9 +228,12 @@ Route::controller(SocialController::class)->group(function () {
     Route::get('/social/callback/{provider}', 'callback');
 });
 
-Route::controller(firebaseController::class)->group(function () {
-    Route::post('/get/firebase-config', 'getFirebaseConfig');
-    Route::post('/fcm-token/save', 'saveFCMToken');
+
+Route::group(['prefix'=>'firebase'],function (){
+    Route::controller(firebaseController::class)->group(function () {
+        Route::post('/get/firebase-config', 'getFirebaseConfig');
+        Route::post('/fcm-token/save', 'saveFCMToken');
+    });
 });
 Route::group(['prefix'=>'admin'],function (){
     Route::controller(loginController::class)->group(function () {

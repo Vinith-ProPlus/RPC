@@ -3,7 +3,6 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\web\chatController;
 Route::controller(chatController::class)->group(function () {
     Route::get('/', 'chatView')->name('admin.chat');
-    Route::get('/pdf', 'pdfView')->name('admin.chat.pdf');
     Route::Post('/send/message/{ChatID}', 'sendMessage')->name('admin.chat.send.message');
     Route::Post('/send/attachment/{ChatID}', 'sendAttachment')->name('admin.chat.send.attachment');
     Route::Post('/delete/chat/{ChatID}', 'deleteChat')->name('admin.chat.delete');
