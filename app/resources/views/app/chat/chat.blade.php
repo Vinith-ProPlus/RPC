@@ -91,7 +91,7 @@
 			</div>
 		</div>
 		<div class="col call-chat-body " >
-			<div class="card">
+			<div class="card show">
 				<div class="card-body p-0" >
 					<div class="row chat-box">
 						<!-- Chat right side start-->
@@ -101,12 +101,12 @@
 								<!-- chat-header start-->
 								<div class="chat-header  clearfix">
 									<div class="row">
-										<div class="col-6">
+										<div class="col-7">
 											<div class="name"> <span class="name-info">Anandhan AS</span> <span class="last-seen">last seen <span>today at 02:50 PM</span></span></div>
 											<div class="member">Members since : <span class="member-since">11 months</span></div>
 											<div class="location">Coimbatore, Tamil Nadu, India</div>
 										</div>
-										<div class="col-6">
+										<div class="col-5">
 											<div class="mobile-number"> <span>7708679203</span> <a href="tel:7708679203" class="btn btn-sm btn-dark ml-30">Call now</a></div>
 											<div class="email">anand@propluslogics.com</div>
 										</div>
@@ -114,58 +114,8 @@
 								</div>
 								<!-- chat-header end-->
 								<div class="chat-history chat-msg-box custom-scrollbar">
-									<div class="load-chat-more"><a href="#">Load More</a></div>
-									<ul>
-										<li class="sender">
-											<div class="message my-message">
-												<div><div>hi Welcome sdkgjzskdbj asdfjgasjdfb ausyasdghf awusydfasudfy awsdfahsdfas dasudfyaush</div> </div>
-												<span class="time">10:20 am</span>
-											</div>
-										</li>
-										<li class="clearfix reply">
-											<div class="message other-message pull-right">
-												<div><div>hi Welcome sdkgjzskdbj asdfjgasjdfb ausyasdghf awusydfasudfy awsdfahsdfas dasudfyaush</div> </div>
-												<span class="time">10:20 am</span>
-											</div>
-										</li>
-										<li data-id="CM2024-000000000000051" class="clearfix reply">
-											<div class="message other-message pull-right">
-												<p class="pdf"> <a href="https://css4.pub/2015/textbook/somatosensory.pdf" target="_blank" download><span class="icon"></span>somatosensory.pdf</a></p>
-												<span class="time" data-time="2024-10-26 16:48:59">1 day</span>
-											</div>
-										</li>
-										<li data-id="CM2024-000000000000051" class="clearfix reply">
-											<div class="message other-message pull-right">
-												<p class="attachment-img"> <a href="https://upload.wikimedia.org/wikipedia/commons/b/b6/Image_created_with_a_mobile_phone.png" target="_blank" download><img src="https://upload.wikimedia.org/wikipedia/commons/b/b6/Image_created_with_a_mobile_phone.png" alt=""></a></p>
-												<span class="time" data-time="2024-10-26 16:48:59">1 day</span>
-											</div>
-										</li>
-										<li data-id="CM2024-000000000000051" class="clearfix reply">
-											<div class="message other-message pull-right">
-												<div class="pdf"> <a href="https://file-examples.com/wp-content/storage/2017/02/file-sample_100kB.doc" target="_blank" download>file-sample_100kB.doc</a></div>
-												<span class="time" data-time="2024-10-26 16:48:59">1 day</span>
-											</div>
-										</li>
-
-										<li data-id="CM2024-000000000000051" class="clearfix reply">
-											<div class="message other-message pull-right">
-												<div>
-													<div class="product">
-														<div class="product-img"><img src="http://localhost/proplus/2024/RPC/App/assets/images/no-image-b.png" alt="M Sand"></div>
-														<div class="product-infos">
-															<div class="product-name">M Sand</div>
-															<div class="product-desc">
-																	RPC M sand is produced by crushing the hard granite, a rock which helps to provide an aggregate construction material for clients. RPC-M Sand is manufacturing this product by introducing the world‘s best crusher technology - Vertical Shaft Impactor (VSI Technology)from Finland.This Rock-on-Rock technology makes RPC  M-sand more cubical which gives more strength and bonding when applied with allied building materials.1. VSI quality2. Higher durability3. Higher Concrete Strength4. Zone – II (IS:383 Code Standard)5. PWD Approved Quality6. Less Water Absorption property7. Lesser Slit Content8. Economic for use9. Eco-friendly product 
-															</div>
-														</div>
-														<div class="product-view"><a href="#">View Product</a></div>
-													</div>
-												</div>
-												<span class="time" data-time="2024-10-26 16:48:59">1 day</span>
-											</div>
-										</li>
-										
-									</ul>
+									<div class="load-chat-more show"><a href="#">Load More</a></div>
+									<ul></ul>
 								</div>
 								<!-- end chat-history-->
 								<div class="chat-message clearfix shadow">
@@ -192,7 +142,6 @@
 									</div>
 								</div>
 								<!-- end chat-message-->
-								<!-- chat end-->
 							</div>
 						</div>
 					</div>
@@ -376,6 +325,7 @@
 		var messageTo="";var messageFrom="";
 		var pageLimit=20;
 		var pageNo=1;
+		var isLoadMore=false;
 		const init=async()=>{
 			pusherInit();
 			getChatList();
@@ -394,9 +344,49 @@
 				cluster: "ap2",
 			});
 			var channel = pusher.subscribe("rpc-chat-582");
-				channel.bind('Admin', async function(message) {
-					console.log(message);
+				channel.bind('Admin', async function(data) {
+					try {
+						data.message=JSON.parse(data.message);
+						for(let item of data.message.message){
+							addChatMessages(item,true);
+						}
+					} catch (error) {
+						console.log(error);
+					}
 				})
+		}
+		const lastSeenFormat=async()=>{
+			// Get the data-time attribute from the specified element
+			let elementTime = $('.chat-box .chat-right-aside .chat .chat-header .name .last-seen > span').attr('data-time');
+    
+			// Check if elementTime exists and is valid
+			if (!elementTime) return "No last seen time available";
+
+			// Convert elementTime to a Date object
+			const date = new Date(elementTime);
+
+			// Call the formatDate function for custom formatting
+			let  formattedDate = "";
+			const now = new Date();
+			const diffTime = now - date;
+			const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+			const options = { hour: 'numeric', minute: '2-digit', hour12: true };
+			const formattedTime = date.toLocaleTimeString('en-US', options).toUpperCase();
+
+			if (diffDays === 0) {
+				formattedDate= `Today ${formattedTime}`;
+			} else if (diffDays === 1) {
+				formattedDate= `Yesterday ${formattedTime}`;
+			} else if (diffDays < 7) {
+				const weekday = date.toLocaleDateString('en-US', { weekday: 'short' });
+				formattedDate =`${weekday} ${formattedTime}`;
+			} else {
+				const formattedDate = date.toLocaleDateString('en-US', { year: '2-digit', month: '2-digit', day: '2-digit' });
+				formattedDate =`${formattedDate} ${formattedTime}`;
+			}
+			
+			// Set or display the formatted last seen time
+			$('.chat-box .chat-right-aside .chat .chat-header .name .last-seen > span').html(`${formattedDate}`);
 		}
 		const getChatList=async()=>{
 			
@@ -528,57 +518,86 @@
 						response=response[0];
 						let Address=response.DistrictName+", "+response.StateName+", "+response.CountryName;
 						$('.chat-right-aside .name span.name-info').html(response.sendFromName);
-						$('.chat-right-aside .name span.last-seen > span').html(response.AdminLastSeenOnHuman);
+						$('.chat-right-aside .name span.last-seen > span').attr('data-time',response.SenderLastSeenOn);
 						$('.chat-right-aside .member span.member-since').html(response.RegisteredOnHuman);
 						$('.chat-right-aside .location').html(Address);
 
 						$('.chat-right-aside .mobile-number span').html(response.MobileNumber);
 						$('.chat-right-aside .mobile-number a').attr('href','tel:'+response.MobileNumber);
 						$('.chat-right-aside .email').html(response.email);
+						lastSeenFormat();
 					}
 					
 				}
 			});
 		}
-		const chatScrollDown=async()=>{
+		const chatScrollDown=async(isSmooth=false)=>{
 			// Scroll to the bottom smoothly
 			const el = document.querySelector('.chat-history.chat-msg-box');
-			el.scrollTo({
-				top: el.scrollHeight,
-				behavior: 'smooth'
-			});
+			let opts={top: el.scrollHeight}
+			if(isSmooth){
+				opts.behavior= 'smooth';
+			}
+			el.scrollTo(opts);
 		}
-		const getChatHistory=async(MessageID="",isScrollDown=false)=>{
+		const chatPositionMove=async(MessageID)=>{
+			if(MessageID){
+				// Find the element you want to scroll to
+				const targetElement = $(`.chat-box .chat-right-aside .chat .chat-msg-box > ul > li[data-id="${MessageID}"]`);
+				const HeaderElement=$(`.chat-box .chat-right-aside .chat .chat-header`);
+
+				// Calculate the offset position of the target element within its scrollable container
+				const offsetTop = targetElement.position().top - (HeaderElement.innerHeight() +50);
+
+				// Scroll the parent container to the target element's position
+				$('.chat-box .chat-right-aside .chat .chat-msg-box').scrollTop(offsetTop);
+			}
+		}
+		const getChatHistory=async(MessageID="",isScrollDown=false,scrollTo=null)=>{
 			$.ajax({
 				type:"post",
 				url:"{{route('admin.chat.get.chat-history','_chatID_')}}".replace('_chatID_',activeChatID),
 				headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
-				data:{MessageID},
+				data:{MessageID,pageLimit,pageNo},
 				dataType:"json",
 				async:true,
+				beforeSend:async()=>{
+					$(".load-chat-more a").html('<i class="fa fa-spinner fa-spin"> </i> Loading')
+					$(".load-chat-more").removeClass('show').addClass('show');
+				},
+				complete:async()=>{$(".load-chat-more a").html('Load More');},
 				success:async(response)=>{
-					for(let data of response){
+					isLoadMore=response.isLoadMore;
+					if(response.isLoadMore){
+						$(".load-chat-more").removeClass('show').addClass('show');
+					}else{
+						$(".load-chat-more").removeClass('show');
+					}
+					for(let data of response.chat){
 						await addChatMessages(data);
 					}
 					if(isScrollDown){
 						chatScrollDown();
 					}
-					
+					pageNo++;
 					setInterval(updateTimeElements, 60000);
+					if(scrollTo!=null && scrollTo!=""){
+						chatPositionMove(scrollTo);
+					}
 				}
 			});
 		}
-		const addChatMessages=async(data)=>{ 
+		const addChatMessages=async(data,isAppend=false)=>{ 
 			let html='';
 			if(data.Type=="Attachment"){
 				let attchmentType=await getFileType(data.Attachments);
 				let fileName=data.Attachments.split("/").pop();
 				if(attchmentType=="PDF"){
-					html = `<li data-id="${data.SLNO}" class="clearfix ${data.MType === "sender" ? "sender" : "reply"}"><div class="message ${data.MType === "sender" ? "my-message" : "other-message pull-right"}"><p class="pdf"><a href="${data.Attachments}" target="_blank" download><span class="icon"></span>${fileName}</a></p><span class="time" data-time="${data.CreatedOn}">${data.CreatedOnHuman}</span></div></li>`;
+					html = `<li data-id="${data.SLNO}" class="clearfix ${data.MType === "sender" ? "sender" : "reply"}" data-time="${data.CreatedOn}"><div class="message ${data.MType === "sender" ? "my-message" : "other-message pull-right"}"><p class="pdf"><a href="${data.Attachments}" target="_blank" download><span class="icon"></span>${fileName}</a></p><span class="time" data-time="${data.CreatedOn}">${data.CreatedOnHuman}</span></div></li>`;
 				}else if(attchmentType=="Image"){
-					html = `<li data-id="${data.SLNO}" class="clearfix ${data.MType === "sender" ? "sender" : "reply"}"><div class="message ${data.MType === "sender" ? "my-message" : "other-message pull-right"}"><p class="attachment-img"><a href="${data.Attachments}" target="_blank" download><img src="${data.Attachments}" alt="${fileName}"></a></p><span class="time" data-time="${data.CreatedOn}">${data.CreatedOnHuman}</span></div></li>`;
+					html = `<li data-id="${data.SLNO}" class="clearfix ${data.MType === "sender" ? "sender" : "reply"}" data-time="${data.CreatedOn}"><div class="message ${data.MType === "sender" ? "my-message" : "other-message pull-right"}"><p class="attachment-img"><a href="${data.Attachments}" target="_blank" download><img src="${data.Attachments}" alt="${fileName}"></a></p><span class="time" data-time="${data.CreatedOn}">${data.CreatedOnHuman}</span></div></li>`;
 				}else{
-					html = `<li data-id="${data.SLNO}" class="clearfix ${data.MType === "sender" ? "sender" : "reply"}"><div class="message ${data.MType === "sender" ? "my-message" : "other-message pull-right"}"><p class="pdf"><a href="${data.Attachments}" target="_blank" download>${fileName}</a></p><span class="time" data-time="${data.CreatedOn}">${data.CreatedOnHuman}</span></div></li>`;
+					html = `<li data-id="${data.SLNO}" class="clearfix ${data.MType === "sender" ? "sender" : "reply"}" data-time="${data.CreatedOn}"><div class="message ${data.MType === "sender" ? "my-message" : "other-message pull-right"}"><p class="pdf"><a href="${data.Attachments}" target="_blank" download>${fileName}</a></p><span class="time" data-time="${data.CreatedOn}">${data.CreatedOnHuman}</span></div></li>`;
 				}
 			}else if(data.Type=="Quotation"){
 				let attchmentType=await getFileType(data.Attachments);
@@ -611,7 +630,12 @@
 			}else{
 				html = `<li data-id="${data.SLNO}" class="clearfix ${data.MType === "sender" ? "sender" : "reply"}"><div class="message ${data.MType === "sender" ? "my-message" : "other-message pull-right"}"><p>${data.Message}</p><span class="time" data-time="${data.CreatedOn}">${data.CreatedOnHuman}</span></div></li>`;
 			}
-			$('.chat-history.chat-msg-box ul').append(html);
+			if(isAppend){
+				$('.chat-history.chat-msg-box ul').append(html);
+			}else{
+				$('.chat-history.chat-msg-box ul').prepend(html);
+			}
+			
 		}
 		const sendMessage=async(type="Text",message="",attachments={})=>{
 			$.ajax({
@@ -622,8 +646,9 @@
 				async:true,
 				success:async(response)=>{
 					$('#txtMessage').val('');
+					
 					if(response.status && response.SLNO!=""){
-						getChatHistory(response.SLNO,true)
+						//getChatHistory(response.SLNO,true)
 							
 						if(response.LastMessage!=""){
 							$('.people-list ul.list > li[data-id="'+activeChatID+'"] .last-msg').html(response.LastMessage)
@@ -655,7 +680,7 @@
 				success:async(response)=>{
 					$('#txtMessage').val('');
 					if(response.status && response.SLNO!=""){
-						getChatHistory(response.SLNO,true)
+						//getChatHistory(response.SLNO,true)
 						if(response.LastMessage!=""){
 							$('.people-list ul.list > li[data-id="'+activeChatID+'"] .last-msg').html(response.LastMessage)
 						}
@@ -935,6 +960,8 @@
 		$(document).on('click','#btnSearch',searchChatList);
 		$(document).on('click','#people-list > ul > li',function(){
 			if(activeChatID!=$(this).attr('data-id')){
+				$('.call-chat-body .card').removeClass('show').addClass('show');
+				pageNo=1;
 				let chatStatus=$(this).attr('data-status')
 				$('.chat-history.chat-msg-box ul li').remove();
 
@@ -947,7 +974,6 @@
 				$('#people-list > ul > li[data-id="'+activeChatID+'"] .people-details .icon').attr('data-read-status',1);
 				getChatAccountDetails();
 				getChatHistory("",true);
-				$('.call-chat-body .card').removeClass('show').addClass('show');
 				if(chatStatus=="Blocked"){
 					$('.chat-box .chat-right-aside .chat .chat-message').removeClass('blocked').addClass('blocked');
 				}
@@ -1040,6 +1066,17 @@
 					}
 				}
 				
+			}
+		});
+		$(document).on('click',".load-chat-more a",function(e){
+			e.preventDefault();
+			if(isLoadMore){
+				let dataId = null;
+				if($('.chat-box .chat-right-aside .chat .chat-msg-box > ul > li').length>0){
+					dataId=$('.chat-box .chat-right-aside .chat .chat-msg-box > ul > li').first().data('id');
+				}
+				
+				getChatHistory("",false,dataId);
 			}
 		});
 	});
