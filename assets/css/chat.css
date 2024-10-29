@@ -51,7 +51,7 @@
 }
 
 .page-wrapper .chat-box .chat-right-aside .chat .chat-msg-box{
-    height: calc(100vh - 360px);
+    height: calc(100vh - 335px);
 }
 .page-wrapper.horizontal-wrapper .chat-box .chat-right-aside .chat .chat-msg-box{
     height: calc(100vh - 400px);

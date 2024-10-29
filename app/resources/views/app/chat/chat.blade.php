@@ -346,10 +346,17 @@
 			var channel = pusher.subscribe("rpc-chat-582");
 				channel.bind('Admin', async function(data) {
 					try {
-						data.message=JSON.parse(data.message);
-						if(data.message.type=="load_message" && activeChatID==data.message.ChatID){
-							for(let item of data.message.message){
-								addChatMessages(item,true);
+						data.message=JSON.parse(data.message);console.log(data)
+						if(data.message.type=="load_message" ){
+							if(activeChatID==data.message.ChatID){
+								for(let item of data.message.message){
+									addChatMessages(item,true);
+								}
+							}
+							if(messageFrom!=data.messageFrom){
+								$('.people-list ul.list > li[data-id="'+data.message.ChatID+'"] .last-msg').html(data.message.LastMessage)
+								$('.people-list ul.list > li[data-id="'+data.message.ChatID+'"] .timestamp').html(data.message.LastMessageOnHuman)
+								$('.people-list ul.list > li[data-id="'+data.message.ChatID+'"]').attr('data-time',data.message.LastMessageOn);
 							}
 						}else if(data.message.type=="update_last_seen"  && activeChatID==data.message.ChatID){
 							$('.chat-box .chat-right-aside .chat .chat-header .name .last-seen > span').attr('data-time',data.message.message);
