@@ -12,5 +12,6 @@ Route::controller(chatController::class)->group(function () {
         Route::Post('/chat-list', 'getChatList')->name('admin.chat.get.chat-list');
         Route::Post('/account-details/{ChatID}', 'getAccountDetails')->name('admin.chat.get.account-details');
         Route::Post('/chat-history/{ChatID}', 'getChatHistory')->name('admin.chat.get.chat-history');
+        Route::Post('/search-chat-history/{ChatID}', 'getChatHistory')->name('admin.chat.search.chat-history');
     });
 });

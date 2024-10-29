@@ -101,8 +101,8 @@ class chatController extends Controller{
 		return $result;
 	}
 	public function getChatHistory(Request $req, $ChatID){
-        $pageLimit = (int)$req->pageLimit; // Number of records per page
-        $pageNo = (int)$req->pageNo; // Current page number (you can update this as needed)
+        $pageLimit = (int)$req->pageLimit ?: 20; // Default records per page
+        $pageNo = (int)$req->pageNo ?: 1; // Default to page 1 if not specified
         $offset = ($pageNo - 1) * $pageLimit;// Calculate the offset
 
 		$totalChats = DB::Table($this->SupportDB."tbl_chat_message")->where("ChatID",$ChatID)->count();
@@ -241,7 +241,7 @@ class chatController extends Controller{
 			DB::commit();
 			$msg=$this->getChatMessage($ChatID,$SLNO);
 			event(new chatApp($req->messageTo,json_encode(["type"=>"load_message","isRead"=>$req->messageFrom=="Admin"?0:1,"isAdminRead"=>$req->messageFrom=="Admin"?1:0,"messageFrom"=>$req->messageFrom,"message"=>$msg,"ChatID"=>$ChatID,"LastMessageOn"=>$LastMessageOn,"LastMessage"=>$LastMessage,"LastMessageOnHuman"=>Carbon::parse($LastMessageOn)->diffForHumans()])));
-			
+
 			event(new chatApp($req->messageFrom,json_encode(["type"=>"load_message","isRead"=>$req->messageFrom=="Admin"?0:1,"isAdminRead"=>$req->messageFrom=="Admin"?1:0,"messageFrom"=>$req->messageFrom,"message"=>$msg,"ChatID"=>$ChatID,"LastMessageOn"=>$LastMessageOn,"LastMessage"=>$LastMessage,"LastMessageOnHuman"=>Carbon::parse($LastMessageOn)->diffForHumans()])));
 		}else{
 			DB::rollback();
@@ -314,7 +314,37 @@ class chatController extends Controller{
 		}
 		return ['status'=>$status,"SLNO"=>$SLNO,"LastMessage"=>$LastMessage,"LastMessageOn"=>$LastMessageOn,"LastMessageOnHuman"=>Carbon::parse($LastMessageOn)->diffForHumans()];
 	}
-	public function deleteChat(Request $req,$ChatID){
+
+    public function searchChatHistory(Request $req, $ChatID)
+    {
+        $pageLimit = (int)$req->pageLimit ?: 20;
+        $pageNo = (int)$req->pageNo ?: 1;
+        $offset = ($pageNo - 1) * $pageLimit;
+
+        $query = DB::table($this->SupportDB . "tbl_chat_message")
+            ->where("ChatID", $ChatID)
+            ->where("Status", "<>", "Deleted");
+
+        if ($req->searchText) {
+            $query->where("Message", "LIKE", "%" . $req->searchText . "%");
+        }
+
+        $totalMatches = $query->count();
+        $isLoadMore = ($offset + $pageLimit) < $totalMatches;
+
+        $searchResults = $query->orderBy("CreatedOn", "desc")
+            ->offset($offset)
+            ->limit($pageLimit)
+            ->get();
+
+        foreach ($searchResults as $message) {
+            $message->CreatedOnHuman = Carbon::parse($message->CreatedOn)->diffForHumans();
+        }
+
+        return response()->json(compact('searchResults', 'isLoadMore', 'totalMatches'));
+    }
+
+    public function deleteChat(Request $req,$ChatID){
 		DB::Table($this->SupportDB.'tbl_chat')->where('ChatID',$ChatID)->Update(['Status'=>'Deleted',"DeletedOn"=>now(),"DeletedBy"=>$this->UserID]);
 	}
 	public function blockChat(Request $req,$ChatID){

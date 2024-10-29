@@ -41,7 +41,7 @@ $(document).ready(function(){
         return await new Promise((resolve,reject)=>{
             $.ajax({
                 type:"post",
-                url:rootUrl+"get/firebase-config",
+                url:rootUrl+"firebase/get/firebase-config",
                 headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
                 dataType:"json",
                 async:true,
