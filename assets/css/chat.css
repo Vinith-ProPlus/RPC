@@ -5,17 +5,9 @@
 .chat-box{
     font-family: "Poppins", sans-serif;
 }
-.call-chat-sidebar .card,
-.call-chat-body .card{
+.call-chat-sidebar .card{
     background: #f4f4f4;
     box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
-    padding-bottom: 0px;
-    margin-bottom: 0px;
-    max-height: calc(100vh - 120px);
-    height: calc(100vh - 120px);
-}
-.call-chat-body .chat-box{
-    height: 100%;
 }
 .chat-box .chat-left-aside .about{
     float: none;
@@ -45,7 +37,7 @@
 }
 
 .page-wrapper .chat-box .chat-right-aside .chat .chat-msg-box{
-    height: calc(100vh - 360px);
+    height: calc(100vh - 334px);
 }
 .people-list ul.list > li{
     background: #e7e7e7;
@@ -157,6 +149,11 @@
     white-space: nowrap;
     text-overflow: ellipsis;
 }
+.call-chat-body .card{
+    background: #f4f4f4;
+    box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
+    border-radius: 0.375rem;
+}
 .call-chat-body .card .card-body{
     opacity: 0;
 }
@@ -178,7 +175,7 @@
     text-transform: capitalize;
 }
 .chat-box .chat-right-aside .chat .chat-header .name .last-seen{
-    font-size: 11px;
+    font-size: 13px;
     font-weight: 400;
     color: #e7e7e7;
 }
@@ -190,7 +187,7 @@
     align-items: center;
     margin-top: 5px;
     font-weight: 400;
-    font-size: 12px;
+    font-weight: 13px;
     line-height: 21px;
     height: 21px;
 }
@@ -492,22 +489,20 @@
 .chat-box .chat-right-aside .chat .chat-msg-box .message >div > div.product .product-infos .product-desc{
     max-height: 68px;
     overflow: hidden;
-    text-align: left;
+    text-align: justify;
     font-size: 11px;
 }
+
 .load-chat-more{
     width: 100%;
     text-align: center;
-    display: none;
-    padding: 20px;
-}
-.load-chat-more a{
     background: #fff;
     padding: 5px 10px;
     border-radius: 4px;
     font-weight: 600;
     box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
+    display: none;
 }
-.load-chat-more a.show{
+.load-chat-more.show{
     display: block;
 }
