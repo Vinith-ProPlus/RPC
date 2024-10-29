@@ -149,6 +149,20 @@
 			</div>
 		</div>
 	</div>
+	<div class="row d-flex d-md-none">
+		<div class="col-12">
+			<div class="device-not-support">
+				<div class="error-content text-center">
+					<svg width="300px" height="300px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none">
+						<path stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v4m0 3v.01M5.313 20h13.374c1.505 0 2.471-1.6 1.77-2.931L13.77 4.363c-.75-1.425-2.79-1.425-3.54 0L3.543 17.068C2.842 18.4 3.808 20 5.313 20Z"/>
+					</svg>
+					<h1>Device Not Supported</h1>
+					<p>We're sorry, but this page is not designed for mobile devices.</p>
+					<p>Please try accessing it from a laptop, tablet, or PC.</p>
+				</div>
+			</div>
+		</div>
+	</div>
 </div>
 <div class="modal fade chatModal" id="quoteModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="quoteModalLabel" aria-hidden="true">
 	<div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-lg modal-fullscreen-lg-down">
