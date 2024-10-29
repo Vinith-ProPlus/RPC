@@ -103,7 +103,20 @@ class chatController extends Controller{
 	public function getChatHistory(Request $req, $ChatID){
 
         logger(json_encode($req->all()));
-		DB::Table($this->SupportDB."tbl_chat")->where('ChatID',$ChatID)->update(["isRead"=>1]);
+		$pageLimit = intval($req->pageLimit); // Number of records per page
+		$pageNo = intval($req->pageNo); // Current page number (you can update this as needed)
+		$offset = ($pageNo - 1) * $pageLimit;// Calculate the offset
+
+		$totalChats = DB::Table($this->SupportDB."tbl_chat_message")->where("ChatID",$ChatID)->count();
+		$isLoadMore = ($offset + $pageLimit) < $totalChats;
+
+		$tdata=["isRead"=>1];
+		if(auth()->user()->LoginType=="Admin"){
+			$tdata['adminLastSeenOn']=now();
+		}else{
+			$tdata['senderLastSeenOn']=now();
+		}
+		DB::Table($this->SupportDB."tbl_chat")->where('ChatID',$ChatID)->update($tdata);
 		$sql1 ="SELECT *, 'sender' as MType FROM ".$this->SupportDB."tbl_chat_message  WHERE SendTo='Admin' AND Status<>'Deleted' AND ChatID='".$ChatID."'";
 		$sql1.=" UNION ";
 		$sql1.=" SELECT *, 'reply' as MType FROM ".$this->SupportDB."tbl_chat_message  WHERE SendFrom='Admin' AND Status<>'Deleted' AND ChatID='".$ChatID."'";
@@ -115,12 +128,39 @@ class chatController extends Controller{
         if ($req->searchText != "") {
             $sql .= " AND Message LIKE '%".$req->searchText."%'";
         }
-		$sql.=" Order By CreatedOn asc";
+		$sql.=" Order By CreatedOn desc";
+		$sql.=" LIMIT $offset, $pageLimit";
+		$return= DB::SELECT($sql);
+		for($i=0;$i<count($return);$i++){
+			if($return[$i]->Type=="Attachment"){
+				$return[$i]->Attachments=url('/'.$return[$i]->Attachments);
+			}
+
+			$MsgOnHuman=Carbon::parse($return[$i]->CreatedOn)->diffForHumans();
+			$MsgOnHuman=str_replace('minutes','min',$MsgOnHuman);
+			$MsgOnHuman=str_replace('seconds','sec',$MsgOnHuman);
+			$MsgOnHuman=str_replace('hours','hrs',$MsgOnHuman);
+			$MsgOnHuman=str_replace('months','mos',$MsgOnHuman);
+			$MsgOnHuman=str_replace('years','yrs',$MsgOnHuman);
+			$MsgOnHuman=trim(str_replace('ago','',$MsgOnHuman));
+			$return[$i]->CreatedOnHuman=$MsgOnHuman;
+		}
+		return ["chat"=>$return,"isLoadMore"=>$isLoadMore,"totalChats"=>$totalChats,"offset"=>$offset];
+	}
+	private function getChatMessage($ChatID,$MessageID){
+		$sql1 ="SELECT *, 'sender' as MType FROM ".$this->SupportDB."tbl_chat_message  WHERE SendTo='Admin' AND Status<>'Deleted' AND ChatID='".$ChatID."'";
+		$sql1.=" UNION ";
+		$sql1.=" SELECT *, 'reply' as MType FROM ".$this->SupportDB."tbl_chat_message  WHERE SendFrom='Admin' AND Status<>'Deleted' AND ChatID='".$ChatID."'";
+
+		$sql =" SELECT * FROM (".$sql1.") as T  Where 1=1 ";
+		if($MessageID!=""){
+			$sql.=" AND SLNO='".$MessageID."'";
+		}
 		$return= DB::SELECT($sql);
         logger("json_encode(return)");
         logger(json_encode($return));
 		for($i=0;$i<count($return);$i++){
-			if($return[$i]->Type=="Attachments"){
+			if($return[$i]->Type=="Attachment"){
 				$return[$i]->Attachments=url('/'.$return[$i]->Attachments);
 			}
 
@@ -167,28 +207,28 @@ class chatController extends Controller{
 					"isRead"=>0,
 					"LastMessageOn"=>$LastMessageOn,
 				];
-                if ($req->type === "Text") {
-                    $data['LastMessage'] = $req->message;
-                    $LastMessage = $req->message;
-                } else if ($req->type === "Attachment") {
-                    $LastMessage = "sent a attachment file";
-                } else if ($req->type === "Quotation") {
-                    $LastMessage = "sent a Quotation";
-                } else if ($req->type === "Products") {
-                    $LastMessage = "sent Products links";
-                }
+				if($req->type=="Text"){
+					$LastMessage=$req->message;
+				}else if($req->type=="Attachment"){
+					$LastMessage="sent a attachment file";
+				}else if($req->type=="Quotation"){
+					$LastMessage="sent a Quotattion";
+				}else if($req->type=="Products"){
+					$data['LastMessage']=$req->message;
+					$LastMessage="sent Products links";
+				}
+				$data['LastMessage']=$LastMessage;
 				$status=DB::Table($this->SupportDB.'tbl_chat')->where('ChatID',$ChatID)->update($data);
 			}
 			//event(new chatApp($req->message));
-			$req->MessageID=$SLNO;
-			$msg=$this->getChatHistory($req,$ChatID);
-			event(new chatApp($req->messageTo,json_encode(["type"=>"load_message","message"=>$msg])));
 		}catch(Exception $e) {
 			$status=false;
 		}
 		if($status==true){
 			DB::commit();
-
+			$msg=$this->getChatMessage($ChatID,$SLNO);
+			event(new chatApp($req->messageTo,json_encode(["type"=>"load_message","message"=>$msg])));
+			event(new chatApp($req->messageFrom,json_encode(["type"=>"load_message","message"=>$msg])));
 		}else{
 			DB::rollback();
 		}
@@ -235,15 +275,14 @@ class chatController extends Controller{
 				$status=DB::Table($this->SupportDB.'tbl_chat')->where('ChatID',$ChatID)->update($data);
 			}
 			//event(new chatApp($req->message));
-			$req->MessageID=$SLNO;
-			$msg=$this->getChatHistory($req,$ChatID);
-			event(new chatApp($req->messageTo,json_encode(["type"=>"load_message","message"=>$msg])));
 		}catch(Exception $e) {
 			$status=false;
 		}
 		if($status==true){
 			DB::commit();
-
+			$msg=$this->getChatMessage($ChatID,$SLNO);
+			event(new chatApp($req->messageTo,json_encode(["type"=>"load_message","message"=>$msg])));
+			event(new chatApp($req->messageFrom,json_encode(["type"=>"load_message","message"=>$msg])));
 		}else{
 			DB::rollback();
 		}
