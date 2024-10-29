@@ -182,6 +182,7 @@ class chatController extends Controller{
 		$LastMessageOn=now();
 
 		$LastMessage="";
+
 		try {
 			$SLNO=DocNum::getDocNum(docTypes::ChatMessage->value);
 			$data=array(
@@ -236,8 +237,8 @@ class chatController extends Controller{
 		if($status==true){
 			DB::commit();
 			$msg=$this->getChatMessage($ChatID,$SLNO);
-			event(new chatApp($req->messageTo,json_encode(["type"=>"load_message","message"=>$msg,"ChatID"=>$ChatID])));
-			event(new chatApp($req->messageFrom,json_encode(["type"=>"load_message","message"=>$msg,"ChatID"=>$ChatID])));
+			event(new chatApp($req->messageTo,json_encode(["type"=>"load_message","messageFrom"=>$req->messageFrom,"message"=>$msg,"ChatID"=>$ChatID,"LastMessageOn"=>$LastMessageOn,"LastMessage"=>$LastMessage,"LastMessageOnHuman"=>Carbon::parse($LastMessageOn)->diffForHumans()])));
+			event(new chatApp($req->messageFrom,json_encode(["type"=>"load_message","messageFrom"=>$req->messageFrom,"message"=>$msg,"ChatID"=>$ChatID,"LastMessageOn"=>$LastMessageOn,"LastMessage"=>$LastMessage,"LastMessageOnHuman"=>Carbon::parse($LastMessageOn)->diffForHumans()])));
 		}else{
 			DB::rollback();
 		}
@@ -248,7 +249,7 @@ class chatController extends Controller{
 		$status=false;
 		$LastMessageOn=now();
 
-		$LastMessage="";
+		$LastMessage=$req->message==""?"sent a attachment file":$req->message;
 		try {
 
 			$AttachmentURL="";
@@ -279,7 +280,7 @@ class chatController extends Controller{
 				$data=[
 					"isRead"=>0,
 					"LastMessageOn"=>$LastMessageOn,
-					"LastMessage"=>$req->message==""?"sent a attachment file":$req->message
+					"LastMessage"=>$LastMessage
 				];
 				if($req->messageFrom=="Admin"){
 					$data['adminLastSeenOn']=now();
@@ -300,9 +301,9 @@ class chatController extends Controller{
 		}
 		if($status==true){
 			DB::commit();
-			$msg=$this->getChatMessage($ChatID,$SLNO);
-			event(new chatApp($req->messageTo,json_encode(["type"=>"load_message","message"=>$msg,"ChatID"=>$ChatID])));
-			event(new chatApp($req->messageFrom,json_encode(["type"=>"load_message","message"=>$msg,"ChatID"=>$ChatID])));
+			$msg=$this->getChatMessage($ChatID,$SLNO);$msg=$this->getChatMessage($ChatID,$SLNO);
+			event(new chatApp($req->messageTo,json_encode(["type"=>"load_message","messageFrom"=>$req->messageFrom,"message"=>$msg,"ChatID"=>$ChatID,"LastMessageOn"=>$LastMessageOn,"LastMessage"=>$LastMessage,"LastMessageOnHuman"=>Carbon::parse($LastMessageOn)->diffForHumans()])));
+			event(new chatApp($req->messageFrom,json_encode(["type"=>"load_message","messageFrom"=>$req->messageFrom,"message"=>$msg,"ChatID"=>$ChatID,"LastMessageOn"=>$LastMessageOn,"LastMessage"=>$LastMessage,"LastMessageOnHuman"=>Carbon::parse($LastMessageOn)->diffForHumans()])));
 		}else{
 			DB::rollback();
 		}
