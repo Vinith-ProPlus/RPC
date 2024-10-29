@@ -2,6 +2,7 @@
 @section('content')
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.css" integrity="sha512-3pIirOrwegjM6erE5gPSwkUzO+3cTjpnV9lexlNZqvupR64iZBnOOTiiLPb9M36zpMScbmUNIcHUqKD47M719g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js" integrity="sha512-VEd+nq25CkR676O+pLBnDW09R7VQX9Mdiij052gVCp5yVH3jGtH70Ho/UUv4mJDsEdTvqRCFZg0NKGiojGnUCw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="stylesheet" href="{{ url('/assets/css/chat.css') }}">
     <style>
         .sidebar {
             position:relative;
@@ -926,6 +927,101 @@
             text-indent: -2px;
         }
     </style>
+
+    <style>
+
+        .search-bar {
+            max-width: 300px;
+        }
+
+        .chat-header {
+            width: calc(100% - 20px) !important;
+        }
+
+        /* Chat history container */
+        .chat-history.chat-msg-box {
+            overflow-y: auto;
+        }
+        .chat-history.chat-msg-box ul li {
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 8px;
+            max-width: 100%;
+            word-wrap: break-word;
+            display: flex;
+        }
+
+        /* Different message alignment based on sender */
+        .chat-history.chat-msg-box ul li.sender {
+            justify-content: flex-start; /* Move sender messages to the right */
+        }
+
+        .chat-history.chat-msg-box ul li.sender .my-message {
+            background-color: #e6f7ff;
+            align-self: flex-start;
+        }
+
+        .chat-history.chat-msg-box ul li.reply {
+            justify-content: flex-end; /* Keep reply messages on the left */
+        }
+
+        .chat-history.chat-msg-box ul li.reply .other-message {
+            background-color: #f1f1f1;
+            align-self: flex-end;
+        }
+
+        .chat-history.chat-msg-box {
+            overflow-y: scroll;
+            scrollbar-width: none; /* Firefox */
+        }
+
+        .chat-history.chat-msg-box::-webkit-scrollbar {
+            width: 0; /* Chrome, Safari, Opera */
+            display: none; /* Edge */
+        }
+
+        .chat-box .chat-right-aside .chat .chat-message .input-group-text:nth-child(3) {
+            border-right: 0px solid #ccc !important;
+        }
+
+        .suggestion-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .suggestion-buttons button {
+            font-size: 11.66px;
+            border-radius: 17.55px;
+            padding: 10px 20px;
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            cursor: pointer;
+            color: black;
+            font-weight: normal;
+        }
+        .suggestion-buttons button:hover {
+            background-color: #e2e6ea;
+        }
+
+        .chat-history {
+            flex: 1;
+            display: flex;
+            flex-direction: column-reverse;
+        }
+        .chat-box .chat-right-aside .chat .chat-msg-box > ul > li {
+            margin-bottom: 0px !important;
+        }
+
+        .highlight {
+            background-color: #f7c107; /* Light yellow background for highlighted search */
+            transition: background-color 0.3s;
+        }
+
+
+
+    </style>
     <form id="logout-form" action="{{ url('/') }}/logout" method="POST" style="display: none;">
         @csrf
     </form>
@@ -958,23 +1054,11 @@
                         <li class="nav-item">
                             <a class="nav-link" id="orders-tab" data-toggle="tab" href="#order" role="tab" aria-controls="order" aria-selected="false">Orders</a>
                         </li>
-
-{{--                        <li class="nav-item">--}}
-{{--                            <a class="nav-link" id="download-tab" data-toggle="tab" href="#download" role="tab" aria-controls="download" aria-selected="false">Downloads</a>--}}
-{{--                        </li>--}}
-
-{{--                        <li class="nav-item">--}}
-{{--                            <a class="nav-link" id="address-tab" data-toggle="tab" href="#address" role="tab" aria-controls="address" aria-selected="false">Addresses</a>--}}
-{{--                        </li>--}}
-
-{{--                        <li class="nav-item">--}}
-{{--                            <a class="nav-link" id="shop-address-tab" data-toggle="tab" href="#shipping" role="tab" aria-controls="edit" aria-selected="false">Shopping Address</a>--}}
-{{--                        </li>--}}
-{{--                        <li class="nav-item">--}}
-{{--                            <a class="nav-link" id="wishlist-tab" data-toggle="tab" href="#wishlist" role="tab" aria-controls="wishlist" aria-selected="false">Wishlist</a>--}}
-{{--                        </li>--}}
                         <li class="nav-item">
                             <a class="nav-link" id="support-tab" data-toggle="tab" href="#support" role="tab" aria-controls="support" aria-selected="false">Support</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="chat-tab" data-toggle="tab" href="#chat" role="tab" aria-controls="chat" aria-selected="false">Chat</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="#" onclick="$('#logout-form').submit();">Logout</a>
@@ -1004,16 +1088,6 @@
                                         </div>
                                     </div>
                                 </div>
-
-{{--                                <div class="col-6 col-md-4">--}}
-{{--                                    <div class="feature-box text-center pb-4">--}}
-{{--                                        <a href="#wishlist" onclick="$('#wishlist-tab').click();"><i class="sicon-heart"></i></a>--}}
-{{--                                        <div class="feature-box-content">--}}
-{{--                                            <h3>WISHLIST</h3>--}}
-{{--                                        </div>--}}
-{{--                                    </div>--}}
-{{--                                </div>--}}
-
                                 <div class="col-6 col-md-4">
                                     <div class="feature-box text-center pb-4">
                                         <a href="#support" onclick="$('#support-tab').click();" class="link-to-tab"><i class="sicon-support"></i></a>
@@ -1031,17 +1105,6 @@
                                         </div>
                                     </div>
                                 </div>
-
-{{--                                --}}
-{{--                                <div class="col-6 col-md-4">--}}
-{{--                                    <div class="feature-box text-center pb-4">--}}
-{{--                                        <a href="#address" class="link-to-tab"><i class="sicon-location-pin"></i></a>--}}
-{{--                                        <div class="feature-box-content">--}}
-{{--                                            <h3>ADDRESSES</h3>--}}
-{{--                                        </div>--}}
-{{--                                    </div>--}}
-{{--                                </div>--}}
-
                                 <div class="col-6 col-md-4">
                                     <div class="feature-box text-center pb-4">
                                         <a href="#profile" onclick="$('#profile-tab').click();" class="link-to-tab"><i class="icon-user-2"></i></a>
@@ -1089,45 +1152,7 @@
                                 </div>
                             </div>
                         </div>
-{{--                        <div class="order-content">--}}
-{{--                            <h3 class="account-sub-title d-none d-md-block"><i class="sicon-social-dropbox align-middle mr-3"></i>Orders</h3>--}}
-{{--                            <div class="order-table-container text-center">--}}
-{{--                                <table class="table table-order text-left">--}}
-{{--                                    <thead>--}}
-{{--                                    <tr>--}}
-{{--                                        <th class="order-id">ORDER</th>--}}
-{{--                                        <th class="order-date">DATE</th>--}}
-{{--                                        <th class="order-status">STATUS</th>--}}
-{{--                                        <th class="order-price">TOTAL</th>--}}
-{{--                                        <th class="order-action">ACTIONS</th>--}}
-{{--                                    </tr>--}}
-{{--                                    </thead>--}}
-{{--                                    <tbody>--}}
-{{--                                    <tr>--}}
-{{--                                        <td class="text-center p-0" colspan="5">--}}
-{{--                                            <p class="mb-5 mt-5">--}}
-{{--                                                No Order has been made yet.--}}
-{{--                                            </p>--}}
-{{--                                        </td>--}}
-{{--                                    </tr>--}}
-{{--                                    </tbody>--}}
-{{--                                </table>--}}
-{{--                                <hr class="mt-0 mb-3 pb-2">--}}
-
-{{--                                <a href="category.html" class="btn btn-dark">Go Shop</a>--}}
-{{--                            </div>--}}
-{{--                        </div>--}}
-                    </div><!-- End .tab-pane -->
-
-{{--                    <div class="tab-pane fade" id="wishlist" role="tabpanel">--}}
-{{--                        <div class="download-content">--}}
-{{--                            <h3 class="account-sub-title d-none d-md-block"><i class="sicon-heart align-middle mr-3"></i>Wishlist</h3>--}}
-{{--                            <div class="download-table-container" style="margin-top: 20px !important;">--}}
-{{--                                <div class="wishlist-table-container" id="wishlistTableHtml">--}}
-{{--                                </div>--}}
-{{--                            </div>--}}
-{{--                        </div>--}}
-{{--                    </div><!-- End .tab-pane -->--}}
+                    </div>
                     <div class="tab-pane fade" id="support" role="tabpanel">
                         <div class="download-content">
                             <div class="row align-items-center">
@@ -1143,14 +1168,98 @@
                                 </div>
                             </div>
                         </div>
-                    </div><!-- End .tab-pane -->
+                    </div>
+                    <div class="tab-pane fade" id="chat" role="tabpanel">
+                        <div class="container mt-5">
+                            <div class="row d-none d-md-flex">
+                                <div class="col call-chat-body">
+                                    <div class="card">
+                                        <div class="card-body p-0">
+                                            <div class="row chat-box">
+                                                <!-- Chat right side start-->
+                                                <div class="col pe-0 chat-right-aside">
+                                                    <!-- chat start-->
+                                                    <div class="chat">
+                                                        <!-- chat-header start-->
+                                                        <div class="chat-header clearfix">
+                                                            <div class="row">
+                                                                <div class="col-6">
+                                                                    <div>
+                                                                        <div class="d-flex align-items-center"><img src="{{ url('assets/images/chat-admin-logo.png') }}" class="mr-2" alt="Admin Icon" style="width: 34px;height: 34px;"><span style="font-size: 19px;">Admin</span></div>
+                                                                        <div class="text-light mt-1" style="font-size: 13px !important;">Support mail ID - <span class="mail text-warning">rpcadminsupport@gmail.com</span></div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-6 d-flex justify-content-end align-items-center">
+                                                                    <div class="input-group" style="width: 220px;">
+                                                                        <input type="text" class="form-control search-bar" placeholder="Search..." aria-label="Search" style="height: 30px; border-radius: 3px 0px 0px 3px;">
+                                                                        <div class="input-group-append">
+                                                                            <span class="input-group-text bg-white border-left-0" style="cursor: pointer;" id="searchBtn"><i class="fas fa-search"></i></span>
+                                                                            <span class="input-group-text bg-white border-left-0" style="cursor: pointer;"><i class="fas fa-chevron-up"></i></span>
+                                                                            <span class="input-group-text bg-white border-left-0" style="cursor: pointer;"><i class="fas fa-chevron-down"></i></span>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <!-- chat-header end-->
+                                                        <div class="chat-history chat-msg-box custom-scrollbar">
+                                                            <div class="load-chat-more"><a href="#">Load More</a></div>
+                                                            <div class="suggestion-buttons px-3">
+                                                                @foreach($ChatSuggestions ?? [] as $ChatSuggestion)
+                                                                <button class="btn suggestion-btn" data-question="{{ $ChatSuggestion->Question ?? '' }}" data-answer="{!! $ChatSuggestion->Answer ?? '' !!}">{{ $ChatSuggestion->Question ?? '' }}</button>
+                                                                @endforeach
+                                                            </div>
+                                                            <ul id="chatBox">
+{{--                                                                <li data-id="CM2024-000000000000000" class="clearfix sender"><div class="message my-message"><p>Hi Welcome</p><span class="time" data-time="2024-10-26 12:21:04">1 d ago</span></div></li>--}}
+{{--                                                                <li data-id="CM2024-000000000000002" class="clearfix reply"><div class="message other-message pull-right"><p>hi welcome</p><span class="time" data-time="2024-10-26 12:26:05">1 d ago</span></div></li>--}}
+                                                            </ul>
+                                                        </div>
+                                                        <!-- end chat-history-->
+                                                        <div class="chat-message clearfix shadow">
+                                                            <div class="row">
+                                                                <div class="col-12 d-flex">
+                                                                    <div class="input-group">
+                                                                        <div class="input-group-text">
+                                                                            <div class="chat-opt btnSendAttachment" id="btnSendAttachment">
+                                                                                <div class="chat-opt-icon"><img
+                                                                                        src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB8AAAAbCAYAAACEP1QvAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAKbSURBVHgBxZfNchJBEMe7Z0MlpWAwJ2+ueNDoJXkDuHnkQ6u8BZ7A8gkgT6BvQHI2hH0DeAROVi6B9eYtq5AqlDBj9+4OrCtbC2HBfxXF9MzO/Jju2e4B4Z56aL47Eig/Iarez/7lx+BY2izmEY06IByRmaWPTZ/uRE5Px7Zl6+cQ7iEXLGTHXxiknB7f2laP249y5boCbERMdUBCbWi3LDYErKgwmGSnvJ3FgcGdI6DJa6wMXwQmVxYc23IWgC0aezbst1BJLAAoW/8ADhc3lnZ7FJhj+A9Ywflw0KoG52fNojkVxkDbE6XMpXaeMSvFKHAmV2nGgVkOHzQFXW2nlDyOhWeeV04oOO0oMNnVMJhPe8YsFuPWFrFgBWeBrlgwz0FhdEAY7XSu3NDD7HYKcl7bktYSSYODcxDwqQZPhegE1+JXE9cFU7xPR/2LRtScPWp4YDT1AL8FvJbYNhhQ1XSWw22Dh9eXs2fxf4Fn8HAC2AaY5cY8fBKDmWtTYHcoY5arILAZBpM3suSNm02BvZ0jngQA5/ok3oFbi/01oJc0mLXjF3wPLu+s+QD0prqfnqHYtwlcTArM4pjrnA36QsDiMhksBKREwRruaIPjHBw01LREu7aCfUq516FFYIfr9rJgD07x1MZEiGpwkHc/um6V3MuAVDX+Hg1aC8FSisLIvujCCkKuPFQA6r5tG3Qfc10eoXmR+Bt8a3/pwYoSO1J+hrnrOdk0w+7fBJhljJ2rcerx61+U6t74fS8Vive7B4c/UvsvYOJcfd8j6IODVx8kijMCP0kCzJrl9nTuLblf1ZectzaYZejG75uv3d39w2/ee4/ZqAmccKQSpXXB7lrhDjeuIPKKMh/O/nEom7JfDyXdWPwLfxL6A2iVQ8AcyGlDAAAAAElFTkSuQmCC'/>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <input type="text" placeholder="Type your message" id="txtMessage"
+                                                                               class="form-control">
+                                                                        <div class="input-group-text">
+                                                                            <a class="btnSendMessage" id="btnSendMessage"
+                                                                               style="display:none"><img
+                                                                                    src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAATCAYAAACdkl3yAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAADlSURBVHgBpZOBEYIwEAQvYgGUkA60BKhASqAVO9AKsASpgJEGtAPsQBrQeCFBBEcC4WZ+COR/uTwPVIGUIbFU6oKKoVSJbAlwhRdyQ0TKu8oXuGKce088gRp0Y9Q/OzOBoqkpUbAwcmSe8MRexLjjjyMwIYdLDofGUYGQSVcuJaZq4FD0XqqBwNaG5O6GodehEwiHLDyh42wkrRaDAtm4CehEr5V1NgLgHB55PbQ9krqRmK4OEJvRWduNxBfQyoAC7HgML0ArYT/9wxfw7ShaAuhA/WPNBnQg8495Az5ijxI7Q4v0BlVBdW4a0d5nAAAAAElFTkSuQmCC'/></a>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div style="display:none">
+                                                                    <input type="file" id="txtAttachments" accept=".jpg, .jpeg, .png, .gif, .bmp, .tiff, .tif, .webp, .svg, .heic', .heif, .ico, .jfif, .doc, .docx, .xls, .xlsx, .pdf">
+                                                                </div>
+                                                            </div>
+                                                            <div class="row blocked-content">
+                                                                <div class="col-12">Can't send a message to blocked contact</div>
+                                                            </div>
+                                                        </div>
+                                                        <!-- end chat-message-->
+                                                        <!-- chat end-->
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                     <div class="tab-pane fade" id="address" role="tabpanel">
                         <h3 class="account-sub-title d-none d-md-block mb-1"><i class="sicon-location-pin align-middle mr-3"></i>Addresses</h3>
                         <div class="addresses-content">
                             <p class="mb-4">
-                                The following addresses will be used on the checkout page by
-                                default.
+                                The following addresses will be used on the checkout page by default.
                             </p>
 
                             <div class="row">
@@ -1187,68 +1296,6 @@
 
                     <div class="tab-pane fade" id="profile" role="tabpanel">
                         <h3 class="account-sub-title d-none d-md-block mt-0 pt-1 ml-1"><i class="icon-user-2 align-middle mr-3 pr-1"></i>Account Details</h3>
-{{--                        <div class="account-content">--}}
-{{--                            <form action="#">--}}
-{{--                                <div class="row">--}}
-{{--                                    <div class="col-md-6">--}}
-{{--                                        <div class="form-group">--}}
-{{--                                            <label for="acc-name">First name <span class="required">*</span></label>--}}
-{{--                                            <input type="text" class="form-control" placeholder="Editor" id="acc-name" name="acc-name" required="">--}}
-{{--                                        </div>--}}
-{{--                                    </div>--}}
-
-{{--                                    <div class="col-md-6">--}}
-{{--                                        <div class="form-group">--}}
-{{--                                            <label for="acc-lastname">Last name <span class="required">*</span></label>--}}
-{{--                                            <input type="text" class="form-control" id="acc-lastname" name="acc-lastname" required="">--}}
-{{--                                        </div>--}}
-{{--                                    </div>--}}
-{{--                                </div>--}}
-
-{{--                                <div class="form-group mb-2">--}}
-{{--                                    <label for="acc-text">Display name <span class="required">*</span></label>--}}
-{{--                                    <input type="text" class="form-control" id="acc-text" name="acc-text" placeholder="Editor" required="">--}}
-{{--                                    <p>This will be how your name will be displayed in the account section and--}}
-{{--                                        in--}}
-{{--                                        reviews</p>--}}
-{{--                                </div>--}}
-
-
-{{--                                <div class="form-group mb-4">--}}
-{{--                                    <label for="acc-email">Email address <span class="required">*</span></label>--}}
-{{--                                    <input type="email" class="form-control" id="acc-email" name="acc-email" placeholder="editor@gmail.com" required="">--}}
-{{--                                </div>--}}
-
-{{--                                <div class="change-password">--}}
-{{--                                    <h3 class="text-uppercase mb-2">Password Change</h3>--}}
-
-{{--                                    <div class="form-group">--}}
-{{--                                        <label for="acc-password">Current Password (leave blank to leave--}}
-{{--                                            unchanged)</label>--}}
-{{--                                        <input type="password" class="form-control" id="acc-password" name="acc-password">--}}
-{{--                                    </div>--}}
-
-{{--                                    <div class="form-group">--}}
-{{--                                        <label for="acc-password">New Password (leave blank to leave--}}
-{{--                                            unchanged)</label>--}}
-{{--                                        <input type="password" class="form-control" id="acc-new-password" name="acc-new-password">--}}
-{{--                                    </div>--}}
-
-{{--                                    <div class="form-group">--}}
-{{--                                        <label for="acc-password">Confirm New Password</label>--}}
-{{--                                        <input type="password" class="form-control" id="acc-confirm-password" name="acc-confirm-password">--}}
-{{--                                    </div>--}}
-{{--                                </div>--}}
-
-{{--                                <div class="form-footer mt-3 mb-0">--}}
-{{--                                    <button type="submit" class="btn btn-dark mr-0">--}}
-{{--                                        Save changes--}}
-{{--                                    </button>--}}
-{{--                                </div>--}}
-{{--                            </form>--}}
-{{--                        </div>--}}
-
-
                         <div class="download-table-container" style="margin-top: 20px !important;">
                             <div class="wishlist-table-container" id="profileHtml">
                             </div>
@@ -1413,6 +1460,454 @@
         <div class="mb-5"></div><!-- margin -->
 @endsection
 @section('scripts')
+    <script src="https://js.pusher.com/8.0.1/pusher.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            var activeChatID = "{{ $Chat->ChatID ?? '' }}";
+            var messageTo = "Admin";
+            var messageFrom = "{{ $Chat->sendFrom ?? '' }}";
+            var pageLimit=20;
+            var pageNo=1;
+            const init = async () => {
+                pusherInit();
+                detectChatTimeChange();
+                getChatHistory();
+
+                $('.call-chat-body .card').removeClass('show').addClass('show')
+            }
+            const pusherInit = async () => {
+                Pusher.logToConsole = false;
+
+                var pusher = new Pusher("{{config('app.PUSHER_APP_KEY')}}", {
+                    cluster: "ap2",
+                });
+                var channel = pusher.subscribe("rpc-chat-582");
+                channel.bind("{{ $Chat->sendFrom ?? '' }}", async function(message) {
+                    console.log(message);
+                })
+            }
+            const detectChatTimeChange = async () => {
+                const debounce = (func, delay) => {
+                    let timeout;
+                    return function (...args) {
+                        const context = this;
+                        clearTimeout(timeout);
+                        timeout = setTimeout(() => func.apply(context, args), delay);
+                    };
+                };
+            }
+            const searchChatList = async () => {
+                let search = $('#txtSearch').val().toString().toLowerCase();
+                if (search === "") {
+                    $('#people-list > ul > li').show(100)
+                } else {
+                    const listItems = document.querySelectorAll('#people-list > ul > li');
+                    Array.from(listItems).forEach((item) => {
+                        const chatName = item.getAttribute('data-chat-name').toLowerCase();
+                        if (chatName.includes(search)) {
+                            $(item).show(100);
+                        } else {
+                            $(item).hide(100);
+                        }
+                    });
+                }
+            }
+            const chatScrollDown=async()=>{
+                // Scroll to the bottom smoothly
+                const el = document.querySelector('.chat-history.chat-msg-box');
+                el.scrollTo({
+                    top: el.scrollHeight,
+                    behavior: 'smooth'
+                });
+            }
+            const getChatHistory=async(MessageID="",isScrollDown=false)=>{
+                $.ajax({
+                    type:"post",
+                    url:"{{route('admin.chat.get.chat-history','_chatID_')}}".replace('_chatID_',activeChatID),
+                    headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
+                    data:{MessageID},
+                    dataType:"json",
+                    async:true,
+                    success:async(response)=>{
+                        for(let data of response){
+                            await addChatMessages(data);
+                        }
+                        if(isScrollDown){
+                            chatScrollDown();
+                        }
+                        setInterval(updateTimeElements, 60000);
+                    }
+                });
+            }
+            const addChatMessages=async(data)=>{
+                let html='';
+                if(data.Type=="Attachment"){
+                    let attchmentType=await getFileType(data.Attachments);
+                    let fileName=data.Attachments.split("/").pop();
+                    if(attchmentType=="PDF"){
+                        html = `<li data-id="${data.SLNO}" class="clearfix ${data.MType === "reply" ? "sender" : "reply"}"><div class="message ${data.MType === "reply" ? "my-message" : "other-message pull-right"}"><p class="pdf"><a href="${data.Attachments}" target="_blank" download><span class="icon"></span>${fileName}</a></p><span class="time" data-time="${data.CreatedOn}">${data.CreatedOnHuman}</span></div></li>`;
+                    }else if(attchmentType=="Image"){
+                        html = `<li data-id="${data.SLNO}" class="clearfix ${data.MType === "reply" ? "sender" : "reply"}"><div class="message ${data.MType === "reply" ? "my-message" : "other-message pull-right"}"><p class="attachment-img"><a href="${data.Attachments}" target="_blank" download><img src="${data.Attachments}" alt="${fileName}"></a></p><span class="time" data-time="${data.CreatedOn}">${data.CreatedOnHuman}</span></div></li>`;
+                    }else{
+                        html = `<li data-id="${data.SLNO}" class="clearfix ${data.MType === "reply" ? "sender" : "reply"}"><div class="message ${data.MType === "reply" ? "my-message" : "other-message pull-right"}"><p class="pdf"><a href="${data.Attachments}" target="_blank" download>${fileName}</a></p><span class="time" data-time="${data.CreatedOn}">${data.CreatedOnHuman}</span></div></li>`;
+                    }
+                }else if(data.Type=="Quotation"){
+                    let attchmentType=await getFileType(data.Attachments);
+                    let fileName=data.Attachments.split("/").pop();
+                    html = `<li data-id="${data.SLNO}" class="clearfix ${data.MType === "reply" ? "sender" : "reply"}"><div class="message ${data.MType === "reply" ? "my-message" : "other-message pull-right"}"><p class="pdf"><a href="${data.Attachments}" target="_blank" download><span class="icon"></span>${fileName}</a></p><span class="time" data-time="${data.CreatedOn}">${data.CreatedOnHuman}</span></div></li>`;
+                }else if(data.Type === "Products"){
+                    try {
+                        data.Attachments=JSON.parse(data.Attachments)
+                        for(let product of data.Attachments){
+                            let ProductUrl="{{route('guest.product.view','_productID_')}}".replace("_productID_",product.ProductID);
+                            html+=`<li data-id="${data.SLNO}" class="clearfix ${data.MType === "reply" ? "sender" : "reply"}">`;
+                            html+=`<div class="message ${data.MType === "reply" ? "my-message" : "other-message pull-right"}">`;
+                            html+=`<div>`;
+                            html+=`<div class="product">`;
+                            html+=`<div class="product-img"><img src="${product.ProductImage}" alt="${product.ProductName}"></div>`;
+                            html+=`<div class="product-infos">`;
+                            html+=`<div class="product-name">${product.ProductName}</div>`;
+                            html+=`<div class="product-desc">${product.Description}</div>`;
+                            html+=`</div>`;
+                            html+=`<div class="product-view"><a href="${ProductUrl}" target="_blank">View Product</a></div>`;
+                            html+=`</div>`;
+                            html+=`</div>`;
+                            html+=`<span class="time" data-time="${data.CreatedOn}">${data.CreatedOnHuman}</span>`;
+                            html+=`</div>`;
+                            html+=`</li>`;
+                        }
+                    } catch (error) {
+                        console.log(error)
+                    }
+                } else if(data.Type === "Html"){
+                    try {
+                        html+=`<li style="display: block;" data-id="${data.SLNO}" class="clearfix ${data.MType === "reply" ? "sender" : "reply"}">`;
+                        @if($chatMessageCount === 0)
+                            html += `<div class="satisfaction-msg d-flex align-items-center justify-content-between mb-3" style="font-family: Poppins, sans-serif; font-size: 11.66px; border-radius: 17.55px; padding: 10px 20px; background-color: #f8f9fa; border: 1px solid #dee2e6; color: black; font-weight: normal; width: 50%;">
+                                        <p class="mb-0" style="font-size: 11.7px;">Are you satisfied with the answer?</p>
+                                        <div class="ml-auto">
+                                            <button class="btn btn-light border mr-2" style="padding: 10px; border-radius: 5px; transition: background-color 0.3s, color 0.3s;" id="suggestionNoBtn" onmouseover="this.style.backgroundColor='#4169e1'; this.style.color='white'; this.style.borderColor='#4169e1';" onmouseout="this.style.backgroundColor=''; this.style.color=''; this.style.borderColor='';">
+                                                No
+                                            </button>
+                                            <button class="btn btn-light border" style="padding: 10px; border-radius: 5px; transition: background-color 0.3s, color 0.3s;" id="suggestionYesBtn" onmouseover="this.style.backgroundColor='#4169e1'; this.style.color='white'; this.style.borderColor='#4169e1';" onmouseout="this.style.backgroundColor=''; this.style.color=''; this.style.borderColor='';">
+                                                Yes
+                                            </button>
+                                        </div>
+                                    </div>`;
+                        @endif
+                        html+=`<div class="message ${data.MType === "reply" ? "my-message" : "other-message pull-right"}">`;
+                        html+=`<div>${data.Message}</div>`;
+                        html+=`<span class="time" data-time="${data.CreatedOn}">${data.CreatedOnHuman}</span>`;
+                        html+=`</div>`;
+                        html+=`</li>`;
+                    } catch (error) {
+                        console.log(error)
+                    }
+                }else{
+                    html = `<li data-id="${data.SLNO}" class="clearfix ${data.MType === "reply" ? "sender" : "reply"}"><div class="message ${data.MType === "reply" ? "my-message" : "other-message pull-right"}"><p>${data.Message}</p><span class="time" data-time="${data.CreatedOn}">${data.CreatedOnHuman}</span></div></li>`;
+                }
+                $('#chatBox').append(html);
+            }
+            const sendMessage=async(type="Text",message="",isAdminChat=0,attachments={})=>{
+                $.ajax({
+                    type:"post",
+                    url:"{{route('admin.chat.send.message','_chatID_')}}".replace('_chatID_',activeChatID),
+                    headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
+                    data:{message,type,messageTo,messageFrom,isAdminChat,attachments:JSON.stringify(attachments)},
+                    async:true,
+                    success:async(response)=>{
+                        $('#txtMessage').val('');
+                        if (response.status && response.SLNO !== "") {
+                            getChatHistory(response.SLNO, true)
+                        }
+                    }
+                });
+                return true
+            }
+            const sendAttachment=async(attachment)=>{
+                let formData=new FormData();
+                formData.append('message',"");
+                formData.append('type',"Attachment");
+                formData.append('messageTo',messageTo);
+                formData.append('messageFrom',messageFrom);
+                formData.append('attachments',attachment);
+                $.ajax({
+                    type:"post",
+                    url:"{{route('admin.chat.send.attachment','_chatID_')}}".replace('_chatID_',activeChatID),
+                    headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
+                    data:formData,
+                    async:true,
+                    cache: false,
+                    processData: false,
+                    contentType: false,
+                    success:async(response)=>{
+                        $('#txtMessage').val('');
+                        if(response.status && response.SLNO!=""){
+                            getChatHistory(response.SLNO,true)
+                            if(response.LastMessage!==""){
+                                $('.people-list ul.list > li[data-id="'+activeChatID+'"] .last-msg').html(response.LastMessage)
+                            }
+                            $('.people-list ul.list > li[data-id="'+activeChatID+'"] .timestamp').html(response.LastMessageOnHuman)
+                            $('.people-list ul.list > li[data-id="'+activeChatID+'"]').attr('data-time',response.LastMessageOn);
+                        }
+                    }
+                });
+            }
+            const timeAgo=(date)=> {
+                const seconds = Math.floor((new Date() - date) / 1000);
+                const intervals = [
+                    { label: "yr", plural: "yrs", seconds: 31536000 },
+                    { label: "mo", plural: "mos", seconds: 2592000 },
+                    { label: "d", plural: "d", seconds: 86400 },
+                    { label: "hr", plural: "hrs", seconds: 3600 },
+                    { label: "min", plural: "mins", seconds: 60 },
+                    { label: "sec", plural: "secs", seconds: 1 },
+                ];
+
+                for (const interval of intervals) {
+                    const count = Math.floor(seconds / interval.seconds);
+                    if (count >= 1) {
+                        return `${count} ${count > 1 ? interval.plural : interval.label} ago`;
+                    }
+                }
+                return "just now";
+            }
+            const updateTimeElements=async()=>{
+                document.querySelectorAll('.chat-history.chat-msg-box ul .time').forEach(el => {
+                    const dataTime = el.getAttribute('data-time');
+                    const time = new Date(dataTime);
+                    el.textContent =  timeAgo(time);
+                });
+            }
+            const getFileType=async(url)=> {
+                // Get the file extension
+                var extension = url.split('.').pop().toLowerCase();
+
+                // Check the file type based on the extension
+                if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'tiff', 'tif', 'webp', 'svg', 'heic', 'heif', 'ico', 'jfif'].includes(extension)) {
+                    return 'Image';
+                } else if (['pdf'].includes(extension)) {
+                    return 'PDF';
+                } else if (['doc', 'docx', 'xls', 'xlsx'].includes(extension)) {
+                    return 'Document';
+                } else {
+                    return 'Other';
+                }
+            }
+            const validateAttachements=async(fileName)=>{
+                var fileExtension = fileName.split('.').pop().toLowerCase();
+
+                // List of allowed extensions
+                var allowedExtensions = [
+                    'jpg', 'jpeg', 'png', 'gif', 'bmp', 'tiff', 'tif',
+                    'webp', 'svg', 'heic', 'heif', 'ico', 'jfif',
+                    'doc', 'docx', 'xls', 'xlsx', 'pdf'
+                ];
+
+                // Check if the file extension is in the allowed list
+                if ($.inArray(fileExtension, allowedExtensions) === -1) {
+                    return false;
+                }
+                return true;
+            }
+
+            const formatOption = async(option)=> {
+                if (!option.id) {
+                    return option.text;
+                }
+
+                const imgUrl = $(option.element).data('image');
+                console.log(imgUrl);
+
+                const img = `<img src="${imgUrl}" alt="${option.text}" style="width: 100px; height: 100px; margin-right: 10px;">`;
+                const text = `<span>${option.text}</span>`;
+
+                return $(`<span>${img} ${text}</span>`);
+            }
+            const stripHtmlTags=(input)=> {
+                return $('<div>').html(input).text().split("\t").join("").split("\n").join("");
+            }
+            init();
+            $(document).on('click', '#btnSearch', searchChatList);
+            $(document).on('keyup', '#txtMessage', function () {
+                let message = $('#txtMessage').val();
+                if (message !== "") {
+                    $('#btnSendMessage').show(100);
+                } else {
+                    $('#btnSendMessage').hide(100);
+                }
+            });
+            $(document).on('keydown', '#txtMessage', function () {
+                let message = $('#txtMessage').val();
+                if (event.key === 'Enter' && message !== "") {
+                    sendMessage("Text", $('#txtMessage').val(), 1);
+                    if ($('.suggestion-buttons').length) {
+                        $('.suggestion-buttons').remove();
+                    }
+                }
+            })
+            $(document).on('click','#btnSendMessage',function(){
+                if($('#txtMessage').val() !== ""){
+                    sendMessage("Text", $('#txtMessage').val(), 1);
+                    if ($('.suggestion-buttons').length) {
+                        $('.suggestion-buttons').remove();
+                    }
+                }
+            });
+            $(document).on('click', '.suggestion-btn', function (){
+                let question = $(this).data('question');
+                let answer = $(this).data('answer');
+                $('.suggestion-buttons').remove();
+                $.ajax({
+                    type: "post",
+                    url: "{{route('admin.chat.send.message','_chatID_')}}".replace('_chatID_', activeChatID),
+                    headers: {'X-CSRF-Token': $('meta[name=_token]').attr('content')},
+                    data: {
+                        message: question,
+                        type: "Text",
+                        messageFrom: messageFrom,
+                        messageTo: messageTo
+                    },
+                    async: true,
+                    success: function (response) {
+                        if (response.status && response.SLNO !== "") {
+                            getChatHistory(response.SLNO)
+                            let formData=new FormData();
+                            formData.append('message', answer);
+                            formData.append('type',"Html");
+                            formData.append('messageTo',messageFrom);
+                            formData.append('messageFrom',messageTo);
+                            $.ajax({
+                                type: "post",
+                                url: "{{route('admin.chat.send.message','_chatID_')}}".replace('_chatID_', activeChatID),
+                                headers: {'X-CSRF-Token': $('meta[name=_token]').attr('content')},
+                                data:formData,
+                                async:true,
+                                cache: false,
+                                processData: false,
+                                contentType: false,
+                                success: function (response) {
+                                    if (response.status && response.SLNO !== "") {
+                                        getChatHistory(response.SLNO)
+                                        chatScrollDown();
+                                    }
+                                }
+                            });
+                        }
+                    }
+                });
+            });
+            $(document).on('click', '#suggestionNoBtn', function (){
+                $.ajax({
+                    type: "post",
+                    url: "{{route('admin.chat.send.message','_chatID_')}}".replace('_chatID_', activeChatID),
+                    headers: {'X-CSRF-Token': $('meta[name=_token]').attr('content')},
+                    data: {
+                        message: "Tell us your problem, and we’ll provide the solution",
+                        type: "Text",
+                        messageFrom: messageTo,
+                        messageTo: messageFrom,
+                        isAdminChat: 1
+                    },
+                    async: true,
+                    success: function (response) {
+                        if (response.status && response.SLNO !== "") {
+                            getChatHistory(response.SLNO);
+                            $('.satisfaction-msg').remove();
+                        }
+                    }
+                });
+            });
+            $(document).on('click', '#suggestionYesBtn', function (){
+                $('.satisfaction-msg').remove();
+            });
+
+            $(document).on('click','#btnSendAttachment',function(){
+                $('#txtAttachments').trigger('click');
+            });
+            $(document).on('change','#txtAttachments',async function(){
+                if($('#txtAttachments').val()!=""){
+                    var fileInput = $('#txtAttachments')[0];
+                    if (fileInput.files.length > 0) {
+                        let status=await validateAttachements(fileInput.files[0].name);
+                        if(status){
+                            sendAttachment(fileInput.files[0])
+                        }
+                    }
+
+                }
+            });
+
+
+
+
+
+
+
+
+
+            const searchChatMessages = (searchText) => {
+                if(searchText === ""){
+                    $(".highlight").removeClass("highlight");
+                } else {
+                    searchResults = [];
+                    currentIndex = 0;
+                    $.ajax({
+                        type: "post",
+                        url: "{{ route('admin.chat.get.chat-history', '_chatID_') }}".replace('_chatID_', activeChatID),
+                        headers: {'X-CSRF-Token': $('meta[name=_token]').attr('content')},
+                        data: {searchText},
+                        dataType: "json",
+                        success: (response) => {
+                            searchResults = response.filter(data => data.Message && data.Message.includes(searchText));
+                            highlightCurrentSearchResult();
+                        }
+                    });
+                }
+            };
+
+            const highlightCurrentSearchResult = () => {
+                if (searchResults.length === 0) {
+                    alert("No results found.");
+                    return;
+                }
+                $(".highlight").removeClass("highlight");
+                const currentResult = searchResults[currentIndex];
+                const messageElement = $(`li[data-id="${currentResult.SLNO}"]`);
+                if (messageElement.length) {
+                    messageElement.addClass("highlight");
+                    messageElement[0].scrollIntoView({ behavior: "smooth", block: "center" });
+                } else {
+                    console.warn("Message element not found for ID:", currentResult.SLNO);
+                }
+            };
+
+            const nextSearchResult = () => {
+                if (searchResults.length > 0) {
+                    currentIndex = (currentIndex + 1) % searchResults.length;
+                    highlightCurrentSearchResult();
+                }
+            };
+
+            const prevSearchResult = () => {
+                if (searchResults.length > 0) {
+                    currentIndex = (currentIndex - 1 + searchResults.length) % searchResults.length;
+                    highlightCurrentSearchResult();
+                }
+            };
+
+            $("#searchBtn").on("click", function () {
+                const searchText = $('.search-bar').val();
+                if (searchText) {
+                    searchChatMessages(searchText);
+                }
+            });
+
+            $(".fa-chevron-up").on("click", prevSearchResult);
+            $(".fa-chevron-down").on("click", nextSearchResult);
+        });
+    </script>
+
     <script>
         $(document).ready(function(){
             var wish_current_page_no = 1;
@@ -1750,9 +2245,6 @@
             }
         });
     </script>
-
-
-
 
     <!-- Image Crop Script Start -->
     <script>

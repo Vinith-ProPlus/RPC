@@ -57,13 +57,13 @@ class chatController extends Controller{
 		->get();
 		foreach ($products as $product) {
 			$imageUrl = $product->ProductImage;
-		
+
 			$headers = @get_headers($imageUrl);
 			if (!$headers || strpos($headers[0], '404') !== false) {
 				$product->ProductImage = url('assets/images/no-image-b.png');
 			}
 		}
-		
+
 		$FormData['Products'] = $products;
 		$FormData['PCategory'] = DB::table('tbl_product_category')->where('DFlag',0)->where('ActiveStatus','Active')->get();
 		$FormData['PSCategory'] = DB::table('tbl_product_subcategory')->where('DFlag',0)->where('ActiveStatus','Active')->get();
@@ -74,7 +74,7 @@ class chatController extends Controller{
 		$sql.=" FROM ".$this->SupportDB."tbl_chat as C LEFT JOIN users as SF ON SF.UserID=C.sendFrom  LEFT JOIN ".$this->generalDB."tbl_cities as CI ON CI.CityID=SF.CityID ";
 		$sql.=" LEFT JOIN ".$this->generalDB."tbl_taluks as T ON T.TalukID=SF.TalukID  LEFT JOIN ".$this->generalDB."tbl_districts as D ON D.DistrictID=SF.DistrictID ";
 		$sql.=" LEFT JOIN ".$this->generalDB."tbl_states as S ON S.StateID=SF.StateID LEFT JOIN ".$this->generalDB."tbl_countries as CO ON CO.CountryID=SF.CountryID ";
-		$sql.=" LEFT JOIN ".$this->generalDB."tbl_postalcodes as PS ON PS.PID=SF.PostalCodeID Where C.Status<>'Deleted'";
+		$sql.=" LEFT JOIN ".$this->generalDB."tbl_postalcodes as PS ON PS.PID=SF.PostalCodeID Where C.Status<>'Deleted' AND C.isAdminChat = 1";
 		$result=DB::SELECT($sql);
 		for($i=0;$i<count($result);$i++){
 			$LastMessageOnHuman=Carbon::parse($result[$i]->LastMessageOn)->diffForHumans();
@@ -101,9 +101,9 @@ class chatController extends Controller{
 		return $result;
 	}
 	public function getChatHistory(Request $req, $ChatID){
-		$pageLimit = intval($req->pageLimit); // Number of records per page
-		$pageNo = intval($req->pageNo); // Current page number (you can update this as needed)
-		$offset = ($pageNo - 1) * $pageLimit;// Calculate the offset
+        $pageLimit = intval($req->pageLimit); // Number of records per page
+        $pageNo = intval($req->pageNo); // Current page number (you can update this as needed)
+        $offset = ($pageNo - 1) * $pageLimit;// Calculate the offset
 
 		$totalChats = DB::Table($this->SupportDB."tbl_chat_message")->where("ChatID",$ChatID)->count();
 		$isLoadMore = ($offset + $pageLimit) < $totalChats;
@@ -127,6 +127,9 @@ class chatController extends Controller{
 		if($req->MessageID!=""){
 			$sql.=" AND SLNO='".$req->MessageID."'";
 		}
+        if ($req->searchText != "") {
+            $sql .= " AND Message LIKE '%".$req->searchText."%'";
+        }
 		$sql.=" Order By CreatedOn desc";
 		$sql.=" LIMIT $offset, $pageLimit";
 		$return= DB::SELECT($sql);
@@ -134,7 +137,7 @@ class chatController extends Controller{
 			if($return[$i]->Type=="Attachment"){
 				$return[$i]->Attachments=url('/'.$return[$i]->Attachments);
 			}
-			
+
 			$MsgOnHuman=Carbon::parse($return[$i]->CreatedOn)->diffForHumans();
 			$MsgOnHuman=str_replace('minutes','min',$MsgOnHuman);
 			$MsgOnHuman=str_replace('seconds','sec',$MsgOnHuman);
@@ -156,11 +159,13 @@ class chatController extends Controller{
 			$sql.=" AND SLNO='".$MessageID."'";
 		}
 		$return= DB::SELECT($sql);
+        logger("json_encode(return)");
+        logger(json_encode($return));
 		for($i=0;$i<count($return);$i++){
-			if($return[$i]->Type=="Attachment"){
+			if($return[$i]->Type=="Attachments"){
 				$return[$i]->Attachments=url('/'.$return[$i]->Attachments);
 			}
-			
+
 			$MsgOnHuman=Carbon::parse($return[$i]->CreatedOn)->diffForHumans();
 			$MsgOnHuman=str_replace('minutes','min',$MsgOnHuman);
 			$MsgOnHuman=str_replace('seconds','sec',$MsgOnHuman);
@@ -173,10 +178,11 @@ class chatController extends Controller{
 		return $return;
 	}
 	public function sendMessage(Request $req,$ChatID){
+        logger(json_encode($req->all()));
 		DB::beginTransaction();$SLNO="";
 		$status=false;
 		$LastMessageOn=now();
-		
+
 		$LastMessage="";
 
 		try {
@@ -192,6 +198,11 @@ class chatController extends Controller{
 				"CreatedOn"=>now(),
 				"DeliveredOn"=>now()
 			);
+            if(isset($req->isAdminChat) && ($req->isAdminChat === "1")){
+                DB::Table($this->SupportDB.'tbl_chat')->where('ChatID', $ChatID)->update(['isAdminChat' => 1]);
+            }
+            logger("data");
+            logger($data);
 			$status=DB::Table($this->SupportDB.'tbl_chat_message')->insert($data);
 			if($status){
 				DocNum::updateDocNum(docTypes::ChatMessage->value);
@@ -220,6 +231,9 @@ class chatController extends Controller{
 				event(new chatApp($req->messageTo,json_encode(["type"=>"update_last_seen","message"=>now(),"ChatID"=>$ChatID])));
 			}
 			//event(new chatApp($req->message));
+			$req->MessageID=$SLNO;
+			$msg=$this->getChatHistory($req,$ChatID);
+			event(new chatApp($req->messageTo,json_encode(["type"=>"load_message","message"=>$msg])));
 		}catch(Exception $e) {
 			$status=false;
 		}
@@ -237,10 +251,10 @@ class chatController extends Controller{
 		DB::beginTransaction();$SLNO="";
 		$status=false;
 		$LastMessageOn=now();
-		
+
 		$LastMessage=$req->message==""?"sent a attachment file":$req->message;
 		try {
-			
+
 			$AttachmentURL="";
 			$dir="uploads/chat/".$ChatID."/";
 			if (!file_exists( $dir)) {mkdir( $dir, 0777, true);}
@@ -248,7 +262,7 @@ class chatController extends Controller{
 				$file = $req->file('attachments');
 				$fileName=md5($file->getClientOriginalName() . time());
 				$fileName1 =  $fileName. "." . $file->getClientOriginalExtension();
-				$file->move($dir, $fileName1);  
+				$file->move($dir, $fileName1);
 				$AttachmentURL=$dir.$fileName1;
 			}
 			$SLNO=DocNum::getDocNum(docTypes::ChatMessage->value);
@@ -274,15 +288,18 @@ class chatController extends Controller{
 				];
 				if($req->messageFrom=="Admin"){
 					$data['adminLastSeenOn']=now();
-					
+
 				}else{
 					$data['senderLastSeenOn']=now();
 				}
-				
+
 				$status=DB::Table($this->SupportDB.'tbl_chat')->where('ChatID',$ChatID)->update($data);
 				event(new chatApp($req->messageTo,json_encode(["type"=>"update_last_seen","message"=>now(),"ChatID"=>$ChatID])));
 			}
 			//event(new chatApp($req->message));
+			$req->MessageID=$SLNO;
+			$msg=$this->getChatHistory($req,$ChatID);
+			event(new chatApp($req->messageTo,json_encode(["type"=>"load_message","message"=>$msg])));
 		}catch(Exception $e) {
 			$status=false;
 		}

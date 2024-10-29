@@ -21,8 +21,5 @@ ALTER TABLE rpc_support.tbl_chat ADD isRead INT(1) NOT NULL DEFAULT '0' AFTER 'S
 
 
 2024-10-28
-ALTER TABLE rpc_support.tbl_chat_message ADD `Attachments` LONGTEXT NULL DEFAULT NULL AFTER `Message`;
-ALTER TABLE rpc_support.tbl_chat_message CHANGE `Type` `Type` ENUM('Text','Attachment','Products','Quotation') CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT 'Text';
-
-2024-10-29
-ALTER TABLE rpc_support.tbl_chat ADD `isAdminRead` INT NOT NULL DEFAULT '0' AFTER `isRead`;
+ALTER TABLE `tbl_chat_message` ADD `Attachments` LONGTEXT NULL DEFAULT NULL AFTER `Message`;
+ALTER TABLE `tbl_chat_message` CHANGE `Type` `Type` ENUM('Text','Attachment','Products','Quotation') CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT 'Text';

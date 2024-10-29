@@ -33,21 +33,21 @@
 }
 
 .page-wrapper .chat-left-aside .people-list::-webkit-scrollbar-track{
-	-webkit-box-shadow: inset 0 0 6px transparent;
-	border-radius: 10px;
-	background-color: transparent;
+    -webkit-box-shadow: inset 0 0 6px transparent;
+    border-radius: 10px;
+    background-color: transparent;
 }
 
 .page-wrapper .chat-left-aside .people-list::-webkit-scrollbar{
-	width: 0px;
-	background-color: transparent;
+    width: 0px;
+    background-color: transparent;
 }
 
 .page-wrapper .chat-left-aside .people-list::-webkit-scrollbar-thumb{
-	border-radius: 10px;
-	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
-	background-color: #555;
-    
+    border-radius: 10px;
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+    background-color: #555;
+
 }
 
 .page-wrapper .chat-box .chat-right-aside .chat .chat-msg-box{
@@ -109,7 +109,7 @@
     text-transform: capitalize;
 }
 .chat-box .people-list .people-details .name .mobile-number{
-    
+
     font-size: 12px;
     font-weight: 400;
     color: #000000;
@@ -130,7 +130,7 @@
     cursor: pointer;
 }
 .chat-box .people-list .people-details .options.dropdown > ul.dropdown-menu{
- padding: 5px 0px;
+    padding: 5px 0px;
 }
 .chat-box .people-list .people-details .options.dropdown > ul.dropdown-menu > li{
     padding-bottom: 0px;

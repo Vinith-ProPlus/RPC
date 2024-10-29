@@ -3,6 +3,7 @@ namespace App\Http\Controllers\Home;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\web\masters\general\TaluksController;
+use App\Http\Controllers\web\Settings\ChatSuggestionsController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Redirect;
@@ -44,6 +45,7 @@ class HomeTransactionController extends Controller{
     public function __construct()
     {
         $this->dateFormat = 'd-M-Y';
+        $this->supportDB = Helper::getSupportDB();
         $this->generalDB = Helper::getGeneralDB();
         $this->tmpDB = Helper::getTmpDB();
         $this->logDB = Helper::getLogDB();
@@ -154,6 +156,27 @@ class HomeTransactionController extends Controller{
         $FormData['isRegister'] = false;
         $FormData['Cart'] = $this->getCart();
         $FormData['ShippingAddress'] = $this->shippingAddress;
+        $chatExist = DB::table($this->supportDB.'tbl_chat')->where('sendFrom', $this->UserID)->exists();
+        if(!$chatExist) {
+            $chatStatus = DB::table($this->supportDB . 'tbl_chat')->insert([
+                "ChatID" => DocNum::getDocNum(docTypes::Chat->value),
+                "sendFrom" => $this->UserID,
+                "sendTo" => "Admin",
+                "Status" => "Active",
+                "isRead" => 0,
+                "LastMessageOn" => now(),
+                "CreatedOn" => now(),
+            ]);
+            if($chatStatus) {
+                DocNum::updateDocNum(docTypes::Chat->value);
+            }
+        }
+
+        $FormData['Chat'] = DB::table($this->supportDB.'tbl_chat')->where('sendFrom', $this->UserID)->first();
+        $FormData['chatMessageCount'] = DB::table($this->supportDB.'tbl_chat_message')->where('ChatID', $FormData['Chat']->ChatID)->count();
+        if($FormData['chatMessageCount'] === 0){
+            $FormData['ChatSuggestions'] = DB::Table('tbl_chat_suggestions')->where('ActiveStatus', 'Active')->where('DFlag', 0)->get();
+        }
         return view('home.my-account', $FormData);
     }
 
