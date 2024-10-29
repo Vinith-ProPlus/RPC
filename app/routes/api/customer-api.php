@@ -42,6 +42,10 @@ Route::controller(CustomerAuthController::class)->group(function () {
 
     Route::post('/update-email','UpdateEmail');
     Route::post('/update-mobile-no','UpdateMobileNo');
+    Route::post('/get/chat-history','getChatHistory');
+    Route::post('/chat/send-message','sendMessage');
+    Route::post('/chat/send-attachment','sendAttachment');
+    Route::post('/chat/suggestions','chatSuggestions');
 });
 
 Route::controller(CustomerAPIController::class)->group(function () {

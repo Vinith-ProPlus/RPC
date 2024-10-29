@@ -2,20 +2,22 @@
 
 namespace App\Http\Controllers\api\customer;
 
+use App\enums\docTypes;
+use App\Events\chatApp;
 use App\helper\helper;
 use App\Http\Controllers\Controller;
+use App\Models\DocNum;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Redirect;
 use DB;
-use Auth;
+use Illuminate\Support\Facades\Auth;
 use Laravel\Passport\RefreshToken;
 use Laravel\Passport\Token;
-use ValidUnique;
-use ValidDB;
-use DocNum;
-use docTypes;
+use App\Rules\ValidUnique;
+use App\Rules\ValidDB;
 use logs;
 use PHPUnit\TextUI\Help;
 use Illuminate\Support\Facades\Hash;
@@ -35,6 +37,7 @@ class CustomerAuthController extends Controller{
 		$this->generalDB=Helper::getGeneralDB();
 		$this->tmpDB=Helper::getTmpDB();
         $this->currfyDB=Helper::getCurrFYDB();
+        $this->SupportDB=Helper::getSupportDB();
 		$this->FileTypes=Helper::getFileTypes(array("category"=>array("Images","Documents")));
         $this->middleware('auth:api');
         $this->middleware(function ($request, $next) {
@@ -990,4 +993,211 @@ class CustomerAuthController extends Controller{
         return $query->where('LoginType','Customer')->whereNot('UserID',Auth::user()->UserID)->exists();
     }
 
+    public function getChatHistory(Request $req)
+    {
+        $chatExist = DB::table($this->SupportDB.'tbl_chat')->where('sendFrom', $this->UserID)->exists();
+        if(!$chatExist) {
+            $chatStatus = DB::table($this->SupportDB . 'tbl_chat')->insert([
+                "ChatID" => DocNum::getDocNum(docTypes::Chat->value),
+                "sendFrom" => $this->UserID,
+                "sendTo" => "Admin",
+                "Status" => "Active",
+                "isRead" => 0,
+                "LastMessageOn" => now(),
+                "CreatedOn" => now(),
+            ]);
+            if($chatStatus) {
+                DocNum::updateDocNum(docTypes::Chat->value);
+            }
+        }
+        $ChatID = DB::Table($this->SupportDB . "tbl_chat")->where('sendFrom', $this->UserID)->first()?->ChatID;
+        logger("ChatID");
+        logger($ChatID);
+        logger(json_encode($req->all()));
+        DB::Table($this->SupportDB . "tbl_chat")->where('ChatID', $ChatID)->update(["isRead" => 1]);
+        $sql1 = "SELECT *, 'sender' as MType FROM " . $this->SupportDB . "tbl_chat_message  WHERE SendTo='Admin' AND Status<>'Deleted' AND ChatID='" . $ChatID . "'";
+        $sql1 .= " UNION ";
+        $sql1 .= " SELECT *, 'reply' as MType FROM " . $this->SupportDB . "tbl_chat_message  WHERE SendFrom='Admin' AND Status<>'Deleted' AND ChatID='" . $ChatID . "'";
+
+        $sql = " SELECT * FROM (" . $sql1 . ") as T  Where 1=1 ";
+        if ($req->MessageID != "") {
+            $sql .= " AND SLNO='" . $req->MessageID . "'";
+        }
+        if ($req->searchText != "") {
+            $sql .= " AND Message LIKE '%" . $req->searchText . "%'";
+        }
+        $sql .= " Order By CreatedOn asc";
+        $return = DB::SELECT($sql);
+        logger("json_encode(return)");
+        logger(json_encode($return));
+        for ($i = 0; $i < count($return); $i++) {
+            if ($return[$i]->Type == "Attachments") {
+                $return[$i]->Attachments = url('/' . $return[$i]->Attachments);
+            }
+
+            $MsgOnHuman = Carbon::parse($return[$i]->CreatedOn)->diffForHumans();
+            $MsgOnHuman = str_replace('minutes', 'min', $MsgOnHuman);
+            $MsgOnHuman = str_replace('seconds', 'sec', $MsgOnHuman);
+            $MsgOnHuman = str_replace('hours', 'hrs', $MsgOnHuman);
+            $MsgOnHuman = str_replace('months', 'mos', $MsgOnHuman);
+            $MsgOnHuman = str_replace('years', 'yrs', $MsgOnHuman);
+            $MsgOnHuman = trim(str_replace('ago', '', $MsgOnHuman));
+            $return[$i]->CreatedOnHuman = $MsgOnHuman;
+        }
+        return $return;
+    }
+
+    public function sendMessage(Request $req){
+        logger(json_encode($req->all()));
+        DB::beginTransaction();$SLNO="";
+        $status=false;
+        $LastMessageOn=now();
+
+        $LastMessage="";
+
+        try {
+            $chatExist = DB::table($this->SupportDB.'tbl_chat')->where('sendFrom', $this->UserID)->exists();
+            if(!$chatExist) {
+                $chatStatus = DB::table($this->SupportDB . 'tbl_chat')->insert([
+                    "ChatID" => DocNum::getDocNum(docTypes::Chat->value),
+                    "sendFrom" => $this->UserID,
+                    "sendTo" => "Admin",
+                    "Status" => "Active",
+                    "isRead" => 0,
+                    "LastMessageOn" => now(),
+                    "CreatedOn" => now(),
+                ]);
+                if($chatStatus) {
+                    DocNum::updateDocNum(docTypes::Chat->value);
+                }
+            }
+            $ChatID = DB::Table($this->SupportDB . "tbl_chat")->where('sendFrom', $this->UserID)->first()?->ChatID;
+            $SLNO=DocNum::getDocNum(docTypes::ChatMessage->value);
+            $data=array(
+                "SLNO"=>$SLNO,
+                "ChatID"=>$ChatID,
+                "SendFrom"=>$req->messageFrom,
+                "SendTo"=>$req->messageTo,
+                "Message"=>$req->message,
+                "Attachments"=>$req->attachments,
+                "Type"=>$req->type,
+                "CreatedOn"=>now(),
+                "DeliveredOn"=>now()
+            );
+            if(isset($req->isAdminChat) && ($req->isAdminChat === "1")){
+                DB::Table($this->SupportDB.'tbl_chat')->where('ChatID', $ChatID)->update(['isAdminChat' => 1]);
+            }
+            logger("data");
+            logger($data);
+            $status=DB::Table($this->SupportDB.'tbl_chat_message')->insert($data);
+            if($status){
+                DocNum::updateDocNum(docTypes::ChatMessage->value);
+                $data=[
+                    "isRead"=>0,
+                    "LastMessageOn"=>$LastMessageOn,
+                ];
+                if ($req->type === "Text") {
+                    $data['LastMessage'] = $req->message;
+                    $LastMessage = $req->message;
+                } else if ($req->type === "Attachment") {
+                    $LastMessage = "sent a attachment file";
+                } else if ($req->type === "Quotation") {
+                    $LastMessage = "sent a Quotation";
+                } else if ($req->type === "Products") {
+                    $LastMessage = "sent Products links";
+                }
+                $status=DB::Table($this->SupportDB.'tbl_chat')->where('ChatID',$ChatID)->update($data);
+            }
+            //event(new chatApp($req->message));
+            $req->MessageID=$SLNO;
+            $msg=$this->getChatHistory($req,$ChatID);
+            event(new chatApp($req->messageTo,json_encode(["type"=>"load_message","message"=>$msg])));
+        }catch(Exception $e) {
+            $status=false;
+        }
+        if($status==true){
+            DB::commit();
+
+        }else{
+            DB::rollback();
+        }
+        return ['status'=>$status,"SLNO"=>$SLNO,"LastMessage"=>$LastMessage,"LastMessageOn"=>$LastMessageOn,"LastMessageOnHuman"=>Carbon::parse($LastMessageOn)->diffForHumans()];
+    }
+    public function sendAttachment(Request $req){
+        logger("send msg json_encode(req->all())");
+        logger(json_encode($req->all()));
+        DB::beginTransaction();$SLNO="";
+        $chatExist = DB::table($this->SupportDB.'tbl_chat')->where('sendFrom', $this->UserID)->exists();
+        if(!$chatExist) {
+            $chatStatus = DB::table($this->SupportDB . 'tbl_chat')->insert([
+                "ChatID" => DocNum::getDocNum(docTypes::Chat->value),
+                "sendFrom" => $this->UserID,
+                "sendTo" => "Admin",
+                "Status" => "Active",
+                "isRead" => 0,
+                "LastMessageOn" => now(),
+                "CreatedOn" => now(),
+            ]);
+            if($chatStatus) {
+                DocNum::updateDocNum(docTypes::Chat->value);
+            }
+        }
+        $ChatID = DB::Table($this->SupportDB . "tbl_chat")->where('sendFrom', $this->UserID)->first()?->ChatID;
+        $status=false;
+        $LastMessageOn=now();
+
+        $LastMessage="";
+        try {
+
+            $AttachmentURL="";
+            $dir="uploads/chat/".$ChatID."/";
+            if (!file_exists( $dir)) {mkdir( $dir, 0777, true);}
+            if($req->hasFile('attachments')){
+                $file = $req->file('attachments');
+                $fileName=md5($file->getClientOriginalName() . time());
+                $fileName1 =  $fileName. "." . $file->getClientOriginalExtension();
+                $file->move($dir, $fileName1);
+                $AttachmentURL=$dir.$fileName1;
+            }
+            $SLNO=DocNum::getDocNum(docTypes::ChatMessage->value);
+            $data=array(
+                "SLNO"=>$SLNO,
+                "ChatID"=>$ChatID,
+                "SendFrom"=>$req->messageFrom,
+                "SendTo"=>$req->messageTo,
+                "Message"=>$req->message==""?"sent a attachment file":$req->message,
+                "Attachments"=>$AttachmentURL,
+                "Type"=>"Attachment",
+                "CreatedOn"=>now(),
+                "DeliveredOn"=>now()
+            );
+            $status=DB::Table($this->SupportDB.'tbl_chat_message')->insert($data);
+            if($status){
+                DocNum::updateDocNum(docTypes::ChatMessage->value);
+                $data=[
+                    "isRead"=>0,
+                    "LastMessageOn"=>$LastMessageOn,
+                    "LastMessage"=>$req->message==""?"sent a attachment file":$req->message
+                ];
+                $status=DB::Table($this->SupportDB.'tbl_chat')->where('ChatID',$ChatID)->update($data);
+            }
+            //event(new chatApp($req->message));
+            $req->MessageID=$SLNO;
+            $msg=$this->getChatHistory($req,$ChatID);
+            event(new chatApp($req->messageTo,json_encode(["type"=>"load_message","message"=>$msg])));
+        }catch(Exception $e) {
+            $status=false;
+        }
+        if($status==true){
+            DB::commit();
+
+        }else{
+            DB::rollback();
+        }
+        return ['status'=>$status,"SLNO"=>$SLNO,"LastMessage"=>$LastMessage,"LastMessageOn"=>$LastMessageOn,"LastMessageOnHuman"=>Carbon::parse($LastMessageOn)->diffForHumans()];
+    }
+    public function chatSuggestions(Request $request)
+    {
+        return DB::Table('tbl_chat_suggestions')->where('ActiveStatus', 'Active')->where('DFlag', 0)->get();
+    }
 }

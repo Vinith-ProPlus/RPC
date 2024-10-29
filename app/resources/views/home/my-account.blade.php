@@ -1015,7 +1015,7 @@
         }
 
         .highlight {
-            background-color: #ffc107; /* Light yellow background for highlighted search */
+            background-color: #f7c107; /* Light yellow background for highlighted search */
             transition: background-color 0.3s;
         }
 
