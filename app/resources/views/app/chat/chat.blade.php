@@ -322,7 +322,7 @@
 	$(document).ready(function(){
 		var chatList=[];
 		var activeChatID="";
-		var messageTo="";var messageFrom="";
+		var messageTo="";var messageFrom="Admin";
 		var pageLimit=20;
 		var pageNo=1;
 		var isLoadMore=false;
@@ -354,6 +354,8 @@
 								}
 							}
 							if(messageFrom!=data.messageFrom){
+								let readStatus=messageFrom=="Admin"?data.message.isAdminRead:data.message.isRead;
+								$('.people-list ul.list > li[data-id="'+data.message.ChatID+'"] .people-details .icon').attr('data-read-status',readStatus)
 								$('.people-list ul.list > li[data-id="'+data.message.ChatID+'"] .last-msg').html(data.message.LastMessage)
 								$('.people-list ul.list > li[data-id="'+data.message.ChatID+'"] .timestamp').html(data.message.LastMessageOnHuman)
 								$('.people-list ul.list > li[data-id="'+data.message.ChatID+'"]').attr('data-time',data.message.LastMessageOn);
@@ -422,9 +424,11 @@
 					return $('#people-list > ul > li[data-id="'+chatID+'"]').length>0;
 				}
 				const getHtmlContent=async(data)=>{
+					console.log(data)
+					let readStatus=messageFrom=="Admin"?data.isAdminRead:data.isRead;
 					let content='';
 						content+='<div class="people-details">';
-							content+='<div class="icon" data-read-status="'+data.isRead+'"><span></span></div>';
+							content+='<div class="icon" data-read-status="'+readStatus+'"><span></span></div>';
 							content+='<div class="name">'+data.sendFromName+' <span class="mobile-number">- '+data.MobileNumber+'</span></div>';
 							content+='<div class="full-right">';
 								content+='<div class="options dropdown" >';

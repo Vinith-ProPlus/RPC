@@ -70,7 +70,7 @@ class chatController extends Controller{
         return view('app.chat.chat',$FormData);
     }
 	public function getChatList(Request $req){
-		$sql ="SELECT C.ChatID, C.sendFrom as sendFromID, SF.Name as sendFromName, SF.MobileNumber, SF.Address, SF.PostalCodeID, PS.PostalCode, SF.CityID, CI.CityID, SF.TalukID, T.TalukName, SF.DistrictID, D.DistrictName, SF.StateID, S.StateName, SF.CountryID, CO.CountryID, C.sendTo, C.Status, C.LastMessage, C.LastMessageOn, C.isRead ";
+		$sql ="SELECT C.ChatID, C.sendFrom as sendFromID, SF.Name as sendFromName, SF.MobileNumber, SF.Address, SF.PostalCodeID, PS.PostalCode, SF.CityID, CI.CityID, SF.TalukID, T.TalukName, SF.DistrictID, D.DistrictName, SF.StateID, S.StateName, SF.CountryID, CO.CountryID, C.sendTo, C.Status, C.LastMessage, C.LastMessageOn, C.isRead, C.isAdminRead ";
 		$sql.=" FROM ".$this->SupportDB."tbl_chat as C LEFT JOIN users as SF ON SF.UserID=C.sendFrom  LEFT JOIN ".$this->generalDB."tbl_cities as CI ON CI.CityID=SF.CityID ";
 		$sql.=" LEFT JOIN ".$this->generalDB."tbl_taluks as T ON T.TalukID=SF.TalukID  LEFT JOIN ".$this->generalDB."tbl_districts as D ON D.DistrictID=SF.DistrictID ";
 		$sql.=" LEFT JOIN ".$this->generalDB."tbl_states as S ON S.StateID=SF.StateID LEFT JOIN ".$this->generalDB."tbl_countries as CO ON CO.CountryID=SF.CountryID ";
@@ -108,10 +108,12 @@ class chatController extends Controller{
 		$totalChats = DB::Table($this->SupportDB."tbl_chat_message")->where("ChatID",$ChatID)->count();
 		$isLoadMore = ($offset + $pageLimit) < $totalChats;
 
-		$tdata=["isRead"=>1];
+		$tdata=[];
 		if(auth()->user()->LoginType=="Admin"){
 			$tdata['adminLastSeenOn']=now();
+			$tdata['isAdminRead']=1;
 		}else{
+			$tdata['isRead']=1;
 			$tdata['senderLastSeenOn']=now();
 			event(new chatApp('Admin',json_encode(["type"=>"update_last_seen","message"=>now(),"ChatID"=>$ChatID])));
 		}
@@ -194,7 +196,8 @@ class chatController extends Controller{
 			if($status){
 				DocNum::updateDocNum(docTypes::ChatMessage->value);
 				$data=[
-					"isRead"=>0,
+					"isRead"=>$req->messageFrom=="Admin"?0:1,
+					"isAdminRead"=>$req->messageFrom=="Admin"?1:0,
 					"LastMessageOn"=>$LastMessageOn,
 				];
 				if($req->messageFrom=="Admin"){
@@ -223,8 +226,8 @@ class chatController extends Controller{
 		if($status==true){
 			DB::commit();
 			$msg=$this->getChatMessage($ChatID,$SLNO);
-			event(new chatApp($req->messageTo,json_encode(["type"=>"load_message","messageFrom"=>$req->messageFrom,"message"=>$msg,"ChatID"=>$ChatID,"LastMessageOn"=>$LastMessageOn,"LastMessage"=>$LastMessage,"LastMessageOnHuman"=>Carbon::parse($LastMessageOn)->diffForHumans()])));
-			event(new chatApp($req->messageFrom,json_encode(["type"=>"load_message","messageFrom"=>$req->messageFrom,"message"=>$msg,"ChatID"=>$ChatID,"LastMessageOn"=>$LastMessageOn,"LastMessage"=>$LastMessage,"LastMessageOnHuman"=>Carbon::parse($LastMessageOn)->diffForHumans()])));
+			event(new chatApp($req->messageTo,json_encode(["type"=>"load_message","isRead"=>$req->messageFrom=="Admin"?0:1,"isAdminRead"=>$req->messageFrom=="Admin"?1:0,"messageFrom"=>$req->messageFrom,"message"=>$msg,"ChatID"=>$ChatID,"LastMessageOn"=>$LastMessageOn,"LastMessage"=>$LastMessage,"LastMessageOnHuman"=>Carbon::parse($LastMessageOn)->diffForHumans()])));
+			event(new chatApp($req->messageFrom,json_encode(["type"=>"load_message","isRead"=>$req->messageFrom=="Admin"?0:1,"isAdminRead"=>$req->messageFrom=="Admin"?1:0,"messageFrom"=>$req->messageFrom,"message"=>$msg,"ChatID"=>$ChatID,"LastMessageOn"=>$LastMessageOn,"LastMessage"=>$LastMessage,"LastMessageOnHuman"=>Carbon::parse($LastMessageOn)->diffForHumans()])));
 		}else{
 			DB::rollback();
 		}
@@ -264,7 +267,8 @@ class chatController extends Controller{
 			if($status){
 				DocNum::updateDocNum(docTypes::ChatMessage->value);
 				$data=[
-					"isRead"=>0,
+					"isRead"=>$req->messageFrom=="Admin"?0:1,
+					"isAdminRead"=>$req->messageFrom=="Admin"?1:0,
 					"LastMessageOn"=>$LastMessageOn,
 					"LastMessage"=>$LastMessage
 				];
@@ -285,8 +289,8 @@ class chatController extends Controller{
 		if($status==true){
 			DB::commit();
 			$msg=$this->getChatMessage($ChatID,$SLNO);$msg=$this->getChatMessage($ChatID,$SLNO);
-			event(new chatApp($req->messageTo,json_encode(["type"=>"load_message","messageFrom"=>$req->messageFrom,"message"=>$msg,"ChatID"=>$ChatID,"LastMessageOn"=>$LastMessageOn,"LastMessage"=>$LastMessage,"LastMessageOnHuman"=>Carbon::parse($LastMessageOn)->diffForHumans()])));
-			event(new chatApp($req->messageFrom,json_encode(["type"=>"load_message","messageFrom"=>$req->messageFrom,"message"=>$msg,"ChatID"=>$ChatID,"LastMessageOn"=>$LastMessageOn,"LastMessage"=>$LastMessage,"LastMessageOnHuman"=>Carbon::parse($LastMessageOn)->diffForHumans()])));
+			event(new chatApp($req->messageTo,json_encode(["type"=>"load_message","isRead"=>$req->messageFrom=="Admin"?0:1,"isAdminRead"=>$req->messageFrom=="Admin"?1:0,"messageFrom"=>$req->messageFrom,"message"=>$msg,"ChatID"=>$ChatID,"LastMessageOn"=>$LastMessageOn,"LastMessage"=>$LastMessage,"LastMessageOnHuman"=>Carbon::parse($LastMessageOn)->diffForHumans()])));
+			event(new chatApp($req->messageFrom,json_encode(["type"=>"load_message","isRead"=>$req->messageFrom=="Admin"?0:1,"isAdminRead"=>$req->messageFrom=="Admin"?1:0,"messageFrom"=>$req->messageFrom,"message"=>$msg,"ChatID"=>$ChatID,"LastMessageOn"=>$LastMessageOn,"LastMessage"=>$LastMessage,"LastMessageOnHuman"=>Carbon::parse($LastMessageOn)->diffForHumans()])));
 		}else{
 			DB::rollback();
 		}
