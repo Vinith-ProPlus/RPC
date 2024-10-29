@@ -585,6 +585,9 @@
 		<script src="{{url('/')}}/assets/js/form-wizard/form-wizard-two.js"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox.min.js"></script>
 		<script src="{{url('/')}}/assets/js/lightbox/js/lightgallery.js?r={{date('dmyHis')}}"></script>
+		<script src="https://www.gstatic.com/firebasejs/5.5.8/firebase-app.js"></script>
+		<script src="https://www.gstatic.com/firebasejs/5.5.8/firebase-messaging.js"></script>
+		<script src="{{url('/assets/firebase.min.js')}}"></script>
 
 
 		<script src="{{url('/')}}/assets/plugins/ckeditor/ckeditor.js"></script>

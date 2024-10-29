@@ -360,7 +360,7 @@
 			var channel = pusher.subscribe("rpc-chat-582");
 				channel.bind('Admin', async function(data) {
 					try {
-						data.message=JSON.parse(data.message);console.log(data)
+						data.message=JSON.parse(data.message);
 						if(data.message.type=="load_message" ){
 							if(activeChatID==data.message.ChatID){
 								for(let item of data.message.message){
