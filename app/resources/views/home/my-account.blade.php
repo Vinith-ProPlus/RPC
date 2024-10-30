@@ -1195,13 +1195,13 @@
                                                         <!-- chat-header start-->
                                                         <div class="chat-header clearfix">
                                                             <div class="row">
-                                                                <div class="col-6">
+                                                                <div class="col-8">
                                                                     <div>
                                                                         <div class="d-flex align-items-center"><img src="{{ url('assets/images/chat-admin-logo.png') }}" class="mr-2" alt="Admin Icon" style="width: 34px;height: 34px;"><span style="font-size: 19px;">Admin</span></div>
                                                                         <div class="text-light mt-1" style="font-size: 13px !important;">Support mail ID - <span class="mail text-warning">rpcadminsupport@gmail.com</span></div>
                                                                     </div>
                                                                 </div>
-                                                                <div class="col-6 d-flex justify-content-end align-items-center">
+                                                                <div class="col-4 d-flex justify-content-end align-items-center">
                                                                     <div class="input-group" style="width: 220px;">
                                                                         <input type="text" class="form-control search-bar" placeholder="Search..." aria-label="Search" style="height: 30px; border-radius: 3px 0px 0px 3px;">
                                                                         <div class="input-group-append">

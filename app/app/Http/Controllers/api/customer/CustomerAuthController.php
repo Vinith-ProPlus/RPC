@@ -1179,6 +1179,7 @@ class CustomerAuthController extends Controller{
         }
         return ['status'=>$status,"SLNO"=>$SLNO,"LastMessage"=>$LastMessage,"LastMessageOn"=>$LastMessageOn,"LastMessageOnHuman"=>Carbon::parse($LastMessageOn)->diffForHumans()];
     }
+
     public function sendAttachment(Request $req){
         DB::beginTransaction();$SLNO="";
         $status=false;
@@ -1202,6 +1203,7 @@ class CustomerAuthController extends Controller{
                 }
             }
             $ChatID = DB::Table($this->SupportDB . "tbl_chat")->where('sendFrom', $this->UserID)->first()?->ChatID;
+
             $AttachmentURL="";
             $dir="uploads/chat/".$ChatID."/";
             if (!file_exists( $dir)) {mkdir( $dir, 0777, true);}
@@ -1243,11 +1245,11 @@ class CustomerAuthController extends Controller{
                 $status=DB::Table($this->SupportDB.'tbl_chat')->where('ChatID',$ChatID)->update($data);
                 event(new chatApp($req->messageTo,json_encode(["type"=>"update_last_seen","message"=>now(),"ChatID"=>$ChatID])));
             }
-            //event(new chatApp($req->message));
             $req->MessageID=$SLNO;
             $msg=$this->getChatHistory($req,$ChatID);
             event(new chatApp($req->messageTo,json_encode(["type"=>"load_message","message"=>$msg])));
         }catch(Exception $e) {
+            logger("Error in CustomerAuthController@sendAttachment: ".$e->getMessage());
             $status=false;
         }
         if($status==true){
