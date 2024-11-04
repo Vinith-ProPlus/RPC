@@ -52,3 +52,5 @@ ALTER TABLE rpc_support.tbl_chat_message CHANGE `Type` `Type` ENUM('Text','Attac
 
 2024-10-29
 ALTER TABLE rpc_support.tbl_chat ADD `isAdminRead` INT NOT NULL DEFAULT '0' AFTER `isRead`;
+
+Place rpc-google-services.json file in storage folder.
