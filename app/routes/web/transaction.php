@@ -122,6 +122,7 @@ Route::group(['prefix'=>'quotation'],function (){
     Route::controller(QuotationController::class)->group(function () {
         Route::get('/', 'view')->name('admin.transaction.quotes');
         Route::get('/details/{QID}', 'QuoteView')->name('admin.transaction.quotes.details');
+        Route::get('/pdf/{QID}', 'QuotePDF')->name('admin.transaction.quotes.pdf');
 
         Route::post('/data', 'TableView')->name('admin.transaction.quotes.data');
         Route::post('/update/item/{DetailID}', 'itemUpdate')->name('admin.transaction.quotes.item.update');

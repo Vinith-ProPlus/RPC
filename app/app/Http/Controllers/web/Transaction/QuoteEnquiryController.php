@@ -143,7 +143,7 @@ class QuoteEnquiryController extends Controller{
 					'BuildingMeasurementID' => $req->BuildingMeasurementID,
 					'BuildingMeasurement' => $req->BuildingMeasurement,
 					'CreatedOn' => date('Y-m-d H:i:s'),
-					'CreatedBy' => $CustomerID,
+					'CreatedBy' => $this->UserID,
 				];
 				$status=DB::table($this->currfyDB.'tbl_enquiry')->insert($data);
 				if($status){
@@ -159,7 +159,7 @@ class QuoteEnquiryController extends Controller{
 							'Qty'=>$item['Qty'],
 							'UOMID'=>$item['UID'],
 							'CreatedOn'=>date('Y-m-d H:i:s'),
-							'CreatedBy'=>$CustomerID,
+							'CreatedBy' => $this->UserID,
 						];
 						$status = DB::table($this->currfyDB.'tbl_enquiry_details')->insert($data1);
 						if($status){
@@ -609,7 +609,8 @@ class QuoteEnquiryController extends Controller{
 		}
 	}
 
-    public function QuoteConvert(Request $req,$EnqID){
+    public function QuoteConvert(Request $req,$EnqID){ logger($req);
+		return 1;
 		if($this->general->isCrudAllow($this->CRUD,"edit")==true){
 			$OldData=array();$NewData=array();
 			DB::beginTransaction();

@@ -17,6 +17,10 @@ use logs;
 use activeMenuNames;
 use docTypes;
 use cruds;
+use Dompdf\Dompdf;
+use Dompdf\Options;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Storage;
 
 class QuotationController extends Controller{
 	private $general;
@@ -86,6 +90,51 @@ class QuotationController extends Controller{
             return view('errors.403');
         }
     }
+
+	public function QuotePDF1(Request $req,$QID){
+		$FormData=$this->general->UserInfo;
+		$FormData['PageTitle']=$this->PageTitle;
+		$FormData['Settings']=$this->Settings;
+		$FormData['QID']=$QID;
+		$FormData['QData']=$this->getQuotes(["QID"=>$QID]);
+		if(count($FormData['QData'])>0){
+			$FormData['QData']=$FormData['QData'][0];
+			return view('app.transaction.quotation.pdf-view', $FormData);
+		}else{
+			return view('errors.403');
+		}
+	}
+	public function QuotePDF(Request $req, $QID)
+	{
+		$FormData = $this->general->UserInfo;
+		$FormData['PageTitle'] = $this->PageTitle;
+		$FormData['Settings'] = $this->Settings;
+		$FormData['QID'] = $QID;
+		$FormData['QData'] = $this->getQuotes(["QID" => $QID]);
+
+		if (count($FormData['QData']) > 0) {
+			$FormData['QData'] = $FormData['QData'][0];
+			
+			return view('app.transaction.quotation.pdf-view', $FormData);
+
+			/* $pdf = Pdf::loadView('app.transaction.quotation.pdf-view', $FormData)->setPaper('a4', 'landscape');
+			return $pdf;
+			$fileName = $QID . '.pdf';
+			$dir = "uploads/transaction/quotation/" . $QID . "/";
+			$filePath = $dir . $fileName;
+			if (!file_exists($dir)) {mkdir($dir, 0777, true);}
+
+			file_put_contents(public_path($filePath), $pdf->output());
+
+			// Return the file path
+			return response()->json([
+				'status' => 'success',
+				'path' => $filePath,
+			]); */
+		} else {
+			return response()->json(['status' => 'error', 'message' => 'Quote not found'], 404);
+		}
+	}
 	public function QuoteCancel(request $req,$QID){
 		if($this->general->isCrudAllow($this->CRUD,"delete")==true){
 			DB::beginTransaction();
@@ -753,7 +802,8 @@ class QuotationController extends Controller{
 							$OrderCRUD=$this->general->getCrudOperations(activeMenuNames::Order->value);
 							$html='';
 							if($this->general->isCrudAllow($this->CRUD,"view")==true){
-								$html.='<a href="'.route('admin.transaction.quotes.details',$d).'" data-id="'.$d.'"  class="btn btn-outline-info  m-5 '.$this->general->UserInfo['Theme']['button-size'].'  btnView">View</a>';
+								// $html.='<a href="'.route('admin.transaction.quotes.details',$d).'" data-id="'.$d.'"  class="btn btn-outline-info  m-5 '.$this->general->UserInfo['Theme']['button-size'].'  btnView">View</a>';
+								$html.='<a href="'.route('admin.transaction.quotes.pdf',$d).'" data-id="'.$d.'"  class="btn btn-outline-info  m-5 '.$this->general->UserInfo['Theme']['button-size'].'  btnView">View</a>';
 							}
 							/*
 							if($this->general->isCrudAllow($OrderCRUD,"add")==true && $row['Status']=="New" ){

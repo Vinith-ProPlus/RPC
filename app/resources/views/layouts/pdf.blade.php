@@ -67,93 +67,13 @@
 	<body>
 		<input type="hidden" style="display:none!important" id="txtRootUrl" value="{{url('/')}}/">
 		<textarea style="display: none;" id="txtThemeOption" >{{json_encode($Theme)}}</textarea>
-		<input type="hidden" name="txtActiveName" id="txtActiveName" value="{{$ActiveMenuName}}">
 		<div id="divsettings" class="display-none">{{json_encode($Settings)}}</div>
 		<div class="loader-wrapper">
 			<div class="theme-loader"></div>
 		</div>
 		<div class="page-wrapper compact-wrapper" id="pageWrapper">
-			<div class="page-main-header">
-				<div class="main-header-right">
-					<div class="main-header-left">
-						<div class="logo-wrapper">
-							<a href="{{url('/')}}/admin">
-								<img loading="lazy" src="{{url('/')}}/{{$Company['Logo']}}" alt="" width="50" height="52">
-							</a>
-						</div>
-					</div>
-					<div class="mobile-sidebar">
-						<div class="flex-grow-1 text-end switch-sm">
-							<label class="switch">
-								<input id="sidebar-toggle" type="checkbox" data-bs-toggle=".container" checked="checked">
-								<span class="switch-state"></span>
-							</label>
-						</div>
-					</div>
-					<div class="nav-right col pull-right right-menu">
-						<ul class="nav-menus"><!--
-							<li>
-								<a class="text-dark" href="#!" onclick="javascript:toggleFullScreen()">
-									<i data-feather="maximize"></i>
-								</a>
-							</li>-->
-							<li>
-								<span>
-									<select id="lstFinancialYear" class="form-control multiselect" data-selected="{{$FY->FYID}}">
-									</select>
-								</span>
-							</li>
-							<li class="theme-setting">
-								<i data-feather="settings"></i>
-							</li>
-							<li class="onhover-dropdown px-0">
-								<span class="d-flex user-header">
-									<img loading="lazy" class="me-2 rounded-circle img-35" src="{{url('/')}}/{{$UInfo->ProfileImage}}" alt="">
-									<span class="flex-grow-1">
-										<span class="f-12 f-w-600">{{$UInfo->Name}}</span>
-										<span class="d-block">{{$UInfo->RoleName}}</span>
-									</span>
-								</span>
-								<ul class="profile-dropdown onhover-show-div">
-                                    <li><a href="{{url('/')}}/admin/users-and-permissions/change-password/"><i data-feather="user"> </i>Password Change</a></li>
-                                    <li class="btnLogout"><i data-feather="log-in"></i>Logout </li>
-								</ul>
-							</li>
-						</ul>
-                        <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">@csrf</form>
-					</div>
-					<div class="d-lg-none mobile-toggle pull-right">
-						<i data-feather="more-horizontal"></i>
-					</div>
-				</div>
-			</div>
 			<div class="page-body-wrapper sidebar-icon">
 				<nav-menus></nav-menus>
-				<header class="main-nav">
-					<nav>
-						<div class="main-navbar">
-							<div class="left-arrow" id="left-arrow">
-								<i data-feather="arrow-left"></i>
-							</div>
-							<div id="mainnav">
-								<ul class="nav-menu custom-scrollbar">
-									<li class="back-btn">
-										<div class="mobile-back text-end">
-											<span>Back</span>
-											<i class="fa fa-angle-right ps-2" aria-hidden="true"></i>
-										</div>
-									</li>
-                                    <?php
-                                        echo $menus;
-                                    ?>
-								</ul>
-							</div>
-							<div class="right-arrow" id="right-arrow">
-								<i data-feather="arrow-right"></i>
-							</div>
-						</div>
-					</nav>
-				</header>
 				<div class="page-body">
                     @yield('content')
 
@@ -576,9 +496,6 @@
 		<script src="{{url('/')}}/assets/js/form-wizard/form-wizard-two.js"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox.min.js"></script>
 		<script src="{{url('/')}}/assets/js/lightbox/js/lightgallery.js?r={{date('dmyHis')}}"></script>
-		<script src="https://www.gstatic.com/firebasejs/5.5.8/firebase-app.js"></script>
-		<script src="https://www.gstatic.com/firebasejs/5.5.8/firebase-messaging.js"></script>
-		<script src="{{url('/assets/firebase-full.js')}}"></script>
 
 
 		<script src="{{url('/')}}/assets/plugins/ckeditor/ckeditor.js"></script>

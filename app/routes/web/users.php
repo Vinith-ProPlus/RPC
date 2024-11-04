@@ -58,6 +58,7 @@ Route::group(['prefix'=>'manage-customers'],function (){
         Route::post('/create', 'save');
         Route::post('/edit/{CID}', 'update');
         Route::post('/delete/{CID}', 'delete');
+        Route::post('/add-shipping-address', 'AddShippingAddress')->name('AddShippingAddress');
         Route::post('/set-default-address', 'SetDefaultAddress');
         Route::get('/trash-view/', 'TrashView');
         Route::post('/trash-data', 'TrashTableView');

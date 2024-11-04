@@ -1,5 +1,13 @@
 <div class="row" id="shippingModalMapDiv">
     <div class="col-sm-12 mt-20">
+        <label for="txtCSPMapUrl">Map Url</label>
+        <div class="input-group">
+            <input type="text" class="form-control  {{$Theme['input-size']}}" id="txtCSPMapUrl" value="">
+            <button class="input-group-text btn-outline-primary px-4 position-relative" id="btnMapSubmit"><i class="fa fa-map-marker"></i></button>
+        </div>
+        <span class="errors err-sm" id="txtCSPMapUrl-err"></span>
+    </div>
+    <div class="col-sm-12 mt-20">
         <label for="txtADMap">Select Location <span class="required"> * </span></label>
         <div id="map" class="mb-0" style="height: 350px;"></div>
         <span class="errors Address err-sm" id="txtADMap-err"></span>
@@ -240,6 +248,66 @@ $(document).ready(function(){
         }
         return null;
     }
+
+    function updateMarker(latLng) {
+        marker.setPosition(latLng);
+        updateAddress(latLng);
+    }
+
+    function updateAddress(latLng) {
+        var geocoder = new google.maps.Geocoder();
+        geocoder.geocode({ 'location': latLng }, function (results, status) {
+            if (status === 'OK' && results[0]) {
+                var formattedAddress = results[0].formatted_address;
+                var addressComponents = formattedAddress.split(', ');
+                var simplifiedAddress = addressComponents.slice(0, -2).join(', ');
+                $('#txtCSPAddress').val(simplifiedAddress);
+                $('#txtCSPLatitude').val(latLng.lat());
+                $('#txtCSPLongitude').val(latLng.lng());
+                $('#txtCSPMapData').val(JSON.stringify(results[0]));
+                var postalCode = extractPostalCodeFromAddressComponents(results[0]);
+                if (postalCode) {
+                    $('#txtCSPPostalCode').val(postalCode);
+                    $('#btnGSearchPostalCode').click();
+                }
+            }
+        });
+    }
+
+    function extractPostalCodeFromAddressComponents(result) {
+        for (var i = 0; i < result.address_components.length; i++) {
+            var addressComponent = result.address_components[i];
+            if (addressComponent.types.includes('postal_code')) {
+                return addressComponent.long_name;
+            }
+        }
+        return null;
+    }
+
+    function markLocationFromUrl(url) {
+        var matches = url.match(/@([-0-9.]+),([-0-9.]+)/);
+        if (matches && matches.length === 3) {
+            var lat = parseFloat(matches[1]);
+            var lng = parseFloat(matches[2]);
+            var latLng = new google.maps.LatLng(lat, lng);
+            marker.setPosition(latLng);
+            map.setCenter(latLng);
+            updateAddress(latLng);
+        } else {
+            $('#txtCSPMapUrl-err').html('Enter a valid Map URL!');
+        }
+    }
+
+    $(document).on('click', '#btnMapSubmit', function () {
+        $('#txtCSPMapUrl-err').html('');
+        var mapUrl = $('#txtCSPMapUrl').val();
+        if (!mapUrl) {
+            $('#txtCSPMapUrl-err').html('Enter a Map URL!');
+        } else {
+            markLocationFromUrl(mapUrl);
+        }
+    });
+
 </script>
 
 <script async src="https://maps.googleapis.com/maps/api/js?key={{ config('app.map_api_key') }}&callback=initMap"></script>

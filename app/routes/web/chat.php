@@ -8,6 +8,8 @@ Route::controller(chatController::class)->group(function () {
     Route::Post('/delete/chat/{ChatID}', 'deleteChat')->name('admin.chat.delete');
     Route::Post('/block/chat/{ChatID}', 'blockChat')->name('admin.chat.block');
     Route::Post('/unblock/chat/{ChatID}', 'unblockChat')->name('admin.chat.unblock');
+    Route::Post('/create/quote', 'CreateQuote')->name('admin.chat.create.quote');
+    Route::Post('/save/quote-pdf', 'SaveQuotePDF')->name('admin.chat.save.quote.pdf');
     Route::group(['prefix'=>'get'],function (){
         Route::Post('/chat-list', 'getChatList')->name('admin.chat.get.chat-list');
         Route::Post('/account-details/{ChatID}', 'getAccountDetails')->name('admin.chat.get.account-details');

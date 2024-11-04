@@ -31,31 +31,57 @@
 	}
 
 	.wzdQuote ul.anchor li.active {
-		background-color: #0b8abd;
+		background-color: rgb(59, 142, 219);
+		text
+	}
+	.wzdQuote ul.anchor li.active a {
+		color: #ffffff;
 	}
 
 	.wzdQuote ul.anchor li a {
 		color: #000000;
 	}
+	.wzdQuote label {
+		margin-bottom: 0px;
+	}
+	.wzdQuote .card {
+		border: 0.3px solid rgb(194, 191, 191);
+	}
 
 	.wzdQuote ul.anchor li.active::after {
 		content: '';
 		position: absolute;
-		right: 0;
-		top: 50%;
-		transform: translateY(-50%) rotate(225deg);
-		width: 10px;
-		height: 10px;
-		background-color: #eae7e7;
-		clip-path: polygon(0 0, 100% 0, 100% 100%);
+		right: -21px;
+		top: 53%;
+		transform: translateY(-50%) rotate(91deg);
+		width: 55px;
+		height: 55px;
+		background-color: #ffffff;
+		clip-path: polygon(0 0, 87% 0, 48% 105%);
 	}
-    .btnCheckboxProduct {
+
+    .chkProduct {
         width: 1.5em;
         height: 1.5em;
         border: 1px solid #000;
         transform: scale(1.2);
 		cursor: pointer;
     }
+	.btnMinimizeModal {
+		padding: 0;
+		border: none;
+		background: none;
+		align-items: center;
+		justify-content: center;
+		margin-left: 58.5rem;
+
+	}
+
+	.btnMinimizeModal i {
+		font-size: 1em;
+		color: #9a9ea1;
+	}
+
 
 </style>
 <link rel="stylesheet" href="{{url('/assets/css/chat.css')}}">
@@ -167,78 +193,126 @@
 <div class="modal fade chatModal" id="quoteModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="quoteModalLabel" aria-hidden="true">
 	<div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-lg modal-fullscreen-lg-down">
 		<div class="modal-content">
-			<div class="modal-header bg-dark">
-				<h1 class="modal-title fs-14" id="staticBackdropLabel">Quotation</h1>
-				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-			</div>
+            <div class="modal-header bg-dark">
+                <h1 class="modal-title fs-14" id="quoteModalLabel">Quotation</h1>
+                <button type="button" class="btnMinimizeModal me-2" title="Minimize"><i class="fa fa-window-minimize"></i></button>
+                <button type="button" class="btn-close btnCloseModal" aria-label="Close"></button>
+            </div>
 			<div class="modal-body">
 				<div class="wizard-4 wzdQuote" id="">
 					<ul class="anchor">
-					  <li class="btnQuoteStep active"><a href="#step-1" class="py-4 ">1. Select Product</a></li>
-					  <li class="btnQuoteStep"><a href="#step-2" class="py-4">2. Terms and Conditions </a></li>
-					  <li class="btnQuoteStep"><a href="#step-3" class="py-4">3. Verify Details</a></li>
-					  <li class="btnQuoteStep"><a href="#step-4" class="py-4">4. Generate PDF</a></li>
+						<li class="btnQuoteStep active"><a href="#step-1" class="py-4 ">1. Select Product</a></li>
+						<li class="btnQuoteStep"><a href="#step-2" class="py-4">2. Terms and Conditions </a></li>
+						<li class="btnQuoteStep"><a href="#step-3" class="py-4">3. Verify Details</a></li>
+						<li class="btnQuoteStep"><a href="#step-4" class="py-4">4. Generate PDF</a></li>
 					</ul>
 					
-					<div class="step-container" style="height: 295px;">
+					<div class="">
 						<div id="step-1" class="content" style="left: 0px;">
-							<div class="col-sm-12 ps-0">
-								<div class="form-group">
-								  <label for="lstQProducts">Products</label>
-								  <select  class="form-control select2" id="lstQProducts" data-selected="">
-									<option value="">Select a Product</option>
-									@foreach ($Products as $item)
-										<option value="{{$item->ProductID}}" data-image="{{$item->ProductImage}}">{{$item->ProductName}}</option>										
-									@endforeach
-								  </select>
-									<span class="errors" id="lstQProducts-err"></span>
+							<div class="row justify-content-center">
+								<div class="col-sm-12">
+									<div class="form-group">
+									<select  class="form-control select2" id="lstQProducts" data-selected="">
+										<option value="">Select a Product</option>
+										@foreach ($Products as $item)
+											<option value="{{$item->ProductID}}" data-image="{{$item->ProductImage}}" data-desc="{{ $item->Description }}"  data-uom="{{ $item->UName }} ({{ $item->UCode }})" data-price="{{ $item->PRate }}">{{$item->ProductName}}</option>										
+										@endforeach
+									</select>
+										<span class="errors" id="lstQProducts-err"></span>
+									</div>
+								</div>
+								<div class="col-sm-12 my-3" id="divQProducts" >
+									
 								</div>
 							</div>
 						</div>
 						<div id="step-2" class="content" style="display: none;">
-							<div class="col-sm-12">
-								<form class="theme-form my-5">
-									<div class="mb-3 row form-group justify-content-center">
-									  <label class="col-sm-3 col-form-label" for="txtDiscount">Discount</label>
-									  <div class="col-sm-6">
-										<input type="number" class="form-control" id="txtDiscount">
-									  </div>
+							<div class="col-sm-12 pt-6">
+								<form class="theme-form">
+									<div class="my-3 row form-group justify-content-center">
+										<label class="col-sm-3 col-form-label" for="dtpExpDelivery">Expected Delivery  <span class="required">*</span></label>
+									<div class="col-sm-6">
+										<input class="form-control" id="dtpExpDelivery" type="date" value="{{date("Y-m-d",strtotime('7 days'))}}">
+										<div class="errors err-sm" id="dtpExpDelivery-err"></div>
+									</div>
+									</div>
+									<div class="my-3 row form-group justify-content-center">
+										<label class="col-sm-3 col-form-label" for="txtAddCost">Additional Cost</label>
+									<div class="col-sm-6">
+										<input type="number" class="form-control" id="txtAddCost" placeholder="Additional Cost">
+									</div>
+									</div>
+									<div class="my-3 row form-group justify-content-center">
+									<label class="col-sm-3 col-form-label" for="txtDiscount">Discount</label>
+									<div class="col-sm-6">
+										<input type="number" class="form-control" id="txtDiscount" placeholder="Discount Amount">
+									</div>
+									</div>
+									<div class="my-3 row form-group justify-content-center">
+										<label class="col-sm-3 col-form-label" for="txtPaymentTerms">Payment Terms</label>
+									<div class="col-sm-6">
+										<input class="form-control" id="txtPaymentTerms" type="text" placeholder="Payment Terms">
+									</div>
 									</div>
 									<div class="mb-3 row form-group justify-content-center">
-										<label class="col-sm-3 col-form-label" for="txtSCharges">Shipping Charges</label>
-									  <div class="col-sm-6">
-										<input type="number" class="form-control" id="txtSCharges">
-									  </div>
+										<label class="col-sm-3 col-form-label" for="txtAdditionalInfo">Additional Info</label>
+									<div class="col-sm-6">
+										<textarea class="form-control" id="txtAdditionalInfo" cols="30" rows="3" placeholder="Additional Info"></textarea>
 									</div>
-									<div class="mb-3 row form-group justify-content-center">
-										<label class="col-sm-3 col-form-label" for="dtpExpDelivery">Expected Delivery</label>
-									  <div class="col-sm-6">
-										<input class="form-control" id="dtpExpDelivery" type="number" placeholder="Contact">
-									  </div>
 									</div>
-									<div class="mb-3 row form-group justify-content-center">
-										<label class="col-sm-3 col-form-label" for="txtPaymentTerms">Payment terms</label>
-									  <div class="col-sm-6">
-										<input class="form-control" id="txtPaymentTerms" type="text" placeholder="Company name">
-									  </div>
-									</div>
-									<div class="mb-3 row form-group justify-content-center">
-										<label class="col-sm-3 col-form-label" for="txtDescription">Additional Info</label>
-									  <div class="col-sm-6">
-										<textarea  id="txtDescription" cols="30" rows="3"></textarea>
-									  </div>
-									</div>
-								  </form>
+								</form>
 							</div>
 						</div>
 						<div id="step-3" class="content" style="display: none;">
-							<div class="col-sm-12 ps-0">
-								Step 3
+							<div class="col-sm-12 pt-6">
+								<div class="theme-form">
+									<div class="my-3 row form-group justify-content-center">
+										<label class="col-sm-3 col-form-label" for="txtContactPerson">Contact Person <span class="required">*</span></label>
+									<div class="col-sm-6">
+										<input type="text" class="form-control" id="txtContactPerson" placeholder="Contact Person">
+										<div class="errors err-sm" id="txtContactPerson-err"></div>
+									</div>
+									</div>
+									<div class="my-3 row form-group justify-content-center">
+									<label class="col-sm-3 col-form-label" for="txtEmail">Primary Email</label>
+									<div class="col-sm-6">
+										<input type="text" class="form-control" id="txtEmail" disabled>
+									</div>
+									</div>
+									<div class="my-3 row form-group justify-content-center">
+										<label class="col-sm-3 col-form-label" for="txtMobileNo">Mobile No <span class="required">*</span></label>
+									<div class="col-sm-6">
+										<input type="number" class="form-control" id="txtMobileNo">
+										<div class="errors err-sm" id="txtMobileNo-err"></div>
+									</div>
+									</div>
+									<div class="my-3 row form-group justify-content-center">
+										<label class="col-sm-3 col-form-label" for="lstSAddress">Shipping Address <span class="required">*</span></label>
+									<div class="col-sm-6">
+										<div class="row">
+											<div class="col-10">
+												<select class="form-control select2" id="lstSAddress">
+												</select>
+											</div>
+											<div class="col-2">
+												<button class="btn btn-outline-info btnAddAddress mt-2" type="button" title="Add Shipping Address"><i class="fa fa-plus"></i></button>
+											</div>
+										</div>
+									</div>
+									</div>
+								</div>
 							</div>
 						</div>
 						<div id="step-4" class="content" style="display: none;">
-							<div class="col-sm-12 ps-0">
-								Step 4
+							<div class="col-sm-12 ps-0 text-center">
+								<p>Kindly verify the entered details before generating the quotation.</p>
+								<button id="btnGenerateQuotation" type="button" class="btn btn-success mt-3">Generate Quotation</button>
+								<div id="quotationResult" class="mt-4" style="display: none; text-align: center;">
+									<div id="loadingAnimation" class="spinner-border text-primary" style="display: none;" role="status">
+										<span class="visually-hidden">Loading...</span>
+									</div>
+									<iframe id="pdfViewer" style="width:100%; height:500px; display: none;" frameborder="0"></iframe>
+								</div>
 							</div>
 						</div>
 					</div>
@@ -246,7 +320,7 @@
 				
 			</div>
 			<div class="modal-footer">
-				<button type="button" id="btnPrevious" class="btn btn-secondary" data-bs-dismiss="modal">Previous</button> 
+				<button type="button" id="btnPrevious" class="btn btn-secondary">Previous</button> 
 				<button type="button" id="btnNext" class="btn btn-primary">Next</button>
 			</div>			
 		</div>
@@ -299,11 +373,11 @@
 								<div class="card" style="width: 100%;">
 									<div class="row align-items-center justify-content-start">
 										<div class="col-auto text-start">
-											<input type="checkbox" name="selectedProducts[]" value="{{ $item->ProductID }}" class="form-check-input btnCheckboxProduct">
+											<input type="checkbox" name="selectedProducts[]" value="{{ $item->ProductID }}" class="form-check-input chkProduct">
 										</div>
 										<div class="col-auto">
 											@if($item->ProductImage)
-												<img src="{{ $item->ProductImage }}" alt="Product Image" class="me-2" style="width: 120px; height: 100px; object-fit: cover;">
+												<img src="{{ $item->ProductImage }}" alt="Product Image" class="me-2" style="width: 120px; height: 100px; object-fit: cover;border-radius: 6px;">
 											@endif
 										</div>
 										<div class="col">
@@ -328,14 +402,13 @@
 </div>
 @endsection
 @section('scripts')
-<script src="https://js.pusher.com/8.0.1/pusher.min.js"></script>
-<script>
-	
-</script>
+<script src="https://js.pusher.com/8.0.1/pusher.min.js"></script>{{-- Map Script --}}
+
 <script>
 	$(document).ready(function(){
 		var chatList=[];
 		var activeChatID="";
+		var CustomerID="";
 		var messageTo="";var messageFrom="Admin";
 		var pageLimit=20;
 		var pageNo=1;
@@ -438,7 +511,6 @@
 					return $('#people-list > ul > li[data-id="'+chatID+'"]').length>0;
 				}
 				const getHtmlContent=async(data)=>{
-					console.log(data)
 					let readStatus=messageFrom=="Admin"?data.isAdminRead:data.isRead;
 					let content='';
 						content+='<div class="people-details">';
@@ -544,8 +616,11 @@
 				dataType:"json",
 				async:true,
 				success:function(response){
+					$('.divShippingAddress').html("");
 					if(response.length>0){
 						response=response[0];
+						
+						CustomerID = response.CustomerID;
 						let Address=response.DistrictName+", "+response.StateName+", "+response.CountryName;
 						$('.chat-right-aside .name span.name-info').html(response.sendFromName);
 						$('.chat-right-aside .name span.last-seen > span').attr('data-time',response.SenderLastSeenOn);
@@ -556,8 +631,11 @@
 						$('.chat-right-aside .mobile-number a').attr('href','tel:'+response.MobileNumber);
 						$('.chat-right-aside .email').html(response.email);
 						lastSeenFormat();
+						$('#txtContactPerson').val(response.sendFromName);
+						$('#txtEmail').val(response.email);
+						$('#txtMobileNo').val(response.MobileNumber);
+						loadSAddress(response.SAddress);
 					}
-					
 				}
 			});
 		}
@@ -778,51 +856,7 @@
 			return true;
 		}
 
-		const formatOption = async(option)=> {
-            if (!option.id) {
-                return option.text;
-            }
-			
-            const imgUrl = $(option.element).data('image');
-			console.log(imgUrl);
-			
-            const img = `<img src="${imgUrl}" alt="${option.text}" style="width: 100px; height: 100px; margin-right: 10px;">`;
-            const text = `<span>${option.text}</span>`;
-
-            return $(`<span>${img} ${text}</span>`);
-        }
-		const stripHtmlTags=(input)=> {
-    		return $('<div>').html(input).text().split("\t").join("").split("\n").join("");
-		}
-
-		$('#quoteModal').on('shown.bs.modal', function () {
-			$('#lstQProducts').select2({
-				dropdownParent: $('#quoteModal'),
-				// templateResult: formatOption,
-				// templateSelection: formatOption,
-				// width: '100%'
-			});
-
-			/* const selectedOption = $('#lstQProducts').find(':selected');
-			if (selectedOption.length) {
-				const formattedSelection = formatOption(selectedOption[0]);
-				$('#lstQProducts').next('.select2-container').find('.select2-selection__rendered').html(formattedSelection);
-			} */
-		});
-		$(".btnQuoteStep").click(function (e) {
-			e.preventDefault();
-
-			// Find the href of the clicked link to determine the step to show
-			let stepId = $(this).find('a').attr("href");
-			
-			// Hide all steps and show the selected one
-			$(".content").hide();
-			$(stepId).fadeIn();
-
-			// Remove active class from all and add to the current step
-			$(".btnQuoteStep").removeClass("active");
-			$(this).addClass("active");
-		});
+		// Quote Modal Scripts
 
 		let currentStep = 1;
 		const totalSteps = 4;
@@ -830,17 +864,19 @@
 		showStep(currentStep);
 
 		$("#btnNext").click(function () {
+			$('.errors').text('');
 			if (validateStep(currentStep)) {
 				if (currentStep < totalSteps) {
 					currentStep++;
 					showStep(currentStep);
 				} else {
-					alert("Form submitted!");
+					sendMessage("Text",$('#txtMessage').val());
 				}
 			}
 		});
 
 		$("#btnPrevious").click(function () {
+			$('.errors').text('');
 			if (currentStep > 1) {
 				currentStep--;
 				showStep(currentStep);
@@ -862,27 +898,39 @@
 			} else {
 				$("#btnPrevious").show();
 			}
+			$(".anchor li").removeClass("active");
+        	$(".anchor li").eq(step - 1).addClass("active"); 
 		}
 
 		function validateStep(step) {
 			let isValid = true;
 			switch (step) {
 				case 1:
-					if ($("#step-1 input").val() === "") {
-						alert("Please complete step 1!");
+					if ($('#divQProducts .card').length < 1) {
+						toastr.error("Please select any product", "Failed", {positionClass: "toast-top-right",containerId: "toast-top-right",showMethod: "slideDown",hideMethod: "slideUp",progressBar: !0});
 						isValid = false;
 					}
 					break;
 				case 2:
-					if ($("#step-2 input").val() === "") {
-						alert("Please complete step 2!");
-						isValid = false;
+					let ExpDelivery = $('#dtpExpDelivery').val();
+					if(!ExpDelivery){
+						$('#dtpExpDelivery-err').html('Expected Delivery Date is required.');isValid = false;
 					}
 					break;
 				case 3:
-					if ($("#step-3 input").val() === "") {
-						alert("Please complete step 3!");
-						isValid = false;
+					let ContactPerson = $('#txtContactPerson').val();
+					let MobileNo = $('#txtMobileNo').val();
+					let SAddress = $('#lstSAddress').val();
+					if(!ContactPerson){
+						$('#txtContactPerson-err').html('Contact Person is required.');isValid = false;
+					}
+					if(!SAddress){
+						$('#lstSAddress-err').html('Shipping Address is required.');isValid = false;
+					}
+					if(!MobileNo){
+						$('#txtMobileNo-err').html('Mobile Number is required.');isValid = false;
+					}else if (MobileNo.length !== 10){
+						$("#txtMobileNo-err").html("Mobile Number must be 10 digit");isValid = false;
 					}
 					break;
 				default:
@@ -890,6 +938,342 @@
 			}
 			return isValid;
 		}
+
+		$(".btnQuoteStep").click(function (e) {
+			e.preventDefault();
+
+			let stepId = $(this).find('a').attr("href");
+			let targetStep = parseInt(stepId.replace("#step-", ""));
+
+			currentStep = targetStep;
+			showStep(currentStep);
+
+			$(".btnQuoteStep").removeClass("active");
+			$(this).addClass("active");
+		});
+
+		const formatOption = async(option)=> {
+            if (!option.id) {
+                return option.text;
+            }
+			
+            const imgUrl = $(option.element).data('image');
+			console.log(imgUrl);
+			
+            const img = `<img src="${imgUrl}" alt="${option.text}" style="width: 100px; height: 100px; margin-right: 10px;">`;
+            const text = `<span>${option.text}</span>`;
+
+            return $(`<span>${img} ${text}</span>`);
+        }
+
+		function stripHtmlTags(html) {
+			const div = document.createElement("div");
+			div.innerHTML = html;
+			return div.textContent || div.innerText || "";
+		}
+
+		function loadSAddress(addressData) {
+			$('#lstSAddress').empty();
+			addressData.forEach((item, index) => {
+				const isSelected = item.isDefault === 1 ? 'selected' : '';
+				const optionHtml = `
+					<option value="${item.AID}" ${isSelected}>
+						${item.Address}, ${item.CityName}, ${item.TalukName}, ${item.DistrictName}, ${item.StateName}, ${item.CountryName} - ${item.PostalCode}
+					</option>
+				`;
+				$('#lstSAddress').append(optionHtml);
+			});
+			$('#lstSAddress').select2({
+				dropdownParent: $('#quoteModal'),
+			});
+		}
+
+		const ValidateGetAddress = async () => {
+            $(".errors.Address").html("");
+            let status = true;
+            var formData={};
+            formData.CustomerID = CustomerID;
+            formData.AddressType=$('#txtADAddressType').val();
+            formData.OtherAddressType= $('#txtOtherADAddressType').val();
+            formData.Address=$('#txtADAddress').val();
+            formData.CompleteAddress=$('#txtADAddress').val();
+            formData.Latitude=$('#txtADLatitude').val();
+            formData.Longitude=$('#txtADLongitude').val();
+            formData.mapData=$('#mapData').val();
+            formData.CityID=$('#lstADCity').val();
+            formData.CityName=$('#lstADCity option:selected').text();
+            formData.PostalCode=$('#txtADPostalCode').val();
+            formData.PostalCodeID=$('#lstADCity option:selected').attr('data-postal-id');
+            let Address ="";
+            if(formData.Address==""){
+                $('#txtADAddress-err').html('Address is required');status=false;
+            }else if(formData.Address.length<5){
+                $('#txtADAddress-err').html('The Address must be greater than 5 characters.');status=false;
+            }else{
+                Address+=",<br>"+formData.Address;
+            }
+            if(formData.CityID==""){
+                $('#lstADCity-err').html('City is required');status=false;
+            }else{
+                Address+=",<br>"+formData.CityName;
+            }
+
+            if (formData.AddressType == "") {
+                $('#txtADAddressType-err').html('Address type is required');
+                status = false;
+            } else if (formData.AddressType === 'Others') {
+                if (formData.OtherAddressType === "") {
+                    $('#txtOtherADAddressType-err').html('Please specify the address type.');
+                    status = false;
+                } else {
+                    formData.AddressType = formData.OtherAddressType;
+                }
+            }
+
+            if(formData.Latitude==="" || formData.Latitude===""){
+                $('#txtADMap-err').html('Delivery location is required');status=false;
+            }
+            if(formData.PostalCode==""){
+                $('#txtADPostalCode-err').html('Postal Code is required');status=false;
+            }else{
+                Address+=" - "+formData.PostalCode;
+            }
+            return { status, formData, Address };
+        };
+		
+		function resetQuoteModal() {
+			$("#step-1 input, #step-1 select").val("").trigger("change");
+			$("#step-2 input, #step-2 textarea").val("");
+			$("#divQProducts").html("");
+			$("#step-3 input, #step-3 select").val("").trigger("change");
+			$("#step-4").find("input, textarea").val("");
+
+			$("#lstQProducts").val("").trigger("change");
+			$(".errors").text("");
+			$(".btnQuoteStep").first().trigger("click");
+		}
+
+		const SaveAddress = async () => {
+			let { status, formData, Address } = await ValidateGetAddress();
+			let Sstatus = false;
+
+			if (status) {
+				btnLoading($('#btnSaveAddress'));
+				await $.ajax({
+					type: "post",
+					url: "{{ route('AddShippingAddress') }}",
+					data: formData,
+					headers: { 'X-CSRF-Token' : '{{ csrf_token() }}' },
+					async: true,
+					error: function (e, x, settings, exception) {},
+					success: async (response) => {
+						if (response.status === true) {
+							toastr.success(response.message, "Success", {positionClass: "toast-top-right",containerId: "toast-top-right",showMethod: "slideDown",hideMethod: "slideUp",progressBar: !0});
+							Sstatus = true;
+							loadSAddress(response.SAddress);
+						} else {
+							toastr.error(response.message, "Failed", {positionClass: "toast-top-right",containerId: "toast-top-right",showMethod: "slideDown",hideMethod: "slideUp",progressBar: !0});
+						}
+					}
+				});
+			}
+			return Sstatus;
+		};
+
+		$(document).on('click', '#btnSaveAddress', async function () {
+			const result = await SaveAddress();
+			if (result) {
+				bootbox.hideAll();
+				btnReset($('#btnSaveAddress'));
+			}
+		});
+
+		$('#quoteModal').on('shown.bs.modal', function () {
+			$('#lstQProducts').select2({
+				dropdownParent: $('#quoteModal'),
+				// templateResult: formatOption,
+				// templateSelection: formatOption,
+				// width: '100%'
+			});
+		});
+
+		$(document).on('click', '.btnMinimizeModal', function() {
+			$('#quoteModal').modal('hide');
+		});
+		$(document).on('click', '.btnCloseModal', function() {
+			$('#quoteModal').modal('hide');
+			resetQuoteModal();
+		});
+		$(document).on('click', '#btnGenerateQuotation', function() {
+			$('#quotationResult').show();
+			$('#loadingAnimation').show();
+			$('#pdfViewer').hide();
+			let isValid = true;
+			let FormData = {
+				CustomerID: CustomerID,
+				AID: $('#lstSAddress').val(),
+				ExpDelivery: $('#dtpExpDelivery').val(),
+				AddCost: $('#txtAddCost').val(),
+				DiscountAmt: $('#txtDiscount').val(),
+				PaymentTerms: $('#txtPaymentTerms').val(),
+				AdditionalInfo: $('#txtAdditionalInfo').val(),
+				ReceiverName: $('#txtContactPerson').val(),
+				ReceiverMobNo: $('#txtMobileNo').val(),
+				ProductData: [],
+			}
+			
+			$('#divQProducts .card').each(function(){
+				let product = {
+					ProductID : $(this).data('product-id'),
+					Qty : $(this).find('.txtQty').val(),
+					Price : $(this).find('.txtPrice').val(),
+				}
+				FormData.ProductData.push(product);
+			});
+
+			if ($('#divQProducts .card').length < 1) {
+				toastr.error("Please select any product", "Failed", {positionClass: "toast-top-right",containerId: "toast-top-right",showMethod: "slideDown",hideMethod: "slideUp",progressBar: !0});
+				isValid = false;
+			}
+			if(!FormData.ExpDelivery){
+				$('#dtpExpDelivery-err').html('Expected Delivery Date is required.');isValid = false;
+			}
+			if(!FormData.ReceiverName){
+				$('#txtContactPerson-err').html('Contact Person is required.');isValid = false;
+			}
+			if(!FormData.AID){
+				$('#lstSAddress-err').html('Shipping Address is required.');isValid = false;
+			}
+			if(!FormData.ReceiverMobNo){
+				$('#txtMobileNo-err').html('Mobile Number is required.');isValid = false;
+			}else if (FormData.ReceiverMobNo.length !== 10){
+				$("#txtMobileNo-err").html("Mobile Number must be 10 digit");isValid = false;
+			}
+			console.log(FormData);
+			if(isValid){
+				$.ajax({
+					url: "{{route('admin.chat.create.quote')}}",
+					headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
+					async: true,
+					method: 'POST',
+					data: FormData,
+					success: function(response) {
+						$('#loadingAnimation').hide();
+
+						if (response.status && response.QData) {
+							const pdfUrl = response.QData.QuotePDF;
+							const pdfThumbnail = `
+								<div style="text-align: center; cursor: pointer;" id="pdfThumbnail">
+									<i class="fas fa-file-pdf" style="font-size: 48px; color: #d9534f;"></i>
+									<p style="margin-top: 10px; font-size:40px">Click to View Quote</p>
+								</div>
+							`;
+
+							// Show the thumbnail and add it to #quotationResult
+							$('#quotationResult').show().html(pdfThumbnail);
+
+							// Attach a click event to open the PDF in a new tab
+							$('#pdfThumbnail').on('click', function() {
+								window.open(pdfUrl, '_blank');
+							});
+						} else {
+							alert("Failed to generate PDF. Please try again.");
+						}
+					},
+					error: function() {
+						$('#loadingAnimation').hide();
+						alert("An error occurred. Please try again.");
+					}
+				});
+			}
+		});
+
+		$(document).on('click', '#btnSendQuoteMessage', function() {
+			$('#quoteModal').modal('hide');
+			resetQuoteModal();
+		});
+
+		
+		$('#lstQProducts').on('change', function() {
+			const selectedProductID = $(this).val();
+			const selectedProductText = $(this).find('option:selected').text();
+			const selectedProductImage = $(this).find('option:selected').data('image');
+			const selectedProductDesc = $(this).find('option:selected').data('desc');
+			const selectedProductPrice = $(this).find('option:selected').data('price');
+			const selectedProductUOM = $(this).find('option:selected').data('uom');
+
+			const plainTextDesc = stripHtmlTags(selectedProductDesc);
+
+
+			if (!selectedProductID) return;
+
+			if ($('#divQProducts').find(`[data-product-id="${selectedProductID}"]`).length > 0) {
+				toastr.warning("Product already exists!", "Failed", {positionClass: "toast-top-right",containerId: "toast-top-right",showMethod: "slideDown",hideMethod: "slideUp",progressBar: !0});
+				return;
+			}
+			let index = ($('#divQProducts .card').length) + 1;
+			const productCard = `
+				<div class="card mb-3 card-primary" data-product-id="${selectedProductID}" style="width: 100%; font-size: 0.9rem; background-color: #f8f9fa; border-left: 4px solid #007bff;">
+					<div class="row g-0 align-items-center">
+						<div class="col-auto p-3 d-flex flex-column align-items-center justify-content-center">
+							<img src="${selectedProductImage}" alt="Product Image" style="width: 160px; height: 120px; object-fit: cover; border-radius: 6px;">
+							<span class="text-danger btnDeleteItem mt-6" style="cursor: pointer; font-size: 0.8rem;">
+								 Remove <i class="fa fa-trash"></i>
+							</span>
+						</div>
+						<div class="col">
+							<div class="card-body p-3">
+								<div class="row gx-3">
+									<div class="col-5">
+										<div class="form-group mb-2">
+											<label class="small">Product Name</label>
+											<input class="form-control form-control-sm" type="text" value="${selectedProductText}" disabled>
+										</div>
+									</div>
+									<div class="col-2">
+										<div class="form-group mb-2">
+											<label class="small">Qty</label>
+											<input class="form-control form-control-sm txtQty txtNoZero" type="number" min="1" value="1">
+										</div>
+									</div>
+									<div class="col-5">
+										<div class="form-group mb-2">
+											<label class="small">Price / Unit</label>
+											<div class="input-group">
+												<input class="form-control form-control-sm txtPrice txtNoZero" type="number" min="0" value="${selectedProductPrice}">
+												<input class="form-control form-control-sm" type="text" value="${selectedProductUOM}" disabled>
+											</div>
+										</div>
+									</div>
+									<div class="col-12">
+										<div class="form-group mb-2">
+											<label class="small">Description</label>
+											<textarea class="form-control form-control-sm" rows="3">${plainTextDesc}</textarea>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			`;
+
+			$('#divQProducts').append(productCard);
+
+			$('#lstQProducts').val('').trigger('change');
+		});
+
+		$(document).on('input', '.txtQty', function() {
+			let qty = parseInt($(this).val(), 10);
+			if (isNaN(qty) || qty < 1) {
+				$(this).val(1);
+			}
+		});
+		$(document).on('click', '.btnDeleteItem', function() {
+			$(this).closest('.card').remove();
+		});
+
+		// Product Modal
 
 		function filterProducts() {
 			const selectedCategory = $('#lstPCategory').val();
@@ -903,12 +1287,10 @@
 				const productSubCategory = $(this).data('pscid').toString();
 				const productName = $(this).data('product').toLowerCase();
 
-				// Check if each filter matches (if a filter is not empty)
 				const matchesCategory = selectedCategory === "" || productCategory === selectedCategory;
 				const matchesSubCategory = selectedSubCategory === "" || productSubCategory === selectedSubCategory;
 				const matchesSearch = searchQuery === "" || productName.includes(searchQuery);
 
-				// Show or hide the product based on combined criteria
 				if (matchesCategory && matchesSubCategory && matchesSearch) {
 					$(this).show();
 					noProductsMatched = false;
@@ -917,7 +1299,6 @@
 				}
 			});
 
-			// Show a message if no products matched the filter
 			if (noProductsMatched) {
 				$('#no-products-message').show();
 			} else {
@@ -925,7 +1306,7 @@
 			}
 		}
 		function resetProductModal() {
-			$('.btnCheckboxProduct').prop('checked', false);
+			$('.chkProduct').prop('checked', false);
 			setTimeout(() => {
 				$('#lstPCategory').val('').trigger('change');
 				$('#lstPSCategory').val('').trigger('change');
@@ -959,7 +1340,7 @@
 		$(document).on('click', '#btnSendProducts',async function() {
 			const SelectedProducts = [];
 
-			$('.btnCheckboxProduct:checked').each(function() {
+			$('.chkProduct:checked').each(function() {
 				const productID = $(this).val();
 				const productCard = $(this).closest('.divProduct');
 
@@ -984,6 +1365,8 @@
 				toastr.error("Please select any product", "Failed", {positionClass: "toast-top-right",containerId: "toast-top-right",showMethod: "slideDown",hideMethod: "slideUp",progressBar: !0});
 			}
 		});
+
+		// Map
 
 		
 		init();
