@@ -12,6 +12,9 @@ use App\Events\chatApp;
 use DocNum;
 use docTypes;
 use Carbon\Carbon;
+use Kreait\Firebase\Factory;
+use Kreait\Firebase\Messaging\CloudMessage;
+use Kreait\Firebase\Exception\MessagingException;
 class chatController extends Controller{
 	private $general;
 	private $support;
@@ -234,6 +237,11 @@ class chatController extends Controller{
 			$req->MessageID=$SLNO;
 			$msg=$this->getChatHistory($req,$ChatID);
 			event(new chatApp($req->messageTo,json_encode(["type"=>"load_message","message"=>$msg])));
+            if ($req->messageTo !== "Admin") {
+                $fcmToken = DB::table('users')->where('UserID', $req->messageTo)->value('fcmToken');
+                logger("FcmToken: ".$fcmToken);
+                $this->sendNotification($LastMessage, $fcmToken);
+            }
 		}catch(Exception $e) {
 			$status=false;
 		}
@@ -248,6 +256,38 @@ class chatController extends Controller{
 		}
 		return ['status'=>$status,"SLNO"=>$SLNO,"LastMessage"=>$LastMessage,"LastMessageOn"=>$LastMessageOn,"LastMessageOnHuman"=>Carbon::parse($LastMessageOn)->diffForHumans()];
 	}
+    protected function sendNotification($message, $fcmToken) {
+        // Path to your Firebase service account JSON file
+        $serviceAccountPath = storage_path('rpc-google-services.json');
+
+        // Initialize Firebase with the service account
+        $firebase = (new Factory)
+            ->withServiceAccount($serviceAccountPath);
+
+        // Create FCM messaging
+        $messaging = $firebase->createMessaging(); // Use createMessaging() instead of getMessaging()
+
+        // Prepare notification data
+        $notification = [
+            'title' => 'Admin',
+            'body' => $message,
+        ];
+
+        // Send the notification
+        try {
+            // Prepare the CloudMessage object
+            $cloudMessage = CloudMessage::withTarget('token', $fcmToken)
+                ->withNotification($notification);
+
+            // Send the notification
+            $status = $messaging->send($cloudMessage);
+            logger("Notification sent log for mobile app: ".json_encode($status));
+        } catch (MessagingException $e) {
+            logger('Error sending notification: ' . $e->getMessage());
+        } catch (\Exception $e) {
+            logger('Error sending notification: ' . $e->getMessage());
+        }
+    }
 	public function sendAttachment(Request $req,$ChatID){
 		DB::beginTransaction();$SLNO="";
 		$status=false;
@@ -301,6 +341,11 @@ class chatController extends Controller{
 			$req->MessageID=$SLNO;
 			$msg=$this->getChatHistory($req,$ChatID);
 			event(new chatApp($req->messageTo,json_encode(["type"=>"load_message","message"=>$msg])));
+            if ($req->messageTo !== "Admin") {
+                $fcmToken = DB::table('users')->where('UserID', $req->messageTo)->value('fcmToken');
+                logger("FcmToken: ".$fcmToken);
+                $this->sendNotification("A new attachment has been received.", $fcmToken);
+            }
 		}catch(Exception $e) {
 			$status=false;
 		}
