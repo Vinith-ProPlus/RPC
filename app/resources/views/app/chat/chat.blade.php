@@ -67,19 +67,30 @@
         transform: scale(1.2);
 		cursor: pointer;
     }
+
+	.modal-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+	}
+
 	.btnMinimizeModal {
 		padding: 0;
 		border: none;
 		background: none;
 		align-items: center;
 		justify-content: center;
-		margin-left: 58.5rem;
-
 	}
 
 	.btnMinimizeModal i {
 		font-size: 1em;
 		color: #9a9ea1;
+	}
+	#quotationResult {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		height: 100%;
 	}
 
 
@@ -193,11 +204,16 @@
 <div class="modal fade chatModal" id="quoteModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="quoteModalLabel" aria-hidden="true">
 	<div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-lg modal-fullscreen-lg-down">
 		<div class="modal-content">
-            <div class="modal-header bg-dark">
-                <h1 class="modal-title fs-14" id="quoteModalLabel">Quotation</h1>
-                <button type="button" class="btnMinimizeModal me-2" title="Minimize"><i class="fa fa-window-minimize"></i></button>
-                <button type="button" class="btn-close btnCloseModal" aria-label="Close"></button>
-            </div>
+			<div class="modal-header bg-dark d-flex justify-content-between align-items-center">
+				<h1 class="modal-title fs-14" id="quoteModalLabel">Quotation</h1>
+				<div class="d-flex align-items-center">
+					<button type="button" class="btnMinimizeModal" title="Minimize">
+						<i class="fa fa-window-minimize"></i>
+					</button>
+					<button type="button" class="btn-close btnCloseModal" aria-label="Close"></button>
+				</div>
+			</div>
+			
 			<div class="modal-body">
 				<div class="wizard-4 wzdQuote" id="">
 					<ul class="anchor">
@@ -307,11 +323,10 @@
 							<div class="col-sm-12 ps-0 text-center">
 								<p>Kindly verify the entered details before generating the quotation.</p>
 								<button id="btnGenerateQuotation" type="button" class="btn btn-success mt-3">Generate Quotation</button>
-								<div id="quotationResult" class="mt-4" style="display: none; text-align: center;">
-									<div id="loadingAnimation" class="spinner-border text-primary" style="display: none;" role="status">
-										<span class="visually-hidden">Loading...</span>
+								<div id="quotationResult" style="display: none; text-align: center;">
+									<div id="loadingAnimation" class="spinner-border text-primary" style="display: none; margin-top:5%" role="status">
+										<span class="visually-hidden">Loading..</span>
 									</div>
-									<iframe id="pdfViewer" style="width:100%; height:500px; display: none;" frameborder="0"></iframe>
 								</div>
 							</div>
 						</div>
@@ -863,14 +878,24 @@
 
 		showStep(currentStep);
 
-		$("#btnNext").click(function () {
+		$("#btnNext").click(async function () {
 			$('.errors').text('');
 			if (validateStep(currentStep)) {
 				if (currentStep < totalSteps) {
 					currentStep++;
 					showStep(currentStep);
 				} else {
-					sendMessage("Text",$('#txtMessage').val());
+					let QuoteURL = $('#pdfThumbnail').data('quote-url');
+					if(QuoteURL){
+						let status = await sendMessage("Quotation","Quotation Sent",QuoteURL);
+						if(status){
+							resetQuoteModal();
+							$('.btnCloseModal').click();
+						}
+					}else{
+						toastr.error("Please Generate Quotation", "Failed", {positionClass: "toast-top-right",containerId: "toast-top-right",showMethod: "slideDown",hideMethod: "slideUp",progressBar: !0});
+					}
+					
 				}
 			}
 		});
@@ -1051,6 +1076,7 @@
 			$("#lstQProducts").val("").trigger("change");
 			$(".errors").text("");
 			$(".btnQuoteStep").first().trigger("click");
+			$("#resetQuoteModal").remove();
 		}
 
 		const SaveAddress = async () => {
@@ -1101,13 +1127,13 @@
 			$('#quoteModal').modal('hide');
 		});
 		$(document).on('click', '.btnCloseModal', function() {
-			$('#quoteModal').modal('hide');
+			$('.chatModal').modal('hide');
 			resetQuoteModal();
+			resetProductModal();
 		});
 		$(document).on('click', '#btnGenerateQuotation', function() {
 			$('#quotationResult').show();
 			$('#loadingAnimation').show();
-			$('#pdfViewer').hide();
 			let isValid = true;
 			let FormData = {
 				CustomerID: CustomerID,
@@ -1149,7 +1175,6 @@
 			}else if (FormData.ReceiverMobNo.length !== 10){
 				$("#txtMobileNo-err").html("Mobile Number must be 10 digit");isValid = false;
 			}
-			console.log(FormData);
 			if(isValid){
 				$.ajax({
 					url: "{{route('admin.chat.create.quote')}}",
@@ -1163,16 +1188,14 @@
 						if (response.status && response.QData) {
 							const pdfUrl = response.QData.QuotePDF;
 							const pdfThumbnail = `
-								<div style="text-align: center; cursor: pointer;" id="pdfThumbnail">
+								<div style="text-align: center; cursor: pointer;" id="pdfThumbnail" data-quote-url="${response.QData.QuotePDF}">
 									<i class="fas fa-file-pdf" style="font-size: 48px; color: #d9534f;"></i>
-									<p style="margin-top: 10px; font-size:40px">Click to View Quote</p>
+									<p style="margin-top: 10px; font-size:20px">Click to View Quote</p>
 								</div>
 							`;
 
-							// Show the thumbnail and add it to #quotationResult
 							$('#quotationResult').show().html(pdfThumbnail);
 
-							// Attach a click event to open the PDF in a new tab
 							$('#pdfThumbnail').on('click', function() {
 								window.open(pdfUrl, '_blank');
 							});
@@ -1185,14 +1208,10 @@
 						alert("An error occurred. Please try again.");
 					}
 				});
+			}else{
+				$('#loadingAnimation').hide();
 			}
 		});
-
-		$(document).on('click', '#btnSendQuoteMessage', function() {
-			$('#quoteModal').modal('hide');
-			resetQuoteModal();
-		});
-
 		
 		$('#lstQProducts').on('change', function() {
 			const selectedProductID = $(this).val();

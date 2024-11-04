@@ -587,8 +587,10 @@ class chatController extends Controller{
 				$logData=array("Description"=>"Quotation Converted","ModuleName"=>$this->ActiveMenuName,"Action"=>"Insert","ReferID"=>$QID,"OldData"=>$OldData,"NewData"=>$NewData,"UserID"=>$this->UserID,"IP"=>$req->ip());
 				logs::Store($logData);
 
-
-
+				
+				$newRequest = new Request([]);
+				$CreatePDF = $this->QuotePDF($newRequest,$QID);
+				
 				$QData = $this->getQuotes(['QID'=>$QID]);
 				if (count($QData) > 0) {
 					return ['status' => true,'message' => "Quotation Generated Successfully",'QData' => $QData[0]];
@@ -792,7 +794,6 @@ class chatController extends Controller{
 
 		if (count($FormData['QData']) > 0) {
 			$FormData['QData'] = $FormData['QData'][0];
-			
 			return view('app.transaction.quotation.pdf-view', $FormData);
 		} else {
 			return response()->json(['status' => 'error', 'message' => 'Quote not found'], 404);
@@ -802,22 +803,21 @@ class chatController extends Controller{
 	public function SaveQuotePDF(Request $req)
 	{
 		$QID = $req->input('QID');
-		$pdfFile = $req->file('pdf');
-
-		$filePath = 'uploads/quotations';
-		$fileName = $QID . '.pdf';
-
-		if (!file_exists(public_path($filePath))) {
-			mkdir(public_path($filePath), 0777, true);
-		}
-
-		$pdfPath = $pdfFile->storeAs($filePath, $fileName, 'public');
-
 		$quotation = DB::table($this->CurrFYDB.'tbl_quotation')->where('QID', $QID)->first();
+		
+		$dir = 'uploads/quotations/';
+		if (!file_exists( $dir)) {mkdir( $dir, 0777, true);}
+
+		$file = $req->file('pdf');
+		$fileName=$quotation->QNo;
+		$fileName1 =  $fileName. "." . $file->getClientOriginalExtension();
+		$file->move($dir, $fileName1);
+		$QuotePDF=$dir.$fileName1;
+
 
 		if ($quotation) {
 			DB::table($this->CurrFYDB.'tbl_quotation')->where('QID', $QID)->update([
-				'QuotePDF' => $pdfPath
+				'QuotePDF' => $QuotePDF
 			]);
 			
 			return response()->json(['status' => true, 'message' => 'PDF saved successfully.']);
