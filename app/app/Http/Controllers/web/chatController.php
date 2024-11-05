@@ -63,7 +63,7 @@ class chatController extends Controller{
 			->where('PSC.DFlag',0)->where('PSC.ActiveStatus','Active')
 			->where('PC.DFlag',0)->where('PC.ActiveStatus','Active')
 			->select('P.ProductName','P.ProductID','PC.PCID','PC.PCName','PSC.PSCID','PSC.PSCName','P.PRate','P.Description','UOM.UName','UOM.UCode', DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'))
-			->take(10)
+			->inRandomOrder()->take(12)
 			->get();
 		foreach ($products as $product) {
 			$imageUrl = $product->ProductImage;
@@ -180,8 +180,6 @@ class chatController extends Controller{
 			$sql.=" AND SLNO='".$MessageID."'";
 		}
 		$return= DB::SELECT($sql);
-        logger("json_encode(return)");
-        logger(json_encode($return));
 		for($i=0;$i<count($return);$i++){
 			if($return[$i]->Type=="Attachments"){
 				$return[$i]->Attachments=url('/'.$return[$i]->Attachments);
@@ -199,7 +197,6 @@ class chatController extends Controller{
 		return $return;
 	}
 	public function sendMessage(Request $req,$ChatID){
-        logger(json_encode($req->all()));
 		DB::beginTransaction();$SLNO="";
 		$status=false;
 		$LastMessageOn=now();
@@ -222,8 +219,6 @@ class chatController extends Controller{
             if(isset($req->isAdminChat) && ($req->isAdminChat === "1")){
                 DB::Table($this->SupportDB.'tbl_chat')->where('ChatID', $ChatID)->update(['isAdminChat' => 1]);
             }
-            logger("data");
-            logger($data);
 			$status=DB::Table($this->SupportDB.'tbl_chat_message')->insert($data);
 			if($status){
 				DocNum::updateDocNum(docTypes::ChatMessage->value);
@@ -255,11 +250,6 @@ class chatController extends Controller{
 			$req->MessageID=$SLNO;
 			$msg=$this->getChatHistory($req,$ChatID);
 			event(new chatApp($req->messageTo,json_encode(["type"=>"load_message","message"=>$msg])));
-            if ($req->messageTo !== "Admin") {
-                $fcmToken = DB::table('users')->where('UserID', $req->messageTo)->value('fcmToken');
-                logger("FcmToken: ".$fcmToken);
-                $this->sendNotification($LastMessage, $fcmToken);
-            }
 		}catch(Exception $e) {
 			$status=false;
 		}
@@ -269,11 +259,12 @@ class chatController extends Controller{
 			event(new chatApp($req->messageTo,json_encode(["type"=>"load_message","isRead"=>$req->messageFrom=="Admin"?0:1,"isAdminRead"=>$req->messageFrom=="Admin"?1:0,"messageFrom"=>$req->messageFrom,"message"=>$msg,"ChatID"=>$ChatID,"LastMessageOn"=>$LastMessageOn,"LastMessage"=>$LastMessage,"LastMessageOnHuman"=>Carbon::parse($LastMessageOn)->diffForHumans()])));
 
 			event(new chatApp($req->messageFrom,json_encode(["type"=>"load_message","isRead"=>$req->messageFrom=="Admin"?0:1,"isAdminRead"=>$req->messageFrom=="Admin"?1:0,"messageFrom"=>$req->messageFrom,"message"=>$msg,"ChatID"=>$ChatID,"LastMessageOn"=>$LastMessageOn,"LastMessage"=>$LastMessage,"LastMessageOnHuman"=>Carbon::parse($LastMessageOn)->diffForHumans()])));
+			Helper::sendNotification($req->messageFrom,$req->messageTo,"New message received",$req->message);
 		}else{
 			DB::rollback();
 		}
 		return ['status'=>$status,"SLNO"=>$SLNO,"LastMessage"=>$LastMessage,"LastMessageOn"=>$LastMessageOn,"LastMessageOnHuman"=>Carbon::parse($LastMessageOn)->diffForHumans()];
-	}
+	}/*
     protected function sendNotification($message, $fcmToken) {
         // Path to your Firebase service account JSON file
         $serviceAccountPath = storage_path('rpc-google-services.json');
@@ -305,7 +296,8 @@ class chatController extends Controller{
         } catch (\Exception $e) {
             logger('Error sending notification: ' . $e->getMessage());
         }
-    }
+    }*/
+    
 	public function sendAttachment(Request $req,$ChatID){
 		DB::beginTransaction();$SLNO="";
 		$status=false;
@@ -359,11 +351,6 @@ class chatController extends Controller{
 			$req->MessageID=$SLNO;
 			$msg=$this->getChatHistory($req,$ChatID);
 			event(new chatApp($req->messageTo,json_encode(["type"=>"load_message","message"=>$msg])));
-            if ($req->messageTo !== "Admin") {
-                $fcmToken = DB::table('users')->where('UserID', $req->messageTo)->value('fcmToken');
-                logger("FcmToken: ".$fcmToken);
-                $this->sendNotification("A new attachment has been received.", $fcmToken);
-            }
 		}catch(Exception $e) {
 			$status=false;
 		}
@@ -418,7 +405,7 @@ class chatController extends Controller{
 	}
 	
 	public function getQuotes($data=array()){
-		$sql ="SELECT Q.QID, Q.EnqID, Q.QNo, Q.QDate, Q.QExpiryDate, Q.QuotePDF, Q.CustomerID, Q.AID, C.CustomerName, C.MobileNo1, C.MobileNo2, C.Email, C.Address as BAddress, C.CountryID as BCountryID, BC.CountryName as BCountryName, ";
+		$sql ="SELECT Q.ID, Q.EnqID, Q.QNo, Q.QDate, Q.QExpiryDate, Q.QuotePDF, Q.CustomerID, Q.AID, C.CustomerName, C.MobileNo1, C.MobileNo2, C.Email, C.Address as BAddress, C.CountryID as BCountryID, BC.CountryName as BCountryName, ";
 		$sql.=" C.StateID as BStateID, BS.StateName as BStateName, C.DistrictID as BDistrictID, BD.DistrictName as BDistrictName, C.TalukID, BT.TalukName as BTalukName, C.CityID as BCityID, BCI.CityName as BCityName, C.PostalCodeID as BPostalCodeID, ";
 		$sql.=" BPC.PostalCode as BPostalCode, BC.PhoneCode, Q.ReceiverName, Q.ReceiverMobNo, Q.DAddress, Q.DCountryID, CO.CountryName as DCountryName, Q.DStateID, S.StateName as DStateName, Q.DDistrictID, D.DistrictName as DDistrictName, Q.DTalukID, ";
 		$sql.=" T.TalukName as DTalukName, Q.DCityID, CI.CityName as DCityName, Q.DPostalCodeID, PC.PostalCode as DPostalCode, Q.TaxAmount, Q.SubTotal, Q.DiscountType, Q.DiscountPercent as DiscountPercentage, Q.DiscountAmount, Q.CGSTAmount, ";
@@ -586,9 +573,7 @@ class chatController extends Controller{
 				$NewData=DB::table($this->CurrFYDB.'tbl_quotation_details as QD')->join($this->CurrFYDB.'tbl_quotation as Q','QD.QID','Q.QID')->where('QD.QID',$QID)->get();
 				$logData=array("Description"=>"Quotation Converted","ModuleName"=>$this->ActiveMenuName,"Action"=>"Insert","ReferID"=>$QID,"OldData"=>$OldData,"NewData"=>$NewData,"UserID"=>$this->UserID,"IP"=>$req->ip());
 				logs::Store($logData);
-
-
-
+				
 				$QData = $this->getQuotes(['QID'=>$QID]);
 				if (count($QData) > 0) {
 					return ['status' => true,'message' => "Quotation Generated Successfully",'QData' => $QData[0]];
@@ -792,7 +777,6 @@ class chatController extends Controller{
 
 		if (count($FormData['QData']) > 0) {
 			$FormData['QData'] = $FormData['QData'][0];
-			
 			return view('app.transaction.quotation.pdf-view', $FormData);
 		} else {
 			return response()->json(['status' => 'error', 'message' => 'Quote not found'], 404);
@@ -801,26 +785,30 @@ class chatController extends Controller{
 	
 	public function SaveQuotePDF(Request $req)
 	{
-		$QID = $req->input('QID');
-		$pdfFile = $req->file('pdf');
-
-		$filePath = 'uploads/quotations';
-		$fileName = $QID . '.pdf';
-
-		if (!file_exists(public_path($filePath))) {
-			mkdir(public_path($filePath), 0777, true);
-		}
-
-		$pdfPath = $pdfFile->storeAs($filePath, $fileName, 'public');
-
+		$QID = $req->input('QID');$ChatID="";
 		$quotation = DB::table($this->CurrFYDB.'tbl_quotation')->where('QID', $QID)->first();
+		
+		$dir = 'uploads/quotations/';
+		if (!file_exists( $dir)) {mkdir( $dir, 0777, true);}
+
+		$file = $req->file('pdf');
+		$fileName=$quotation->QNo;
+		$fileName1 =  $fileName. "." . $file->getClientOriginalExtension();
+		$file->move($dir, $fileName1);
+		$QuotePDF=$dir.$fileName1;
+
 
 		if ($quotation) {
 			DB::table($this->CurrFYDB.'tbl_quotation')->where('QID', $QID)->update([
-				'QuotePDF' => $pdfPath
+				'QuotePDF' => $QuotePDF
 			]);
-			
-			return response()->json(['status' => true, 'message' => 'PDF saved successfully.']);
+			event(new chatApp('Admin',json_encode(["type"=>"update_pdf_view","message"=>now(),"url"=>"","ChatID"=>$ChatID])));
+			$QData = $this->getQuotes(['QID'=>$QID]);
+			if (count($QData) > 0) {
+				return ['status' => true,'message' => "PDF Saved Successfully",'QData' => $QData[0]];
+			} else {
+				return ['status' => false,'message' => "No Quotation found",'QData' => []];
+			}
 		} else {
 			return response()->json(['status' => false, 'message' => 'Quotation not found.'], 404);
 		}

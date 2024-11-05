@@ -19,7 +19,8 @@ class firebaseController extends Controller{
             "appId" => config("app.FIREBASE_APP_ID"),
             "measurementId" => config("app.FIREBASE_MEASUREMENT_ID"),
         );
-        $UserID=Auth::check() ? Auth()->user()->UserID : "";
+        $UserID=Auth::check() ?  Auth()->user()->UserID : "";
+        $LoginType=Auth::check() ?  Auth()->user()->LoginType : "";
         $fcmToken="";
         if($UserID!=""){
             $t=DB::Table('users')->where('UserID',$req->UserID)->get();
@@ -27,7 +28,7 @@ class firebaseController extends Controller{
                 $fcmToken=$t[0]->WebFcmToken;
             }
         }
-        return array("firebaseConfig"=>$fConfig,"UserID"=>$UserID,"fcmToken"=>$fcmToken);
+        return array("firebaseConfig"=>$fConfig,"UserID"=>$UserID,"fcmToken"=>$fcmToken,"LoginType"=>$LoginType);
     }
 
     public function saveFCMToken(Request $req){

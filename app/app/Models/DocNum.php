@@ -70,7 +70,7 @@ class DocNum extends Model{
 
 		$result=DB::Table(Helper::getcurrfyDB().'tbl_auto_number')->where('DocType',$DocType)->first();
 		if($result){
-			$InvNo=$result->Prefix."/".$FYName."/".$result->Suffix."-".$result->CurrNum;
+			$InvNo=$result->Prefix."-".$FYName."-".$result->Suffix."-".$result->CurrNum;
 		}
 		return $InvNo;
 	}

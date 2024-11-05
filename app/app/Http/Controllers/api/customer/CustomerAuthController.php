@@ -1093,7 +1093,6 @@ class CustomerAuthController extends Controller{
     }
 
     public function sendMessage(Request $req){
-        logger(json_encode($req->all()));
         DB::beginTransaction();$SLNO="";
         $status=false;
         $LastMessageOn=now();
@@ -1132,8 +1131,6 @@ class CustomerAuthController extends Controller{
             if(isset($req->isAdminChat) && ($req->isAdminChat === "1")){
                 DB::Table($this->SupportDB.'tbl_chat')->where('ChatID', $ChatID)->update(['isAdminChat' => 1]);
             }
-            logger("data");
-            logger($data);
             $status=DB::Table($this->SupportDB.'tbl_chat_message')->insert($data);
             if($status){
                 DocNum::updateDocNum(docTypes::ChatMessage->value);
@@ -1174,6 +1171,7 @@ class CustomerAuthController extends Controller{
             $msg=$this->getChatMessage($ChatID,$SLNO);
             event(new chatApp($req->messageTo,json_encode(["type"=>"load_message","isRead"=>$req->messageFrom=="Admin"?0:1,"isAdminRead"=>$req->messageFrom=="Admin"?1:0,"messageFrom"=>$req->messageFrom,"message"=>$msg,"ChatID"=>$ChatID,"LastMessageOn"=>$LastMessageOn,"LastMessage"=>$LastMessage,"LastMessageOnHuman"=>Carbon::parse($LastMessageOn)->diffForHumans()])));
             event(new chatApp($req->messageFrom,json_encode(["type"=>"load_message","isRead"=>$req->messageFrom=="Admin"?0:1,"isAdminRead"=>$req->messageFrom=="Admin"?1:0,"messageFrom"=>$req->messageFrom,"message"=>$msg,"ChatID"=>$ChatID,"LastMessageOn"=>$LastMessageOn,"LastMessage"=>$LastMessage,"LastMessageOnHuman"=>Carbon::parse($LastMessageOn)->diffForHumans()])));
+            Helper::sendNotification($req->messageFrom,$req->messageTo,"New message received",$req->message);
         }else{
             DB::rollback();
         }

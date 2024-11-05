@@ -67,19 +67,32 @@
         transform: scale(1.2);
 		cursor: pointer;
     }
+
+	.modal-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+	}
+
 	.btnMinimizeModal {
-		padding: 0;
 		border: none;
 		background: none;
 		align-items: center;
 		justify-content: center;
-		margin-left: 58.5rem;
-
 	}
 
 	.btnMinimizeModal i {
 		font-size: 1em;
 		color: #9a9ea1;
+	}
+	#quotationResult {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		height: 100%;
+	}
+	.btnCloseModal {
+		filter: brightness(0) invert(1);
 	}
 
 
@@ -193,11 +206,16 @@
 <div class="modal fade chatModal" id="quoteModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="quoteModalLabel" aria-hidden="true">
 	<div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-lg modal-fullscreen-lg-down">
 		<div class="modal-content">
-            <div class="modal-header bg-dark">
-                <h1 class="modal-title fs-14" id="quoteModalLabel">Quotation</h1>
-                <button type="button" class="btnMinimizeModal me-2" title="Minimize"><i class="fa fa-window-minimize"></i></button>
-                <button type="button" class="btn-close btnCloseModal" aria-label="Close"></button>
-            </div>
+			<div class="modal-header bg-dark d-flex justify-content-between align-items-center">
+				<h1 class="modal-title fs-14" id="quoteModalLabel">Quotation</h1>
+				<div class="d-flex align-items-center">
+					<button type="button" class="btnMinimizeModal" title="Minimize">
+						<i class="fa fa-window-minimize"></i>
+					</button>
+					<button type="button" class="btn-close btnCloseModal" aria-label="Close"></button>
+				</div>
+			</div>
+			
 			<div class="modal-body">
 				<div class="wizard-4 wzdQuote" id="">
 					<ul class="anchor">
@@ -307,11 +325,10 @@
 							<div class="col-sm-12 ps-0 text-center">
 								<p>Kindly verify the entered details before generating the quotation.</p>
 								<button id="btnGenerateQuotation" type="button" class="btn btn-success mt-3">Generate Quotation</button>
-								<div id="quotationResult" class="mt-4" style="display: none; text-align: center;">
-									<div id="loadingAnimation" class="spinner-border text-primary" style="display: none;" role="status">
-										<span class="visually-hidden">Loading...</span>
+								<div id="quotationResult" style="display: none; text-align: center;">
+									<div id="loadingAnimation" class="spinner-border text-primary" style="display: none; margin-top:5%" role="status">
+										<span class="visually-hidden">Loading..</span>
 									</div>
-									<iframe id="pdfViewer" style="width:100%; height:500px; display: none;" frameborder="0"></iframe>
 								</div>
 							</div>
 						</div>
@@ -331,7 +348,7 @@
 		<div class="modal-content">
 			<div class="modal-header bg-dark">
 				<h1 class="modal-title fs-14" id="staticBackdropLabel">Send Product Details</h1>
-				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				<button type="button" class="btn-close btnCloseModal" data-bs-dismiss="modal" aria-label="Close"></button>
 			</div>
 			<div class="modal-body">
 				<div class="row justify-content-center">
@@ -431,7 +448,7 @@
 				cluster: "ap2",
 			});
 			var channel = pusher.subscribe("rpc-chat-582");
-				channel.bind('Admin', async function(data) {
+				channel.bind('Admin', async function(data) {console.log(data.message);
 					try {
 						data.message=JSON.parse(data.message);
 						if(data.message.type=="load_message" ){
@@ -450,6 +467,9 @@
 						}else if(data.message.type=="update_last_seen"  && activeChatID==data.message.ChatID){
 							$('.chat-box .chat-right-aside .chat .chat-header .name .last-seen > span').attr('data-time',data.message.message);
 							lastSeenFormat();
+						}else if(data.message.type=="load_message" ){
+						    
+							data.message.url;
 						}
 					} catch (error) {
 						console.log(error);
@@ -745,12 +765,13 @@
 			}
 			
 		}
-		const sendMessage=async(type="Text",message="",attachments={})=>{
+		const sendMessage=async(type="Text",message="",attachments="")=>{
+			attachments=type=="Products"?JSON.stringify(attachments):attachments;
 			$.ajax({
 				type:"post",
 				url:"{{route('admin.chat.send.message','_chatID_')}}".replace('_chatID_',activeChatID),
 				headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
-				data:{message,type,messageTo,messageFrom,attachments:JSON.stringify(attachments)},
+				data:{message,type,messageTo,messageFrom,attachments:attachments},
 				async:true,
 				success:async(response)=>{
 					$('#txtMessage').val('');
@@ -863,14 +884,24 @@
 
 		showStep(currentStep);
 
-		$("#btnNext").click(function () {
+		$("#btnNext").click(async function () {
 			$('.errors').text('');
 			if (validateStep(currentStep)) {
 				if (currentStep < totalSteps) {
 					currentStep++;
 					showStep(currentStep);
 				} else {
-					sendMessage("Text",$('#txtMessage').val());
+					let QuoteURL = $('#pdfThumbnail').data('quote-url');
+					if(QuoteURL){
+						let status = await sendMessage("Quotation","Quotation Sent",{QuoteURL});
+						if(status){
+							resetQuoteModal();
+							$('.btnCloseModal').click();
+						}
+					}else{
+						toastr.error("Please Generate Quotation", "Failed", {positionClass: "toast-top-right",containerId: "toast-top-right",showMethod: "slideDown",hideMethod: "slideUp",progressBar: !0});
+					}
+					
 				}
 			}
 		});
@@ -1051,6 +1082,8 @@
 			$("#lstQProducts").val("").trigger("change");
 			$(".errors").text("");
 			$(".btnQuoteStep").first().trigger("click");
+			$("#pdfThumbnail").remove();
+			$("#loadingAnimation").hide();
 		}
 
 		const SaveAddress = async () => {
@@ -1101,13 +1134,13 @@
 			$('#quoteModal').modal('hide');
 		});
 		$(document).on('click', '.btnCloseModal', function() {
-			$('#quoteModal').modal('hide');
+			$('.chatModal').modal('hide');
 			resetQuoteModal();
+			resetProductModal();
 		});
 		$(document).on('click', '#btnGenerateQuotation', function() {
 			$('#quotationResult').show();
 			$('#loadingAnimation').show();
-			$('#pdfViewer').hide();
 			let isValid = true;
 			let FormData = {
 				CustomerID: CustomerID,
@@ -1149,7 +1182,6 @@
 			}else if (FormData.ReceiverMobNo.length !== 10){
 				$("#txtMobileNo-err").html("Mobile Number must be 10 digit");isValid = false;
 			}
-			console.log(FormData);
 			if(isValid){
 				$.ajax({
 					url: "{{route('admin.chat.create.quote')}}",
@@ -1158,23 +1190,41 @@
 					method: 'POST',
 					data: FormData,
 					success: function(response) {
-						$('#loadingAnimation').hide();
+						if (response.status) {
+							const popup = window.open(
+								"{{ route('admin.transaction.quotes.pdf', ':qid') }}".replace(':qid', response.QData.QID),
+								"popupWindow",
+								"width=1,height=1,top=-1000,left=-1000"
+							);
+							
+							window.addEventListener("message", function(event) {
+								console.log("event");
+								if (event.origin !== window.location.origin) {
+									return;
+								}
 
-						if (response.status && response.QData) {
-							const pdfUrl = response.QData.QuotePDF;
-							const pdfThumbnail = `
-								<div style="text-align: center; cursor: pointer;" id="pdfThumbnail">
-									<i class="fas fa-file-pdf" style="font-size: 48px; color: #d9534f;"></i>
-									<p style="margin-top: 10px; font-size:40px">Click to View Quote</p>
-								</div>
-							`;
+								const responseData = event.data;
+								console.log(responseData);
+								if (responseData.status) {
+									$('#loadingAnimation').hide();
+									
+									const pdfUrl = $('#txtRootUrl').val() + "/" + responseData.QData.QuotePDF;
+									const pdfThumbnail = `
+										<div style="text-align: center; cursor: pointer;" id="pdfThumbnail" data-quote-url="${responseData.QData.QuotePDF}">
+											<i class="fas fa-file-pdf" style="font-size: 48px; color: #d9534f;"></i>
+											<p style="margin-top: 10px; font-size:20px">Click to View Quote</p>
+										</div>
+									`;
 
-							// Show the thumbnail and add it to #quotationResult
-							$('#quotationResult').show().html(pdfThumbnail);
+									$('#quotationResult').show().html(pdfThumbnail);
 
-							// Attach a click event to open the PDF in a new tab
-							$('#pdfThumbnail').on('click', function() {
-								window.open(pdfUrl, '_blank');
+									$('#pdfThumbnail').on('click', function() {
+										window.open(pdfUrl, '_blank');
+									});
+									popup.close();
+								} else {
+									alert("Failed to process the request. Please try again.");
+								}
 							});
 						} else {
 							alert("Failed to generate PDF. Please try again.");
@@ -1185,14 +1235,10 @@
 						alert("An error occurred. Please try again.");
 					}
 				});
+			}else{
+				$('#loadingAnimation').hide();
 			}
 		});
-
-		$(document).on('click', '#btnSendQuoteMessage', function() {
-			$('#quoteModal').modal('hide');
-			resetQuoteModal();
-		});
-
 		
 		$('#lstQProducts').on('change', function() {
 			const selectedProductID = $(this).val();
@@ -1287,9 +1333,9 @@
 				const productSubCategory = $(this).data('pscid').toString();
 				const productName = $(this).data('product').toLowerCase();
 
-				const matchesCategory = selectedCategory === "" || productCategory === selectedCategory;
-				const matchesSubCategory = selectedSubCategory === "" || productSubCategory === selectedSubCategory;
-				const matchesSearch = searchQuery === "" || productName.includes(searchQuery);
+				const matchesCategory = !selectedCategory || productCategory === selectedCategory;
+				const matchesSubCategory = !selectedSubCategory || productSubCategory === selectedSubCategory;
+				const matchesSearch = !searchQuery || productName.includes(searchQuery);
 
 				if (matchesCategory && matchesSubCategory && matchesSearch) {
 					$(this).show();
@@ -1327,11 +1373,20 @@
 			$subCategorySelect.select2('destroy');
 
 			if (selectedPCID) {
-				$subCategorySelect.find('option').prop('disabled', true);
-				$subCategorySelect.find('option[data-pcid="' + selectedPCID + '"]').prop('disabled', false);
+				$subCategorySelect.find('option').each(function() {
+					if ($(this).val() === "") {
+						$(this).prop('disabled', false);
+					} else {
+						$(this).prop('disabled', true);
+						if ($(this).data('pcid') === selectedPCID) {
+							$(this).prop('disabled', false);
+						}
+					}
+				});
 			} else {
-				$subCategorySelect.find('option').prop('disabled',false);
+				$subCategorySelect.find('option').prop('disabled', false);
 			}
+
 
 			$subCategorySelect.select2({
 				dropdownParent: $('#productModal'),
@@ -1392,27 +1447,20 @@
 				}
 			}
 		});
-		$(document).on('keyup','#txtMessage',function(){
-			let message=$('#txtMessage').val();
-			if(message!=""){
-				$('#btnSendMessage').show(100);
-			}else{
-				$('#btnSendMessage').hide(100);
+		$(document).on('input keydown', '#txtMessage', function(event) {
+			let message = $.trim($(this).val());
+			$('#btnSendMessage').toggle(message !== "");
+
+			if (event.key === 'Enter' && message !== "") {
+				sendMessage("Text", message);
 			}
 		});
-		$(document).on('keydown','#txtMessage',function(){
-			let message=$('#txtMessage').val();
-			if (event.key === 'Enter' && message!="") {
-				if($('#txtMessage').val()!=""){
-					sendMessage("Text",$('#txtMessage').val())
-				}
-			}
-		})
+
 		$(document).on('click','#btnSendMessage',function(){
-			if($('#txtMessage').val()!=""){
-				sendMessage("Text",$('#txtMessage').val())
+			let message = $.trim($(this).val());		
+			if (message !== "") {
+				sendMessage("Text", message);
 			}
-			
 		});
 		$(document).on('click','.btnDeleteChat',function(){
 			let ChatID=$(this).attr('data-id');
