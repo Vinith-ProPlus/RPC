@@ -65,7 +65,7 @@
 		<input type="hidden" style="display:none!important" id="txtRootUrl" value="{{url('/')}}/">
 		<textarea style="display: none;" id="txtThemeOption" >{{json_encode($Theme)}}</textarea>
 		<input type="hidden" name="txtActiveName" id="txtActiveName" value="{{$ActiveMenuName}}">
-		<div id="divsettings" class="display-none">{{json_encode($Settings)}}</div>
+		<div id="divsettings" style="display:none!important">{{json_encode($Settings)}}</div>
 		<div class="loader-wrapper">
 			<div class="theme-loader"></div>
 		</div>

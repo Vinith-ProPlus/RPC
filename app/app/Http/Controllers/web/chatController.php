@@ -297,7 +297,6 @@ class chatController extends Controller{
             logger('Error sending notification: ' . $e->getMessage());
         }
     }*/
-    
 	public function sendAttachment(Request $req,$ChatID){
 		DB::beginTransaction();$SLNO="";
 		$status=false;
@@ -364,9 +363,7 @@ class chatController extends Controller{
 		}
 		return ['status'=>$status,"SLNO"=>$SLNO,"LastMessage"=>$LastMessage,"LastMessageOn"=>$LastMessageOn,"LastMessageOnHuman"=>Carbon::parse($LastMessageOn)->diffForHumans()];
 	}
-
-    public function searchChatHistory(Request $req, $ChatID)
-    {
+    public function searchChatHistory(Request $req, $ChatID){
         $pageLimit = (int)$req->pageLimit ?: 20;
         $pageNo = (int)$req->pageNo ?: 1;
         $offset = ($pageNo - 1) * $pageLimit;
@@ -393,7 +390,6 @@ class chatController extends Controller{
 
         return response()->json(compact('searchResults', 'isLoadMore', 'totalMatches'));
     }
-
     public function deleteChat(Request $req,$ChatID){
 		DB::Table($this->SupportDB.'tbl_chat')->where('ChatID',$ChatID)->Update(['Status'=>'Deleted',"DeletedOn"=>now(),"DeletedBy"=>$this->UserID]);
 	}
@@ -403,9 +399,8 @@ class chatController extends Controller{
 	public function unblockChat(Request $req,$ChatID){
 		DB::Table($this->SupportDB.'tbl_chat')->where('ChatID',$ChatID)->Update(['Status'=>'Active',"UpdatedOn"=>now()]);
 	}
-	
 	public function getQuotes($data=array()){
-		$sql ="SELECT Q.ID, Q.EnqID, Q.QNo, Q.QDate, Q.QExpiryDate, Q.QuotePDF, Q.CustomerID, Q.AID, C.CustomerName, C.MobileNo1, C.MobileNo2, C.Email, C.Address as BAddress, C.CountryID as BCountryID, BC.CountryName as BCountryName, ";
+		$sql ="SELECT Q.QID, Q.EnqID, Q.QNo, Q.QDate, Q.QExpiryDate, Q.QuotePDF, Q.CustomerID, Q.AID, C.CustomerName, C.MobileNo1, C.MobileNo2, C.Email, C.Address as BAddress, C.CountryID as BCountryID, BC.CountryName as BCountryName, ";
 		$sql.=" C.StateID as BStateID, BS.StateName as BStateName, C.DistrictID as BDistrictID, BD.DistrictName as BDistrictName, C.TalukID, BT.TalukName as BTalukName, C.CityID as BCityID, BCI.CityName as BCityName, C.PostalCodeID as BPostalCodeID, ";
 		$sql.=" BPC.PostalCode as BPostalCode, BC.PhoneCode, Q.ReceiverName, Q.ReceiverMobNo, Q.DAddress, Q.DCountryID, CO.CountryName as DCountryName, Q.DStateID, S.StateName as DStateName, Q.DDistrictID, D.DistrictName as DDistrictName, Q.DTalukID, ";
 		$sql.=" T.TalukName as DTalukName, Q.DCityID, CI.CityName as DCityName, Q.DPostalCodeID, PC.PostalCode as DPostalCode, Q.TaxAmount, Q.SubTotal, Q.DiscountType, Q.DiscountPercent as DiscountPercentage, Q.DiscountAmount, Q.CGSTAmount, ";
@@ -588,7 +583,6 @@ class chatController extends Controller{
 			return array('status'=>false,'message'=>'Access denined');
 		}
 	}
-	
 	public function CreateQuote(Request $req){
 		if($this->general->isCrudAllow($this->CRUD,"add")==true){
 			DB::beginTransaction();
@@ -766,26 +760,22 @@ class chatController extends Controller{
 		}
 
 	}
-
-	public function QuotePDF(Request $req, $QID)
-	{
+	public function QuotePDF(Request $req, $QID){
 		$FormData = $this->general->UserInfo;
 		$FormData['PageTitle'] = 'Quotation';
 		$FormData['Settings'] = $this->Settings;
 		$FormData['QID'] = $QID;
+		$FormData['ChatID'] = $req->ChatID;
 		$FormData['QData'] = $this->getQuotes(["QID" => $QID]);
-
 		if (count($FormData['QData']) > 0) {
-			$FormData['QData'] = $FormData['QData'][0];
+			$FormData['QData'] = $FormData['QData'][0]; 
 			return view('app.transaction.quotation.pdf-view', $FormData);
 		} else {
 			return response()->json(['status' => 'error', 'message' => 'Quote not found'], 404);
 		}
 	}
-	
-	public function SaveQuotePDF(Request $req)
-	{
-		$QID = $req->input('QID');$ChatID="";
+	public function SaveQuotePDF(Request $req){ 
+		$QID = $req->input('QID');
 		$quotation = DB::table($this->CurrFYDB.'tbl_quotation')->where('QID', $QID)->first();
 		
 		$dir = 'uploads/quotations/';
@@ -797,15 +787,14 @@ class chatController extends Controller{
 		$file->move($dir, $fileName1);
 		$QuotePDF=$dir.$fileName1;
 
-
 		if ($quotation) {
 			DB::table($this->CurrFYDB.'tbl_quotation')->where('QID', $QID)->update([
 				'QuotePDF' => $QuotePDF
 			]);
-			event(new chatApp('Admin',json_encode(["type"=>"update_pdf_view","message"=>now(),"url"=>"","ChatID"=>$ChatID])));
+			event(new chatApp('Admin',json_encode(["type"=>"update_pdf_view","message"=>now(),"url"=>$QuotePDF,"ChatID"=>$req->ChatID])));
 			$QData = $this->getQuotes(['QID'=>$QID]);
 			if (count($QData) > 0) {
-				return ['status' => true,'message' => "PDF Saved Successfully",'QData' => $QData[0]];
+				return ['status' => true,'message' => "PDF Saved Successfully",'url' => $QuotePDF];
 			} else {
 				return ['status' => false,'message' => "No Quotation found",'QData' => []];
 			}
@@ -813,5 +802,4 @@ class chatController extends Controller{
 			return response()->json(['status' => false, 'message' => 'Quotation not found.'], 404);
 		}
 	}
-
 }

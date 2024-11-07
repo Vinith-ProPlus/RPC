@@ -1,5 +1,6 @@
 @extends('layouts.chat')
 @section('content')
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css">
 <style>
 	.select2-container .select2-selection__rendered img {
 		display: inline-block;
@@ -225,7 +226,7 @@
 						<li class="btnQuoteStep"><a href="#step-4" class="py-4">4. Generate PDF</a></li>
 					</ul>
 					
-					<div class="">
+					<div class="" style="margin-left:30% !important;">
 						<div id="step-1" class="content" style="left: 0px;">
 							<div class="row justify-content-center">
 								<div class="col-sm-12">
@@ -240,7 +241,6 @@
 									</div>
 								</div>
 								<div class="col-sm-12 my-3" id="divQProducts" >
-									
 								</div>
 							</div>
 						</div>
@@ -322,7 +322,7 @@
 							</div>
 						</div>
 						<div id="step-4" class="content" style="display: none;">
-							<div class="col-sm-12 ps-0 text-center">
+							<div class="col-sm-12 ps-0 text-center" id="divGenerate" >
 								<p>Kindly verify the entered details before generating the quotation.</p>
 								<button id="btnGenerateQuotation" type="button" class="btn btn-success mt-3">Generate Quotation</button>
 								<div id="quotationResult" style="display: none; text-align: center;">
@@ -330,6 +330,24 @@
 										<span class="visually-hidden">Loading..</span>
 									</div>
 								</div>
+							</div>
+							<div class="col-sm-12 ps-0 text-center" id="divPDFView" style="display:none">
+								<div class="d-flex justify-content-center">
+									<div class="pdf-view shadow">
+										<div class="pdf-image-container">
+											<img class="pdf-img" src="#" alt="">
+										</div>
+										<div class="pdf-content">
+											<div class="file-name"></div>
+											<div class="pdf-icon">
+												<img src="{{url('/assets/images/pdf-icon.png')}}" alt="">
+											</div>
+											
+										</div>
+										
+									</div>
+								</div>
+								<a href="#"  id="clickQuotate" data-quote-url="" data-fancybox data-type="iframe"><img style="width:200px;margin-top:30px;"  src="{{url('/assets/images/click-view.png')}}" alt=""></a>
 							</div>
 						</div>
 					</div>
@@ -417,10 +435,14 @@
 		</div>
 	</div>
 </div>
+<div style="display:none">
+<canvas id="pdf-canvas"></canvas>
+</div>
 @endsection
 @section('scripts')
 <script src="https://js.pusher.com/8.0.1/pusher.min.js"></script>{{-- Map Script --}}
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
 <script>
 	$(document).ready(function(){
 		var chatList=[];
@@ -439,7 +461,7 @@
 			$('#lstPCategory, #lstPSCategory').select2({
 				dropdownParent: $('#productModal'),
 			});
-
+			//$('#quoteModal').modal('show');
 		}
 		const pusherInit=async()=>{
 			Pusher.logToConsole = false;
@@ -467,14 +489,50 @@
 						}else if(data.message.type=="update_last_seen"  && activeChatID==data.message.ChatID){
 							$('.chat-box .chat-right-aside .chat .chat-header .name .last-seen > span').attr('data-time',data.message.message);
 							lastSeenFormat();
-						}else if(data.message.type=="load_message" ){
-						    
-							data.message.url;
+						}else if(data.message.type=="update_pdf_view" ){
+							let url="{{url('/')}}/"+data.message.url;
+							$('#clickQuotate').attr('href',url);
+							$('#clickQuotate').attr('data-quote-url',data.message.url);
+							const imageData=await pdfImage(url);
+							const filename = url.substring(url.lastIndexOf('/') + 1).split('?')[0];
+							$('.pdf-view img.pdf-img').attr('src',imageData);
+							$('.pdf-view .file-name').html(filename);
+						    $('#divGenerate').hide();
+							$('#divPDFView').show();
+							
 						}
 					} catch (error) {
 						console.log(error);
 					}
 				})
+		}
+		const pdfImage=async(pdfUrl)=>{
+			return await new Promise(async(resolve,reject)=>{
+				pdfjsLib.getDocument(pdfUrl).promise.then(function (pdf) {
+					// Get the first page
+					pdf.getPage(1).then(function (page) {
+						const scale = 1.5;
+						const viewport = page.getViewport({ scale: scale });
+						const canvas = document.getElementById('pdf-canvas');
+						const context = canvas.getContext('2d');
+						canvas.width = viewport.width;
+						canvas.height = viewport.height;
+
+						// Render PDF page into the canvas context
+						const renderContext = {
+							canvasContext: context,
+							viewport: viewport
+						};
+						page.render(renderContext).promise.then(function () {
+							// Get the image data from the canvas
+							const imageData = canvas.toDataURL('image/jpeg');
+							resolve(imageData);
+							// You can now use this image data in an <img> tag, or save it to a server
+							// For example: document.getElementById('image-preview').src = imageData;
+						});
+					});
+				});
+			});
 		}
 		const lastSeenFormat=async()=>{
 			// Get the data-time attribute from the specified element
@@ -891,9 +949,9 @@
 					currentStep++;
 					showStep(currentStep);
 				} else {
-					let QuoteURL = $('#pdfThumbnail').data('quote-url');
+					let QuoteURL = $('#clickQuotate').data('quote-url');
 					if(QuoteURL){
-						let status = await sendMessage("Quotation","Quotation Sent",{QuoteURL});
+						let status = await sendMessage("Quotation","Quotation Sent",QuoteURL);
 						if(status){
 							resetQuoteModal();
 							$('.btnCloseModal').click();
@@ -1112,7 +1170,6 @@
 			}
 			return Sstatus;
 		};
-
 		$(document).on('click', '#btnSaveAddress', async function () {
 			const result = await SaveAddress();
 			if (result) {
@@ -1120,7 +1177,6 @@
 				btnReset($('#btnSaveAddress'));
 			}
 		});
-
 		$('#quoteModal').on('shown.bs.modal', function () {
 			$('#lstQProducts').select2({
 				dropdownParent: $('#quoteModal'),
@@ -1129,7 +1185,6 @@
 				// width: '100%'
 			});
 		});
-
 		$(document).on('click', '.btnMinimizeModal', function() {
 			$('#quoteModal').modal('hide');
 		});
@@ -1191,20 +1246,16 @@
 					data: FormData,
 					success: function(response) {
 						if (response.status) {
-							const popup = window.open(
-								"{{ route('admin.transaction.quotes.pdf', ':qid') }}".replace(':qid', response.QData.QID),
-								"popupWindow",
-								"width=1,height=1,top=-1000,left=-1000"
-							);
-							
+							//let url="{{ route('admin.transaction.quotes.pdf', ':qid') }}".replace(':qid', response.QData.QID)+"?isPDF=1&chatID="+activeChatID;
+							//window.open(url, '_blank');
+							const popup = window.open("{{ route('admin.transaction.quotes.pdf', ':qid') }}".replace(':qid', response.QData.QID)+"?isPDF=1&chatID="+activeChatID,"popupWindow","width=797,height=1123,top=-1000,left=-1000");
+							/*
 							window.addEventListener("message", function(event) {
-								console.log("event");
 								if (event.origin !== window.location.origin) {
 									return;
 								}
 
 								const responseData = event.data;
-								console.log(responseData);
 								if (responseData.status) {
 									$('#loadingAnimation').hide();
 									
@@ -1226,6 +1277,7 @@
 									alert("Failed to process the request. Please try again.");
 								}
 							});
+							*/
 						} else {
 							alert("Failed to generate PDF. Please try again.");
 						}
@@ -1320,7 +1372,6 @@
 		});
 
 		// Product Modal
-
 		function filterProducts() {
 			const selectedCategory = $('#lstPCategory').val();
 			const selectedSubCategory = $('#lstPSCategory').val();
@@ -1420,10 +1471,7 @@
 				toastr.error("Please select any product", "Failed", {positionClass: "toast-top-right",containerId: "toast-top-right",showMethod: "slideDown",hideMethod: "slideUp",progressBar: !0});
 			}
 		});
-
 		// Map
-
-		
 		init();
 		$(document).on('click','#btnSearch',searchChatList);
 		$(document).on('click','#people-list > ul > li',function(){
