@@ -26,7 +26,7 @@ class GeneralAPIController extends Controller{
 		$this->tmpDB=Helper::getTmpDB();
 		$this->FileTypes=Helper::getFileTypes(array("category"=>array("Images","Documents")));
     }
-	
+
     public function getGoogleAuthSecret(request $req){
 		$return = [
 			'status' => true,
@@ -110,8 +110,8 @@ class GeneralAPIController extends Controller{
 		];
         return $return;
 	}
-	
-	
+
+
 	public function GetCategory(request $req){
 		$PCatagories = DB::Table('tbl_product_category')->where('ActiveStatus','Active')->where('DFlag',0)->select('PCName','PCID')->get()->toArray();
 		shuffle($PCatagories);
@@ -130,11 +130,11 @@ class GeneralAPIController extends Controller{
 			'status' => true,
 			'data' => DB::table('tbl_product_subcategory')->where('ActiveStatus', 'Active')->where('DFlag', 0)->whereIn('PCID', $PCIDArray)->get(),
 		];
-	
+
 		return $return;
 	}
-	
-	
+
+
 	public function GetProducts(request $req){
 		$return = [
 			'status' => true,
@@ -149,9 +149,9 @@ class GeneralAPIController extends Controller{
 		];
         return $return;
 	}
-	
+
 	public function tmpFileUpload(Request $req){
-		
+
 		//remove yesterday folder
 		$dir="uploads/tmp/".date("Ymd",strtotime("-1 days"))."/";
 		if (file_exists( $dir)) {
@@ -165,12 +165,12 @@ class GeneralAPIController extends Controller{
 		}
 		$dir="uploads/tmp/".date("Ymd")."/";
 		if (!file_exists( $dir)) {mkdir( $dir, 0777, true);}
-		
+
 		$allowedImageExtensions = ['jpg', 'jpeg', 'png'];
 		$allowedDocExtensions = ['pdf', 'doc', 'docx', 'txt','jpg', 'jpeg'];
 		$maxFileSize = 10 * 1024 * 1024; // 10 MB
 
-		if ($req->hasFile('image')) { 
+		if ($req->hasFile('image')) {
 			$file = $req->file('image');
 			$ext = strtolower($file->getClientOriginalExtension());
 			$size = $file->getSize();
@@ -223,7 +223,7 @@ class GeneralAPIController extends Controller{
 			$fileName = $rnd . "." . $originalExtension;
 			$fileName1 = $rnd . "-tmp." . $originalExtension;
 			file_put_contents($dir . $fileName1, $req->doc);
-		
+
 			$Data = array("uploadPath" => $dir . $fileName1, "fileName" => $fileName, "ext" => $originalExtension, "referData" => $req->referData);
 			return response()->json(['status' => true,'data' => $Data]);
 		}
@@ -247,7 +247,7 @@ class GeneralAPIController extends Controller{
         return response()->json(['status' => true,'data' => $Measurements]);
     }
 
-	
+
     public function getRejectReasonType(request $req){
 		$return = [
 			'status' => true,
@@ -297,7 +297,7 @@ class GeneralAPIController extends Controller{
 		];
         return $return;
 	}
-	
+
 	public function getBannerImages(request $req){
 		$BannerImages = DB::Table('tbl_banner_images')->where('BannerType','Mobile')->where('DFlag',0)->select('BannerType', DB::raw('CONCAT("' . url('/') . '/", BannerImage) AS BannerImage'))->get();
 		$return = [
@@ -345,7 +345,7 @@ class GeneralAPIController extends Controller{
         }
         return response()->json(['error' => 'Could not retrieve coordinates'], 500);
     }
-	
+
 	public function calculateDistance(Request $request){ return 1;
 		$client = new Client();
 
@@ -369,4 +369,8 @@ class GeneralAPIController extends Controller{
 
 		return response()->json(['distance_km' => $distanceInKm]);
 	}
+
+    public function getCompanyDetails(){
+        return collect(DB::Table('tbl_company_settings')->pluck('KeyValue', 'KeyName'));
+    }
 }
