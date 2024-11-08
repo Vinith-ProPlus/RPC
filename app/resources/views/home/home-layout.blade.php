@@ -775,9 +775,9 @@
 <script src="{{url('/')}}/assets/plugins/dataTable/js/dataTables.bootstrap5.min.js?r={{date('YmdHis')}}"></script>
 
 <script src="{{url('/')}}/assets/plugins/dataTable/js/dataTableExport.js?r={{date('YmdHis')}}"></script>
-<script src="https://www.gstatic.com/firebasejs/5.5.8/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/5.5.8/firebase-messaging.js"></script>
-<script src="{{ url('/assets/firebase.min.js') }}"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-messaging.js"></script>
+<script src="{{url('/assets/firebase.full.js')}}"></script>
 
 
 <script>

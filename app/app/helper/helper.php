@@ -13,6 +13,9 @@ use Session;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Request;
+use Kreait\Firebase\Factory;
+use Kreait\Firebase\Messaging\CloudMessage;
+use Kreait\Firebase\Exception\MessagingException;
 
 class helper{
 	public static function getMainDB(){
@@ -977,14 +980,105 @@ class helper{
 		$status = DB::table(self::getCurrFYDB().'tbl_notifications')->insert($Ndata);
 		if($status){
 			DocNum::updateDocNum("Notification",self::getCurrFYDB());
-			self::sendNotification($UserID,$Title,$Message);
+			//self::sendNotification($UserID,$Title,$Message);
 		}
 		return $status;
 	}
+	
+    public static function sendNotification($SendFromID,$UserID,$Title,$Message){
+		$SendFrom="Admin";
+		if($SendFromID!="Admin"){
+			$t=DB::Table('users')->where('UserID',$SendFromID)->get();
+			if(count($t)>0){
+				$SendFrom=$t[0]->Name;
+			}
+		}
+        $firebaseToken=array();
+        $sql="SELECT * FROM (Select Name,LoginType,IFNULL(fcmToken,'') as fcmToken From users where ActiveStatus=1 and DFlag=0 ";
+		if($UserID=="Admin"){
+			$sql.=" and LoginType='Admin'";
+		}else{
+			$sql.=" and UserID='".$UserID."'";
+		}
+		$sql.=" UNION ";
+		
+        $sql.="Select Name,LoginType,IFNULL(WebFcmToken,'') as fcmToken From users where ActiveStatus=1 and DFlag=0 ";
+		if($UserID=="Admin"){
+			$sql.=" and LoginType='Admin'";
+		}else{
+			$sql.=" and UserID='".$UserID."'";
+		}
+		$sql.=") as T WHERE fcmToken<>''";
+		
+        $result = DB::SELECT($sql);
+        foreach($result  as $user){
+			$serviceAccountPath = storage_path('rpc-google-services.json');
+			$firebase = (new Factory)->withServiceAccount($serviceAccountPath);
 
+			// Create FCM messaging
+			$messaging = $firebase->createMessaging(); // Use createMessaging() instead of getMessaging()
+
+			// Prepare notification data
+			$notification = [
+				'title' => $SendFrom,
+				'icon' => "https://builderssupply.in/assets/images/logo/logo.png",
+				'body' => $Message,
+			];
+
+			// Send the notification
+			try {
+				// Prepare the CloudMessage object
+				$cloudMessage = CloudMessage::withTarget('token', $user->fcmToken)->withNotification($notification);
+
+				// Send the notification
+				$status = $messaging->send($cloudMessage);
+			} catch (MessagingException $e) {
+				//logger('Error sending notification: ' . $e->getMessage());
+			} catch (\Exception $e) {
+				//logger('Error sending notification: ' . $e->getMessage());
+			}
+        }
+		/*
+        if(count($firebaseToken)>0){
+           $SERVER_API_KEY = 'AAAA4UOQJO0:APA91bHMI_Zrb_rqUJmDVkK0cizFtwnhaMVk-OcfFv7sZ8SR-oxGhkB8u2fLl-9RzWPbB65DVnENJmStK2zx3_GJA2gqOBMMt-WNxDld7GnXaebM4OKvgkH7FBn3my5U8sIFBZEfwyU-';
+      
+            $data = [
+                "registration_ids" => $firebaseToken,
+                "notification" => [
+                    "title" => $Title,
+                    "body" => $Messase,  
+                ]
+            ];
+            $dataString = json_encode($data);
+            
+            $headers = [
+                'Authorization: key=' . $SERVER_API_KEY,
+                'Content-Type: application/json',
+            ];
+        
+            $ch = curl_init();
+          
+            curl_setopt($ch, CURLOPT_URL, 'https://fcm.googleapis.com/fcm/send');
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $dataString);
+                   
+            $response = curl_exec($ch);
+            return $response;
+        }
+		*/
+    }
+    /*
     public static function sendNotification($UserID,$Title,$Message){
         $firebaseToken=array();
-        $sql="Select IFNULL(fcmToken,'') as fcmToken,IFNULL(WebFcmToken,'') as WebFcmToken From users where ActiveStatus=1 and DFlag=0 and UserID='".$UserID."'";
+        $sql="Select IFNULL(fcmToken,'') as fcmToken,IFNULL(WebFcmToken,'') as WebFcmToken From users where ActiveStatus=1 and DFlag=0 ";
+		if($UserID=="Admin"){
+			$sql.=" and LoginType='Admin'";
+		}else{
+			$sql.=" and UserID='".$UserID."'";
+		}
         $result = DB::SELECT($sql);
         for($i=0;$i<count($result);$i++){
             if($result[$i]->fcmToken!=""){
@@ -996,7 +1090,7 @@ class helper{
 
         }
         if(count($firebaseToken)>0){
-           $SERVER_API_KEY = config('app.firebase_server_key');
+           $SERVER_API_KEY = 'AAAA4UOQJO0:APA91bHMI_Zrb_rqUJmDVkK0cizFtwnhaMVk-OcfFv7sZ8SR-oxGhkB8u2fLl-9RzWPbB65DVnENJmStK2zx3_GJA2gqOBMMt-WNxDld7GnXaebM4OKvgkH7FBn3my5U8sIFBZEfwyU-';
 
             $data = [
                 "registration_ids" => $firebaseToken,
@@ -1022,10 +1116,11 @@ class helper{
             curl_setopt($ch, CURLOPT_POSTFIELDS, $dataString);
 
             $response = curl_exec($ch);
+            dd($response);
             return $response;
         }
     }
-
+    */
 	public static function getFYDBInfo($data=null){
 		if($data==null){
 			$data=['FYDBName' => null,"Year"=>null,"FromYear"=>null,"ToYear"=>null,"isLedgerView"=>false];

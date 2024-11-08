@@ -65,7 +65,7 @@
 		<input type="hidden" style="display:none!important" id="txtRootUrl" value="{{url('/')}}/">
 		<textarea style="display: none;" id="txtThemeOption" >{{json_encode($Theme)}}</textarea>
 		<input type="hidden" name="txtActiveName" id="txtActiveName" value="{{$ActiveMenuName}}">
-		<div id="divsettings" class="display-none">{{json_encode($Settings)}}</div>
+		<div id="divsettings" style="display:none!important">{{json_encode($Settings)}}</div>
 		<div class="loader-wrapper">
 			<div class="theme-loader"></div>
 		</div>
@@ -569,9 +569,9 @@
 		<script src="{{url('/')}}/assets/js/form-wizard/form-wizard-two.js"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox.min.js"></script>
 		<script src="{{url('/')}}/assets/js/lightbox/js/lightgallery.js?r={{date('dmyHis')}}"></script>
-		<script src="https://www.gstatic.com/firebasejs/5.5.8/firebase-app.js"></script>
-		<script src="https://www.gstatic.com/firebasejs/5.5.8/firebase-messaging.js"></script>
-		<script src="{{url('/assets/firebase.min.js')}}"></script>
+		<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+		<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-messaging.js"></script>
+		<script src="{{url('/assets/firebase.full.js')}}"></script>
 
 
 		<script src="{{url('/')}}/assets/plugins/ckeditor/ckeditor.js"></script>

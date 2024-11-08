@@ -104,33 +104,19 @@ class QuotationController extends Controller{
 			return view('errors.403');
 		}
 	}
-	public function QuotePDF(Request $req, $QID)
-	{
+	public function QuotePDF(Request $req, $QID){
 		$FormData = $this->general->UserInfo;
 		$FormData['PageTitle'] = $this->PageTitle;
 		$FormData['Settings'] = $this->Settings;
 		$FormData['QID'] = $QID;
+		$FormData['ChatID'] = $req->chatID;
+		$FormData['isPDF'] = $req->isPDF;
 		$FormData['QData'] = $this->getQuotes(["QID" => $QID]);
 
 		if (count($FormData['QData']) > 0) {
-			$FormData['QData'] = $FormData['QData'][0];
+			$FormData['QData'] = $FormData['QData'][0]; //dd($FormData['QData']);
 			
 			return view('app.transaction.quotation.pdf-view', $FormData);
-
-			/* $pdf = Pdf::loadView('app.transaction.quotation.pdf-view', $FormData)->setPaper('a4', 'landscape');
-			return $pdf;
-			$fileName = $QID . '.pdf';
-			$dir = "uploads/transaction/quotation/" . $QID . "/";
-			$filePath = $dir . $fileName;
-			if (!file_exists($dir)) {mkdir($dir, 0777, true);}
-
-			file_put_contents(public_path($filePath), $pdf->output());
-
-			// Return the file path
-			return response()->json([
-				'status' => 'success',
-				'path' => $filePath,
-			]); */
 		} else {
 			return response()->json(['status' => 'error', 'message' => 'Quote not found'], 404);
 		}
@@ -734,11 +720,14 @@ class QuotationController extends Controller{
 		$result=DB::SELECT($sql);
 		for($i=0;$i<count($result);$i++){
 			$result[$i]->AdditionalCostData=unserialize($result[$i]->AdditionalCostData);
-			$sql="SELECT QD.DetailID, QD.QID, QD.VQDetailID, QD.ProductID, P.ProductName, P.Decimals, P.HSNSAC, P.UID, U.UCode, U.UName, QD.Qty, QD.Price, QD.TaxType, QD.TaxPer, QD.Taxable, QD.DiscountType, QD.DiscountPer, QD.DiscountAmt, QD.TaxAmt, QD.CGSTPer, QD.SGSTPer, QD.IGSTPer, QD.CGSTAmt, QD.SGSTAmt, QD.IGSTAmt, QD.TotalAmt, QD.VendorID, V.VendorName, QD.isCancelled, QD.CancelledBy, QD.CancelledOn, QD.ReasonID, RR.RReason, QD.RDescription  ";
+			$sql="SELECT QD.DetailID, QD.QID, QD.VQDetailID, QD.ProductID, P.ProductName, P.ProductImage, P.Decimals, P.HSNSAC, P.UID, U.UCode, U.UName, QD.Qty, QD.Price, QD.TaxType, QD.TaxPer, QD.Taxable, QD.DiscountType, QD.DiscountPer, QD.DiscountAmt, QD.TaxAmt, QD.CGSTPer, QD.SGSTPer, QD.IGSTPer, QD.CGSTAmt, QD.SGSTAmt, QD.IGSTAmt, QD.TotalAmt, QD.VendorID, V.VendorName, QD.isCancelled, QD.CancelledBy, QD.CancelledOn, QD.ReasonID, RR.RReason, QD.RDescription  ";
 			$sql.=" FROM ".$this->CurrFYDB."tbl_quotation_details as QD LEFT JOIN tbl_products as P ON P.ProductID=QD.ProductID LEFT JOIN tbl_uom as U ON U.UID=P.UID LEFT JOIN tbl_reject_reason as RR ON RR.RReasonID=QD.ReasonID LEFT JOIN tbl_vendors as V ON V.VendorID=QD.VendorID ";
 			$sql.=" Where QD.QID='".$result[$i]->QID."' and QD.isCancelled=0 ";
 			$result[$i]->Details=DB::SELECT($sql);
 			for($j=0;$j<count($result[$i]->Details);$j++){
+				
+				$result[$i]->Details[$j]->ProductImage=(file_exists($result[$i]->Details[$j]->ProductImage))?url('/').".".$result[$i]->Details[$j]->ProductImage:url('/')."/assets/images/no-image-b.png";
+
 				$result[$i]->Details[$j]->VQuoteID="";
 				$result1=DB::Table($this->CurrFYDB.'tbl_vendor_quotation')->Where('EnqID',$result[$i]->EnqID)->where('VendorID',$result[$i]->Details[$j]->VendorID)->get();
 				if(count($result1)>0){

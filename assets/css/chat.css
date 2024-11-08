@@ -522,3 +522,47 @@
 .load-chat-more.show{
     display: block;
 }
+.pdf-view{
+    margin-top:50px;
+    border-radius: 10px;
+    background: #0D2153;
+    max-width: 350px;
+    width: 350px;
+}
+.pdf-view .pdf-image-container{
+    width: 350px;
+    max-height: 200px;
+    overflow: hidden;
+}
+.pdf-view img.pdf-img{
+    width: 350px;
+    border-radius: 10px;
+}
+.pdf-content{    
+    width: 100%;
+    overflow: hidden;
+    min-height: 55px;
+    display: flex;
+    align-items: center;
+    padding: 5px 0px 5px 10px;
+    position: relative;
+}
+.pdf-content .file-name{
+    width: calc(100% - 50px);
+    max-width: calc(100% - 50px);
+    color: #fff;
+    text-align: left;
+    font-size: 13px;
+    font-weight: 800;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.pdf-content .pdf-icon{
+    width: 40px;
+    color: #ff0000;
+}
+.pdf-content .pdf-icon img{
+    width: 25px;
+    height: 30px;
+}
