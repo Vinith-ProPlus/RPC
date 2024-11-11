@@ -473,7 +473,7 @@
 				cluster: "ap2",
 			});
 			var channel = pusher.subscribe("rpc-chat-582");
-				channel.bind('Admin', async function(data) {console.log(data.message);
+				channel.bind('Admin', async function(data) {
 					try {
 						data.message=JSON.parse(data.message);
 						if(data.message.type=="load_message" ){
@@ -564,7 +564,7 @@
 				const weekday = date.toLocaleDateString('en-US', { weekday: 'short' });
 				formattedDate =`${weekday} ${formattedTime}`;
 			} else {
-				const formattedDate = date.toLocaleDateString('en-US', { year: '2-digit', month: '2-digit', day: '2-digit' });
+				formattedDate = date.toLocaleDateString('en-US', { year: '2-digit', month: '2-digit', day: '2-digit' });
 				formattedDate =`${formattedDate} ${formattedTime}`;
 			}
 			
@@ -777,7 +777,7 @@
 				}
 			});
 		}
-		const addChatMessages=async(data,isAppend=false)=>{ 
+		const addChatMessages=async(data,isAppend=false)=>{
 			let html='';
 			if(data.Type=="Attachment"){
 				let attchmentType=await getFileType(data.Attachments);
@@ -1045,20 +1045,6 @@
 			$(this).addClass("active");
 		});
 
-		const formatOption = async(option)=> {
-            if (!option.id) {
-                return option.text;
-            }
-			
-            const imgUrl = $(option.element).data('image');
-			console.log(imgUrl);
-			
-            const img = `<img src="${imgUrl}" alt="${option.text}" style="width: 100px; height: 100px; margin-right: 10px;">`;
-            const text = `<span>${option.text}</span>`;
-
-            return $(`<span>${img} ${text}</span>`);
-        }
-
 		function stripHtmlTags(html) {
 			const div = document.createElement("div");
 			div.innerHTML = html;
@@ -1185,9 +1171,6 @@
 		$('#quoteModal').on('shown.bs.modal', function () {
 			$('#lstQProducts').select2({
 				dropdownParent: $('#quoteModal'),
-				// templateResult: formatOption,
-				// templateSelection: formatOption,
-				// width: '100%'
 			});
 		});
 		$(document).on('click', '.btnMinimizeModal', function() {

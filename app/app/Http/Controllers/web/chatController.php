@@ -181,7 +181,7 @@ class chatController extends Controller{
 		}
 		$return= DB::SELECT($sql);
 		for($i=0;$i<count($return);$i++){
-			if($return[$i]->Type=="Attachments" || $return[$i]->Type=="Quotation" ){
+			if($return[$i]->Type=="Attachment" || $return[$i]->Type=="Quotation" ){
 				$return[$i]->Attachments=url('/'.$return[$i]->Attachments);
 			}
 
@@ -447,7 +447,7 @@ class chatController extends Controller{
 				$EnqData = DB::table($this->CurrFYDB.'tbl_enquiry_details as ED')->join($this->CurrFYDB.'tbl_enquiry as E','E.EnqID','ED.EnqID')->where('ED.EnqID',$EnqID)->get();
 				$FinalQuote = json_decode($req->FinalQuote);
 				$AdditionalCostData = json_decode($req->AdditionalCost);
-				$AdditionalCost = $req->AddCost;
+				$AdditionalCost = $req->AddCost ?? 0;
 				$QData = DB::table($this->CurrFYDB.'tbl_quotation')->where('EnqID',$EnqID)->first();
 				$QID = $QData->QID ?? null;
 				if(!$QData){
@@ -631,7 +631,6 @@ class chatController extends Controller{
 						}
 					}
 					$ChatVendorID = $this->Settings['chat-vendor'];
-					logger($ChatVendorID);
 					$VendorID = DB::table('tbl_vendors')->where('VendorID', $ChatVendorID)->where('DFlag',0)->where('ActiveStatus','Active')->value('VendorID');
 					if(!$VendorID){
 						return ['status' => false, 'message' =>'RPC Vendor not found'];
@@ -775,8 +774,6 @@ class chatController extends Controller{
 	public function SaveQuotePDF(Request $req)
 	{
 		$QID = $req->input('QID');$ChatID=$req->CID;
-		logger('QID' . $QID );
-		logger('ChatID' . $ChatID );
 		$quotation = DB::table($this->CurrFYDB.'tbl_quotation')->where('QID', $QID)->first();
 		
 		$dir = 'uploads/quotations/';
