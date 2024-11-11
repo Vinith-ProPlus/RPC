@@ -302,7 +302,7 @@
             //item.ProductImage=(item.ProductImage!=null&&item.ProductImage!="")?"{{url('/')}}"+item.ProductImage:"{{url('/assets/images/no-image-b.png')}}";
             
 			// Create a new image element
-            const imgElement = $('<img>').attr('src', item.ProductImage);
+            const imgElement = $('<img>').attr('src', item.ProductImage).css('border-radius', '2px');
             
 		    // Create a promise that resolves when the image loads
 			const imgLoadPromise = new Promise((resolve, reject) => {imgElement.on('load', resolve);imgElement.on('error', reject);});
@@ -404,10 +404,11 @@
             headers: { 'X-CSRF-Token': $('meta[name=_token]').attr('content') },
             dataType: "json",
             data: formData,
-            processData: false, // Important for FormData
-            contentType: false, // Important for FormData
+            processData: false,
+            contentType: false,
             success: function(response) {
                 if (response.status) {
+                    // window.opener.postMessage(response, window.location.origin);
                     window.close();
                 } else {
                     alert("Failed to save the PDF. Please try again.");

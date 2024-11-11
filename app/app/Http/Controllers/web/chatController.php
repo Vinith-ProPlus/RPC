@@ -155,7 +155,7 @@ class chatController extends Controller{
 		$sql.=" LIMIT $offset, $pageLimit";
 		$return= DB::SELECT($sql);
 		for($i=0;$i<count($return);$i++){
-			if($return[$i]->Type=="Attachment"){
+			if($return[$i]->Type=="Attachment" || $return[$i]->Type=="Quotation"){
 				$return[$i]->Attachments=url('/'.$return[$i]->Attachments);
 			}
 
@@ -181,7 +181,7 @@ class chatController extends Controller{
 		}
 		$return= DB::SELECT($sql);
 		for($i=0;$i<count($return);$i++){
-			if($return[$i]->Type=="Attachments"){
+			if($return[$i]->Type=="Attachments" || $return[$i]->Type=="Quotation" ){
 				$return[$i]->Attachments=url('/'.$return[$i]->Attachments);
 			}
 
@@ -237,10 +237,10 @@ class chatController extends Controller{
 				}else if($req->type=="Attachment"){
 					$LastMessage="sent a attachment file";
 				}else if($req->type=="Quotation"){
-					$LastMessage="sent a Quotattion";
+					$LastMessage="sent a quotation";
 				}else if($req->type=="Products"){
 					$data['LastMessage']=$req->message;
-					$LastMessage="sent Products links";
+					$LastMessage="sent products links";
 				}
 				$data['LastMessage']=$LastMessage;
 				$status=DB::Table($this->SupportDB.'tbl_chat')->where('ChatID',$ChatID)->update($data);
@@ -355,7 +355,7 @@ class chatController extends Controller{
 		}
 		if($status==true){
 			DB::commit();
-			$msg=$this->getChatMessage($ChatID,$SLNO);$msg=$this->getChatMessage($ChatID,$SLNO);
+			$msg=$this->getChatMessage($ChatID,$SLNO);
 			event(new chatApp($req->messageTo,json_encode(["type"=>"load_message","isRead"=>$req->messageFrom=="Admin"?0:1,"isAdminRead"=>$req->messageFrom=="Admin"?1:0,"messageFrom"=>$req->messageFrom,"message"=>$msg,"ChatID"=>$ChatID,"LastMessageOn"=>$LastMessageOn,"LastMessage"=>$LastMessage,"LastMessageOnHuman"=>Carbon::parse($LastMessageOn)->diffForHumans()])));
 			event(new chatApp($req->messageFrom,json_encode(["type"=>"load_message","isRead"=>$req->messageFrom=="Admin"?0:1,"isAdminRead"=>$req->messageFrom=="Admin"?1:0,"messageFrom"=>$req->messageFrom,"message"=>$msg,"ChatID"=>$ChatID,"LastMessageOn"=>$LastMessageOn,"LastMessage"=>$LastMessage,"LastMessageOnHuman"=>Carbon::parse($LastMessageOn)->diffForHumans()])));
 		}else{
@@ -447,12 +447,7 @@ class chatController extends Controller{
 				$EnqData = DB::table($this->CurrFYDB.'tbl_enquiry_details as ED')->join($this->CurrFYDB.'tbl_enquiry as E','E.EnqID','ED.EnqID')->where('ED.EnqID',$EnqID)->get();
 				$FinalQuote = json_decode($req->FinalQuote);
 				$AdditionalCostData = json_decode($req->AdditionalCost);
-				$AdditionalCost = 0;
-				if(is_array($AdditionalCostData)){
-					foreach($AdditionalCostData as $cost){
-						$AdditionalCost += $cost->ACost;
-					}
-				}
+				$AdditionalCost = $req->AddCost;
 				$QData = DB::table($this->CurrFYDB.'tbl_quotation')->where('EnqID',$EnqID)->first();
 				$QID = $QData->QID ?? null;
 				if(!$QData){
@@ -749,7 +744,7 @@ class chatController extends Controller{
 				->where('VQ.EnqID',$EnqID)
 				->select('VQD.DetailID','VQ.VQuoteID','VQD.ProductID','VQD.Qty','VQD.Price as FinalPrice','VQ.VendorID')
 				->get();
-				$newRequest = new Request(['FinalQuote' => $FinalQuote]);
+				$newRequest = new Request(['FinalQuote' => $FinalQuote,'AddCost'=>$req->AddCost]);
 				return $this->QuoteConvert($newRequest, $EnqID);
 			}else{
 				DB::rollback();
@@ -760,12 +755,14 @@ class chatController extends Controller{
 		}
 
 	}
-	public function QuotePDF(Request $req, $QID){
+
+	public function QuotePDF(Request $req, $QID,$CID)
+	{
 		$FormData = $this->general->UserInfo;
 		$FormData['PageTitle'] = 'Quotation';
 		$FormData['Settings'] = $this->Settings;
 		$FormData['QID'] = $QID;
-		$FormData['ChatID'] = $req->ChatID;
+		$FormData['CID'] = $CID;
 		$FormData['QData'] = $this->getQuotes(["QID" => $QID]);
 		if (count($FormData['QData']) > 0) {
 			$FormData['QData'] = $FormData['QData'][0]; 
@@ -774,8 +771,12 @@ class chatController extends Controller{
 			return response()->json(['status' => 'error', 'message' => 'Quote not found'], 404);
 		}
 	}
-	public function SaveQuotePDF(Request $req){ 
-		$QID = $req->input('QID');
+	
+	public function SaveQuotePDF(Request $req)
+	{
+		$QID = $req->input('QID');$ChatID=$req->CID;
+		logger('QID' . $QID );
+		logger('ChatID' . $ChatID );
 		$quotation = DB::table($this->CurrFYDB.'tbl_quotation')->where('QID', $QID)->first();
 		
 		$dir = 'uploads/quotations/';
@@ -791,10 +792,22 @@ class chatController extends Controller{
 			DB::table($this->CurrFYDB.'tbl_quotation')->where('QID', $QID)->update([
 				'QuotePDF' => $QuotePDF
 			]);
-			event(new chatApp('Admin',json_encode(["type"=>"update_pdf_view","message"=>now(),"url"=>$QuotePDF,"ChatID"=>$req->ChatID])));
+
+			$newRequest = new Request(
+				[
+					"type"=>"update_pdf_view",
+					"message"=>"Quotation sent",
+					"QuoteURL"=>$QuotePDF,
+					"messageFrom"=>'Admin',
+					"messageTo"=>DB::table($this->SupportDB.'tbl_chat')->where('ChatID',$ChatID)->value('sendFrom'),
+				]
+			);
+			// $this->sendQuotation($newRequest, $ChatID);
+
+			event(new chatApp('Admin',json_encode(["type"=>"update_pdf_view","message"=>"Quotation Sent","url"=>$QuotePDF,"ChatID"=>$ChatID])));
 			$QData = $this->getQuotes(['QID'=>$QID]);
 			if (count($QData) > 0) {
-				return ['status' => true,'message' => "PDF Saved Successfully",'url' => $QuotePDF];
+				return ['status' => true,'message' => "PDF Saved Successfully",'QData' => $QData[0]];
 			} else {
 				return ['status' => false,'message' => "No Quotation found",'QData' => []];
 			}

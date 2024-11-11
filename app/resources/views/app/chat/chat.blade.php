@@ -260,7 +260,7 @@
 										<input type="number" class="form-control" id="txtAddCost" placeholder="Additional Cost">
 									</div>
 									</div>
-									<div class="my-3 row form-group justify-content-center">
+									<div class="my-3 row form-group justify-content-center d-none">
 									<label class="col-sm-3 col-form-label" for="txtDiscount">Discount</label>
 									<div class="col-sm-6">
 										<input type="number" class="form-control" id="txtDiscount" placeholder="Discount Amount">
@@ -326,10 +326,13 @@
 								<p>Kindly verify the entered details before generating the quotation.</p>
 								<button id="btnGenerateQuotation" type="button" class="btn btn-success mt-3">Generate Quotation</button>
 								<div id="quotationResult" style="display: none; text-align: center;">
-									<div id="loadingAnimation" class="spinner-border text-primary" style="display: none; margin-top:5%" role="status">
+									<div id="" class="spinner-border text-primary divLoading" style="display: none; margin-top:5%" role="status">
 										<span class="visually-hidden">Loading..</span>
 									</div>
 								</div>
+							</div>
+							<div class="col-sm-12 text-center mt-3 divLoading" style="display: none;">
+								<p id="loadingText" style="font-size: 16px; color: #007bff;"></p>
 							</div>
 							<div class="col-sm-12 ps-0 text-center" id="divPDFView" style="display:none">
 								<div class="d-flex justify-content-center">
@@ -347,7 +350,7 @@
 										
 									</div>
 								</div>
-								<a href="#"  id="clickQuotate" data-quote-url="" data-fancybox data-type="iframe"><img style="width:200px;margin-top:30px;"  src="{{url('/assets/images/click-view.png')}}" alt=""></a>
+								<a href="#" id="clickQuotate" data-quote-url="" data-fancybox data-type="iframe"><img style="width:200px;margin-top:30px;"  src="{{url('/assets/images/click-view.png')}}" alt=""></a>
 							</div>
 						</div>
 					</div>
@@ -497,7 +500,8 @@
 							const filename = url.substring(url.lastIndexOf('/') + 1).split('?')[0];
 							$('.pdf-view img.pdf-img').attr('src',imageData);
 							$('.pdf-view .file-name').html(filename);
-						    $('#divGenerate').hide();
+						    // $('#divGenerate').hide();
+						    $('.divLoading').hide();
 							$('#divPDFView').show();
 							
 						}
@@ -1132,16 +1136,17 @@
 		
 		function resetQuoteModal() {
 			$("#step-1 input, #step-1 select").val("").trigger("change");
-			$("#step-2 input, #step-2 textarea").val("");
 			$("#divQProducts").html("");
-			$("#step-3 input, #step-3 select").val("").trigger("change");
+			$("#txtAddCost, #txtDiscount, #txtPaymentTerms, #txtAdditionalInfo").val("");
 			$("#step-4").find("input, textarea").val("");
 
 			$("#lstQProducts").val("").trigger("change");
 			$(".errors").text("");
 			$(".btnQuoteStep").first().trigger("click");
 			$("#pdfThumbnail").remove();
-			$("#loadingAnimation").hide();
+			$("#divPDFView").hide();
+			$(".divLoading").hide();
+			// $("#divGenerate").show();
 		}
 
 		const SaveAddress = async () => {
@@ -1194,8 +1199,10 @@
 			resetProductModal();
 		});
 		$(document).on('click', '#btnGenerateQuotation', function() {
+			$('#divPDFView').hide();
 			$('#quotationResult').show();
-			$('#loadingAnimation').show();
+			$('#loadingText').text('Creating Quote. please wait...');
+			$('.divLoading').show();
 			let isValid = true;
 			let FormData = {
 				CustomerID: CustomerID,
@@ -1246,49 +1253,24 @@
 					data: FormData,
 					success: function(response) {
 						if (response.status) {
-							//let url="{{ route('admin.transaction.quotes.pdf', ':qid') }}".replace(':qid', response.QData.QID)+"?isPDF=1&chatID="+activeChatID;
-							//window.open(url, '_blank');
-							const popup = window.open("{{ route('admin.transaction.quotes.pdf', ':qid') }}".replace(':qid', response.QData.QID)+"?isPDF=1&chatID="+activeChatID,"popupWindow","width=797,height=1123,top=-1000,left=-1000");
-							/*
-							window.addEventListener("message", function(event) {
-								if (event.origin !== window.location.origin) {
-									return;
-								}
-
-								const responseData = event.data;
-								if (responseData.status) {
-									$('#loadingAnimation').hide();
-									
-									const pdfUrl = $('#txtRootUrl').val() + "/" + responseData.QData.QuotePDF;
-									const pdfThumbnail = `
-										<div style="text-align: center; cursor: pointer;" id="pdfThumbnail" data-quote-url="${responseData.QData.QuotePDF}">
-											<i class="fas fa-file-pdf" style="font-size: 48px; color: #d9534f;"></i>
-											<p style="margin-top: 10px; font-size:20px">Click to View Quote</p>
-										</div>
-									`;
-
-									$('#quotationResult').show().html(pdfThumbnail);
-
-									$('#pdfThumbnail').on('click', function() {
-										window.open(pdfUrl, '_blank');
-									});
-									popup.close();
-								} else {
-									alert("Failed to process the request. Please try again.");
-								}
-							});
-							*/
+							$('#loadingText').html("Quotation created. Generating PDF.. (<span class='text-danger'>Don't close the opened window</span>)");
+							const popup = window.open(
+								"{{ route('admin.transaction.quotes.pdf', ':qid') }}".replace(':qid', response.QData.QID) + "?isPDF=1&chatID=" + activeChatID,
+								"popupWindow",
+								"width=797,height=1123,toolbar=no,menubar=no,location=no,status=no,resizable=no,scrollbars=yes"
+							);
+							  
 						} else {
 							alert("Failed to generate PDF. Please try again.");
 						}
 					},
 					error: function() {
-						$('#loadingAnimation').hide();
+						$('.divLoading').hide();
 						alert("An error occurred. Please try again.");
 					}
 				});
 			}else{
-				$('#loadingAnimation').hide();
+				$('.divLoading').hide();
 			}
 		});
 		

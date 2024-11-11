@@ -4,17 +4,29 @@ $(document).ready(function(){
     var firebaseConfig=null;
     var fcmToken="";
     var UserID="";
+    var messaging=null;
+    // Register the service worker to handle background notifications
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/firebase-messaging-sw.js')
+        .then((registration) => {
+            console.log('Service Worker registered with scope:', registration.scope);
+            messaging.useServiceWorker(registration);
+        })
+        .catch((error) => {
+            console.error('Service Worker registration failed:', error);
+        });
+    }
     const firebaseInit=async()=>{
         let tmp=await getFirebaseConfig();
         firebaseConfig=tmp.firebaseConfig;
         UserID=tmp.UserID;
         fcmToken=tmp.fcmToken;
         if(UserID!=""){
-            firebase.initializeApp(config);
+            firebase.initializeApp(firebaseConfig);
             // Retrieve Firebase Messaging object.
-            const messaging = firebase.messaging();
+            messaging = firebase.messaging();
             messaging.requestPermission().then(function () {
-                if (fcmToken!="") {
+                if (fcmToken=="") {
                     getRegisterToken();
                 }
             }).catch(function (err) {
@@ -52,7 +64,7 @@ $(document).ready(function(){
             });
         });
     }
-    const sendTokenToServer=async(fcmToken)=>{
+    const sendTokenToServer=async(fcmToken)=>{ console.log(fcmToken)
         if(UserID!=""){
             $.ajax({
                 type:"post",
@@ -65,23 +77,26 @@ $(document).ready(function(){
         }
     }
     const getRegisterToken=async()=>{
-        messaging.getToken().then(function (currentToken) {
-            if (currentToken) {
-                fcmToken=currentToken;
-                sendTokenToServer(currentToken);
-                // updateUIForPushEnabled(currentToken);
-            } else {
-                // Show permission request.
-                console.log('No Instance ID token available. Request permission to generate one.');
-                // Show permission UI.
-                // updateUIForPushPermissionRequired();
-                setTokenSentToServer(false);
-            }
-        }).catch(function (err) {
-            console.log('An error occurred while retrieving token. ', err);
-            //showToken('Error retrieving Instance ID token. ', err);
-            setTokenSentToServer(false);
-        });
+        if(messaging!=null){
+
+            messaging.getToken().then(function (currentToken) {
+                if (currentToken) {
+                    fcmToken=currentToken;
+                    sendTokenToServer(currentToken);
+                    // updateUIForPushEnabled(currentToken);
+                } else {
+                    // Show permission request.
+                    console.log('No Instance ID token available. Request permission to generate one.');
+                    // Show permission UI.
+                    // updateUIForPushPermissionRequired();
+                    sendTokenToServer("");
+                }
+            }).catch(function (err) {
+                console.log('An error occurred while retrieving token. ', err);
+                //showToken('Error retrieving Instance ID token. ', err);
+                sendTokenToServer("");
+            });
+        }
     } 
     firebaseInit();
 });

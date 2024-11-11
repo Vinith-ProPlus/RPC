@@ -114,6 +114,8 @@ class QuotationController extends Controller{
 		$FormData['QData'] = $this->getQuotes(["QID" => $QID]);
 
 		if (count($FormData['QData']) > 0) {
+			logger('QUOTE');
+			logger(json_encode($FormData['QData'][0]));
 			$FormData['QData'] = $FormData['QData'][0]; //dd($FormData['QData']);
 			
 			return view('app.transaction.quotation.pdf-view', $FormData);
@@ -726,7 +728,7 @@ class QuotationController extends Controller{
 			$result[$i]->Details=DB::SELECT($sql);
 			for($j=0;$j<count($result[$i]->Details);$j++){
 				
-				$result[$i]->Details[$j]->ProductImage=(file_exists($result[$i]->Details[$j]->ProductImage))?url('/').".".$result[$i]->Details[$j]->ProductImage:url('/')."/assets/images/no-image-b.png";
+				$result[$i]->Details[$j]->ProductImage=(file_exists($result[$i]->Details[$j]->ProductImage))?url('/')."/".$result[$i]->Details[$j]->ProductImage:url('/')."/assets/images/no-image-b.png";
 
 				$result[$i]->Details[$j]->VQuoteID="";
 				$result1=DB::Table($this->CurrFYDB.'tbl_vendor_quotation')->Where('EnqID',$result[$i]->EnqID)->where('VendorID',$result[$i]->Details[$j]->VendorID)->get();
