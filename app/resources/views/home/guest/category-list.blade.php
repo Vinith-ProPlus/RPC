@@ -498,7 +498,7 @@
                 <div class="row justify-content-center mb-3">
                     <div class="col-md-8 newsletter-popup-content" id="divMobileNumber">
                         <div class="input-group">
-                            <input type="text" class="form-control" id="txtUserMobileNumber" placeholder="Enter your mobile number" required="">
+                            <input type="text" class="form-control" id="txtUserMobileNumber" placeholder="Enter your mobile number" oninput="this.value = this.value.replace(/[^0-9]/g, '');" inputmode="numeric" required>
                             <input type="button" class="btn btn-warning" value="Submit" id="btnSubmitMobileNumber">
                         </div>
                         <div class="errors err-sm text-center" id="txtUserMobileNumber-err"></div>
