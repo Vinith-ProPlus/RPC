@@ -119,7 +119,7 @@
                                     </div>
                                     <div class="form-group form-group-sm">
                                         <label for="expected_date"><strong>Expected Delivery Date</strong></label>
-                                        <input type="date" class="form-control" id="expected_date" placeholder="Expected date" value="{{date('Y-m-d', strtotime('+15 days'))}}">
+                                        <input type="date" class="form-control" min="{{ Carbon\Carbon::today()->format('Y-m-d') }}" id="expected_date" placeholder="Expected date" value="{{date('Y-m-d', strtotime('+15 days'))}}">
                                     </div>
                                 </form>
                             </td>
