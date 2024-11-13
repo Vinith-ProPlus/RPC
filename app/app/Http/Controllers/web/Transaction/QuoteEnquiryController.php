@@ -610,7 +610,6 @@ class QuoteEnquiryController extends Controller{
 	}
 
     public function QuoteConvert(Request $req,$EnqID){ logger($req);
-		return 1;
 		if($this->general->isCrudAllow($this->CRUD,"edit")==true){
 			$OldData=array();$NewData=array();
 			DB::beginTransaction();

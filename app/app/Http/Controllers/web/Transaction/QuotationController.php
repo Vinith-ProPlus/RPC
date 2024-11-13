@@ -793,8 +793,8 @@ class QuotationController extends Controller{
 							$OrderCRUD=$this->general->getCrudOperations(activeMenuNames::Order->value);
 							$html='';
 							if($this->general->isCrudAllow($this->CRUD,"view")==true){
-								// $html.='<a href="'.route('admin.transaction.quotes.details',$d).'" data-id="'.$d.'"  class="btn btn-outline-info  m-5 '.$this->general->UserInfo['Theme']['button-size'].'  btnView">View</a>';
-								$html.='<a href="'.route('admin.transaction.quotes.pdf',$d).'" data-id="'.$d.'"  class="btn btn-outline-info  m-5 '.$this->general->UserInfo['Theme']['button-size'].'  btnView">View</a>';
+								$html.='<a href="'.route('admin.transaction.quotes.details',$d).'" data-id="'.$d.'"  class="btn btn-outline-info  m-5 '.$this->general->UserInfo['Theme']['button-size'].'  btnView">View</a>';
+								// $html.='<a href="'.route('admin.transaction.quotes.pdf',$d).'" data-id="'.$d.'"  class="btn btn-outline-info  m-5 '.$this->general->UserInfo['Theme']['button-size'].'  btnView">View</a>';
 							}
 							/*
 							if($this->general->isCrudAllow($OrderCRUD,"add")==true && $row['Status']=="New" ){
