@@ -259,8 +259,9 @@
 <section class="subcats-section container">
     <div class="row">
         <div class="col-md-4 part-item appear-animate" data-animation-name="fadeInLeftShorter">
-            <h4>Popular Categories:</h4>
             <ul class="list-unstyled mb-0">
+                <h4>Popular Categories:</h4>
+                <br>
                 @foreach ($PCategories->shuffle()->take(4) as $category)
                     <li>
                         <a href="{{ route('products.customer.subCategoryList', ['CID' => $category->PCID]) }}">{{ $category->PCName }}</a>
@@ -271,8 +272,9 @@
         </div>
         <div class="col-md-4 part-item appear-animate" data-animation-name="fadeInLeftShorter"
             data-animation-delay="200">
-            <h3>Popular Sub-Categories:</h3>
             <ul class="list-unstyled mb-0">
+                <h3>Popular Sub-Categories:</h3>
+                <br>
                 @foreach ($PCategories->shuffle()->take(4) as $category)
                     <li>
                         <a href="{{ route('products.customer.subCategoryList', ['CID' => $category->PCID]) }}">{{ $category->PCName }}</a>
@@ -283,8 +285,9 @@
         </div>
         <div class="col-md-4 part-item appear-animate" data-animation-name="fadeInLeftShorter"
             data-animation-delay="400">
-            <h3>Popular Products:</h3>
             <ul class="list-unstyled mb-0">
+                <h3>Popular Products:</h3>
+                <br>
                 @foreach ($PCategories->shuffle()->take(4) as $category)
                     <li>
                         <a href="{{ route('products.customer.subCategoryList', ['CID' => $category->PCID]) }}">{{ $category->PCName }}</a>

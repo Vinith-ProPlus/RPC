@@ -496,10 +496,9 @@
             <section class="subcats-section container">
                 <div class="row">
                     <div class="col-md-4 part-item appear-animate" data-animation-name="fadeInLeftShorter">
-                        <div class="col-md-6">
+                        <div class="col-md-12">
                             <h4>Popular Categories:</h4>
-                        </div>
-                        <div class="col-md-6">
+                            <br>
                             <ul class="list-unstyled mb-0">
                                 @foreach ($PCategories->take(4) as $category)
                                     <li>
@@ -513,10 +512,9 @@
                     </div>
                     <div class="col-md-4 part-item appear-animate" data-animation-name="fadeInLeftShorter"
                          data-animation-delay="200">
-                        <div class="col-md-6">
+                        <div class="col-md-2">
                             <h3>Popular Sub-Categories:</h3>
-                        </div>
-                        <div class="col-md-6">
+                            <br>
                             <ul class="list-unstyled mb-0">
                                 @foreach ($PCategories->shuffle()->take(4) as $category)
                                     <li>
@@ -530,10 +528,9 @@
                     </div>
                     <div class="col-md-4 part-item appear-animate" data-animation-name="fadeInLeftShorter"
                          data-animation-delay="400">
-                        <div class="col-md-6">
+                        <div class="col-md-12">
                             <h3>Popular Products:</h3>
-                        </div>
-                        <div class="col-md-6">
+                            <br>
                             <ul class="list-unstyled mb-0">
                                 @foreach ($PCategories->shuffle()->take(4) as $category)
                                     <li>
