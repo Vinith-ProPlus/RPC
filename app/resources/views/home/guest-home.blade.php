@@ -37,6 +37,9 @@
     } )( document );
 </script>
     <style>
+        #homeBannerList {
+            display: none !important;
+        }
         a.btn.text-right.text-white:hover {
             background-color: #0f3b70!important;
         }
@@ -598,10 +601,6 @@
                                         <a href="mailto:{{$Company['E-Mail']}}"><span
                                                 class="__cf_email__"
                                                 >{{$Company['E-Mail']}}</span></a>
-                                    </li>
-                                    <li>
-                                        <span class="contact-info-label">Working Days/Hours:</span>
-                                        Mon - Sun / 9:00 AM - 8:00 PM
                                     </li>
                                 </ul>
                                 <div class="social-icons">
