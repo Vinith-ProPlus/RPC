@@ -436,7 +436,7 @@
         </div><!-- End .footer-middle -->
 
         <div class="container">
-            <div class="footer-bottom d-sm-flex align-items-center bg-dark">
+            <div class="footer-bottom bg-dark text-center">
                 <div class="footer-left">
                     <span class="footer-copyright">{{$Company['CompanyName']}}. © 2024. All Rights Reserved</span>
                 </div>
