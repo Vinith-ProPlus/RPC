@@ -378,10 +378,6 @@
                                             class="__cf_email__"
                                             >{{$Company['E-Mail']}}</span></a>
                                 </li>
-                                <li>
-                                    <span class="contact-info-label">Working Days/Hours:</span>
-                                    Mon - Sun / 9:00 AM - 8:00 PM
-                                </li>
                             </ul>
                             <div class="social-icons">
                                 @if(array_key_exists('facebook', $Company) && $Company['facebook'])
