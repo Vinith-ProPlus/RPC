@@ -567,20 +567,29 @@
                         </div><!-- End .widget -->
                     </div><!-- End .col-lg-3 -->
 
-                    <div class="col-lg-4 col-sm-6 pb-0">
-                        <div class="widget widget-newsletter mb-1 mb-sm-3">
-                            <h4 class="widget-title">Subscribe Newsletter</h4>
+                    <div class="col-lg-4 col-sm-6 pb-0 text-center">
+                           <div class="social-icons">
+                                @if(array_key_exists('facebook', $Company) && $Company['facebook'])
+                                    <a href="{{$Company['facebook']}}" class="social-icon social-facebook icon-facebook" target="_blank" title="Facebook"></a>
+                                @endif
 
-                            <p class="mb-2">Get all the latest information on events, sales and offers.
-                                Sign up for newsletter:</p>
-                            <form action="#" class="d-flex mb-0 w-100">
-                                <input type="email" class="form-control mb-0" placeholder="Email address"
-                                       required="">
+                                @if(array_key_exists('instagram', $Company) && $Company['instagram'])
+                                    <a href="{{$Company['instagram']}}" class="social-icon social-instagram icon-instagram" target="_blank" title="Instagram"></a>
+                                @endif
 
-                                <input type="submit" class="btn shadow-none" value="OK">
-                            </form>
-                        </div><!-- End .widget -->
-                    </div><!-- End .col-lg-3 -->
+                                @if(array_key_exists('youtube', $Company) && $Company['youtube'])
+                                    <a href="{{$Company['youtube']}}" class="social-icon social-youtube fab fa-youtube" target="_blank" title="YouTube"></a>
+                                @endif
+
+                                @if(array_key_exists('twitter', $Company) && $Company['twitter'])
+                                    <a href="{{$Company['twitter']}}" class="social-icon social-twitter fab fa-twitter" target="_blank" title="Twitter"></a>
+                                @endif
+
+                                @if(array_key_exists('linkedin', $Company) && $Company['linkedin'])
+                                    <a href="{{$Company['linkedin']}}" class="social-icon social-linkedin fab fa-linkedin-in" target="_blank" title="Linkedin"></a>
+                                @endif
+                            </div><!-- End .social-icons -->
+                        </div><!-- End .col-lg-3 -->
                 </div><!-- End .row -->
             </div><!-- End .container -->
         </div><!-- End .footer-middle -->

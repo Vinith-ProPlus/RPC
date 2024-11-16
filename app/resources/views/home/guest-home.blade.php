@@ -253,7 +253,7 @@
                             </li>
                         </ul>
                     </nav>
-                    <a href="#AppLinkDiv" class="btn text-right text-white" style="background-color: #1a67c5;">Become a vendor</a>
+                    <a href="#AppLinkDiv" class="btn text-right text-white d-none" style="background-color: #1a67c5;">Become a vendor</a>
                 </div><!-- End .container -->
             </div><!-- End .header-bottom -->
         </header><!-- End .header -->
@@ -512,7 +512,7 @@
                     </div>
                     <div class="col-md-4 part-item appear-animate" data-animation-name="fadeInLeftShorter"
                          data-animation-delay="200">
-                        <div class="col-md-2">
+                        <div class="col-md-12">
                             <h3>Popular Sub-Categories:</h3>
                             <br>
                             <ul class="list-unstyled mb-0">
@@ -544,7 +544,7 @@
                     </div>
                 </div>
             </section>
-            <div class="container" id="AppLinkDiv" style="border-top: 1px solid #e7e7e7;">
+            <div class="container d-none" id="AppLinkDiv" style="border-top: 1px solid #e7e7e7;">
                 <div class="row" style="padding: 50px 15px;">
                     <div class="col-md-4 col-sm-12 d-flex justify-content-center align-items-center">
                         <div style="padding: 15px;">
@@ -600,7 +600,23 @@
                                                 >{{$Company['E-Mail']}}</span></a>
                                     </li>
                                 </ul>
-                                <div class="social-icons">
+                            </div><!-- End .widget -->
+                        </div><!-- End .col-lg-3 -->
+
+                        <div class="col-lg-3 col-sm-6 pb-2 pb-sm-0">
+                            <div class="widget">
+                                <h4 class="widget-title pb-1">Customer Service</h4>
+
+                                <ul class="links">
+                                    @foreach(DB::table('tbl_page_content')->select('Slug', 'PageName')->get() as $Policy)
+                                        <li><a href="{{ route('policies', $Policy->Slug) }}">{{ $Policy->PageName ?? '' }}</a></li>
+                                    @endforeach
+                                </ul>
+                            </div><!-- End .widget -->
+                        </div><!-- End .col-lg-3 -->
+
+                        <div class="col-lg-4 col-sm-6 pb-0 text-center">
+                           <div class="social-icons">
                                     @if(array_key_exists('facebook', $Company) && $Company['facebook'])
                                         <a href="{{$Company['facebook']}}" class="social-icon social-facebook icon-facebook" target="_blank" title="Facebook"></a>
                                     @endif
@@ -622,34 +638,6 @@
                                     @endif
                                 </div>
                                 <!-- End .social-icons -->
-                            </div><!-- End .widget -->
-                        </div><!-- End .col-lg-3 -->
-
-                        <div class="col-lg-3 col-sm-6 pb-2 pb-sm-0">
-                            <div class="widget">
-                                <h4 class="widget-title pb-1">Customer Service</h4>
-
-                                <ul class="links">
-                                    @foreach(DB::table('tbl_page_content')->select('Slug', 'PageName')->get() as $Policy)
-                                        <li><a href="{{ route('policies', $Policy->Slug) }}">{{ $Policy->PageName ?? '' }}</a></li>
-                                    @endforeach
-                                </ul>
-                            </div><!-- End .widget -->
-                        </div><!-- End .col-lg-3 -->
-
-                        <div class="col-lg-4 col-sm-6 pb-0">
-                            <div class="widget widget-newsletter mb-1 mb-sm-3">
-                                <h4 class="widget-title">Subscribe Newsletter</h4>
-
-                                <p class="mb-2">Get all the latest information on events, sales and offers.
-                                    Sign up for newsletter:</p>
-                                <form action="#" class="d-flex mb-0 w-100">
-                                    <input type="email" class="form-control mb-0" placeholder="Email address"
-                                        required="">
-
-                                    <input type="submit" class="btn shadow-none" value="OK">
-                                </form>
-                            </div><!-- End .widget -->
                         </div><!-- End .col-lg-3 -->
                     </div><!-- End .row -->
                 </div><!-- End .container -->
