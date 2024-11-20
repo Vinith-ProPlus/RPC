@@ -42,7 +42,7 @@ class VendorAuthController extends Controller{
 			return $next($request);
 		});
     }
-    
+
     public function VendorDocuments(request $req){
         $RequiredDocuments = DB::table('tbl_vendor_required_documents')->get();
         foreach($RequiredDocuments as $item){
@@ -56,12 +56,12 @@ class VendorAuthController extends Controller{
         return response()->json($return);
 	}
 
-    public function Register(Request $req){ 
+    public function Register(Request $req){
         $reqData = $req->all();
 
         $NewData=$OldData=[];
 		$ValidDB=[];
-			
+
         $ValidDB['Country']['TABLE']=$this->generalDB."tbl_countries";
         $ValidDB['Country']['ErrMsg']="Country name does not exist";
         $ValidDB['Country']['WHERE'][]=array("COLUMN"=>"CountryID","CONDITION"=>"=","VALUE"=>$reqData['CountryID']);
@@ -179,7 +179,8 @@ class VendorAuthController extends Controller{
                 $fileName1 =  $fileName. "." . $file->getClientOriginalExtension();
                 $file->move($dir, $fileName1);
                 $Logo=$dir.$fileName1;
-            }else if(Helper::isJSON($req->Logo)==true){
+            }
+            /* else if($req->Logo && Helper::isJSON($req->Logo)){
                 $Img=json_decode($req->Logo);
                 if(file_exists($Img->uploadPath)){
                     $fileName1=$Img->fileName!=""?$Img->fileName:Helper::RandomString(10)."png";
@@ -187,7 +188,7 @@ class VendorAuthController extends Controller{
                     $Logo=$dir.$fileName1;
                     // unlink($Img->uploadPath);
                 }
-            }
+            } */
             $data = [
                 "VendorID" => $VendorID,
                 "VendorName" => $reqData['VendorName'],
@@ -217,9 +218,9 @@ class VendorAuthController extends Controller{
                         $ext = pathinfo($docDetails['uploadPath'], PATHINFO_EXTENSION);
                         $fileName = $docDetails['fileName'] !== "" ? $docDetails['fileName'] : Helper::RandomString(10) . '.' . $ext;
                         $uploadedDocument = $dDir . $fileName;
-                
+
                         copy($docDetails['uploadPath'], $uploadedDocument);
-                
+
                         $data = [
                             "SLNO" => DocNum::getDocNum(docTypes::VendorDocuments->value,"",Helper::getCurrentFY()),
                             'VendorID' => $VendorID,
@@ -227,7 +228,7 @@ class VendorAuthController extends Controller{
                             'documents' => $uploadedDocument,
                             'CreatedOn' => date('Y-m-d H:i:s'),
                         ];
-                
+
                         $status = DB::table('tbl_vendors_document')->insert($data);
                         if ($status) {
                             DocNum::updateDocNum(docTypes::VendorDocuments->value);
@@ -281,12 +282,12 @@ class VendorAuthController extends Controller{
         }
     }
 
-    public function RegisterUpdate(Request $req){ 
+    public function RegisterUpdate(Request $req){
         $VendorID = $this->ReferID;
         $reqData = $req->all();
         $NewData=$OldData=[];
 		$ValidDB=[];
-			
+
         $ValidDB['Country']['TABLE']=$this->generalDB."tbl_countries";
         $ValidDB['Country']['ErrMsg']="Country name does not exist";
         $ValidDB['Country']['WHERE'][]=array("COLUMN"=>"CountryID","CONDITION"=>"=","VALUE"=>$reqData['CountryID']);
@@ -433,7 +434,7 @@ class VendorAuthController extends Controller{
             $status=DB::Table('tbl_vendors')->where('VendorID',$VendorID)->update($data);
             if($status && !empty($reqData['Documents'])){
                 foreach ($reqData['Documents'] as $docName => $docDetails) {
-                    if ($docName && file_exists($docDetails['uploadPath'])) { 
+                    if ($docName && file_exists($docDetails['uploadPath'])) {
                         $ext = pathinfo($docDetails['uploadPath'], PATHINFO_EXTENSION);
                         $fileName = $docDetails['fileName'] !== "" ? $docDetails['fileName'] : Helper::RandomString(10) . '.' . $ext;
                         $uploadedDocument = $dDir . $fileName;
@@ -547,14 +548,14 @@ class VendorAuthController extends Controller{
                 'MobileNumber1' => ['required', 'regex:/^[0-9]{10}$/'],
                 'MobileNumber2' => ['nullable', 'regex:/^[0-9]{10}$/'],
             ];
-        
+
             $messages = [
                 // 'VendorCoName.required' => 'Vendor Company Name is required',
                 'MobileNumber1.regex' => 'Mobile Number 1 should be 10 digits',
                 'MobileNumber2.regex' => 'Mobile Number 2 should be 10 digits',
             ];
             $validator = Validator::make($GeneralData, $rules, $messages);
-        
+
             if ($validator->fails()) {
                 return array('status' => false, 'message' => "Vendor Register Failed", 'errors' => $validator->errors());
             } else {
@@ -726,7 +727,7 @@ class VendorAuthController extends Controller{
                     if (!file_exists( $dir)) {mkdir( $dir, 0777, true);}
                     if (!file_exists( $vdir)) {mkdir( $vdir, 0777, true);}
                     if (!file_exists( $dDir)) {mkdir( $dDir, 0777, true);}
-        
+
                     if(isset($VendorData->Logo) && $VendorData->hasFile('Logo')){
                         $file = $VendorData->file('Logo');
                         $fileName=md5($file->getClientOriginalName() . time());
@@ -801,13 +802,13 @@ class VendorAuthController extends Controller{
                                     foreach($data->Images as $vImgData){
                                         $ImgIDs[]=$vImgData->ImgID;
                                         $vImg=unserialize($vImgData->gImage);
-                                        
+
                                         // return $vImg->uploadPath;
                                         if(file_exists($vImg->uploadPath) ){
 
                                             $fileName1=$vImg->fileName!=""?$vImg->fileName:Helper::RandomString(10)."png";
                                             copy($vImg->uploadPath,$vdir.$fileName1);
-                                            
+
                                             $VImages=$vdir.$fileName1;
                                             $t=DB::Table('tbl_vendors_vehicle_images')->where('VendorID',$VendorID)->where('UUID',$data->UUID)->where('ImgID',$vImgData->ImgID)->first();
                                             if($t){
@@ -1104,7 +1105,7 @@ class VendorAuthController extends Controller{
                     'ServiceBy'=> $ServiceLocation[0]->ServiceBy,
                     'ServiceData'=> [],
                 ];
-    
+
                 foreach ($ServiceLocation as $item) {
                     $item->Districts = DB::table('tbl_vendors_service_locations')->where('DFlag',0)->where('VendorID', $VendorID)->where('StateID', $item->StateID)->groupBy('DistrictID')->select('DistrictID')->get();
                     foreach ($item->Districts as $row){
@@ -1173,7 +1174,7 @@ class VendorAuthController extends Controller{
                     if(file_exists($vImg->uploadPath) ){
                         $fileName1=$vImg->fileName!=""?$vImg->fileName:Helper::RandomString(10)."png";
                         copy($vImg->uploadPath,$vdir.$fileName1);
-                        
+
                         $ImgID = substr(str_shuffle(substr(uniqid(uniqid(), true), 0, 16)), 0, 12);
                         $VImages=$vdir.$fileName1;
                         $Data=array(
@@ -1305,7 +1306,7 @@ class VendorAuthController extends Controller{
             return response()->json(['status' => false,'message' => "Vehicle Delete Failed!"]);
         }
     }
-    
+
     public function getTmpVendorData($VendorID){
 		$VendorData = DB::table($this->tmpDB.'tbl_vendors')->where('VendorID',$VendorID)->first();
         if($VendorData){
@@ -1337,7 +1338,7 @@ class VendorAuthController extends Controller{
                 $ServiceLocations['ServiceData'][] = $item;
 			}
             $VendorData->ServiceLocations = $ServiceLocations;
-            
+
             return $VendorData;
         }
 	}
@@ -1429,15 +1430,15 @@ class VendorAuthController extends Controller{
 
     public function deleteTmpVendorData($VendorID) {
         DB::table($this->tmpDB.'tbl_vendors_vehicle_images')->where('VendorID', $VendorID)->delete();
-    
+
         DB::table($this->tmpDB.'tbl_vendors_vehicle')->where('VendorID', $VendorID)->delete();
-    
+
         DB::table($this->tmpDB.'tbl_vendors_supply')->where('VendorID', $VendorID)->delete();
-    
+
         DB::table($this->tmpDB.'tbl_vendors_stock_point')->where('VendorID', $VendorID)->delete();
-    
+
         DB::table($this->tmpDB.'tbl_vendors_service_locations')->where('VendorID', $VendorID)->delete();
-    
+
         DB::table($this->tmpDB.'tbl_vendors')->where('VendorID', $VendorID)->delete();
     }
 
@@ -1445,7 +1446,7 @@ class VendorAuthController extends Controller{
         if ($req->has('General') && $req->General != null) {
             $GeneralData = json_decode($req->General, true);
             $ValidDB=[];
-                        
+
             $ValidDB['Country']['TABLE']=$this->generalDB."tbl_countries";
             $ValidDB['Country']['ErrMsg']="Country name does not exist";
             $ValidDB['Country']['WHERE'][]=array("COLUMN"=>"CountryID","CONDITION"=>"=","VALUE"=>$GeneralData['CountryID']);
@@ -1534,7 +1535,7 @@ class VendorAuthController extends Controller{
     }
 
     //Product Mapping
-    
+
     public function getVendorMappedProducts(Request $req){
         $VendorID = $this->ReferID;
 
@@ -1694,7 +1695,7 @@ class VendorAuthController extends Controller{
             $query->where('P.ProductName', 'like', '%' . $req->SearchText . '%');
         }
         $query->select('VSP.StockPointID', 'P.ProductID', 'P.ProductName', 'PC.PCName', 'PC.PCID', 'PSC.PSCID', 'PSC.PSCName', 'U.UName', 'U.UCode', 'P.VideoUrl', DB::raw('IFNULL(SP.Qty, 0) AS Qty'));
-        
+
         if ($req->SortType) {
             if ($req->SortType == 'NameAsc') {
                 $query->orderBy('P.ProductName', 'asc');
@@ -1707,7 +1708,7 @@ class VendorAuthController extends Controller{
             }
         }
         $VendorStockProducts = $query->paginate($perPage, ['*'], 'page', $pageNo);
-    
+
         return response()->json([
             'status' => true,
             'data' => $VendorStockProducts->items(),
@@ -1727,7 +1728,7 @@ class VendorAuthController extends Controller{
 
             $ProductData = json_decode($req->ProductData);
             $LastUpdatedDate = DB::table($StockTableName)->where('StockPointID', $req->StockPointID)->max('Date');
-            
+
             $query= DB::table('tbl_vendors_product_mapping as VPM')
                 ->leftJoin('tbl_vendors_stock_point as VSP','VSP.VendorID', 'VPM.VendorID')
                 ->leftJoin($StockTableName . ' as SP', function ($join) use ($LastUpdatedDate) {
@@ -1796,7 +1797,7 @@ class VendorAuthController extends Controller{
             $point->LastUpdatedDate = DB::table($StockTableName)
                 ->where('StockPointID', $point->StockPointID)
                 ->max('Date');
-        
+
             $point->ProductData = DB::table('tbl_vendors_product_mapping as VPM')
                 ->join('tbl_products as P', 'P.ProductID', 'VPM.ProductID')
                 ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')
@@ -1864,7 +1865,7 @@ class VendorAuthController extends Controller{
         ->where('VSP.DFlag',0)->where('VSP.VendorID',$VendorID)
         ->select('VSP.StockPointID','PointName','VSP.ActiveStatus','C.CountryName','S.StateName','D.DistrictName','T.TalukName','CI.CityName','PC.PostalCode')
         ->get();
-        
+
 		return response()->json(['status' => true, 'data' => $VendorHome ]);
 	}
 
@@ -1877,7 +1878,7 @@ class VendorAuthController extends Controller{
             ->where('UserID', $this->UserID)
             ->orderBy('CreatedOn','desc')
             ->paginate($perPage, ['*'], 'page', $pageNo);
-        
+
         return response()->json([
             'status' => true,
             'data' => $Notifications->items(),
@@ -1953,13 +1954,13 @@ class VendorAuthController extends Controller{
             if(!$OTP){
                 return response()->json(['status' => false,'message' => "OTP has Expired!"]);
             }else{
-                if($OTP == $req->OTP){ 
+                if($OTP == $req->OTP){
                     if($this->isDataExists($req)){
                         return response()->json(['status' => false,'message' => "This Email is already taken"]);
                     }else{
                         $pwd1=Hash::make($req->Email);
                         $pwd2=Helper::EncryptDecrypt("encrypt",$req->Email);
-                        
+
                         $status = DB::Table('users')->where('UserID',$user->UserID)->update(['UserName'=>$req->Email,'EMail'=>$req->Email,"Password"=>$pwd1,"Password1"=>$pwd2,'UpdatedOn'=>now(),'UpdatedBy'=>$user->UserID]);
                         $status = DB::Table('tbl_vendors')->where('VendorID',$user->ReferID)->update(['Email'=>$req->Email,'UpdatedOn'=>now(),'UpdatedBy'=>$user->ReferID]);
                         if($status){
@@ -1980,12 +1981,12 @@ class VendorAuthController extends Controller{
             return response()->json(['status' => false, 'message' => 'Mobile Number is required.']);
         }
         $user = Auth::user();
-        if(!$req->OTP){ 
+        if(!$req->OTP){
             if($this->isDataExists($req)){
                 return response()->json(['status' => false,'message' => "This Mobile Number is already taken"]);
             }else{
                 $OTP = Helper::getOTP(6);
-    
+
                 $Message = "You are trying to change your mobile number in the RPC software. Please enter $OTP code to verify your request.";
                 return Helper::saveSmsOtp($user->MobileNumber,$OTP,$Message,"Vendor");
             }
@@ -1994,7 +1995,7 @@ class VendorAuthController extends Controller{
             if(!$OTP){
                 return response()->json(['status' => false,'message' => "OTP has Expired!"]);
             }else{
-                if($OTP == $req->OTP){ 
+                if($OTP == $req->OTP){
                     if($this->isDataExists($req)){
                         return response()->json(['status' => false,'message' => "This Mobile Number is already taken"]);
                     }else{
@@ -2012,7 +2013,7 @@ class VendorAuthController extends Controller{
             }
         }
 	}
-    
+
     private function isDataExists($req) {
         $query = DB::table('users');
         if($req->Email){
@@ -2024,5 +2025,5 @@ class VendorAuthController extends Controller{
         }
         return $query->where('LoginType','Vendor')->whereNot('UserID',Auth::user()->UserID)->exists();
     }
-    
+
 }
