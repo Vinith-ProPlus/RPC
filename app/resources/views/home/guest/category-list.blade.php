@@ -458,7 +458,9 @@
                 </div>
                 <div class="row justify-content-center">
                     <div class="col-md-6 justify-content-center">
-                        <a href="{{url('/')}}/social/auth/google"><button type="button" class="btn btn-info btn-block rounded">Google</button></a>
+                        <a href="{{url('/')}}/social/auth/google" class="d-flex justify-content-center align-items-center text-center" onclick="localStorage.setItem('rpc_guest_redirect_url', window.location.href);">
+                        <img src="{{ url('/assets/images/logo/google_sign_in_logo.svg') }}" class="img-fluid" alt="Google SignIn">
+                    </a>
                     </div>
                 </div>
                 <div class="row justify-content-center">
@@ -674,6 +676,7 @@
                 success: function(response) {
                     if (response.status) {
                         $('#txtUserOtp-err').text('');
+                        localStorage.setItem('rpc_guest_redirect_url', window.location.href);
                         window.location.href = '{{ url('/') }}';
                     } else {
                         $('#txtUserOtp-err').text(response.message);
