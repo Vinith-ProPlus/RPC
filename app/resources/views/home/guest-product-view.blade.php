@@ -290,7 +290,7 @@
                                     @endforeach
                                 </div>
                             </div>
-                            <div class="prod-thumbnail owl-dots">
+                            <div class="prod-thumbnail product-owl-gallery owl-dots">
                                 <div class="owl-dot video-thumbnail">
                                     <img loading="lazy" alt="{{ $product->ProductName }}" src="{{ $product->ProductImage }}"/>
                                 </div>
@@ -356,6 +356,9 @@
                                 <div class="product-action">
                                     <div class="row col-12">
                                         <div class="col-8">
+                                            <a href="#" onclick="$('#loginBtn').click();" class="btn btn-dark mr-2 product-type-simple btn-shop" title="BUY NOW" id="{{ $product->ProductID }}">
+                                                BUY NOW
+                                            </a>
                                             <a href="#" onclick="$('#loginBtn').click();"
                                                class="btn btn-dark mr-2 product-type-simple btn-shop"
                                                title="Add to Cart" id="{{ $product->ProductID }}">ADD TO CART

@@ -314,20 +314,20 @@ class HomeAuthController extends Controller
                 "CustomerName" => $req->CustomerName,
                 'CustomerImage' => $CustomerImage,
                 "MobileNo1" => $req->MobileNo1,
-                "MobileNo2" => $req->MobileNo2,
+                // "MobileNo2" => $req->MobileNo2,
                 "Email" => $req->Email,
-                "GenderID" => $req->GenderID,
-                "DOB" => $req->DOB,
+                // "GenderID" => $req->GenderID,
+                // "DOB" => $req->DOB,
                 "CusTypeID" => $req->CusTypeID,
-                "ConTypeIDs" => $req->ConTypeIDs,
-                "Address" => $req->Address,
-                "CompleteAddress" => Helper::formAddress($req->Address, $req->CityID),
-                "PostalCodeID" => $req->PostalCodeID,
-                "CityID" => $req->CityID,
-                "TalukID" => $req->TalukID,
-                "DistrictID" => $req->DistrictID,
-                "StateID" => $req->StateID,
-                "CountryID" => $req->CountryID,
+                // "ConTypeIDs" => $req->ConTypeIDs,
+                // "Address" => $req->Address,
+                // "CompleteAddress" => Helper::formAddress($req->Address, $req->CityID),
+                // "PostalCodeID" => $req->PostalCodeID,
+                // "CityID" => $req->CityID,
+                // "TalukID" => $req->TalukID,
+                // "DistrictID" => $req->DistrictID,
+                // "StateID" => $req->StateID,
+                // "CountryID" => $req->CountryID,
                 "CreatedBy" => $this->UserID,
                 "CreatedOn" => date("Y-m-d H:i:s")
             );
@@ -344,8 +344,8 @@ class HomeAuthController extends Controller
                     "Name" => $CustomerName,
                     "FirstName" => $firstName,
                     "LastName" => $lastName,
-                    "GenderID" => $req->GenderID,
-                    "DOB" => $req->DOB,
+                    // "GenderID" => $req->GenderID,
+                    // "DOB" => $req->DOB,
                     "ProfileImage" => $CustomerImage,
                     "UserName" => $req->Email,
                     "Email" => $req->Email,
@@ -663,7 +663,9 @@ class HomeAuthController extends Controller
             ->join($this->generalDB . 'tbl_postalcodes as PC', 'PC.PID', 'CA.PostalCodeID')
             ->select('CA.AID', 'CA.Address', 'CA.isDefault', 'CA.CountryID', 'C.CountryName', 'CA.StateID', 'S.StateName', 'CA.DistrictID', 'D.DistrictName', 'CA.TalukID', 'T.TalukName', 'CA.CityID', 'CI.CityName', 'CA.PostalCodeID', 'PC.PostalCode')
             ->first();
-
+        if(!$FormData['CustomerData']){
+            return redirect()->route('customer-profile');
+        }
         $FormData['Cart'] = $this->getCart();
         if ($FormData['Cart'])
             return view('home.checkout', $FormData);
@@ -787,7 +789,7 @@ class HomeAuthController extends Controller
             ->join('tbl_uom as U', 'U.UID', 'P.UID')
             ->where('C.CustomerID', $this->ReferID)->where('P.ActiveStatus', 'Active')->where('P.DFlag', 0)->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)->where('PSC.ActiveStatus', 'Active')->where('PSC.DFlag', 0)
             ->select('P.ProductName', 'P.ProductID', 'C.Qty', 'PC.PCName', 'PC.PCID', 'PSC.PSCName', 'U.UName',
-                'U.UCode', 'U.UID', 'PSC.PSCID', 'P.ProductImage')->get()->map(function ($cart) {
+                'U.UCode', 'U.UID', 'PSC.PSCID', 'P.ProductImage', 'P.ThumbnailImg')->get()->map(function ($cart) {
                 $cart->ProductImage = (new Helper)->fileCheckAndUrl($cart->ProductImage, 'assets/images/no-image-b.png');
                 return $cart;
             });
@@ -2278,8 +2280,9 @@ class HomeAuthController extends Controller
             ->where('VPM.Status', 1)->WhereIn('VPM.VendorID', $AllVendors)
             ->where('P.ActiveStatus', 'Active')
             ->where('P.DFlag', 0)
-            ->select('P.ProductID', 'P.ProductName', 'P.ProductImage', 'PSC.PSCID', 'PSC.PSCName',
+            ->select('P.ProductID', 'P.ProductName', 'P.ProductImage', 'P.ThumbnailImg', 'PSC.PSCID', 'PSC.PSCName',
                 DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(P.ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'),
+                DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(P.ThumbnailImg, ""), "assets/images/no-image-b.png")) AS ThumbnailImg'),
                 DB::raw('IF(W.product_id IS NOT NULL, true, false) AS IsInWishlist'))
             ->inRandomOrder()
             ->take(10)

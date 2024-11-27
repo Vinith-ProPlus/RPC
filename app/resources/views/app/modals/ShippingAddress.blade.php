@@ -1,28 +1,64 @@
 <div class="row" id="shippingModalMapDiv">
-    <div class="col-sm-12 mt-20">
-        <label for="txtCSPMapUrl">Map Url</label>
-        <div class="input-group">
-            <input type="text" class="form-control  {{$Theme['input-size']}}" id="txtCSPMapUrl" value="">
-            <button class="input-group-text btn-outline-primary px-4 position-relative" id="btnMapSubmit"><i class="fa fa-map-marker"></i></button>
+    @if (array_key_exists("isRegister", $data))
+        <div class="col-sm-12 mt-20">
+            <label for="txtCSPMapUrl">Map Url</label>
+            <div class="input-group">
+                <input type="text" class="form-control  {{$Theme['input-size']}}" id="txtCSPMapUrl" value="">
+                <button class="input-group-text btn-outline-primary px-4 position-relative" id="btnMapSubmit"><i class="fa fa-map-marker"></i></button>
+            </div>
+            <span class="errors err-sm" id="txtCSPMapUrl-err"></span>
         </div>
-        <span class="errors err-sm" id="txtCSPMapUrl-err"></span>
-    </div>
-    <div class="col-sm-12 mt-20">
-        <label for="txtADMap">Select Location <span class="required"> * </span></label>
-        <div id="map" class="mb-0" style="height: 350px;"></div>
-        <span class="errors Address err-sm" id="txtADMap-err"></span>
-    </div>
-    <div class="col-sm-12 mt-20">
-        <div class="form-group">
-            <label for="txtADAddressType">Address Type<span class="required"> * </span></label>
-            <select class="form-control" id="txtADAddressType" name="txtADAddressType">
-                <option value="">Select Address Type</option>
-                <option value="Home" @if(isset($data['AddressType']) && $data['AddressType'] == 'Home') selected @endif>Home</option>
-                <option value="Work" @if(isset($data['AddressType']) && $data['AddressType'] == 'Work') selected @endif>Work</option>
-                <option value="Friends and Family" @if(isset($data['AddressType']) && $data['AddressType'] == 'Friends and Family') selected @endif>Friends and Family</option>
-                <option value="Others" @if(isset($data['AddressType']) && $data['AddressType'] == 'Others') selected @endif>Others</option>
-            </select>
-            <span class="errors Address err-sm" id="txtADAddressType-err"></span>
+    @endif
+    <div class="col-sm-12">
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="col-sm-12 mt-20">
+                    <label for="txtADMap">Select Location <span class="required"> * </span></label>
+                    <div id="map" class="mb-0"></div>
+                    <span class="errors Address err-sm" id="txtADMap-err"></span>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="col-sm-12 mt-20">
+                    <div class="form-group">
+                        <label for="txtADAddressType">Address Type<span class="required"> * </span></label>
+                        <select class="form-control" id="txtADAddressType" name="txtADAddressType">
+                            <option value="">Select Address Type</option>
+                            <option value="Home" @if(isset($data['AddressType']) && $data['AddressType'] == 'Home') selected @endif>Home</option>
+                            <option value="Work" @if(isset($data['AddressType']) && $data['AddressType'] == 'Work') selected @endif>Work</option>
+                            <option value="Friends and Family" @if(isset($data['AddressType']) && $data['AddressType'] == 'Friends and Family') selected @endif>Friends and Family</option>
+                            <option value="Others" @if(isset($data['AddressType']) && $data['AddressType'] == 'Others') selected @endif>Others</option>
+                        </select>
+                        <span class="errors Address err-sm" id="txtADAddressType-err"></span>
+                    </div>
+                </div>
+                <div class="col-sm-12 mt-20">
+                    <div class="form-group">
+                        <label for="txtADAddress">Address <span class="required"> * </span></label>
+                        <textarea class="form-control" placeholder="Address" id="txtADAddress" name="txtADAddress" rows="1"><?php if(array_key_exists("Address",$data)){ echo $data['Address']; } ?></textarea>
+                        <span class="errors Address err-sm" id="txtADAddress-err"></span>
+                    </div>
+                </div>
+                <div class="col-sm-12 mt-20">
+                    <div class="form-group">
+                        <label class="txtADPostalCode">Postal Code <span class="required"> * </span></label>
+                        <div class="input-group">
+                            <input type="text" class="form-control {{$Theme['input-size']}}" id="txtADPostalCode" value="<?php if(array_key_exists("PostalCode",$data)){ echo $data['PostalCode']; } ?>" data-id="<?php if(array_key_exists("PostalCodeID",$data)){ echo $data['PostalCodeID']; } ?>">
+                            <button class="input-group-text btn btn-sm btn-outline-primary px-4 position-relative" id="btnADPostalCode"><i class="fa fa-search"></i></button>
+                        </div>
+                        <div class="errors Address err-sm" id="txtADPostalCode-err"></div>
+                    </div>
+                </div>
+                <div class="col-sm-12 mt-20">
+                    <div class="form-group">
+                        <label for="lstADCity">City <span class="required"> * </span></label>
+                        <select class="form-control adselect2" id="lstADCity" data-parent="1" data-country-id="lstADCountry" data-state-id="lstADState" data-district-id="lstADDistrict" data-taluk-id="lstADTaluk" data-postal-id="txtADPostalCode" data-selected="<?php if(array_key_exists("CityID",$data)){ echo $data['CityID']; } ?>">
+                            <option value="">Select a City</option>
+                        </select>
+                        <span class="errors Address err-sm" id="lstADCity-err"></span>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -35,40 +71,14 @@
         </div>
     </div>
 
-    <div class="col-sm-12 mt-20">
-        <div class="form-group">
-            <label for="txtADAddress">Address <span class="required"> * </span></label>
-            <textarea class="form-control" placeholder="Address" id="txtADAddress" name="txtADAddress" rows="2"><?php if(array_key_exists("Address",$data)){ echo $data['Address']; } ?></textarea>
-            <span class="errors Address err-sm" id="txtADAddress-err"></span>
-        </div>
-    </div>
-    <div class="col-sm-6 mt-20">
-        <div class="form-group">
-            <label class="txtADPostalCode">Postal Code <span class="required"> * </span></label>
-            <div class="input-group">
-                <input type="text" class="form-control {{$Theme['input-size']}}" id="txtADPostalCode" value="<?php if(array_key_exists("PostalCode",$data)){ echo $data['PostalCode']; } ?>" data-id="<?php if(array_key_exists("PostalCodeID",$data)){ echo $data['PostalCodeID']; } ?>">
-                <button class="input-group-text btn btn-sm btn-outline-primary px-4 position-relative" id="btnADPostalCode"><i class="fa fa-search"></i></button>
-            </div>
-            <div class="errors Address err-sm" id="txtADPostalCode-err"></div>
-        </div>
-    </div>
-    <div class="col-sm-6 mt-20">
-        <div class="form-group">
-            <label for="lstADCity">City <span class="required"> * </span></label>
-            <select class="form-control adselect2" id="lstADCity" data-parent="1" data-country-id="lstADCountry" data-state-id="lstADState" data-district-id="lstADDistrict" data-taluk-id="lstADTaluk" data-postal-id="txtADPostalCode" data-selected="<?php if(array_key_exists("CityID",$data)){ echo $data['CityID']; } ?>">
-                <option value="">Select a City</option>
-            </select>
-            <span class="errors Address err-sm" id="lstADCity-err"></span>
-        </div>
-    </div>
     <input type="text" id="txtADLatitude" value="" style="display: none !important;">
     <input type="text" id="txtADLongitude" value="" style="display: none !important;">
     <input type="text" id="MapData" value="" style="display: none !important;">
 </div>
 <div class="row  mt-20">
     <div class="col-sm-12 text-right">
-        <button class="btn btn-sm btn-outline-dark m-5 " id="btnMClose">Close</button>
-        <button class="btn btn-sm btn-outline-success m-5 " data-edit-id="<?php if(array_key_exists("EditID",$data)){ echo $data['EditID']; } ?>" data-aid="<?php if(array_key_exists("AID",$data)){ echo $data['AID']; } ?>" id="btnSaveAddress">@if(array_key_exists("EditID",$data) && $data['EditID']>0) Update @else Save @endif </button>
+        <button class="btn btn btn-outline-dark m-5 " id="btnMClose">Close</button>
+        <button class="btn btn btn-outline-success m-5 " data-edit-id="<?php if(array_key_exists("EditID",$data)){ echo $data['EditID']; } ?>" data-aid="<?php if(array_key_exists("AID",$data)){ echo $data['AID']; } ?>" id="btnSaveAddress">@if(array_key_exists("EditID",$data) && $data['EditID']>0) Update @else Save @endif </button>
     </div>
 </div>
 <div class="d-none" style="display: none !important;">

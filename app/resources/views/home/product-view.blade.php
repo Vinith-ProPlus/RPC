@@ -53,7 +53,7 @@
                         @endforeach
                     </div>
                 </div>
-                <div class="prod-thumbnail owl-dots">
+                <div class="prod-thumbnail product-owl-gallery owl-dots">
                     <div class="owl-dot">
                         <img loading="lazy" src="{{ $product->ProductImage }}"/>
                     </div>
@@ -117,6 +117,9 @@
                     <div class="product-action">
                         <div class="row col-12">
                             <div class="col-8">
+                                <a href="#" class="btn btn-dark mr-2 product-type-simple btn-shop btnBuyNow" title="BUY NOW" id="{{ $product->ProductID }}">
+                                    BUY NOW
+                                </a>
                                 <a href="#"
                                    class="btn btn-dark mr-2 product-type-simple btn-shop {{ $cartProducts->contains('ProductID', $product->ProductID) ? 'added-in-cart' : 'wishlistCartBtn btnAddCart' }}"
                                    title="Add to Cart" id="{{ $product->ProductID }}">
