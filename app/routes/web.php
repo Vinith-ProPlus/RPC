@@ -151,7 +151,7 @@ Route::middleware(['auth', 'check.valid.customer'])->group(function () {
     Route::get('products/sub-category-list', [HomeController::class, 'subCategoryList'])->name('products.subCategoryList');
     Route::get('products/products-list', [HomeController::class, 'productsList'])->name('products.productsList');
 
-    Route::get('products', [HomeAuthController::class, 'products'])->name('products');
+    Route::get('customer/products', [HomeAuthController::class, 'products'])->name('products');
     Route::post('products/wishlist/add', [WishlistController::class, 'addWishlist'])->name('products.addWishlist');
     Route::post('products/wishlist/remove', [WishlistController::class, 'removeWishlist'])->name('products.removeWishlist');
 

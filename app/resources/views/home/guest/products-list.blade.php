@@ -663,6 +663,7 @@
                 success: function(response) {
                     if (response.status) {
                         $('#txtUserOtp-err').text('');
+                        localStorage.setItem('rpc_guest_redirect_url', window.location.href);
                         window.location.href = '{{ url('/') }}';
                     } else {
                         $('#txtUserOtp-err').text(response.message);

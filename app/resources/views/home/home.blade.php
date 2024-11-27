@@ -304,6 +304,12 @@
     <script>
         $(document).ready(function(){
 
+            let redirectUrl = localStorage.getItem('rpc_guest_redirect_url');
+            if (redirectUrl) {
+                localStorage.removeItem('rpc_guest_redirect_url');
+                window.location.href = redirectUrl.replace('/guest', '/customer');
+            }
+
             var bannerCurrentIndex = 0;
             var totalBannerSlides = $('#homeBannerList li').length;
 
