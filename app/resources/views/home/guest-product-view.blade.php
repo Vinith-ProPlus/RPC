@@ -327,7 +327,7 @@
 
                                 <div class="ratings-container">
                                     <div class="product-ratings">
-                                        <span class="ratings" style="width:{{ Rand(50,100) }}%"></span>
+                                        <span class="ratings" style="width:100%"></span>
                                     </div>
                                 </div>
 
@@ -471,7 +471,7 @@
                                         </h3>
                                         <div class="ratings-container">
                                             <div class="product-ratings">
-                                                <span class="ratings" style="width:{{ rand(0, 100) }}%"></span>
+                                                <span class="ratings" style="width:100%"></span>
                                                 <span class="tooltiptext tooltip-top"></span>
                                             </div>
                                         </div>

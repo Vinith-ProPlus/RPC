@@ -77,7 +77,7 @@
                             </h3>
                             <div class="ratings-container">
                                 <div class="product-ratings">
-                                    <span class="ratings" style="width: {{ $rating }}%"></span>
+                                    <span class="ratings" style="width: 100%"></span>
                                     <span class="tooltiptext tooltip-top"></span>
                                 </div>
                             </div>
@@ -98,7 +98,7 @@
                         <h3 class="product-title"><a href="{{ route('guest.product.view', $product->ProductID) }}"> {{ $product->ProductName }}</a></h3>
                         <div class="ratings-container">
                             <div class="product-ratings">
-                                <span class="ratings" style="width:{{ $rating }}%"></span>
+                                <span class="ratings" style="width:100%"></span>
                                 <span class="tooltiptext tooltip-top"></span>
                             </div>
                         </div>
