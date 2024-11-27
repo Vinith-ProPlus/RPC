@@ -847,6 +847,29 @@
                 }
             });
         });
+        $('.btnBuyNow').click(function () {
+            let thiss = $(this);
+            let FormData = {
+                'ProductID': $(this).attr('id'),
+            }
+            $.ajax({
+                type: "post",
+                data: FormData,
+                url: "{{ route('add-cart') }}",
+                headers: {'X-CSRF-Token': $('meta[name=_token]').attr('content')},
+                dataType: "json",
+                error: function (e, x, settings, exception) {
+                    ajaxErrors(e, x, settings, exception);
+                },
+                complete: function (e, x, settings, exception) {
+                },
+                success: function (response) {
+                    window.location.replace("{{ route('checkout') }}");
+                    if (response.status) {
+                    }
+                }
+            });
+        });
 
         $(document).on('input', '.txtUpdateQty', function () {
             let Qty = $(this).val();

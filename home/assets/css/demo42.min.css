@@ -18632,7 +18632,7 @@ svg .appear-animate {
 }
 
 .home-slide {
-	height: 532px;
+	height: 621px;
 	padding: 1.5rem;
 	background-position: center;
 	background-repeat: no-repeat;
@@ -19645,4 +19645,18 @@ svg .appear-animate {
 	left: 0;
 	width: 100% !important;
 	height: 100% !important;
+}
+
+.owl-dots.product-owl-gallery .owl-dot{
+    outline: none;
+    display: flex;
+    width: 100px;
+    height: 100px;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #ccc;
+    background: #fff;
+    max-width: 100px;
+    max-height: 100px;
+    overflow: hidden;
 }

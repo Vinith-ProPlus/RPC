@@ -66,7 +66,7 @@
             color: #333333;
         }
         .app-img {
-            max-width: 300px;
+            max-width: 500px;
         }
 
         .sent-me-link-btn {
@@ -252,7 +252,7 @@
                             </li>
                         </ul>
                     </nav>
-                    <a href="#AppLinkDiv" class="btn text-right text-white d-none" style="background-color: #1a67c5;">Become a vendor</a>
+                    <a href="#AppLinkDiv" class="btn text-right text-white" style="background-color: #1a67c5;">Become a vendor</a>
                 </div><!-- End .container -->
             </div><!-- End .header-bottom -->
         </header><!-- End .header -->
@@ -517,11 +517,11 @@
                     </div>
                 </div>
             </section>
-            <div class="container d-none" id="AppLinkDiv" style="border-top: 1px solid #e7e7e7;">
+            <div class="container" id="AppLinkDiv" style="border-top: 1px solid #e7e7e7;">
                 <div class="row" style="padding: 50px 15px;">
                     <div class="col-md-4 col-sm-12 d-flex justify-content-center align-items-center">
                         <div style="padding: 15px;">
-                            <img src="https://hm.imimg.com/imhome_gifs/app-img.png" alt="Get RPC App" class="app-img">
+                            <img src="{{url('assets/images/rpc-apps.png')}}" alt="Get RPC App" class="app-img">
                         </div>
                     </div>
                     <div class="col-md-8 col-sm-12 d-flex justify-content-center align-items-center">
@@ -531,7 +531,7 @@
                             <div id="send-app-link-mobile">
                                 <label style="font-weight: 600; margin: 0;">+91</label>
                                 <input type="text" placeholder="Enter Mobile Number" id="appLinkMobileNumberInput" maxlength="10" autocomplete="off">
-                                <button class="sent-me-link-btn">Sent me the link</button>
+                                <button class="sent-me-link-btn btn">Sent me the link</button>
                                 <div id="app-link-err-msg"></div>
                                 <p>We will send you a link, open it on your phone to download the App</p>
                             </div>

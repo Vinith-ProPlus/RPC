@@ -118,33 +118,10 @@
                                         </div>
                                     </div>
                                 @endif
-                                <div class="col-sm-6 mt-20">
-                                    <div class="form-group">
-                                        <label for="txtMobileNo2">Alternate Mobile Number </label>
-                                        <input type="text" id="txtMobileNo2" class="form-control" placeholder="Alternate Mobile Number" value="@if($isEdit){{$EditData->MobileNo2}}@endif">
-                                        <span class="errors Customer err-sm" id="txtMobileNo2-err"></span>
-                                    </div>
-                                </div>
-                                <div class="col-sm-6 mt-20">
-                                    <div class="form-group">
-                                        <label for="lstGender">Gender <span class="required">*</span></label>
-                                        <select class="form-control" id="lstGender" data-selected="{{ $isEdit ? $EditData->GenderID : '' }}">
-                                            <option value="">Select Gender</option>
-                                        </select>
-                                        <span class="errors Customer err-sm" id="lstGender-err"></span>
-                                    </div>
-                                </div>
                                 @php
                                     $minDOB = Carbon\Carbon::now()->subYears(150)->format('Y-m-d');
                                     $maxDOB = Carbon\Carbon::now()->subYears(10)->format('Y-m-d');
                                 @endphp
-                                <div class="col-sm-6 mt-20">
-                                    <div class="form-group">
-                                        <label for="txtDOB">DOB <span class="required">*</span></label>
-                                        <input type="date" id="txtDOB" class="form-control" placeholder="Select DOB" min="{{ $minDOB }}" max="{{ $maxDOB }}" value="{{ $isEdit ? ($EditData->DOB ?? '') : '' }}">
-                                        <span class="errors Customer err-sm" id="txtDOB-err"></span>
-                                    </div>
-                                </div>
                                 <div class="col-sm-6 mt-20">
                                     <div class="form-group">
                                         <label for="lstCusType">Customer Type <span class="required">*</span></label>
@@ -154,75 +131,100 @@
                                         <span class="errors Customer err-sm" id="lstCusType-err"></span>
                                     </div>
                                 </div>
-                                <div class="col-sm-6 mt-20">
-                                    <div class="form-group">
-                                        <label for="lstConTypeIDs">Construction Type <span class="required">*</span></label>
-                                        <select class="form-control" id="lstConTypeIDs" data-selected="{{ $isEdit ? ($EditData->ConTypeIDs ?? '') : '' }}">
-                                            <option value="">Select a Construction Type</option>
-                                        </select>
-                                        <span class="errors Customer err-sm" id="lstConTypeIDs-err"></span>
-                                    </div>
-                                </div>
-                                <div class="col-sm-12 mt-20">
-                                    <label for="txtAddress">Billing Address <span class="required">*</span></label>
-                                    <textarea  id="txtAddress" class="form-control">@if($isEdit){{$EditData->Address}}@endif</textarea>
-                                    <span class="errors BA err-sm" id="txtAddress-err"></span>
-                                </div>
-                                <div class="col-sm-6 mt-20">
-                                    <div class="form-group">
-                                        <label for="txtPostalCode">Postal Code <span class="required">*</span></label>
-                                        <div class="input-group">
-                                            <input type="text" id="txtPostalCode" class="form-control" placeholder="Postal Code" value="@if($isEdit){{$EditData->PostalCode}}@endif">
-                                            <button type="button" class="btn btn-sm btn-outline-dark" id="btnGSearchPostalCode">Search <i class="fa fa-search"></i></button>
+                                @if($isEdit)
+                                    <div class="col-sm-6 mt-20">
+                                        <div class="form-group">
+                                            <label for="txtMobileNo2">Alternate Mobile Number </label>
+                                            <input type="text" id="txtMobileNo2" class="form-control" placeholder="Alternate Mobile Number" value="@if($isEdit){{$EditData->MobileNo2}}@endif">
+                                            <span class="errors Customer err-sm" id="txtMobileNo2-err"></span>
                                         </div>
-                                        <div class="errors BA err-sm" id="txtPostalCode-err"></div>
                                     </div>
-                                </div>
-                                <div class="col-sm-6 mt-20">
-                                    <div class="form-group">
-                                        <label for="lstCity">City <span class="required">*</span></label>
-                                        <select class="form-control" id="lstCity" data-selected="@if($isEdit){{$EditData->CityID}}@endif">
-                                            <option value="">Select a City</option>
-                                        </select>
-                                        <div class="errors BA err-sm" id="lstCity-err"></div>
+                                    <div class="col-sm-6 mt-20">
+                                        <div class="form-group">
+                                            <label for="lstGender">Gender <span class="required">*</span></label>
+                                            <select class="form-control" id="lstGender" data-selected="{{ $isEdit ? $EditData->GenderID : '' }}">
+                                                <option value="">Select Gender</option>
+                                            </select>
+                                            <span class="errors Customer err-sm" id="lstGender-err"></span>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="col-sm-6 mt-20">
-                                    <div class="form-group">
-                                        <label for="lstTaluk">Taluk <span class="required">*</span></label>
-                                        <select class="form-control" id="lstTaluk" data-selected="@if($isEdit){{$EditData->TalukID}}@endif">
-                                            <option value="">Select a Taluk</option>
-                                        </select>
-                                        <div class="errors BA err-sm" id="lstTaluk-err"></div>
+                                    <div class="col-sm-6 mt-20">
+                                        <div class="form-group">
+                                            <label for="txtDOB">DOB <span class="required">*</span></label>
+                                            <input type="date" id="txtDOB" class="form-control" placeholder="Select DOB" min="{{ $minDOB }}" max="{{ $maxDOB }}" value="{{ $isEdit ? ($EditData->DOB ?? '') : '' }}">
+                                            <span class="errors Customer err-sm" id="txtDOB-err"></span>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="col-sm-6 mt-20">
-                                    <div class="form-group">
-                                        <label for="lstDistrict">District <span class="required">*</span></label>
-                                        <select class="form-control" id="lstDistricts" data-selected="@if($isEdit){{$EditData->DistrictID}}@endif">
-                                            <option value="">Select a District</option>
-                                        </select>
-                                        <div class="errors BA err-sm" id="lstDistricts-err"></div>
+                                    <div class="col-sm-6 mt-20">
+                                        <div class="form-group">
+                                            <label for="lstConTypeIDs">Construction Type <span class="required">*</span></label>
+                                            <select class="form-control" id="lstConTypeIDs" data-selected="{{ $isEdit ? ($EditData->ConTypeIDs ?? '') : '' }}">
+                                                <option value="">Select a Construction Type</option>
+                                            </select>
+                                            <span class="errors Customer err-sm" id="lstConTypeIDs-err"></span>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="col-sm-6 mt-20">
-                                    <div class="form-group">
-                                        <label for="lstState">State <span class="required">*</span></label>
-                                        <select class="form-control" id="lstState"  data-selected="@if($isEdit){{$EditData->StateID}}@endif">
-                                            <option value="">Select a State</option>
-                                        </select>
-                                        <div class="errors BA err-sm" id="lstState-err"></div>
+                                    <div class="col-sm-12 mt-20">
+                                        <label for="txtAddress">Billing Address <span class="required">*</span></label>
+                                        <textarea  id="txtAddress" class="form-control">@if($isEdit){{$EditData->Address}}@endif</textarea>
+                                        <span class="errors BA err-sm" id="txtAddress-err"></span>
                                     </div>
-                                </div>
-                                <div class="col-sm-6 mt-20">
-                                    <div class="form-group">
-                                        <label for="lstCountry">Country <span class="required">*</span></label>
-                                        <select class="form-control" id="lstCountry" data-selected="@if($isEdit){{$EditData->CountryID}}@endif">
-                                            <option value="">Select a Country</option>
-                                        </select>
-                                        <div class="errors BA err-sm" id="lstCountry-err"></div>
+                                    <div class="col-sm-6 mt-20">
+                                        <div class="form-group">
+                                            <label for="txtPostalCode">Postal Code <span class="required">*</span></label>
+                                            <div class="input-group">
+                                                <input type="text" id="txtPostalCode" class="form-control" placeholder="Postal Code" value="@if($isEdit){{$EditData->PostalCode}}@endif">
+                                                <button type="button" class="btn btn-sm btn-outline-dark" id="btnGSearchPostalCode">Search <i class="fa fa-search"></i></button>
+                                            </div>
+                                            <div class="errors BA err-sm" id="txtPostalCode-err"></div>
+                                        </div>
                                     </div>
-                                </div>
+                                    <div class="col-sm-6 mt-20">
+                                        <div class="form-group">
+                                            <label for="lstCity">City <span class="required">*</span></label>
+                                            <select class="form-control" id="lstCity" data-selected="@if($isEdit){{$EditData->CityID}}@endif">
+                                                <option value="">Select a City</option>
+                                            </select>
+                                            <div class="errors BA err-sm" id="lstCity-err"></div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 mt-20">
+                                        <div class="form-group">
+                                            <label for="lstTaluk">Taluk <span class="required">*</span></label>
+                                            <select class="form-control" id="lstTaluk" data-selected="@if($isEdit){{$EditData->TalukID}}@endif">
+                                                <option value="">Select a Taluk</option>
+                                            </select>
+                                            <div class="errors BA err-sm" id="lstTaluk-err"></div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 mt-20">
+                                        <div class="form-group">
+                                            <label for="lstDistrict">District <span class="required">*</span></label>
+                                            <select class="form-control" id="lstDistricts" data-selected="@if($isEdit){{$EditData->DistrictID}}@endif">
+                                                <option value="">Select a District</option>
+                                            </select>
+                                            <div class="errors BA err-sm" id="lstDistricts-err"></div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 mt-20">
+                                        <div class="form-group">
+                                            <label for="lstState">State <span class="required">*</span></label>
+                                            <select class="form-control" id="lstState"  data-selected="@if($isEdit){{$EditData->StateID}}@endif">
+                                                <option value="">Select a State</option>
+                                            </select>
+                                            <div class="errors BA err-sm" id="lstState-err"></div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 mt-20">
+                                        <div class="form-group">
+                                            <label for="lstCountry">Country <span class="required">*</span></label>
+                                            <select class="form-control" id="lstCountry" data-selected="@if($isEdit){{$EditData->CountryID}}@endif">
+                                                <option value="">Select a Country</option>
+                                            </select>
+                                            <div class="errors BA err-sm" id="lstCountry-err"></div>
+                                        </div>
+                                    </div>
+                                @endif
                             </div>
                             <div class="row mt-3">
                                 <div class="col-sm-12 text-center">
@@ -606,59 +608,62 @@
             }else if (!mobilePattern.test(MobileNo1)){
                 $("#txtMobileNo1-err").html("Mobile Number must be 10 digit");
             }
-            if (MobileNo2.length > 0 && !mobilePattern.test(MobileNo2)){
+            if (MobileNo2 && !mobilePattern.test(MobileNo2)){
                 $("#txtMobileNo2-err").html("Alternate Mobile Number must be 10 digit");status=false;
             }
-            if(Email === ""){
-                $('#txtEmail').html('Email is required.');status=false;
-            }
-            if(AddressType === ""){
-                $('#txtADAddressType').html('Address Type is required.');status=false;
-            }
-            if(Gender === ""){
-                $('#lstGender-err').html('Gender is required.');status=false;
+            if(!Email){
+                $('#txtEmail-err').html('Email is required.');status=false;
             }
 
-            if (DOB === "") {
-                $('#txtDOB-err').html('DOB is required.');status = false;
-            } else {
-                let minDOB = new Date("{{ $minDOB }}");
-                let maxDOB = new Date("{{ $maxDOB }}");
-                let enteredDOB = new Date(DOB);
-                if (enteredDOB < minDOB || enteredDOB > maxDOB) {
-                    $('#txtDOB-err').html('DOB must be between 10 and 150 years ago.');status = false;
-                }
-            }
-
-            if(CusType === ""){
+            if(!CusType){
                 $('#lstCusType-err').html('Customer type is required.');status=false;
             }
-            if(ConType.length === 0){
-                $('#lstConTypeIDs-err').html('Construction type is required.');status=false;
-            }
-            if(!PostalCode){
-                $('#txtPostalCode-err').html('Postal Code is required.');status=false;isAddress=true;
-            }
-            if(CityID==""){
-                $('#lstCity-err').html('City is required.');status=false;isAddress=true;
-            }
-            if(TalukID==""){
-                $('#lstTaluk-err').html('Taluk is required.');status=false;isAddress=true;
-            }
-            if(DistrictID==""){
-                $('#lstDistricts-err').html('District is required.');status=false;isAddress=true;
-            }
-            if(StateID==""){
-                $('#lstState-err').html('State is required.');status=false;isAddress=true;
-            }
-            if(CountryID==""){
-                $('#lstCountry-err').html('Country is required.');status=false;isAddress=true;
-            }
-            if(Address==""){
-                $('#txtAddress-err').html('Address is required.');status=false;
-            }else if(Address.length<10){
-                $('#txtAddress-err').html('Address must be greater than 10 characters');status=false;isAddress=true;
-            }
+            @if($isEdit)
+                if(AddressType === ""){
+                    $('#txtADAddressType').html('Address Type is required.');status=false;
+                }
+                if(Gender === ""){
+                    $('#lstGender-err').html('Gender is required.');status=false;
+                }
+
+                if (DOB === "") {
+                    $('#txtDOB-err').html('DOB is required.');status = false;
+                } else {
+                    let minDOB = new Date("{{ $minDOB }}");
+                    let maxDOB = new Date("{{ $maxDOB }}");
+                    let enteredDOB = new Date(DOB);
+                    if (enteredDOB < minDOB || enteredDOB > maxDOB) {
+                        $('#txtDOB-err').html('DOB must be between 10 and 150 years ago.');status = false;
+                    }
+                }
+                if(ConType.length === 0){
+                    $('#lstConTypeIDs-err').html('Construction type is required.');status=false;
+                }
+                if(!PostalCode){
+                    $('#txtPostalCode-err').html('Postal Code is required.');status=false;isAddress=true;
+                }
+                if(CityID==""){
+                    $('#lstCity-err').html('City is required.');status=false;isAddress=true;
+                }
+                if(TalukID==""){
+                    $('#lstTaluk-err').html('Taluk is required.');status=false;isAddress=true;
+                }
+                if(DistrictID==""){
+                    $('#lstDistricts-err').html('District is required.');status=false;isAddress=true;
+                }
+                if(StateID==""){
+                    $('#lstState-err').html('State is required.');status=false;isAddress=true;
+                }
+                if(CountryID==""){
+                    $('#lstCountry-err').html('Country is required.');status=false;isAddress=true;
+                }
+                if(Address==""){
+                    $('#txtAddress-err').html('Address is required.');status=false;
+                }else if(Address.length<10){
+                    $('#txtAddress-err').html('Address must be greater than 10 characters');status=false;isAddress=true;
+                }
+            @endif
+
             let TotRows=$('#tblShippingAddress tbody tr').length;
             let isSelectedDefaultShipping=$('input[type="radio"][name="SAddress"]:checked').length
             if(TotRows<=0){
@@ -731,6 +736,7 @@
             let EditData=JSON.parse($(this).closest('tr').find("td:eq(3)").html());
             EditData.EditID=Row.attr('id');
             EditData.AID=Row.attr('data-aid');
+            EditData.isRegister=1;
             getAddressModal(EditData);
         });
         $(document).on('click', '#btnEditImage', function () {
@@ -978,7 +984,7 @@
             $('.errors').html('');
         });
 
-        const getAddressModal=(data={})=>{
+        const getAddressModal=(data={isRegister:1})=>{
             $.ajax({
                 type:"post",
                 url:"{{url('/')}}/shipping-address-form",
@@ -1192,7 +1198,7 @@
                 success: function (response) {
                     for (let Item of response.data) {
                         var selectedValues = $('#' + id).attr('data-selected');
-                        var selectedValuesArray = selectedValues.split(',');
+                        var selectedValuesArray =selectedValues ? selectedValues.split(',') : [];
                         if (selectedValuesArray.includes(Item.ConTypeID)) {
                             $('#' + id).append('<option selected value="' + Item.ConTypeID + '">' + Item.ConTypeName + ' </option>');
                         } else {

@@ -106,6 +106,9 @@
                         <div class="price-box"></div>
                         <div class="d-flex align-items-center product-action">
                             <a href="#" class="btn btn-dark add-cart mr-2 redirectLogin text-white" id="{{ $product->ProductID }}">
+                                <span>BUY NOW</span>
+                            </a>
+                            <a href="#" class="btn btn-dark add-cart mr-2 redirectLogin text-white" id="{{ $product->ProductID }}">
                                 <i class="icon-shopping-cart"></i>
                                 <span>ADD TO CART</span>
                             </a>

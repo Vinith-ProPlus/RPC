@@ -41,7 +41,7 @@
                     @endforeach
                 </div>
             </div>
-            <div class="prod-thumbnail owl-dots">
+            <div class="prod-thumbnail product-owl-gallery owl-dots">
                 <div class="owl-dot">
                     <img loading="lazy" src="{{ $product->ProductImage }}"/>
                 </div>
@@ -116,6 +116,9 @@
                                 </a>
                             </div>
                         @endif
+                        <div class="col-12 my-2">
+                            <a href="#" class="btn btn-block btn-dark mr-2 btnBuyNow" title="Buy Now" id="{{ $product->ProductID }}">Buy Now</a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -230,6 +233,30 @@
                         thiss.removeClass('wishlistCartBtn btnAddCart btn-add-cart add-cart');
                         LoadCart(response.data);
                         UpdateItemQtyCount(response.data.length);
+                    }
+                }
+            });
+        });
+        
+        $('.btnBuyNow').click(function () {
+            let thiss = $(this);
+            let FormData = {
+                'ProductID': $(this).attr('id'),
+            }
+            $.ajax({
+                type: "post",
+                data: FormData,
+                url: "{{ route('add-cart') }}",
+                headers: {'X-CSRF-Token': $('meta[name=_token]').attr('content')},
+                dataType: "json",
+                error: function (e, x, settings, exception) {
+                    ajaxErrors(e, x, settings, exception);
+                },
+                complete: function (e, x, settings, exception) {
+                },
+                success: function (response) {
+                    window.location.replace("{{ route('checkout') }}");
+                    if (response.status) {
                     }
                 }
             });
