@@ -6,9 +6,9 @@
             }, 0);
             @endphp
         <li>
-            <a href="#widget-category-{{ $category->PCID }}" data-toggle="collapse" role="button" aria-expanded="true"
-               aria-controls="widget-category-{{ $category->PCID }}">
-                {{ $category->PCName }}<span class="products-count">({{ $totalProductCount }})</span>
+            <a href="#widget-category-{{ $category->PCID }}" data-toggle="collapse" role="button" aria-expanded="true" aria-controls="widget-category-{{ $category->PCID }}">
+                {{ $category->PCName }}
+                <span class="products-count">({{ $totalProductCount }})</span>
                 <span class="toggle"></span>
             </a>
             <div class="collapse show" id="widget-category-{{ $category->PCID }}">

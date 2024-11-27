@@ -43,7 +43,7 @@
                             <div class="product-default inner-quickview inner-icon product-div">
                                 <figure>
                                     <div class="image-container">
-                                        <img loading="lazy" src="{{ $PSubCatagory->PSCImage }}" alt="{{ $PSubCatagory->PSCName }}">
+                                        <img loading="lazy" src="{{ file_exists($PSubCatagory->ThumbnailImg)? url('/'.$PSubCatagory->ThumbnailImg): $PSubCatagory->PSCImage }}" alt="{{ $PSubCatagory->PSCName }}">
                                     </div>
                                     <div class="label-group"></div>
                                 </figure>

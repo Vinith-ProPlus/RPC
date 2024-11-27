@@ -71,7 +71,7 @@
 {{--        <div class="product-category">--}}
 {{--            <a href="#">--}}
 {{--                <figure>--}}
-{{--                    <img loading="lazy" src="{{ $category->PCImage }}" alt="{{ $category->PCName }}" width="25" height="25">--}}
+{{--                    <img loading="lazy" src="{{ file_exists($category->ThumbnailImg)? url('/'.$category->ThumbnailImg):$category->PCImage }}" alt="{{ $category->PCName }}" width="25" height="25">--}}
 {{--                </figure>--}}
 {{--            </a>--}}
 {{--            <div class="category-content">--}}
@@ -91,7 +91,7 @@
             <div class="product-category">
                 <a href="{{ route('products.customer.subCategoryList', ['CID' => $category->PCID]) }}">
                     <figure>
-                        <img loading="lazy" src="{{ $category->PCImage }}" alt="{{ $category->PCName }}" width="25" height="25">
+                        <img loading="lazy" src="{{ file_exists($category->ThumbnailImg)? url('/'.$category->ThumbnailImg):$category->PCImage }}" alt="{{ $category->PCName }}" width="25" height="25">
                     </figure>
                 </a>
                 <div class="category-content">
@@ -132,7 +132,7 @@
                 <div class="product-default inner-quickview inner-icon product-div">
                     <figure>
                         <a href="{{ route('customer.product.view', $hotProduct->ProductID) }}">
-                            <img loading="lazy" src="{{ $hotProduct->ProductImage }}" width="300" height="300" alt="product">
+                            <img loading="lazy" src="{{ file_exists($hotProduct->ThumbnailImg)?url('/'.$hotProduct->ThumbnailImg):$hotProduct->ProductImage }}" width="300" height="300" alt="product">
                         </a>
                         <div class="label-group">
                             {{-- <span class="product-label label-sale">-13%</span> --}}
@@ -223,7 +223,7 @@
                 <div class="product-default inner-quickview inner-icon product-div">
                     <figure>
                         <a href="{{ route('customer.product.view', $recentProduct->ProductID) }}">
-                            <img loading="lazy" src="{{ $recentProduct->ProductImage }}" width="300" height="300" alt="product">
+                            <img loading="lazy" src="{{ file_exists($recentProduct->ThumbnailImg)?url('/'.$recentProduct->ThumbnailImg):$recentProduct->ProductImage }}" width="300" height="300" alt="product">
                         </a>
                         <div class="label-group">
                             {{-- <span class="product-label label-sale">-13%</span> --}}

@@ -53,7 +53,7 @@
                 <div class="product-default inner-quickview inner-icon product-div">
                     <figure>
                         <a href="{{ route('guest.product.view', $product->ProductID) }}">
-                            <img loading="lazy" src="{{ $product->ProductImage }}" width="300" height="300" alt="{{ $product->ProductName }}">
+                            <img loading="lazy" src="{{ file_exists($product->ThumbnailImg)? url('/'.$product->ThumbnailImg): $product->ProductImage }}" width="300" height="300" alt="{{ $product->ProductName }}">
                         </a>
                         <div class="label-group"></div>
                         <div class="btn-icon-group">
@@ -88,7 +88,7 @@
                 <div class="col-sm-12 col-6 product-default left-details product-list mb-2 product-div">
                     <figure>
                         <a href="#">
-                            <img loading="lazy" src="{{ $product->ProductImage }}" width="250" height="250" alt="product">
+                            <img loading="lazy" src="{{ file_exists($product->ThumbnailImg)? url('/'.$product->ThumbnailImg): $product->ProductImage }}" width="250" height="250" alt="product">
                         </a>
                     </figure>
                     <div class="product-details">

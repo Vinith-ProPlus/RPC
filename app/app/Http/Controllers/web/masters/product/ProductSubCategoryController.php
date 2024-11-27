@@ -154,6 +154,7 @@ class ProductSubCategoryController extends Controller{
 			DB::beginTransaction();
 			$status=false;
 			$images=array();
+			$ThumbnailImg="";
 			try {
 				$PSCImage="";
 				$PSCID=DocNum::getDocNum(docTypes::ProductSubCategory->value,"",Helper::getCurrentFY());
@@ -176,13 +177,20 @@ class ProductSubCategoryController extends Controller{
 				}
 				if(file_exists($PSCImage)){
 					$images=helper::ImageResize($PSCImage,$dir);
+					$pathInfo = pathinfo($PSCImage);
+
+					// Rebuild the full file path
+					$ThumbName = $pathInfo['dirname'] . '/' . $pathInfo['filename']. "_thumb" . '.' . $pathInfo['extension'];
+					$ThumbnailImg=helper::generateThumbnail($PSCImage,$ThumbName);
 				}
+				$ThumbnailImg=file_exists($ThumbnailImg)?$ThumbnailImg:"";
 				$data=array(
 					"PSCID"=>$PSCID,
 					"PSCName"=>$req->PSCName,
 					"PCID"=>$req->PCategory,
 					"VideoURLs"=>serialize(json_decode($req->VideoURLs,true)),
 					'PSCImage'=>$PSCImage,
+					"ThumbnailImg"=>$ThumbnailImg,
 					"Images"=>serialize($images),
 					"ActiveStatus"=>$req->ActiveStatus,
 					"CreatedBy"=>$this->UserID,
@@ -212,6 +220,7 @@ class ProductSubCategoryController extends Controller{
 				foreach($images as $KeyName=>$Img){
 					Helper::removeFile($Img['url']);
 				}
+				Helper::removeFile($ThumbnailImg);
 				return array('status'=>false,'message'=>"Sub Category Create Failed");
 			}
 		}else{
@@ -250,6 +259,8 @@ class ProductSubCategoryController extends Controller{
 			$status=false;
 			$currPSCImage=array();
 			$images=array();
+			$ThumbnailImg="";
+			$currThumbnailImg="";
 			try {
 				$OldData=DB::table('tbl_product_subcategory')->where('PSCID',$PSCID)->get();
 				$PSCImage="";
@@ -272,9 +283,15 @@ class ProductSubCategoryController extends Controller{
 				}
 				if(file_exists($PSCImage)){
 					$images=helper::ImageResize($PSCImage,$dir);
+					$pathInfo = pathinfo($PSCImage);
+
+					// Rebuild the full file path
+					$ThumbName = $pathInfo['dirname'] . '/' . $pathInfo['filename']. "_thumb" . '.' . $pathInfo['extension'];
+					$ThumbnailImg=helper::generateThumbnail($PSCImage,$ThumbName);
 				}
 				if(($PSCImage!="" || intval($req->removePSCImage)==1) && Count($OldData)>0){
 					$currPSCImage=$OldData[0]->Images!=""?unserialize($OldData[0]->Images):array();
+					$currThumbnailImg=$OldData[0]->ThumbnailImg;
 				}
 				$data=array(
 					"PSCName"=>$req->PSCName,
@@ -287,9 +304,11 @@ class ProductSubCategoryController extends Controller{
 				if($PSCImage!=""){
 					$data['PSCImage']=$PSCImage;
 					$data['Images']=serialize($images);
+					$data["ThumbnailImg"]=$ThumbnailImg;
 				}else if(intval($req->removePSCImage)==1){
 					$data['PSCImage']="";
 					$data['Images']=serialize(array());
+					$data["ThumbnailImg"]="";
 				}
 				$status=DB::Table('tbl_products')->where('SCID',$PSCID)->update(['CID'=>$req->PCategory]);
 				$status=DB::Table('tbl_product_subcategory')->where('PSCID',$PSCID)->update($data);
@@ -313,12 +332,14 @@ class ProductSubCategoryController extends Controller{
 				foreach($currPSCImage as $KeyName=>$Img){
 					Helper::removeFile($Img['url']);
 				}
+				Helper::removeFile($currThumbnailImg);
 				return array('status'=>true,'message'=>"Sub Category Updated Successfully");
 			}else{
 				DB::rollback();
 				foreach($images as $KeyName=>$Img){
 					Helper::removeFile($Img['url']);
 				}
+				Helper::removeFile($ThumbnailImg);
 				return array('status'=>false,'message'=>"Sub Category Update Failed");
 			}
 		}else{
