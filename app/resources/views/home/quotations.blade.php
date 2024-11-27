@@ -27,7 +27,7 @@
 {{--                                    <td>--}}
 {{--                                        <figure class="product-image-container">--}}
 {{--                                            <a href="#" class="product-image">--}}
-{{--                                                <img loading="lazy" src="{{$item->ProductImage}}" alt="product" height="100px" width="100px">--}}
+{{--                                                <img loading="lazy" src="{{ file_exists($item->ThumbnailImg)? url('/'.$item->ThumbnailImg): $item->ProductImage}}" alt="product" height="100px" width="100px">--}}
 {{--                                            </a>--}}
 
 {{--                                            <a href="#" class="btn-remove icon-cancel btnRemoveCart" title="Remove Product" id="{{$item->ProductID}}"></a>--}}

@@ -45,7 +45,7 @@
                                     <div class="product-default inner-quickview inner-icon product-div">
                                         <figure>
                                             <div class="image-container">
-                                                <img loading="lazy" src="{{ $PCategory->PCImage }}" alt="{{ $PCategory->PCName }}">
+                                                <img loading="lazy" src="{{ file_exists($PCategory->ThumbnailImg)?url('/'.$PCategory->ThumbnailImg): $PCategory->PCImage }}" alt="{{ $PCategory->PCName }}">
                                             </div>
                                             <div class="label-group"></div>
                                         </figure>
@@ -55,7 +55,7 @@
                                             </h3>
 {{--                                            <div class="ratings-container">--}}
 {{--                                                <div class="product-ratings">--}}
-{{--                                                    <span class="ratings" style="width: {{ $rating }}%"></span>--}}
+{{--                                                    <span class="ratings" style="width: 100%"></span>--}}
 {{--                                                    <span class="tooltiptext tooltip-top"></span>--}}
 {{--                                                </div>--}}
 {{--                                            </div>--}}

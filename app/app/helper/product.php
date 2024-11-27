@@ -78,6 +78,8 @@ class product{
 		$status=false;
 		$images=array();
 		$ProductImage="";
+        $ThumbnailImg="";
+        $CurrThumbnailImg="";
 		$ProductBrochure="";
 		$galleryImages=array();
         $RemoveImg=array();
@@ -119,9 +121,14 @@ class product{
                             copy($tmpImage->data->uploadPath,$dir.$fileName1);
                             $ProductImage=$dir.$fileName1;
                             $images=helper::ImageResize($ProductImage,$dir);
+                            
+                            $pathInfo = pathinfo($ProductImage);
+                            $ThumbName = $pathInfo['dirname'] . '/' . $pathInfo['filename']. "_thumb" . '.' . $pathInfo['extension'];
+                            $ThumbnailImg=helper::generateThumbnail($ProductImage,$ThumbName);
 
                             $RemoveImg[]=$tmpImage->data->uploadPath;
                             $uploadingImgs[]=$ProductImage;
+                            $uploadingImgs[]=$ThumbnailImg;
                             
                             foreach($images as $tindex=>$turl){
                                 $uploadingImgs[]=$turl['url'];
@@ -214,9 +221,11 @@ class product{
                     if($ProductImage!=""){
                         $data['ProductImage']=$ProductImage;
                         $data['Images']=serialize($images);
+                        $data['ThumbnailImg']=$ThumbnailImg;
                     }else if($isDeleteProductImage){
                         $data['ProductImage']="";
                         $data['Images']=serialize(array());
+                        $data['ThumbnailImg']='';
                     }
                     if($ProductBrochure!=""){
                         $data['ProductBrochure']=$ProductBrochure;
@@ -245,6 +254,7 @@ class product{
                         "Decimals"=>$result[0]->Decimals,
                         "Attributes"=>$result[0]->Attributes,
                         'ProductImage'=>$ProductImage,
+                        'ThumbnailImg'=>$ThumbnailImg,
                         'ProductBrochure'=>$ProductBrochure,
                         "Images"=>serialize($images),
                         "Description"=>$result[0]->Description,

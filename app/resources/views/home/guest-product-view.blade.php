@@ -292,8 +292,7 @@
                             </div>
                             <div class="prod-thumbnail owl-dots">
                                 <div class="owl-dot video-thumbnail">
-                                    <img loading="lazy" alt="{{ $product->ProductName }}"
-                                         src="{{ $product->ProductImage }}"/>
+                                    <img loading="lazy" alt="{{ $product->ProductName }}" src="{{ $product->ProductImage }}"/>
                                 </div>
                                 @if($product->VideoURL != "")
                                     <div class="owl-dot">
@@ -328,7 +327,7 @@
 
                                 <div class="ratings-container">
                                     <div class="product-ratings">
-                                        <span class="ratings" style="width:{{ Rand(50,100) }}%"></span>
+                                        <span class="ratings" style="width:100%"></span>
                                     </div>
                                 </div>
 
@@ -447,8 +446,7 @@
                                 <div class="product-default inner-quickview inner-icon product-div">
                                     <figure>
                                         <a href="{{ route('guest.product.view', $relatedProduct->ProductID) }}">
-                                            <img loading="lazy" src="{{ $relatedProduct->ProductImage }}" width="300"
-                                                 height="300" alt="product">
+                                            <img loading="lazy" src="{{ file_exists($relatedProduct->ThumbnailImg)? url('/'.$relatedProduct->ThumbnailImg): $relatedProduct->ProductImage }}" width="300" height="300" alt="product">
                                         </a>
                                         <div class="label-group">
                                             {{-- <span class="product-label label-sale">-13%</span> --}}
@@ -473,7 +471,7 @@
                                         </h3>
                                         <div class="ratings-container">
                                             <div class="product-ratings">
-                                                <span class="ratings" style="width:{{ rand(0, 100) }}%"></span>
+                                                <span class="ratings" style="width:100%"></span>
                                                 <span class="tooltiptext tooltip-top"></span>
                                             </div>
                                         </div>

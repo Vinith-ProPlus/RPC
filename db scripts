@@ -60,3 +60,9 @@ Place rpc-google-services.json file in storage folder.
 INSERT INTO `tbl_settings` (`SLNO`, `KeyName`, `KeyValue`, `SType`, `Description`, `UpdatedOn`, `UpdatedBy`, `UKey`) VALUES (NULL, 'chat-vendor', 'V2023-00000006', 'text', 'default vendor id to assign the quotation from chat', '2023-08-24 14:54:28', 'U2023-0000001', '');
 
 ALTER TABLE `tbl_quotation` ADD `QuotePDF` TEXT NULL DEFAULT NULL AFTER `DFlag`;
+
+
+2024-11-26
+ALTER TABLE `tbl_product_category` ADD `ThumbnailImg` TEXT NULL DEFAULT NULL AFTER `PCName`;
+ALTER TABLE `tbl_product_subcategory` ADD `ThumbnailImg` TEXT NULL DEFAULT NULL AFTER `PSCName`;
+ALTER TABLE `tbl_products` ADD `ThumbnailImg` TEXT NULL DEFAULT NULL AFTER `Attributes`;

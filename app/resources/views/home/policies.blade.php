@@ -244,7 +244,7 @@
 
                                                 <figure class="product-image-container">
                                                     <a href="{{url('/')}}" class="product-image">
-                                                        <img loading="lazy" src="{{$item->ProductImage}}" alt="product" width="80" height="80">
+                                                        <img loading="lazy" src="{{ file_exists($item->ThumbnailImg)? url('/'.$item->ThumbnailImg): $item->ProductImage}}" alt="product" width="80" height="80">
                                                     </a>
                                                     <a href="#" class="btn-remove btnRemoveCart" title="Remove Product" id="{{$item->ProductID}}"><span>×</span></a>
                                                 </figure>

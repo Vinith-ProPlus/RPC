@@ -133,6 +133,7 @@ class ProductCategoryController extends Controller{
 			DB::beginTransaction();
 			$status=false;
 			$images=array();
+			$ThumbnailImg="";
 			try {
 				$PCImage="";
 				$PCID=DocNum::getDocNum(docTypes::ProductCategory->value,"",Helper::getCurrentFY());
@@ -155,12 +156,19 @@ class ProductCategoryController extends Controller{
 				}
 				if(file_exists($PCImage)){ 
 					$images=helper::ImageResize($PCImage,$dir);
+					$pathInfo = pathinfo($PCImage);
+
+					// Rebuild the full file path
+					$ThumbName = $pathInfo['dirname'] . '/' . $pathInfo['filename']. "_thumb" . '.' . $pathInfo['extension'];
+					$ThumbnailImg=helper::generateThumbnail($PCImage,$ThumbName);
 				}
+				$ThumbnailImg=file_exists($ThumbnailImg)?$ThumbnailImg:"";
 				$data=array(
 					"PCID"=>$PCID,
 					"PCName"=>$req->PCName,
 					'PCImage'=>$PCImage,
 					"Images"=>serialize($images),
+					"ThumbnailImg"=>$ThumbnailImg,
 					"ActiveStatus"=>$req->ActiveStatus,
 					"CreatedBy"=>$this->UserID,
 					"CreatedOn"=>date("Y-m-d H:i:s")
@@ -190,6 +198,7 @@ class ProductCategoryController extends Controller{
 				foreach($images as $KeyName=>$Img){
 					Helper::removeFile($Img['url']);
 				}
+				Helper::removeFile($ThumbnailImg);
 				return array('status'=>false,'message'=>"Product Category Create Failed");
 			}
 		}else{
@@ -219,7 +228,9 @@ class ProductCategoryController extends Controller{
 			DB::beginTransaction();
 			$status=false;
 			$currCImage=array();
+			$currThumbnailImg="";
 			$images=array();
+			$ThumbnailImg="";
 			try {
 				$OldData=DB::table('tbl_product_category')->where('PCID',$PCID)->get();
 				$PCImage="";
@@ -242,10 +253,17 @@ class ProductCategoryController extends Controller{
 				}
 				if(file_exists($PCImage)){
 					$images=helper::ImageResize($PCImage,$dir);
+					$pathInfo = pathinfo($PCImage);
+
+					// Rebuild the full file path
+					$ThumbName =  $pathInfo['filename']. "_thumb" . '.' . $pathInfo['extension'];
+					$ThumbnailImg=helper::generateThumbnail($PCImage,$dir.$ThumbName);
 				}
 				if(($PCImage!="" || intval($req->removePCImage)==1) && Count($OldData)>0){ 
 					$currCImage=$OldData[0]->Images!=""?unserialize($OldData[0]->Images):array();
+					$currThumbnailImg=$OldData[0]->ThumbnailImg;
 				}
+				$ThumbnailImg=file_exists($ThumbnailImg)?$ThumbnailImg:"";
 				$data=array(
 					"PCName"=>$req->PCName,
 					"ActiveStatus"=>$req->ActiveStatus,
@@ -255,9 +273,11 @@ class ProductCategoryController extends Controller{
 				if($PCImage!=""){
 					$data['PCImage']=$PCImage;
 					$data['Images']=serialize($images);
+					$data["ThumbnailImg"]=$ThumbnailImg;
 				}else if(intval($req->removePCImage)==1){
 					$data['PCImage']="";
 					$data['Images']=serialize(array());
+					$data["ThumbnailImg"]="";
 				}
 				$status=DB::Table('tbl_product_category')->where('PCID',$PCID)->update($data);
 				if($status){
@@ -276,9 +296,17 @@ class ProductCategoryController extends Controller{
 				$NewData=DB::table('tbl_product_category')->where('PCID',$PCID)->get();
 				$logData=array("Description"=>"Product Category Updated ","ModuleName"=>$this->ActiveMenuName,"Action"=>cruds::UPDATE->value,"ReferID"=>$PCID,"OldData"=>$OldData,"NewData"=>$NewData,"UserID"=>$this->UserID,"IP"=>$req->ip());
 				logs::Store($logData);
+				foreach($currCImage as $KeyName=>$Img){
+					Helper::removeFile($Img['url']);
+				}
+				Helper::removeFile($currThumbnailImg);
 				return array('status'=>true,'message'=>"Product Category Updated Successfully");
 			}else{
 				DB::rollback();
+				foreach($images as $KeyName=>$Img){
+					Helper::removeFile($Img['url']);
+				}
+				Helper::removeFile($ThumbnailImg);
 				return array('status'=>false,'message'=>"Product Category Update Failed");
 			}
 		}else{

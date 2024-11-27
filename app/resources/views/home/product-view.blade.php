@@ -31,8 +31,7 @@
                 <div class="product-slider-container">
                     <div class="product-single-carousel owl-carousel owl-theme show-nav-hover">
                         <div class="product-item">
-                            <img loading="lazy" class="product-single-image" src="{{ $product->ProductImage }}"
-                                 data-zoom-image="{{ $product->ProductImage }}"/>
+                            <img loading="lazy" class="product-single-image" src="{{ $product->ProductImage }}" data-zoom-image="{{ $product->ProductImage }}"/>
                         </div>
                         @if($product->VideoURL != "")
                             <div class="product-item">
@@ -90,7 +89,7 @@
 
                     <div class="ratings-container">
                         <div class="product-ratings">
-                            <span class="ratings" style="width:{{ Rand(50,100) }}%"></span>
+                            <span class="ratings" style="width:100%"></span>
                         </div>
                     </div>
 
@@ -199,7 +198,7 @@
                         <div class="product-default inner-quickview inner-icon product-div">
                             <figure>
                                 <a href="{{ route('customer.product.view', $relatedProduct->ProductID) }}">
-                                    <img loading="lazy" src="{{ $relatedProduct->ProductImage }}" width="300" height="300" alt="product">
+                                    <img loading="lazy" src="{{ file_exists($relatedProduct->ThumbnailImg)? url('/'.$relatedProduct->ThumbnailImg): $relatedProduct->ProductImage }}" width="300" height="300" alt="product">
                                 </a>
                                 <div class="label-group">
                                     {{-- <span class="product-label label-sale">-13%</span> --}}
@@ -222,7 +221,7 @@
                                 </h3>
                                 <div class="ratings-container">
                                     <div class="product-ratings">
-                                        <span class="ratings" style="width:{{ rand(0, 100) }}%"></span>
+                                        <span class="ratings" style="width:100%"></span>
                                         <span class="tooltiptext tooltip-top"></span>
                                     </div>
                                 </div>

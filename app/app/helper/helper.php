@@ -1253,12 +1253,10 @@ class helper{
 		return $result;
 	}
 
-    public function fileCheckAndUrl($filePath, $dummyFile)
-    {
+    public function fileCheckAndUrl($filePath, $dummyFile){
         return ($filePath != "") ? (file_exists($filePath) ? url($filePath) : url($dummyFile)) : (($dummyFile != "") ? url($dummyFile) : false);
     }
-    public static function checkValidCustomer($CustomerID)
-    {
+    public static function checkValidCustomer($CustomerID){
         $customer = DB::table('tbl_customer')->where('CustomerID', $CustomerID)->first();
         $requiredFields = ["Email", "MobileNo1"];
         foreach ($requiredFields as $field) {
@@ -1279,4 +1277,42 @@ class helper{
         }
         return true;
     }
+	public static function generateThumbnail($sourcePath, $destinationPath, $thumbWidth=150, $thumbHeight=150){
+		// Load the image
+		$sourceImage = SELF::readImage($sourcePath);
+		//$src=SELF::readImage($FileUrl);
+		if ($sourceImage) {
+			// Get original dimensions
+			$sourceWidth = imagesx($sourceImage);
+			$sourceHeight = imagesy($sourceImage);
+		
+			// Calculate the new dimensions maintaining the aspect ratio
+			$aspectRatio = $sourceWidth / $sourceHeight;
+		
+			if ($thumbWidth / $thumbHeight > $aspectRatio) {
+				$thumbWidth = $thumbHeight * $aspectRatio;
+			} else {
+				$thumbHeight = $thumbWidth / $aspectRatio;
+			}
+		
+			// Create the thumbnail image
+			$thumbImage = imagecreatetruecolor($thumbWidth, $thumbHeight);
+		
+			// Resize the original image into the thumbnail
+			imagecopyresampled(
+				$thumbImage, $sourceImage,
+				0, 0, 0, 0,
+				$thumbWidth, $thumbHeight,
+				$sourceWidth, $sourceHeight
+			);
+			// Save the thumbnail to the destination path
+			imagepng($thumbImage, $destinationPath);
+		
+			// Free memory
+			imagedestroy($sourceImage);
+			imagedestroy($thumbImage);
+			return $destinationPath;
+		}
+		return "";
+	}
 }

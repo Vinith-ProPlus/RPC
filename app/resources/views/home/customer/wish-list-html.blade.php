@@ -51,9 +51,8 @@
             <tr class="product-row product-div">
                 <td>
                     <figure class="product-image-container">
-                        <img loading="lazy" src="{{ $product->ProductImage }}" alt="product">
-                        <a href="#" class="btn-remove icon-cancel btn-icon-wish added-wishlist"
-                           title="Remove Product"></a>
+                        <img loading="lazy" src="{{ file_exists($product->ThumbnailImg)? url('/'.$product->ThumbnailImg): $product->ProductImage }}" alt="product">
+                        <a href="#" class="btn-remove icon-cancel btn-icon-wish added-wishlist" title="Remove Product"></a>
                     </figure>
                 </td>
                 <td>
@@ -95,7 +94,7 @@
 {{--                    <div class="product-default inner-quickview inner-icon product-div">--}}
 {{--                        <figure>--}}
 {{--                            <a href="#">--}}
-{{--                                <img loading="lazy" src="{{ $product->ProductImage }}" width="300" height="300" alt="{{ $product->ProductName }}">--}}
+{{--                                <img loading="lazy" src="{{ file_exists($product->ThumbnailImg)? url('/'.$product->ThumbnailImg): $product->ProductImage }}" width="300" height="300" alt="{{ $product->ProductName }}">--}}
 {{--                            </a>--}}
 {{--                            <div class="label-group"></div>--}}
 {{--                            <div class="btn-icon-group">--}}
@@ -119,7 +118,7 @@
 {{--                            </h3>--}}
 {{--                            <div class="ratings-container">--}}
 {{--                                <div class="product-ratings">--}}
-{{--                                    <span class="ratings" style="width: {{ $rating }}%"></span>--}}
+{{--                                    <span class="ratings" style="width: 100%"></span>--}}
 {{--                                    <span class="tooltiptext tooltip-top"></span>--}}
 {{--                                </div>--}}
 {{--                            </div>--}}
@@ -130,7 +129,7 @@
 {{--                <div class="col-sm-12 col-6 product-default left-details product-list mb-2 product-div">--}}
 {{--                    <figure>--}}
 {{--                        <a href="#">--}}
-{{--                            <img loading="lazy" src="{{ $product->ProductImage }}" width="250" height="250" alt="product">--}}
+{{--                            <img loading="lazy" src="{{ file_exists($product->ThumbnailImg)? url('/'.$product->ThumbnailImg): $product->ProductImage }}" width="250" height="250" alt="product">--}}
 {{--                        </a>--}}
 {{--                    </figure>--}}
 {{--                    <div class="product-details">--}}
@@ -140,7 +139,7 @@
 {{--                        <h3 class="product-title"><a href="#"> {{ $product->ProductName }}</a></h3>--}}
 {{--                        <div class="ratings-container">--}}
 {{--                            <div class="product-ratings">--}}
-{{--                                <span class="ratings" style="width:{{ $rating }}%"></span>--}}
+{{--                                <span class="ratings" style="width:100%"></span>--}}
 {{--                                <span class="tooltiptext tooltip-top"></span>--}}
 {{--                            </div>--}}
 {{--                        </div>--}}
