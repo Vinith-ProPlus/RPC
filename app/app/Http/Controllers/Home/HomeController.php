@@ -169,7 +169,7 @@ class HomeController extends Controller{
                         DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(P.ProductImage, ""), "")) AS ProductImage'))
                     ->where('P.DFlag',0)
                     ->inRandomOrder()->take(10)
-                    
+
                     ->get();
                 $FormData['PCategories'] = $PCatagories;
                 $FormData['HotProducts'] = $RecentProducts->shuffle();
@@ -191,7 +191,7 @@ class HomeController extends Controller{
         $FormData['isEdit'] = false;
         $FormData['Cart'] = [];
         $FormData['Company']=$this->Company;
-        $PCatagories = DB::Table('tbl_product_category')->where('ActiveStatus', 'Active')->where('DFlag', 0)->select('PCName', 'PCID', 'PCImage')
+        $PCatagories = DB::Table('tbl_product_category')->where('ActiveStatus', 'Active')->where('DFlag', 0)->select('PCName', 'PCID', 'PCImage', 'ThumbnailImg')
             ->inRandomOrder()->take(10)->get();
         foreach ($PCatagories as $row) {
             $row->PCImage = $row->PCImage ? url('/') . '/' . $row->PCImage : url('/') . '/' . 'assets/images/no-image-b.png';

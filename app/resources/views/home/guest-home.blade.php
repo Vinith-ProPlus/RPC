@@ -755,7 +755,7 @@
                 <div class="row justify-content-center">
                     <div class="col-md-6 justify-content-center">
                         <a href="{{url('/')}}/social/auth/google" class="d-flex justify-content-center align-items-center text-center">
-                            <img src="{{ url('/assets/images/logo/google_sign_in_logo.svg') }}" class="img-fluid" alt="Google SignIn">
+                            <img src="{{ url('/assets/images/logo/google_sign_in_logo.png') }}" style="width: 50%;" class="img-fluid" alt="Google SignIn">
                         </a>
                     </div>
                 </div>
