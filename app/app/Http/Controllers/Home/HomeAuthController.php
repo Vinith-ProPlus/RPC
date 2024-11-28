@@ -587,6 +587,7 @@ class HomeAuthController extends Controller
                 })
                 ->select('P.ProductID', 'P.ProductName', 'P.Description',
                     DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage'),
+                    DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(P.ThumbnailImg, ""), "assets/images/no-image-b.png")) AS ThumbnailImg'),
                     DB::raw('IF(W.product_id IS NOT NULL, true, false) AS IsInWishlist'),
                     'PSC.PSCID',
                     'PSC.PSCName as SubCategoryName')

@@ -404,7 +404,8 @@ class helper{
 		$FromDate=date("y",strtotime($FromDate));
 		$ToDate=date("y",strtotime($ToDate));
 
-		return $FromDate.$ToDate;
+		return 2425;
+		// return $FromDate.$ToDate;
 	}
 	public static function getFinancialYearDetails($FYID){
 		if($FYID==""){
@@ -439,6 +440,7 @@ class helper{
 		}else{
 			$t=self::getCurrentFYDates();
 			$sql="Select SLNo,DBName,FromDate,ToDate,FYName,isCurrent From tbl_financial_year Where FromDate='".date("Y-m-d",strtotime($t->FromDate))."' and ToDate='".date("Y-m-d",strtotime($t->ToDate))."'";
+			$sql="Select SLNo,DBName,FromDate,ToDate,FYName,isCurrent From tbl_financial_year Where isCurrent='Yes'";
 			$result=DB::SELECT($sql);
 			if(count($result)>0){
 				$FYID=$result[0]->SLNo;
@@ -448,7 +450,7 @@ class helper{
 		return self::getFinancialYearDetails($FYID);
 	}
 	public static function getCurrentFYDBName(){
-		$sql="Select SLNo,DBName,FromDate,ToDate,FYName,isCurrent From  tbl_financial_year Where isCurrent='Yes'";
+		$sql="Select SLNo,DBName,FromDate,ToDate,FYName,isCurrent From tbl_financial_year Where isCurrent='Yes'";
 		$result=DB::SELECT($sql);
 		if(count($result)>0){
 			return $result[0]->DBName.".";

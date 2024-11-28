@@ -40,8 +40,8 @@
                         <div class="col-sm-12 text-center mt-20 @if($isEdit && $EditData[0]->BannerType == "Mobile") d-none @endif" id="divWeb">
                             <label for="txtTitle">Banner Title</label>
                             <input type="text" class="form-control" id="txtTitle" value="{{ isset($EditData[0]->BannerTitle) ? $EditData[0]->BannerTitle : '' }}" required>
-                           <label class="mt-20">Web Banner Image <span class="fs-13" style="color:rgba(0,0,0,0.75)" id="lblBanner"> (Upload Ratio=1217px X 532px)</span></label>
-                            <input type="file" class="dropify imageScrop" id="txtBanner" data-min-width=1217 data-min-height=532 data-max-width=1217 data-max-height=532 data-default-file="@if($isEdit && $EditData[0]->BannerType == "Web"){{url('/')."/".$EditData[0]->BannerImage}}@endif"  data-allowed-file-extensions="jpeg jpg png gif">
+                           <label class="mt-20">Web Banner Image <span class="fs-13" style="color:rgba(0,0,0,0.75)" id="lblBanner"> (Upload Ratio=1920px X 621px)</span></label>
+                            <input type="file" class="dropify imageScrop" id="txtBanner" data-min-width=1920 data-min-height=621 data-max-width=1920 data-max-height=621 data-default-file="@if($isEdit && $EditData[0]->BannerType == "Web"){{url('/')."/".$EditData[0]->BannerImage}}@endif"  data-allowed-file-extensions="jpeg jpg png gif">
                         </div>
                         <div class="col-sm-12 text-center mt-20 @if($isEdit && $EditData[0]->BannerType == "Web") d-none @elseif(!$isEdit) d-none @endif" id="divMobile">
                             <label for="txtMBanner">Mobile Banner Image <span class="fs-13" style="color:rgba(0,0,0,0.75)" id="lblBanner"> (Upload Ratio=1902px X 627px)</span></label>

@@ -97,7 +97,7 @@
 									<i data-feather="maximize"></i>
 								</a>
 							</li>-->
-							<li>
+							<li class="d-none">
 								<span>
 									<select id="lstFinancialYear" class="form-control multiselect" data-selected="{{$FY->FYID}}">
 									</select>
