@@ -1,3 +1,6 @@
+@php use Illuminate\Support\Facades\DB; @endphp
+@php use App\helper\helper; @endphp
+
 <style>
     .notification-item.read {
         background: #cccccc30;
@@ -9,7 +12,29 @@
 <li class="divider"></li>
 <div class="notifications-wrapper" id="customerNotification" style="top: 160px !important;">
     @forelse($Notifications as $notification)
-        <a class="content" href="#">
+        @php
+            $notification_url = '#';
+            switch ($notification->Route) {
+                case 'Enquiry':
+                case 'Quotation':
+                    $notification_url = route('customer.quotations.QuoteView', $notification->RouteID);
+                    break;
+                case 'Order':
+                    $notification_url = route('CustomerOrderView', $notification->RouteID);
+                    break;
+                case 'Ratings':
+                    $customer_order_id = DB::table(helper::getcurrFyDB().'tbl_vendor_orders')->where('VOrderID', $notification->RouteID)->value('OrderID');
+                    if($customer_order_id){
+                        $notification_url = route('CustomerOrderView', $customer_order_id);
+                    }
+                    break;
+                case 'Support':
+                    $notification_url = route('customer.support.SupportDetailsView', $notification->RouteID);
+                    break;
+            }
+        @endphp
+
+        <a class="content" href="{{ $notification_url }}">
             <div class="notification-item {{ $notification->ReadStatus ? 'read' : 'notificationMarkRead' }}" data-nid="{{ $notification->NID }}">
                 <h4 class="item-title">{{ $notification->Title }}</h4>
                 <p class="item-info">{{ $notification->Message }}</p>

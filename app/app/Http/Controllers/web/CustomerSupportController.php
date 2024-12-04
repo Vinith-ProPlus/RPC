@@ -49,6 +49,26 @@ class CustomerSupportController extends Controller{
 			$this->Settings=$this->general->getSettings();
 			$this->generalDB=Helper::getGeneralDB();
             $this->supportDB=Helper::getSupportDB();
+            $this->FileTypes = Helper::getFileTypes(array("category" => array("Images", "Documents")));
+            $this->Company = DB::table('tbl_company_settings')->select('KeyName', 'KeyValue')->get()->pluck('KeyValue', 'KeyName')->toArray();
+            $this->Company['AddressData'] = DB::table($this->generalDB . 'tbl_cities as CI')
+                ->leftJoin($this->generalDB . 'tbl_postalcodes as PC', 'PC.PID', 'CI.PostalID')
+                ->leftJoin($this->generalDB . 'tbl_taluks as T', 'T.TalukID', 'CI.TalukID')
+                ->leftJoin($this->generalDB . 'tbl_districts as D', 'D.DistrictID', 'CI.DistrictID')
+                ->leftJoin($this->generalDB . 'tbl_states as S', 'S.StateID', 'CI.StateID')
+                ->leftJoin($this->generalDB . 'tbl_countries as C', 'C.CountryID', 'CI.CountryID')->where('CI.CityID', $this->Company['CityID'])
+                ->select('C.CountryName', 'S.StateName', 'D.DistrictName', 'T.TalukName', 'CI.CityName', 'PC.PostalCode')
+                ->first();
+            $this->ReferID = auth()->user()->ReferID;
+            $this->shippingAddress = DB::table('tbl_customer_address as CA')->where('CustomerID', $this->ReferID)->where('CA.DFlag', 0)
+                ->join($this->generalDB . 'tbl_countries as C', 'C.CountryID', 'CA.CountryID')
+                ->join($this->generalDB . 'tbl_states as S', 'S.StateID', 'CA.StateID')
+                ->join($this->generalDB . 'tbl_districts as D', 'D.DistrictID', 'CA.DistrictID')
+                ->join($this->generalDB . 'tbl_taluks as T', 'T.TalukID', 'CA.TalukID')
+                ->join($this->generalDB . 'tbl_cities as CI', 'CI.CityID', 'CA.CityID')
+                ->join($this->generalDB . 'tbl_postalcodes as PC', 'PC.PID', 'CA.PostalCodeID')
+                ->select('CA.AID', 'CA.AddressType', 'CA.Address', 'CA.isDefault', 'CA.CountryID', 'C.CountryName', 'CA.StateID', 'S.StateName', 'CA.DistrictID', 'D.DistrictName', 'CA.TalukID', 'T.TalukName', 'CA.CityID', 'CI.CityName', 'CA.PostalCodeID', 'PC.PostalCode')
+                ->get();
 			return $next($request);
 		});
     }
@@ -91,6 +111,7 @@ class CustomerSupportController extends Controller{
         $FormData['TUInfo']=$this->ticketUserInfo($SupportID);
         DB::table($this->supportDB.'tbl_support')->where("SupportID",$SupportID)->update(['Status' => 'Opened']);
         $FormData['Support']=DB::table($this->supportDB."tbl_support")->where("SupportID",$SupportID)->get();
+        $FormData['Company'] = $this->Company;
         if(count($FormData['Support'])>0){
             $FormData['SupportDetails']=$this->getSupportDetails(array("SupportID"=>$SupportID));
             return view('home.customer.support.support_details',$FormData);
