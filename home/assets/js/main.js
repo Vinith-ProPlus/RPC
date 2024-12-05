@@ -1370,7 +1370,32 @@
 					removalDelay: 350,
 				} );
 			}
-
+		},
+		PlanServPopup: function () {
+			var mpInstance = $.magnificPopup.instance;
+			if ( mpInstance.isOpen ) {
+				mpInstance.close();
+				setTimeout( function () {
+					$.magnificPopup.open( {
+						items: {
+							src: '#plan-serv-form'
+						},
+						type: 'inline',
+						mainClass: 'mfp-newsletter',
+						removalDelay: 350,
+					} );
+				}, 360 );
+			}
+			else {
+				$.magnificPopup.open( {
+					items: {
+						src: '#plan-serv-form'
+					},
+					type: 'inline',
+					mainClass: 'mfp-newsletter',
+					removalDelay: 350,
+				} );
+			}
 		},
 		lightBox: function () {
 			// Newsletter popup
@@ -2707,6 +2732,10 @@
 
 	$('#loginBtn').on('click', function() {
 		Porto.mobileLoginPopup();
+	});
+
+	$('#btnPlanServ').on('click', function() {
+		Porto.PlanServPopup();
 	});
 } )( jQuery );
 

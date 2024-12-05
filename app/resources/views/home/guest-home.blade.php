@@ -252,6 +252,7 @@
                             </li>
                         </ul>
                     </nav>
+                    <a href="#" type="button" class="btn text-right text-white mr-2" id="btnPlanServ" style="background-color: #e48518;">Planning Services</a>
                     <a href="#AppLinkDiv" class="btn text-right text-white" style="background-color: #1a67c5;">Become a vendor</a>
                 </div><!-- End .container -->
             </div><!-- End .header-bottom -->
@@ -738,56 +739,109 @@
         </div>
     @endif
     <div class="newsletter-popup mfp-hide modal-sm bg-img p-0 h-auto" id="guest-login-form" style="background: #f1f1f1 no-repeat center/cover">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-12 col-md-12">
-                <div class="row justify-content-center mt-3">
-                    <div class="col-md-4">
-                        <img loading="lazy" src="{{url('/')}}/{{$Company['Logo']}}" alt="{{$Company['CompanyName']}}" class="logo-newsletter" width="50" height="50">
-                        <span class="ml-3 font-weight-bold text-dark">{{$Company['CompanyName']}}</span>
-                    </div>
-                </div>
-                <div class="row justify-content-center my-3">
-                    <div class="">
-                        <h2>Sign In</h2>
-                    </div>
-                </div>
-                <div class="row justify-content-center">
-                    <div class="col-md-6 justify-content-center">
-                        <a href="{{url('/')}}/social/auth/google" class="d-flex justify-content-center align-items-center text-center">
-                            <img src="{{ url('/assets/images/logo/google_sign_in_logo.png') }}" style="width: 50%;" class="img-fluid" alt="Google SignIn">
-                        </a>
-                    </div>
-                </div>
-                <div class="row justify-content-center">
-                    <div class="col-md-4">
-                        <h5 class="text-center my-3">or</h5>
-                    </div>
-                </div>
-                <div class="row justify-content-center mb-3">
-                    <div class="col-md-8 newsletter-popup-content" id="divMobileNumber">
-                        <div class="input-group">
-                            <input type="text" class="form-control" id="txtUserMobileNumber" placeholder="Enter your mobile number" oninput="this.value = this.value.replace(/[^0-9]/g, '');" inputmode="numeric" required>
-                            <input type="button" class="btn btn-warning" value="Submit" id="btnSubmitMobileNumber">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12 col-md-12">
+                    <div class="row justify-content-center mt-3">
+                        <div class="col-md-4">
+                            <img loading="lazy" src="{{url('/')}}/{{$Company['Logo']}}" alt="{{$Company['CompanyName']}}" class="logo-newsletter" width="50" height="50">
+                            <span class="ml-3 font-weight-bold text-dark">{{$Company['CompanyName']}}</span>
                         </div>
-                        <div class="errors err-sm text-center" id="txtUserMobileNumber-err"></div>
                     </div>
-                    <div class="col-md-8 newsletter-popup-content d-none" id="divOtpInput">
-                        <div class="input-group">
-                            <input type="text" class="form-control" id="txtUserOtp" placeholder="Enter OTP" required="">
-                            <input type="button" class="btn btn-warning" value="Verify" id="btnVerifyOtp">
+                    <div class="row justify-content-center my-3">
+                        <div class="">
+                            <h2>Sign In</h2>
                         </div>
-                        <div class="errors err-sm text-center" id="txtUserOtp-err"></div>
-                        <div class="text-center mt-2">
-                            <button type="button" class="btn btn-link" id="btnResendOtp" onclick="$('#btnSubmitMobileNumber').click();">Resend OTP</button>
+                    </div>
+                    <div class="row justify-content-center">
+                        <div class="col-md-6 justify-content-center">
+                            <a href="{{url('/')}}/social/auth/google" class="d-flex justify-content-center align-items-center text-center">
+                                <img src="{{ url('/assets/images/logo/google_sign_in_logo.png') }}" style="width: 50%;" class="img-fluid" alt="Google SignIn">
+                            </a>
+                        </div>
+                    </div>
+                    <div class="row justify-content-center">
+                        <div class="col-md-4">
+                            <h5 class="text-center my-3">or</h5>
+                        </div>
+                    </div>
+                    <div class="row justify-content-center mb-3">
+                        <div class="col-md-8 newsletter-popup-content" id="divMobileNumber">
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="txtUserMobileNumber" placeholder="Enter your mobile number" oninput="this.value = this.value.replace(/[^0-9]/g, '');" inputmode="numeric" required>
+                                <input type="button" class="btn btn-warning" value="Submit" id="btnSubmitMobileNumber">
+                            </div>
+                            <div class="errors err-sm text-center" id="txtUserMobileNumber-err"></div>
+                        </div>
+                        <div class="col-md-8 newsletter-popup-content d-none" id="divOtpInput">
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="txtUserOtp" placeholder="Enter OTP" required="">
+                                <input type="button" class="btn btn-warning" value="Verify" id="btnVerifyOtp">
+                            </div>
+                            <div class="errors err-sm text-center" id="txtUserOtp-err"></div>
+                            <div class="text-center mt-2">
+                                <button type="button" class="btn btn-link" id="btnResendOtp" onclick="$('#btnSubmitMobileNumber').click();">Resend OTP</button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+        <button title="Close (Esc)" type="button" class="mfp-close" id="modal-close-btn">×</button>
     </div>
-    <button title="Close (Esc)" type="button" class="mfp-close" id="modal-close-btn">×</button>
-</div>
+    <div class="newsletter-popup mfp-hide modal-sm bg-img p-0 h-auto" id="plan-serv-form" style="background: #f1f1f1 no-repeat center/cover">
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-12 py-3">
+                    <div class="card mt-4">
+                        <div class="card-header text-center"><h4 class="m-0">Planning Services</h4></div>
+                        <div class="card-body">
+                            <div class="row my-3">
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label for="txtCustomerName">Name <span class="required">*</span></label>
+                                        <input type="text" id="txtCustomerName" class="form-control" placeholder="Name">
+                                        <span class="errors Customer err-sm" id="txtCustomerName-err"></span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6 mt-20">
+                                    <div class="form-group">
+                                        <label for="txtMobileNo1">Mobile Number <span class="required">*</span></label>
+                                        <input type="text" id="txtMobileNo1" class="form-control" placeholder="Mobile Number">
+                                        <span class="errors Customer err-sm" id="txtMobileNo1-err"></span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label for="txtEmail">Email</label>
+                                        <input type="text" id="txtEmail" class="form-control" placeholder="Email" value="">
+                                        <span class="errors Customer err-sm" id="txtEmail-err"></span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6 mt-20">
+                                    <div class="form-group">
+                                        <label for="lstServices">Services <span class="required">*</span></label>
+                                        <select class="form-control" id="lstServices">
+                                            <option value="">Select a Service</option>
+                                            <option value="Drone Serveying">Drone Serveying</option>
+                                            <option value="Digital Serveying">Digital Serveying</option>
+                                            <option value="Layout Approval">Layout Approval</option>
+                                            <option value="DTCP Approval">DTCP Approval</option>
+                                        </select>
+                                        <span class="errors Customer err-sm" id="lstServices-err"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <button class="btn btn-success mr-2" id="btnPlanServSave" type="button" >Submit</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button title="Close (Esc)" type="button" class="mfp-close" id="modal-close-btn">×</button>
+    </div>
 
     <a id="scroll-top" href="#top" title="Top" role="button"><i class="icon-angle-up"></i></a>
 
@@ -987,6 +1041,9 @@
                          $('#txtUserOtp-err').text('Error verifying OTP. Please try again.');
                      }
                  });
+             });
+             $('#btnPlanServSave').click(function() {
+                
              });
         });
     </script>
