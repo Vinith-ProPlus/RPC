@@ -51,6 +51,7 @@ enum activeMenuNames:string{
     case ManageCustomers="Manage-Customers";
     case UnregisteredUsers="Unregistered-Users";
     case PasswordChange="Change-Password";
+    case PlanningServices="Planning-Services";
 
     case Company="Company-Settings";
     case SupportTickets="Support-Tickets";

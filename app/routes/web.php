@@ -116,6 +116,9 @@ Route::controller(generalController::class)->group(function () {
 });
 Route::controller(HomeController::class)->group(function () {
     Route::get('/', 'GuestView')->name('homepage');
+
+    // updated 
+    Route::post('/save-planning-services','SavePlanningServices')->name('save-planning-services');
 });
 
 Route::controller(tableConfigController::class)->group(function () {
@@ -138,6 +141,7 @@ Route::controller(HomeAuthController::class)->group(function () {
     Route::get('/checkout', 'Checkout')->name('checkout');
 
     Route::post('/place-order','PlaceOrder');
+    
 });
 
 Route::middleware(['auth', 'check.valid.customer'])->group(function () {

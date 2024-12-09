@@ -2,15 +2,18 @@
 
 namespace App\Http\Controllers\Home;
 
-use App\helper\helper;
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Input;
-use Illuminate\Support\Facades\Session;
 use SSP;
-use Illuminate\Support\Facades\DB;
-
 use logs;
+use DocNum;
+use docTypes;
+use App\helper\helper;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Input;
+
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Validator;
 
 class HomeController extends Controller{
 
@@ -19,6 +22,7 @@ class HomeController extends Controller{
     private $Company;
     private $PostalCode;
     private $PostalCodeID;
+	private $DocNum;
     public function __construct(){
         $this->generalDB = Helper::getGeneralDB();
         $this->Company = DB::table('tbl_company_settings')->select('KeyName', 'KeyValue')->get()->pluck('KeyValue', 'KeyName')->toArray();
@@ -175,6 +179,7 @@ class HomeController extends Controller{
                 $FormData['HotProducts'] = $RecentProducts->shuffle();
                 $FormData['RecentProducts'] = $RecentProducts->shuffle();
             }
+            $FormData['ServiceProvided'] = DB::table('tbl_service_provided')->where('ActiveStatus','Active')->where('DFlag',0)->get();
             $FormData['AndroidAppUrl'] = DB::table('tbl_settings')->where('KeyName','android-app-url')->value('KeyValue');
             return view('home.guest-home', $FormData);
         }
@@ -1057,5 +1062,66 @@ class HomeController extends Controller{
             ->where('VSL.DFlag', 0)
             ->where('VSL.PostalCodeID', $PostalCodeID)->groupBy('V.VendorID')->pluck('V.VendorID')->toArray();
         return $AllVendors;
+    }
+
+    //updated
+    public static function SavePlanningServices(Request $request){
+		$OldData=$NewData=array();
+
+        $rules=array(
+            'CustomerName' => 'required|string|max:255', 
+            'CustomerMobile' => 'required|digits:10',
+            'CustomerEmail' => 'nullable|email',
+            'CustomerServices' => 'required|string|max:50',
+            'CustomerMessage' => 'nullable|string|max:500',
+        );
+
+        $message=array(
+            'CustomerName.required'=>'Name is required',
+            'CustomerMobile.required'=>'Mobile Number is required',
+            'CustomerEmail.email' => 'Invalid email format',
+            'CustomerServices.required' => 'Service is required',
+            // 'CustomerMessage.required' => 'Message is required',
+        );
+        
+        $validator = Validator::make($request->all(), $rules,$message);
+
+        if ($validator->fails()) {
+            return array('status'=>false,'message'=>"Customer Creation Failed",'errors'=>$validator->errors());
+        }
+
+        DB::beginTransaction();
+        $status=false;
+
+        try{
+            $PServiceID=DocNum::getDocNum(docTypes::PlanningServices->value);
+            $data=array(
+                'PServiceID'=>$PServiceID,
+                'Name'=>$request->CustomerName,
+                'MobileNumber'=>$request->CustomerMobile,
+                'Email'=>$request->CustomerEmail,
+                'ServiceID'=>$request->CustomerServices,
+                'Message'=>$request->CustomerMessage,
+                'DFlag'=>0,
+                // 'CreatedBy'=>$this->UserID,
+                'CreatedOn'=>now(), 
+            );
+
+            $status=DB::Table('tbl_planning_services')->insert($data);
+
+        }catch(\Exception $e) {
+
+        }
+        if($status==true){
+            DB::commit();
+            DocNum::updateDocNum(docTypes::PlanningServices->value);
+            $NewData=DB::Table('tbl_planning_services')->where('PServiceID',$PServiceID)->get();
+            // $logData=array("Description"=>"New Service saved ",/* "ModuleName"=>$this->ActiveMenuName, */"Action"=>cruds::ADD->value,"ReferID"=>$PServiceID,"OldData"=>$OldData,"NewData"=>$NewData,"UserID"=>$this->UserID,"IP"=>$req->ip());
+            // logs::Store($logData);
+            return array('status'=>true,'message'=>"Service saved Successfully","PServiceID"=>$PServiceID);
+        }else{
+            DB::rollback();
+            return array('status'=>false,'message'=>"Service Creation Failed");
+        }
     }
 }

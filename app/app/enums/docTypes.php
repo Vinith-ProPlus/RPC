@@ -85,4 +85,7 @@ enum docTypes:string{
     //chat
     case Chat="Chat";
     case ChatMessage="Chat-Message";
+    
+    //home updated
+    case PlanningServices="Planning-Services";
 }

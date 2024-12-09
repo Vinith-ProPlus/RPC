@@ -22,6 +22,10 @@
 	<link rel="stylesheet" href="{{url('/')}}/home/assets/css/slider.css">
 	<link rel="stylesheet" href="{{url('/')}}/home/assets/css/demo42.min.css">
     <link rel="stylesheet" type="text/css" href="{{url('/')}}/home/assets/vendor/fontawesome-free/css/all.min.css">
+   
+    {{-- updated --}}
+    <link rel="stylesheet" type="text/css" href="{{url('/')}}/assets/css/toastr.css">
+   
     {{-- <link rel="stylesheet" type="text/css" href="{{url('/')}}/assets/css/bootstrap.css?r={{date('YmdHis')}}"> --}}
 
 
@@ -87,6 +91,11 @@
         .sent-me-link-btn:hover {
             background-color: #0f3b70!important;
         }
+        #lstServices, select.form-control:not([size]):not([multiple]) {
+            height: 4.6rem;
+        }
+
+
     </style>
 
 </head>
@@ -789,12 +798,12 @@
         </div>
         <button title="Close (Esc)" type="button" class="mfp-close" id="modal-close-btn">×</button>
     </div>
-    <div class="newsletter-popup mfp-hide modal-sm bg-img p-0 h-auto" id="plan-serv-form" style="background: #f1f1f1 no-repeat center/cover">
+    <div class="newsletter-popup mfp-hide modal-sm bg-img p-0 h-auto" id="plan-serv-form" style="background: #ffffff no-repeat center/cover">
         <div class="container">
             <div class="row">
-                <div class="col-sm-12 py-3">
-                    <div class="card mt-4">
-                        <div class="card-header text-center"><h4 class="m-0">Planning Services</h4></div>
+                <div class="col-sm-12">
+                    <div class="card border-0 mt-4">
+                        <div class="card-header text-center border-0" @style('background:#ffffff')><h4 class="m-0">Planning Services</h4></div>
                         <div class="card-body">
                             <div class="row my-3">
                                 <div class="col-sm-6">
@@ -807,7 +816,7 @@
                                 <div class="col-sm-6 mt-20">
                                     <div class="form-group">
                                         <label for="txtMobileNo1">Mobile Number <span class="required">*</span></label>
-                                        <input type="text" id="txtMobileNo1" class="form-control" placeholder="Mobile Number">
+                                        <input type="number" id="txtMobileNo1" class="form-control" placeholder="Mobile Number">
                                         <span class="errors Customer err-sm" id="txtMobileNo1-err"></span>
                                     </div>
                                 </div>
@@ -823,20 +832,26 @@
                                         <label for="lstServices">Services <span class="required">*</span></label>
                                         <select class="form-control" id="lstServices">
                                             <option value="">Select a Service</option>
-                                            <option value="Drone Serveying">Drone Serveying</option>
-                                            <option value="Digital Serveying">Digital Serveying</option>
-                                            <option value="Layout Approval">Layout Approval</option>
-                                            <option value="DTCP Approval">DTCP Approval</option>
+                                            @foreach($ServiceProvided as $items)
+                                                <option value="{{$items->ServiceID}}">{{$items->ServiceName}}</option>
+                                            @endforeach 
                                         </select>
                                         <span class="errors Customer err-sm" id="lstServices-err"></span>
                                     </div>
                                 </div>
+                                <div class="col-sm-12">
+                                    <div class="form-group">
+                                        <label for="txtMessage">Message <span class="required">*</span></label>
+                                        <textarea class="form-control" id="txtMessage" cols="0" rows="0" placeholder="Message"></textarea> 
+                                        <span class="errors Customer err-sm" id="txtMessage-err"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <button class="btn btn-success mr-2" id="btnPlanServSave" type="button" >Submit</button>
                             </div>
                         </div>
-                    </div>
-                    <div class="text-right">
-                        <button class="btn btn-success mr-2" id="btnPlanServSave" type="button" >Submit</button>
-                    </div>
+                </div>
                 </div>
             </div>
         </div>
@@ -853,6 +868,9 @@
     <script src="{{url('/')}}/home/assets/js/jquery.appear.min.js"></script>
     <script src="{{url('/')}}/home/assets/js/jquery.plugin.min.js"></script>
     <script src="{{url('/')}}/home/assets/js/main.js"></script>
+    {{-- updated --}}
+    <script src="{{url('/')}}/assets/js/toastr.min.js"></script>
+
     <script>
          $(document).ready(function() {
              var bannerCurrentIndex = 0;
@@ -1043,8 +1061,82 @@
                  });
              });
              $('#btnPlanServSave').click(function() {
-                
-             });
+                    var customerName = $('#txtCustomerName').val().trim();
+                    var customerMobile = $('#txtMobileNo1').val();
+                    var customerEmail = $('#txtEmail').val().trim();
+                    var customerServices = $('#lstServices').val();
+                    var customerMessage = $('#txtMessage').val();
+                    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+                    let status = true;
+                    if(!customerName){
+                        status=false;
+                        $('#txtCustomerName-err').text('Name is required!');
+                    }
+                    if(!customerMobile){
+                        status=false;
+                        $('#txtMobileNo1-err').text('Mobile Number is required!');
+                    }
+                    if(customerMobile && customerMobile.length != 10){
+                        status=false;
+                        $('#txtMobileNo1-err').text('Invalid Mobile Number!');
+                    }
+                    if (customerEmail && !emailPattern.test(customerEmail)) {
+                        status=false;
+                        $('#txtEmail-err').text('Invalid Email!');
+                    } 
+                    if(!customerServices){
+                        status=false;
+                        $('#lstServices-err').text('Service is required!');
+                    }
+                    if(!customerMessage){
+                        status=false;
+                        $('#txtMessage-err').text('Message is required!');
+                    }
+
+                    let formData=new FormData();
+
+                    formData.append('CustomerName', customerName);
+                    formData.append('CustomerMobile', customerMobile);
+                    formData.append('CustomerEmail', customerEmail);
+                    formData.append('CustomerServices', customerServices);
+                    formData.append('CustomerMessage', customerMessage);
+
+                    if(status){
+                        $.ajax({
+                        url: '{{ route('save-planning-services') }}',
+                        method: 'POST',
+                        headers: { 'X-CSRF-Token' : '{{ csrf_token() }}' },
+                        processData: false,
+                        contentType: false,
+                        data: formData,
+                        success: function(response) {
+                            toastr.success(`${response.message}`, "", {
+                                positionClass: "toast-top-right",
+                                containerId: "toast-top-right",
+                                showMethod: "slideDown",
+                                hideMethod: "slideUp",
+                                progressBar: !0
+                            })
+                            if (response.status) {
+                                $.magnificPopup.close();
+                                $('#txtCustomerName, #txtMobileNo1, #txtEmail, #lstServices, #txtMessage').val('');
+                                $('#txtCustomerName-err, #txtMobileNo1-err, #txtEmail-err, #lstServices-err, #txtMessage-err').text('');
+                            } 
+                        },
+                        error: function() {
+                            toastr.error(`Error occured while saving!`, "", {
+                                positionClass: "toast-top-right",
+                                containerId: "toast-top-right",
+                                showMethod: "slideDown",
+                                hideMethod: "slideUp",
+                                progressBar: !0
+                            })
+                        }
+                    });
+                    }
+
+             });    
         });
     </script>
 </body>

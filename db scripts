@@ -66,3 +66,66 @@ ALTER TABLE `tbl_quotation` ADD `QuotePDF` TEXT NULL DEFAULT NULL AFTER `DFlag`;
 ALTER TABLE `tbl_product_category` ADD `ThumbnailImg` TEXT NULL DEFAULT NULL AFTER `PCName`;
 ALTER TABLE `tbl_product_subcategory` ADD `ThumbnailImg` TEXT NULL DEFAULT NULL AFTER `PSCName`;
 ALTER TABLE `tbl_products` ADD `ThumbnailImg` TEXT NULL DEFAULT NULL AFTER `Attributes`;
+
+2024-12-09
+
+CREATE TABLE `tbl_planning_services` (
+  `PServiceID` varchar(50) NOT NULL,
+  `Name` varchar(200) DEFAULT NULL,
+  `MobileNumber` varchar(20) DEFAULT NULL,
+  `Email` varchar(50) DEFAULT NULL,
+  `ServiceID` varchar(50) DEFAULT NULL,
+  `Message` text DEFAULT NULL,
+  `DFlag` tinyint(1) DEFAULT NULL,
+  `CreatedBy` varchar(50) DEFAULT NULL,
+  `CreatedOn` timestamp NULL DEFAULT NULL,
+  `UpdatedBy` varchar(50) DEFAULT NULL,
+  `UpdatedOn` timestamp NULL DEFAULT NULL,
+  `DeletedBy` varchar(50) DEFAULT NULL,
+  `DeletedOn` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+ALTER TABLE `tbl_planning_services`
+  ADD PRIMARY KEY (`PServiceID`);
+COMMIT;
+
+CREATE TABLE `tbl_service_provided` (
+  `ServiceID` varchar(50) NOT NULL,
+  `ServiceName` varchar(50) DEFAULT NULL,
+  `ActiveStatus` enum('Active','Inactive') DEFAULT NULL,
+  `DFlag` tinyint(1) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `tbl_service_provided`
+--
+
+INSERT INTO `tbl_service_provided` (`ServiceID`, `ServiceName`, `ActiveStatus`, `DFlag`) VALUES
+('SP2023-0000001', 'Drone Surveying', 'Active', 0),
+('SP2023-0000002', 'Digital Surveying', 'Active', 0),
+('SP2023-0000003', 'Layout Approval', 'Active', 0),
+('SP2023-0000004', 'DTCP Approval', 'Active', 0),
+('SP2023-0000005', 'Model plan', 'Active', 0),
+('SP2023-0000006', 'Vacant Land Tax', 'Active', 0),
+('SP2023-0000007', 'Soil Test', 'Active', 0),
+('SP2023-0000008', 'Stablity Certificate', 'Active', 0),
+('SP2023-0000009', 'Blue Print', 'Active', 0),
+('SP2023-0000010', 'Elevation', 'Active', 0),
+('SP2023-0000011', '3D Modelling', 'Active', 0),
+('SP2023-0000012', 'Structural Design', 'Active', 0),
+('SP2023-0000013', 'Bank Estimate', 'Active', 0),
+('SP2023-0000014', 'Stage payment & Completion certificate', 'Active', 0),
+('SP2023-0000015', 'Detailed Estimation', 'Active', 0),
+('SP2023-0000016', 'Valuation', 'Active', 0);
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `tbl_service_provided`
+--
+ALTER TABLE `tbl_service_provided`
+  ADD PRIMARY KEY (`ServiceID`);
+COMMIT;
