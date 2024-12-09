@@ -1372,6 +1372,8 @@
 			}
 		},
 		PlanServPopup: function () {
+			$('#txtCustomerName, #txtMobileNo1, #txtEmail, #lstServices, #txtMessage').val('');
+			$('.errors.Customer').text('');
 			var mpInstance = $.magnificPopup.instance;
 			if ( mpInstance.isOpen ) {
 				mpInstance.close();
@@ -1383,6 +1385,8 @@
 						type: 'inline',
 						mainClass: 'mfp-newsletter',
 						removalDelay: 350,
+						closeOnBgClick: false,
+						closeBtnInside: true 
 					} );
 				}, 360 );
 			}
@@ -1394,6 +1398,8 @@
 					type: 'inline',
 					mainClass: 'mfp-newsletter',
 					removalDelay: 350,
+					closeOnBgClick: false,
+					closeBtnInside: true 
 				} );
 			}
 		},

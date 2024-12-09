@@ -1072,22 +1072,17 @@ class HomeController extends Controller{
             'CustomerName' => 'required|string|max:255', 
             'CustomerMobile' => 'required|digits:10',
             'CustomerEmail' => 'nullable|email',
-            'CustomerServices' => 'required|string|max:50',
-            'CustomerMessage' => 'nullable|string|max:500',
         );
 
         $message=array(
             'CustomerName.required'=>'Name is required',
             'CustomerMobile.required'=>'Mobile Number is required',
-            'CustomerEmail.email' => 'Invalid email format',
-            'CustomerServices.required' => 'Service is required',
-            // 'CustomerMessage.required' => 'Message is required',
         );
         
         $validator = Validator::make($request->all(), $rules,$message);
 
         if ($validator->fails()) {
-            return array('status'=>false,'message'=>"Customer Creation Failed",'errors'=>$validator->errors());
+            return array('status'=>false,'message'=>"Building Plan Form Submission Failed",'errors'=>$validator->errors());
         }
 
         DB::beginTransaction();
@@ -1115,13 +1110,10 @@ class HomeController extends Controller{
         if($status==true){
             DB::commit();
             DocNum::updateDocNum(docTypes::PlanningServices->value);
-            $NewData=DB::Table('tbl_planning_services')->where('PServiceID',$PServiceID)->get();
-            // $logData=array("Description"=>"New Service saved ",/* "ModuleName"=>$this->ActiveMenuName, */"Action"=>cruds::ADD->value,"ReferID"=>$PServiceID,"OldData"=>$OldData,"NewData"=>$NewData,"UserID"=>$this->UserID,"IP"=>$req->ip());
-            // logs::Store($logData);
-            return array('status'=>true,'message'=>"Service saved Successfully","PServiceID"=>$PServiceID);
+            return array('status'=>true,'message'=>"Form Submitted Successfully! Will get back to you shortly.","PServiceID"=>$PServiceID);
         }else{
             DB::rollback();
-            return array('status'=>false,'message'=>"Service Creation Failed");
+            return array('status'=>false,'message'=>"Building Plan Form Submission Failed");
         }
     }
 }

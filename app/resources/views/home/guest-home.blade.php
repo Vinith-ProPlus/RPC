@@ -96,6 +96,33 @@
         }
 
 
+        #btnPlanServ {
+            display: inline-block;
+            position: relative;
+            overflow: hidden;
+            width: 300px;
+        }
+
+        #btnPlanServ::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(120deg, rgba(255, 255, 255, 0) 30%, rgba(255, 255, 255, 0.5) 50%, rgba(255, 255, 255, 0) 70%);
+            transform: skewX(-25deg);
+            animation: glareAnimation 1.5s infinite;
+        }
+
+        @keyframes glareAnimation {
+            0% {
+            left: -100%;
+            }
+            100% {
+            left: 100%;
+            }
+        }
     </style>
 
 </head>
@@ -261,8 +288,8 @@
                             </li>
                         </ul>
                     </nav>
-                    <a href="#" type="button" class="btn text-right text-white mr-2" id="btnPlanServ" style="background-color: #e48518;">Planning Services</a>
-                    <a href="#AppLinkDiv" class="btn text-right text-white" style="background-color: #1a67c5;">Become a vendor</a>
+                    <a href="#AppLinkDiv" class="btn text-right text-white mr-2" style="background-color: #1a67c5;">Become a vendor</a>
+                    <a href="#" type="button" class="btn text-white" id="btnPlanServ" style="background-color: #e48518;">FREE Building Plan</a>
                 </div><!-- End .container -->
             </div><!-- End .header-bottom -->
         </header><!-- End .header -->
@@ -803,7 +830,7 @@
             <div class="row">
                 <div class="col-sm-12">
                     <div class="card border-0 mt-4">
-                        <div class="card-header text-center border-0" @style('background:#ffffff')><h4 class="m-0">Planning Services</h4></div>
+                        <div class="card-header text-center border-0" @style('background:#ffffff')><h4 class="m-0">Get a FREE Building Plan</h4></div>
                         <div class="card-body">
                             <div class="row my-3">
                                 <div class="col-sm-6">
@@ -1121,7 +1148,7 @@
                             if (response.status) {
                                 $.magnificPopup.close();
                                 $('#txtCustomerName, #txtMobileNo1, #txtEmail, #lstServices, #txtMessage').val('');
-                                $('#txtCustomerName-err, #txtMobileNo1-err, #txtEmail-err, #lstServices-err, #txtMessage-err').text('');
+                                $('.errors.Customer').text('');
                             } 
                         },
                         error: function() {
