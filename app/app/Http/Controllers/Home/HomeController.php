@@ -1064,7 +1064,6 @@ class HomeController extends Controller{
         return $AllVendors;
     }
 
-    //updated
     public static function SavePlanningServices(Request $request){
 		$OldData=$NewData=array();
 
@@ -1096,9 +1095,10 @@ class HomeController extends Controller{
                 'MobileNumber'=>$request->CustomerMobile,
                 'Email'=>$request->CustomerEmail,
                 'ServiceID'=>$request->CustomerServices,
+                'StateID'=>$request->StateID,
+                'DistrictID'=>$request->DistrictID,
                 'Message'=>$request->CustomerMessage,
                 'DFlag'=>0,
-                // 'CreatedBy'=>$this->UserID,
                 'CreatedOn'=>now(), 
             );
 

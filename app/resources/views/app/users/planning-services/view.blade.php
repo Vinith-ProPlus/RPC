@@ -50,6 +50,8 @@
                                         <th class="">Service</th>
                                         <th class="">Mobile Number</th>
                                         <th class="">Email</th>
+                                        <th class="">District</th>
+                                        <th class="">State</th>
                                         <th class="">Actions</th>
                                     </tr>
                                 </thead>

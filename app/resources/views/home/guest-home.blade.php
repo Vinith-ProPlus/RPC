@@ -114,6 +114,24 @@
             transform: skewX(-25deg);
             animation: glareAnimation 1.5s infinite;
         }
+        #btnBecVen {
+            display: inline-block;
+            position: relative;
+            overflow: hidden;
+            width: 250px;
+        }
+
+        #btnBecVen::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(120deg, rgba(255, 255, 255, 0) 30%, rgba(255, 255, 255, 0.5) 50%, rgba(255, 255, 255, 0) 70%);
+            transform: skewX(-25deg);
+            animation: glareAnimation 1.5s infinite;
+        }
 
         @keyframes glareAnimation {
             0% {
@@ -288,8 +306,8 @@
                             </li>
                         </ul>
                     </nav>
-                    <a href="#AppLinkDiv" class="btn text-right text-white mr-2" style="background-color: #1a67c5;">Become a vendor</a>
-                    <a href="#" type="button" class="btn text-white" id="btnPlanServ" style="background-color: #e48518;">FREE Building Plan</a>
+                    <a href="#AppLinkDiv" class="btn text-right text-white mr-2 btnHighLight" id="btnBecVen" style="background-color: #03489c;">Become a vendor</a>
+                    <a href="#" type="button" class="btn text-white btnHighLight" id="btnPlanServ" style="background-color: #ff8800;">FREE Building Plan</a>
                 </div><!-- End .container -->
             </div><!-- End .header-bottom -->
         </header><!-- End .header -->
@@ -866,6 +884,24 @@
                                         <span class="errors Customer err-sm" id="lstServices-err"></span>
                                     </div>
                                 </div>
+                                <div class="col-sm-6 mt-20">
+                                    <div class="form-group">
+                                        <label for="lstState">State <span class="required">*</span></label>
+                                        <select class="form-control" id="lstState">
+                                            <option value="">Select a State</option>
+                                        </select>
+                                        <span class="errors Customer err-sm" id="lstState-err"></span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6 mt-20">
+                                    <div class="form-group">
+                                        <label for="lstDistricts">District <span class="required">*</span></label>
+                                        <select class="form-control" id="lstDistricts">
+                                            <option value="">Select a District</option>
+                                        </select>
+                                        <span class="errors Customer err-sm" id="lstDistricts-err"></span>
+                                    </div>
+                                </div>
                                 <div class="col-sm-12">
                                     <div class="form-group">
                                         <label for="txtMessage">Message <span class="required">*</span></label>
@@ -1087,50 +1123,111 @@
                      }
                  });
              });
-             $('#btnPlanServSave').click(function() {
-                    var customerName = $('#txtCustomerName').val().trim();
-                    var customerMobile = $('#txtMobileNo1').val();
-                    var customerEmail = $('#txtEmail').val().trim();
-                    var customerServices = $('#lstServices').val();
-                    var customerMessage = $('#txtMessage').val();
-                    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+             
+            const getDistricts=async(data,id)=>{
+                $('#'+id+' option').remove();
+                $('#'+id).append('<option value="">Select a District</option>');
+                $.ajax({
+                    type:"post",
+                    url:"{{url('/')}}/get/districts",
+                    headers: { 'X-CSRF-Token' : '{{ csrf_token() }}' },
+                    data:data,
+                    dataType:"json",
+                    async:true,
+                    complete: function(e, x, settings, exception){},
+                    success:function(response){
+                        for(let Item of response){
+                            let selected="";
+                            if(Item.DistrictID==$('#'+id).attr('data-selected')){selected="selected";}
+                            $('#'+id).append('<option '+selected+' data-taluk=""  value="'+Item.DistrictID+'">'+Item.DistrictName+' </option>');
+                        }
+                        if($('#'+id).val()!=""){
+                            $('#'+id).trigger('change');
+                        }
+                    }
+                });
+                return Data;
+            }
+            const getStates=async(data,id)=>{
+                $('#'+id+' option').remove();
+                $('#'+id).append('<option value="">Select a State</option>');
+                $.ajax({
+                    type:"post",
+                    url:"{{url('/')}}/get/states",
+                    headers: { 'X-CSRF-Token' : '{{ csrf_token() }}' },
+                    data:data,
+                    dataType:"json",
+                    async:true,
+                    complete: function(e, x, settings, exception){},
+                    success:function(response){
+                        for(let Item of response){
+                            let selected="";
+                            if(Item.StateID==$('#'+id).attr('data-selected')){selected="selected";}
+                            $('#'+id).append('<option '+selected+'  value="'+Item.StateID+'">'+Item.StateName+' </option>');
+                        }
+                        if($('#'+id).val()!=""){
+                            $('#'+id).trigger('change');
+                        }
+                    }
+                });
+            }
+            $('#btnPlanServSave').click(function() {
+                $('.errors.Customer').text('');
+                var customerName = $('#txtCustomerName').val().trim();
+                var customerMobile = $('#txtMobileNo1').val();
+                var customerEmail = $('#txtEmail').val().trim();
+                var customerServices = $('#lstServices').val();
+                var StateID = $('#lstState').val();
+                var DistrictID = $('#lstDistricts').val();
+                var customerMessage = $('#txtMessage').val();
+                const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
-                    let status = true;
-                    if(!customerName){
-                        status=false;
-                        $('#txtCustomerName-err').text('Name is required!');
-                    }
-                    if(!customerMobile){
-                        status=false;
-                        $('#txtMobileNo1-err').text('Mobile Number is required!');
-                    }
-                    if(customerMobile && customerMobile.length != 10){
-                        status=false;
-                        $('#txtMobileNo1-err').text('Invalid Mobile Number!');
-                    }
-                    if (customerEmail && !emailPattern.test(customerEmail)) {
-                        status=false;
-                        $('#txtEmail-err').text('Invalid Email!');
-                    } 
-                    if(!customerServices){
-                        status=false;
-                        $('#lstServices-err').text('Service is required!');
-                    }
-                    if(!customerMessage){
-                        status=false;
-                        $('#txtMessage-err').text('Message is required!');
-                    }
+                let status = true;
+                if(!customerName){
+                    status=false;
+                    $('#txtCustomerName-err').text('Name is required!');
+                }
+                if(!customerMobile){
+                    status=false;
+                    $('#txtMobileNo1-err').text('Mobile Number is required!');
+                }
+                if(customerMobile && customerMobile.length != 10){
+                    status=false;
+                    $('#txtMobileNo1-err').text('Invalid Mobile Number!');
+                }
+                if (customerEmail && !emailPattern.test(customerEmail)) {
+                    status=false;
+                    $('#txtEmail-err').text('Invalid Email!');
+                } 
+                if(!customerServices){
+                    status=false;
+                    $('#lstServices-err').text('Service is required!');
+                }
+                if(!StateID){
+                    status=false;
+                    $('#lstState-err').text('State is required!');
+                }
+                if(!DistrictID){
+                    status=false;
+                    $('#lstDistricts-err').text('District is required!');
+                }
+                if(!customerMessage){
+                    status=false;
+                    $('#txtMessage-err').text('Message is required!');
+                }
 
-                    let formData=new FormData();
+                let formData=new FormData();
 
-                    formData.append('CustomerName', customerName);
-                    formData.append('CustomerMobile', customerMobile);
-                    formData.append('CustomerEmail', customerEmail);
-                    formData.append('CustomerServices', customerServices);
-                    formData.append('CustomerMessage', customerMessage);
+                formData.append('CustomerName', customerName);
+                formData.append('CustomerMobile', customerMobile);
+                formData.append('CustomerEmail', customerEmail);
+                formData.append('CustomerServices', customerServices);
+                formData.append('StateID', StateID);
+                formData.append('DistrictID', DistrictID);
+                formData.append('CustomerMessage', customerMessage);
 
-                    if(status){
-                        $.ajax({
+                if(status){
+                    $.ajax({
                         url: '{{ route('save-planning-services') }}',
                         method: 'POST',
                         headers: { 'X-CSRF-Token' : '{{ csrf_token() }}' },
@@ -1161,9 +1258,14 @@
                             })
                         }
                     });
-                    }
+                }
 
-             });    
+            });
+
+            getStates({CountryID:'C2020-00000101'},'lstState');
+            $(document).on("change",'#lstState',function(){
+                getDistricts({CountryID:'C2020-00000101',StateID:$('#lstState').val()},'lstDistricts');
+            });
         });
     </script>
 </body>

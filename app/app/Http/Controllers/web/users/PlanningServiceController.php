@@ -69,7 +69,6 @@ class PlanningServiceController extends Controller{
 				$where .= " AND PS.CreatedOn BETWEEN '$fromDate' AND '$toDate'";
 			}
  
-            
 			$columns = array(
 				array( 'db' => 'PS.PServiceID', 'dt' => '0' ),
 				array( 'db' => 'PS.Name', 'dt' => '1' ),
@@ -78,6 +77,8 @@ class PlanningServiceController extends Controller{
 				array( 'db' => 'PS.MobileNumber', 'dt' => '4' ),
 				array( 'db' => 'PS.Email', 'dt' => '5' ),
 				array( 'db' => 'PS.Message', 'dt' => '6' ),
+				array( 'db' => 'S.StateName', 'dt' => '7' ),
+				array( 'db' => 'D.DistrictName', 'dt' => '8' ),
 			);
 
 			$columns1 = array(
@@ -88,7 +89,9 @@ class PlanningServiceController extends Controller{
 				array( 'db' => 'ServiceName', 'dt' => '2' ),
 				array( 'db' => 'MobileNumber', 'dt' => '3' ),
 				array( 'db' => 'Email', 'dt' => '4'),
-				array( 'db' => 'PServiceID', 'dt' => '5' ,'formatter' =>function($d,$row){
+				array( 'db' => 'DistrictName', 'dt' => '5' ),
+				array( 'db' => 'StateName', 'dt' => '6' ),
+				array( 'db' => 'PServiceID', 'dt' => '7' ,'formatter' =>function($d,$row){
                     $html='';
 					if($this->general->isCrudAllow($this->CRUD,"View")==true){
 						$html='<button type="button" data-id="'.$d.'" class="btn btn-outline-warning btn-sm m-2 btnView" data-message="'.$row['Message'].'" title="Click to view Message"> <i class="fa fa-eye" aria-hidden="true"></i> </button>';
@@ -98,9 +101,7 @@ class PlanningServiceController extends Controller{
 			);
 			$data=array();
 			$data['POSTDATA']=$request;
-			$data['TABLE']='tbl_planning_services AS PS 
-                            LEFT JOIN tbl_service_provided AS SP 
-                            ON PS.ServiceID = SP.ServiceID';
+			$data['TABLE']='tbl_planning_services AS PS LEFT JOIN tbl_service_provided AS SP ON PS.ServiceID = SP.ServiceID LEFT JOIN '.$this->generalDB.'tbl_states AS S ON S.StateID = PS.StateID LEFT JOIN '.$this->generalDB.'tbl_districts AS D ON D.DistrictID = PS.DistrictID';
 			$data['PRIMARYKEY']='PS.PServiceID';
 			$data['COLUMNS']=$columns;
 			$data['COLUMNS1']=$columns1;

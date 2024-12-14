@@ -129,3 +129,7 @@ INSERT INTO `tbl_service_provided` (`ServiceID`, `ServiceName`, `ActiveStatus`, 
 ALTER TABLE `tbl_service_provided`
   ADD PRIMARY KEY (`ServiceID`);
 COMMIT;
+
+2024-12-10
+
+ALTER TABLE `tbl_planning_services` ADD `StateID` VARCHAR(50) NULL DEFAULT NULL AFTER `ServiceID`, ADD `DistrictID` VARCHAR(50) NULL DEFAULT NULL AFTER `StateID`;
