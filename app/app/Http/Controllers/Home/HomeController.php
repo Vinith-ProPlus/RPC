@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Home;
 
 use SSP;
 use logs;
-use DocNum;
-use docTypes;
+use App\Models\DocNum;
+use App\enums\docTypes;
 use App\helper\helper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -173,13 +173,14 @@ class HomeController extends Controller{
                         DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(P.ProductImage, ""), "")) AS ProductImage'))
                     ->where('P.DFlag',0)
                     ->inRandomOrder()->take(10)
-                    
+
                     ->get();
                 $FormData['PCategories'] = $PCatagories;
                 $FormData['HotProducts'] = $RecentProducts->shuffle();
                 $FormData['RecentProducts'] = $RecentProducts->shuffle();
             }
             $FormData['ServiceProvided'] = DB::table('tbl_service_provided')->where('ActiveStatus','Active')->where('DFlag',0)->get();
+            $FormData['ConServiceCategories'] = DB::table('tbl_construction_service_category')->where('ActiveStatus','Active')->where('DFlag',0)->get();
             $FormData['AndroidAppUrl'] = DB::table('tbl_settings')->where('KeyName','android-app-url')->value('KeyValue');
             return view('home.guest-home', $FormData);
         }
@@ -1068,7 +1069,7 @@ class HomeController extends Controller{
 		$OldData=$NewData=array();
 
         $rules=array(
-            'CustomerName' => 'required|string|max:255', 
+            'CustomerName' => 'required|string|max:255',
             'CustomerMobile' => 'required|digits:10',
             'CustomerEmail' => 'nullable|email',
         );
@@ -1077,7 +1078,7 @@ class HomeController extends Controller{
             'CustomerName.required'=>'Name is required',
             'CustomerMobile.required'=>'Mobile Number is required',
         );
-        
+
         $validator = Validator::make($request->all(), $rules,$message);
 
         if ($validator->fails()) {
@@ -1099,7 +1100,7 @@ class HomeController extends Controller{
                 'DistrictID'=>$request->DistrictID,
                 'Message'=>$request->CustomerMessage,
                 'DFlag'=>0,
-                'CreatedOn'=>now(), 
+                'CreatedOn'=>now(),
             );
 
             $status=DB::Table('tbl_planning_services')->insert($data);
@@ -1115,5 +1116,54 @@ class HomeController extends Controller{
             DB::rollback();
             return array('status'=>false,'message'=>"Building Plan Form Submission Failed");
         }
+    }
+
+    public static function SaveConstructionServices(Request $request)
+    {
+        $rules = [
+            'CustomerName' => 'required|string|max:255',
+            'CustomerMobile' => 'required|digits:10',
+            'ConServiceType' => 'required',
+            'ConService' => 'required',
+            'CustomerEmail' => 'nullable|email',
+        ];
+        $message = [
+            'CustomerName.required' => 'Name is required',
+            'CustomerMobile.required' => 'Mobile Number is required',
+            'ConServiceType.required' => 'Construction Service Type is required',
+            'ConService.required' => 'Construction Service is required',
+        ];
+        $validator = Validator::make($request->all(), $rules, $message);
+        if ($validator->fails()) {
+            return array('status' => false, 'message' => "Construction Service Plan Form Submission Failed", 'errors' => $validator->errors());
+        }
+        DB::beginTransaction();
+        $status = false;
+        try {
+            $CPServiceID = DocNum::getDocNum(docTypes::ConstructionPlanServices->value);
+            $data = array(
+                'CPServiceID' => $CPServiceID,
+                'Name' => $request->CustomerName,
+                'MobileNumber' => $request->CustomerMobile,
+                'Email' => $request->CustomerEmail,
+                'CSCID' => $request->ConServiceType,
+                'CSID' => $request->ConService,
+                'StateID' => $request->StateID,
+                'DistrictID' => $request->DistrictID,
+                'Message' => $request->CustomerMessage,
+                'DFlag' => 0,
+                'CreatedOn' => now(),
+            );
+            $status = DB::Table('tbl_construction_plan_services')->insert($data);
+        } catch (\Exception $e) {
+            logger("Error in HomeController@SaveConstructionServices: " . $e->getMessage());
+        }
+        if ($status) {
+            DB::commit();
+            DocNum::updateDocNum(docTypes::ConstructionPlanServices->value);
+            return array('status' => true, 'message' => "Form Submitted Successfully! Will get back to you shortly.", "CPServiceID" => $CPServiceID);
+        }
+        DB::rollback();
+        return array('status' => false, 'message' => "Construction Service Plan Form Submission Failed");
     }
 }

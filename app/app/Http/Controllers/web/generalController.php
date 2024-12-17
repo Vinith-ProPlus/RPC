@@ -936,4 +936,9 @@ class generalController extends Controller{
         ];
         return $return;
     }
+    public function getConstructionService(request $req){
+        return DB::Table('tbl_construction_services')->where('ConServCatID', $req->ConServCatID)->where('ActiveStatus','Active')->where('DFlag',0)
+                ->select('ConServID', 'ConServName')
+                ->get();
+    }
 }

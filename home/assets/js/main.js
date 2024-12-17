@@ -1403,6 +1403,38 @@
 				} );
 			}
 		},
+		ConstructionServPopup: function () {
+			$('#txtConCustomerName, #txtConMobileNo1, #txtConEmail, #lstConServiceType, #lstConService, #txtConMessage').val('');
+			$('.errors.ConCustomer').text('');
+			var mpInstance = $.magnificPopup.instance;
+			if ( mpInstance.isOpen ) {
+				mpInstance.close();
+				setTimeout( function () {
+					$.magnificPopup.open({
+						items: {
+							src: '#construction-serv-form'
+						},
+						type: 'inline',
+						mainClass: 'mfp-newsletter',
+						removalDelay: 350,
+						closeOnBgClick: false,
+						closeBtnInside: true
+					});
+				}, 360 );
+			}
+			else {
+				$.magnificPopup.open( {
+					items: {
+						src: '#construction-serv-form'
+					},
+					type: 'inline',
+					mainClass: 'mfp-newsletter',
+					removalDelay: 350,
+					closeOnBgClick: false,
+					closeBtnInside: true
+				} );
+			}
+		},
 		lightBox: function () {
 			// Newsletter popup
 			if ( document.getElementById( 'newsletter-popup-form' ) ) {
@@ -2742,6 +2774,9 @@
 
 	$('#btnPlanServ').on('click', function() {
 		Porto.PlanServPopup();
+	});
+	$('#btnConstructionServ').on('click', function() {
+		Porto.ConstructionServPopup();
 	});
 } )( jQuery );
 

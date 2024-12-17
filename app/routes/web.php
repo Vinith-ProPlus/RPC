@@ -52,6 +52,7 @@ Route::controller(generalController::class)->group(function () {
     Route::POST('/get/products', 'getProducts');
     Route::POST('/get/financial-years', 'getFinancialYear');
     Route::post('/get/construction-type','getConstructionType')->name('getConstructionType');
+    Route::post('/get/construction-service','getConstructionService')->name('getConstructionService');
 
     Route::post('/tmp/upload-image','tmpUploadImage');
 
@@ -117,8 +118,9 @@ Route::controller(generalController::class)->group(function () {
 Route::controller(HomeController::class)->group(function () {
     Route::get('/', 'GuestView')->name('homepage');
 
-    // updated 
+    // updated
     Route::post('/save-planning-services','SavePlanningServices')->name('save-planning-services');
+    Route::post('/save-construction-services','SaveConstructionServices')->name('save-construction-services');
 });
 
 Route::controller(tableConfigController::class)->group(function () {
@@ -141,7 +143,7 @@ Route::controller(HomeAuthController::class)->group(function () {
     Route::get('/checkout', 'Checkout')->name('checkout');
 
     Route::post('/place-order','PlaceOrder');
-    
+
 });
 
 Route::middleware(['auth', 'check.valid.customer'])->group(function () {

@@ -127,6 +127,7 @@ ALTER TABLE `tbl_planning_services` ADD `StateID` VARCHAR(50) NULL DEFAULT NULL 
 
 2024-12-17
 
+INSERT INTO `tbl_docnum` (`SLNO`, `DocType`, `Prefix`, `Length`, `CurrNum`, `Suffix`, `Year`) VALUES (NULL, 'Planning-Services', 'PS', '7', '1', NULL, '');
 INSERT INTO `tbl_docnum` (`SLNO`, `DocType`, `Prefix`, `Length`, `CurrNum`, `Suffix`, `Year`) VALUES (NULL, 'Services-Provided', 'SP', '7', '30', NULL, '');
 INSERT INTO `tbl_docnum` (`SLNO`, `DocType`, `Prefix`, `Length`, `CurrNum`, `Suffix`, `Year`) VALUES (NULL, 'Construction-Service-Category', 'CSC', '7', '1', NULL, '');
 INSERT INTO `tbl_docnum` (`SLNO`, `DocType`, `Prefix`, `Length`, `CurrNum`, `Suffix`, `Year`) VALUES (NULL, 'Construction-Services', 'CS', '7', '1', NULL, '');
@@ -134,7 +135,7 @@ INSERT INTO `tbl_docnum` (`SLNO`, `DocType`, `Prefix`, `Length`, `CurrNum`, `Suf
 -- tbl_construction_service_category
 
 CREATE TABLE `tbl_construction_service_category` (
-  `ConServCatID` varchar(50) NOT NULL,
+  `ConServCatID` varchar(50) NOT NULL PRIMARY KEY,
   `ConServCatName` varchar(50) DEFAULT NULL,
   `ActiveStatus` enum('Active','Inactive') NOT NULL DEFAULT 'Active',
   `DFlag` int(11) NOT NULL DEFAULT 0,
@@ -151,14 +152,10 @@ INSERT INTO `tbl_construction_service_category` (`ConServCatID`, `ConServCatName
 ('CSC2425-0000002', 'Post-construction', 'Active', 0, 'U2023-0000001', NULL, NULL, '2024-12-17 09:16:19', NULL, NULL),
 ('CSC2425-0000003', 'Rental Service', 'Active', 0, 'U2023-0000001', NULL, NULL, '2024-12-17 09:16:19', NULL, NULL);
 
-ALTER TABLE `tbl_construction_service_category`
-  ADD PRIMARY KEY (`ConServCatID`);
-COMMIT;
-
 -- tbl_construction_services
 
 CREATE TABLE `tbl_construction_services` (
-  `ConServID` varchar(50) NOT NULL,
+  `ConServID` varchar(50) NOT NULL PRIMARY KEY,
   `ConServName` varchar(50) DEFAULT NULL,
   `ConServCatID` varchar(50) DEFAULT NULL,
   `ActiveStatus` enum('Active','Inactive') NOT NULL DEFAULT 'Active',
@@ -213,6 +210,23 @@ INSERT INTO `tbl_construction_services` (`ConServID`, `ConServName`, `ConServCat
 ('CS2425-0000039', 'Grain Service', 'CSC2425-0000003', 'Active', 0, 'U2023-0000001', NULL, NULL, '2024-12-17 09:44:24', NULL, NULL),
 ('CS2425-0000040', 'Readymix Vehicle', 'CSC2425-0000003', 'Active', 0, 'U2023-0000001', NULL, NULL, '2024-12-17 09:44:24', NULL, NULL);
 
-ALTER TABLE `tbl_construction_services`
-  ADD PRIMARY KEY (`ConServID`);
-COMMIT;
+CREATE TABLE `tbl_construction_plan_services` (
+  `CPServiceID` varchar(50) NOT NULL PRIMARY KEY,
+  `Name` varchar(200) DEFAULT NULL,
+  `MobileNumber` varchar(20) DEFAULT NULL,
+  `Email` varchar(50) DEFAULT NULL,
+  `StateID` VARCHAR(50) NULL DEFAULT NULL,
+  `DistrictID` VARCHAR(50) NULL DEFAULT NULL,
+  `CSCID` varchar(50) DEFAULT NULL,
+  `CSID` varchar(50) DEFAULT NULL,
+  `Message` text DEFAULT NULL,
+  `DFlag` tinyint(1) DEFAULT NULL,
+  `CreatedBy` varchar(50) DEFAULT NULL,
+  `CreatedOn` timestamp NULL DEFAULT NULL,
+  `UpdatedBy` varchar(50) DEFAULT NULL,
+  `UpdatedOn` timestamp NULL DEFAULT NULL,
+  `DeletedBy` varchar(50) DEFAULT NULL,
+  `DeletedOn` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+INSERT INTO `tbl_docnum` (`SLNO`, `DocType`, `Prefix`, `Length`, `CurrNum`, `Suffix`, `Year`) VALUES (NULL, 'Construction-Plan-Services', 'CPS', '7', '1', NULL, '');
