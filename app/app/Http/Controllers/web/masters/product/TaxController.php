@@ -17,6 +17,8 @@ use logs;
 use activeMenuNames;
 use docTypes;
 use cruds;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
 
 class TaxController extends Controller{
 	private $general;
@@ -39,7 +41,171 @@ class TaxController extends Controller{
 			return $next($request);
 		});
     }
+	
+	public function createTableAndInsertValues($tableName, $columns = [], $primaryKey, $values = [],$DocNum, $isDo)
+	{
+		if($isDo){
+			if (Schema::hasTable($tableName)) {
+				// return response()->json(['message' => "Table '{$tableName}' created and values inserted successfully."]);
+				Schema::dropIfExists($tableName);
+			}
+	
+			Schema::create($tableName, function (Blueprint $table) use ($columns, $primaryKey) {
+				foreach ($columns as $column) {
+					switch ($column['type']) {
+						case 'varchar':
+							$table->string($column['name'], $column['length'])->default($column['default'])->nullable($column['nullable']);
+							break;
+	
+						case 'enum':
+							$table->enum($column['name'], $column['options'])->default($column['default']);
+							break;
+	
+						case 'int':
+							$table->integer($column['name'])->default($column['default']);
+							break;
+	
+						case 'timestamp':
+							$table->timestamp($column['name'])->default($column['default'])->nullable($column['nullable']);
+							break;
+					}
+				}
+	
+				$table->primary($primaryKey);
+			});
+	
+			try {
+				if($tableName == 'tbl_construction_service_category'){
+					foreach ($values as $item) {
+						$data = [
+							'ConServCatID' => DocNum::getDocNum($DocNum,"",Helper::getCurrentFY()),
+							'ConServCatName' => $item,
+							'CreatedBy'=>$this->UserID
+						];
+		
+						$status = DB::table($tableName)->insert($data);
+						if($status){
+							
+						DocNum::updateDocNum($DocNum);
+						}
+					}
+				}
+				if($tableName == 'tbl_construction_services'){
+					foreach ($values as $key=>$item) {
+						foreach ($item as $row){
+							$data = [
+								'ConServID' => DocNum::getDocNum($DocNum,"",Helper::getCurrentFY()),
+								'ConServName' => $row,
+								'ConServCatID' => $key,
+								'CreatedBy'=>$this->UserID
+							];
+			
+							$status = DB::table($tableName)->insert($data);
+							if($status){
+								DocNum::updateDocNum($DocNum);
+							}
+						}
+					}
+				}
+				return response()->json(['message' => "Table '{$tableName}' created and values inserted successfully."]);
+			} catch (\Exception $e) {
+				return response()->json(['error' => $e->getMessage()], 500);
+			}
+		}
+	}
     public function view(Request $req){
+		/* $tableName = 'tbl_construction_service_category';
+		$columns = [
+			['name' => 'ConServCatID', 'type' => 'varchar', 'length' => 50, 'default' => null, 'nullable' => false],
+			['name' => 'ConServCatName', 'type' => 'varchar', 'length' => 50, 'default' => null, 'nullable' => true],
+			['name' => 'ActiveStatus', 'type' => 'enum', 'options' => ['Active', 'Inactive'], 'default' => 'Active'],
+			['name' => 'DFlag', 'type' => 'int', 'default' => 0],
+			['name' => 'CreatedBy', 'type' => 'varchar', 'length' => 50, 'default' => null, 'nullable' => true],
+			['name' => 'UpdatedBy', 'type' => 'varchar', 'length' => 50, 'default' => null, 'nullable' => true],
+			['name' => 'DeletedBy', 'type' => 'varchar', 'length' => 50, 'default' => null, 'nullable' => true],
+			['name' => 'CreatedOn', 'type' => 'timestamp', 'default' => DB::raw('CURRENT_TIMESTAMP'), 'nullable' => false],
+			['name' => 'UpdatedOn', 'type' => 'timestamp', 'default' => null, 'nullable' => true],
+			['name' => 'DeletedOn', 'type' => 'timestamp', 'default' => null, 'nullable' => true],
+		];
+
+		$primaryKey = 'ConServCatID';
+		$DocNum = 'Construction-Service-Category';
+
+		$values = [
+			'Pre-construction',
+			'Post-construction',
+			'Rental Service'
+		]; */
+
+		$tableName = 'tbl_construction_service';
+		$columns = [
+			['name' => 'ConServID', 'type' => 'varchar', 'length' => 50, 'default' => null, 'nullable' => false],
+			['name' => 'ConServName', 'type' => 'varchar', 'length' => 50, 'default' => null, 'nullable' => true],
+			['name' => 'ConServCatID', 'type' => 'varchar', 'length' => 50, 'default' => null, 'nullable' => true],
+			['name' => 'ActiveStatus', 'type' => 'enum', 'options' => ['Active', 'Inactive'], 'default' => 'Active'],
+			['name' => 'DFlag', 'type' => 'int', 'default' => 0],
+			['name' => 'CreatedBy', 'type' => 'varchar', 'length' => 50, 'default' => null, 'nullable' => true],
+			['name' => 'UpdatedBy', 'type' => 'varchar', 'length' => 50, 'default' => null, 'nullable' => true],
+			['name' => 'DeletedBy', 'type' => 'varchar', 'length' => 50, 'default' => null, 'nullable' => true],
+			['name' => 'CreatedOn', 'type' => 'timestamp', 'default' => DB::raw('CURRENT_TIMESTAMP'), 'nullable' => false],
+			['name' => 'UpdatedOn', 'type' => 'timestamp', 'default' => null, 'nullable' => true],
+			['name' => 'DeletedOn', 'type' => 'timestamp', 'default' => null, 'nullable' => true],
+		];
+
+		$primaryKey = 'ConServID';
+		$DocNum = 'Construction-Services';
+
+		$values = [
+			'CSC2425-0000001' => [
+				'Site Survey (Levelling) – Drone / Digital',
+				'Layout Approval',
+				'DTCP Approval',
+				'Model Plan (Vastu)',
+				'Vacant Land Tax',
+				'Stability Certificate',
+				'Blue Print',
+				'Elevation',
+				'3D Modelling',
+				'Structural Design',
+				'Elevation (Interior/Exterior)',
+				'Soil Test',
+				'Lift Installation Planner',
+				'Clearing the site – excavation of debris',
+				'Clearing the site – Demolition service',
+				'Anti-Termite Treatment',
+				'Fencing'
+			],
+			'CSC2425-0000002' => [
+				'Lay the Roofing Material',
+				'Roof repair services',
+				'Exterior Cladding',
+				'Landscaping Services',
+				'Flooring Solutions',
+				'Interior Design\'s',
+				'Tailor made Furniture',
+				'Electrical Services',
+				'Plumbing Services',
+				'Window maintenance & Repair',
+				'Pool Services',
+				'Pest Control',
+				'Solar Installation',
+				'Valuation of building',
+				'Completion Certificate',
+				'Camera',
+				'Automation'
+			],
+			'CSC2425-0000003' => [
+				'JCB',
+				'Bore well',
+				'Tractor',
+				'Centering Material',
+				'Grain Service',
+				'Readymix Vehicle'
+			],
+		];
+
+		// $this->createTableAndInsertValues($tableName, $columns, $primaryKey, $values, $DocNum, false);
+
         if($this->general->isCrudAllow($this->CRUD,"view")==true){
             $FormData=$this->general->UserInfo;
             $FormData['menus']=$this->Menus;
@@ -127,7 +293,7 @@ class TaxController extends Controller{
 			$status=false;
 			try {
 				
-				$TaxID =DocNum::getDocNum(docTypes::Tax->value,"",Helper::getCurrentFY());
+				$TaxID = DocNum::getDocNum(docTypes::Tax->value,"",Helper::getCurrentFY());
 				$data=array(
 					"TaxID"=>$TaxID,
 					"TaxName"=>$req->TaxName,

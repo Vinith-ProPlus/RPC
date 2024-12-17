@@ -85,7 +85,9 @@ CREATE TABLE `tbl_planning_services` (
   `DeletedOn` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
+
+-- tbl_service_provided
+
 ALTER TABLE `tbl_planning_services`
   ADD PRIMARY KEY (`PServiceID`);
 COMMIT;
@@ -96,10 +98,6 @@ CREATE TABLE `tbl_service_provided` (
   `ActiveStatus` enum('Active','Inactive') DEFAULT NULL,
   `DFlag` tinyint(1) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `tbl_service_provided`
---
 
 INSERT INTO `tbl_service_provided` (`ServiceID`, `ServiceName`, `ActiveStatus`, `DFlag`) VALUES
 ('SP2023-0000001', 'Drone Surveying', 'Active', 0),
@@ -119,13 +117,6 @@ INSERT INTO `tbl_service_provided` (`ServiceID`, `ServiceName`, `ActiveStatus`, 
 ('SP2023-0000015', 'Detailed Estimation', 'Active', 0),
 ('SP2023-0000016', 'Valuation', 'Active', 0);
 
---
--- Indexes for dumped tables
---
-
---
--- Indexes for table `tbl_service_provided`
---
 ALTER TABLE `tbl_service_provided`
   ADD PRIMARY KEY (`ServiceID`);
 COMMIT;
@@ -133,3 +124,95 @@ COMMIT;
 2024-12-10
 
 ALTER TABLE `tbl_planning_services` ADD `StateID` VARCHAR(50) NULL DEFAULT NULL AFTER `ServiceID`, ADD `DistrictID` VARCHAR(50) NULL DEFAULT NULL AFTER `StateID`;
+
+2024-12-17
+
+INSERT INTO `tbl_docnum` (`SLNO`, `DocType`, `Prefix`, `Length`, `CurrNum`, `Suffix`, `Year`) VALUES (NULL, 'Services-Provided', 'SP', '7', '30', NULL, '');
+INSERT INTO `tbl_docnum` (`SLNO`, `DocType`, `Prefix`, `Length`, `CurrNum`, `Suffix`, `Year`) VALUES (NULL, 'Construction-Service-Category', 'CSC', '7', '1', NULL, '');
+INSERT INTO `tbl_docnum` (`SLNO`, `DocType`, `Prefix`, `Length`, `CurrNum`, `Suffix`, `Year`) VALUES (NULL, 'Construction-Services', 'CS', '7', '1', NULL, '');
+
+-- tbl_construction_service_category
+
+CREATE TABLE `tbl_construction_service_category` (
+  `ConServCatID` varchar(50) NOT NULL,
+  `ConServCatName` varchar(50) DEFAULT NULL,
+  `ActiveStatus` enum('Active','Inactive') NOT NULL DEFAULT 'Active',
+  `DFlag` int(11) NOT NULL DEFAULT 0,
+  `CreatedBy` varchar(50) DEFAULT NULL,
+  `UpdatedBy` varchar(50) DEFAULT NULL,
+  `DeletedBy` varchar(50) DEFAULT NULL,
+  `CreatedOn` timestamp NOT NULL DEFAULT current_timestamp(),
+  `UpdatedOn` timestamp NULL DEFAULT NULL,
+  `DeletedOn` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT INTO `tbl_construction_service_category` (`ConServCatID`, `ConServCatName`, `ActiveStatus`, `DFlag`, `CreatedBy`, `UpdatedBy`, `DeletedBy`, `CreatedOn`, `UpdatedOn`, `DeletedOn`) VALUES
+('CSC2425-0000001', 'Pre-construction', 'Active', 0, 'U2023-0000001', NULL, NULL, '2024-12-17 09:16:19', NULL, NULL),
+('CSC2425-0000002', 'Post-construction', 'Active', 0, 'U2023-0000001', NULL, NULL, '2024-12-17 09:16:19', NULL, NULL),
+('CSC2425-0000003', 'Rental Service', 'Active', 0, 'U2023-0000001', NULL, NULL, '2024-12-17 09:16:19', NULL, NULL);
+
+ALTER TABLE `tbl_construction_service_category`
+  ADD PRIMARY KEY (`ConServCatID`);
+COMMIT;
+
+-- tbl_construction_services
+
+CREATE TABLE `tbl_construction_services` (
+  `ConServID` varchar(50) NOT NULL,
+  `ConServName` varchar(50) DEFAULT NULL,
+  `ConServCatID` varchar(50) DEFAULT NULL,
+  `ActiveStatus` enum('Active','Inactive') NOT NULL DEFAULT 'Active',
+  `DFlag` int(11) NOT NULL DEFAULT 0,
+  `CreatedBy` varchar(50) DEFAULT NULL,
+  `UpdatedBy` varchar(50) DEFAULT NULL,
+  `DeletedBy` varchar(50) DEFAULT NULL,
+  `CreatedOn` timestamp NOT NULL DEFAULT current_timestamp(),
+  `UpdatedOn` timestamp NULL DEFAULT NULL,
+  `DeletedOn` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT INTO `tbl_construction_services` (`ConServID`, `ConServName`, `ConServCatID`, `ActiveStatus`, `DFlag`, `CreatedBy`, `UpdatedBy`, `DeletedBy`, `CreatedOn`, `UpdatedOn`, `DeletedOn`) VALUES
+('CS2425-0000001', 'Site Survey (Levelling) – Drone / Digital', 'CSC2425-0000001', 'Active', 0, 'U2023-0000001', NULL, NULL, '2024-12-17 09:44:24', NULL, NULL),
+('CS2425-0000002', 'Layout Approval', 'CSC2425-0000001', 'Active', 0, 'U2023-0000001', NULL, NULL, '2024-12-17 09:44:24', NULL, NULL),
+('CS2425-0000003', 'DTCP Approval', 'CSC2425-0000001', 'Active', 0, 'U2023-0000001', NULL, NULL, '2024-12-17 09:44:24', NULL, NULL),
+('CS2425-0000004', 'Model Plan (Vastu)', 'CSC2425-0000001', 'Active', 0, 'U2023-0000001', NULL, NULL, '2024-12-17 09:44:24', NULL, NULL),
+('CS2425-0000005', 'Vacant Land Tax', 'CSC2425-0000001', 'Active', 0, 'U2023-0000001', NULL, NULL, '2024-12-17 09:44:24', NULL, NULL),
+('CS2425-0000006', 'Stability Certificate', 'CSC2425-0000001', 'Active', 0, 'U2023-0000001', NULL, NULL, '2024-12-17 09:44:24', NULL, NULL),
+('CS2425-0000007', 'Blue Print', 'CSC2425-0000001', 'Active', 0, 'U2023-0000001', NULL, NULL, '2024-12-17 09:44:24', NULL, NULL),
+('CS2425-0000008', 'Elevation', 'CSC2425-0000001', 'Active', 0, 'U2023-0000001', NULL, NULL, '2024-12-17 09:44:24', NULL, NULL),
+('CS2425-0000009', '3D Modelling', 'CSC2425-0000001', 'Active', 0, 'U2023-0000001', NULL, NULL, '2024-12-17 09:44:24', NULL, NULL),
+('CS2425-0000010', 'Structural Design', 'CSC2425-0000001', 'Active', 0, 'U2023-0000001', NULL, NULL, '2024-12-17 09:44:24', NULL, NULL),
+('CS2425-0000011', 'Elevation (Interior/Exterior)', 'CSC2425-0000001', 'Active', 0, 'U2023-0000001', NULL, NULL, '2024-12-17 09:44:24', NULL, NULL),
+('CS2425-0000012', 'Soil Test', 'CSC2425-0000001', 'Active', 0, 'U2023-0000001', NULL, NULL, '2024-12-17 09:44:24', NULL, NULL),
+('CS2425-0000013', 'Lift Installation Planner', 'CSC2425-0000001', 'Active', 0, 'U2023-0000001', NULL, NULL, '2024-12-17 09:44:24', NULL, NULL),
+('CS2425-0000014', 'Clearing the site – excavation of debris', 'CSC2425-0000001', 'Active', 0, 'U2023-0000001', NULL, NULL, '2024-12-17 09:44:24', NULL, NULL),
+('CS2425-0000015', 'Clearing the site – Demolition service', 'CSC2425-0000001', 'Active', 0, 'U2023-0000001', NULL, NULL, '2024-12-17 09:44:24', NULL, NULL),
+('CS2425-0000016', 'Anti-Termite Treatment', 'CSC2425-0000001', 'Active', 0, 'U2023-0000001', NULL, NULL, '2024-12-17 09:44:24', NULL, NULL),
+('CS2425-0000017', 'Fencing', 'CSC2425-0000001', 'Active', 0, 'U2023-0000001', NULL, NULL, '2024-12-17 09:44:24', NULL, NULL),
+('CS2425-0000018', 'Lay the Roofing Material', 'CSC2425-0000002', 'Active', 0, 'U2023-0000001', NULL, NULL, '2024-12-17 09:44:24', NULL, NULL),
+('CS2425-0000019', 'Roof repair services', 'CSC2425-0000002', 'Active', 0, 'U2023-0000001', NULL, NULL, '2024-12-17 09:44:24', NULL, NULL),
+('CS2425-0000020', 'Exterior Cladding', 'CSC2425-0000002', 'Active', 0, 'U2023-0000001', NULL, NULL, '2024-12-17 09:44:24', NULL, NULL),
+('CS2425-0000021', 'Landscaping Services', 'CSC2425-0000002', 'Active', 0, 'U2023-0000001', NULL, NULL, '2024-12-17 09:44:24', NULL, NULL),
+('CS2425-0000022', 'Flooring Solutions', 'CSC2425-0000002', 'Active', 0, 'U2023-0000001', NULL, NULL, '2024-12-17 09:44:24', NULL, NULL),
+('CS2425-0000023', 'Interior Design\s', 'CSC2425-0000002', 'Active', 0, 'U2023-0000001', NULL, NULL, '2024-12-17 09:44:24', NULL, NULL),
+('CS2425-0000024', 'Tailor made Furniture', 'CSC2425-0000002', 'Active', 0, 'U2023-0000001', NULL, NULL, '2024-12-17 09:44:24', NULL, NULL),
+('CS2425-0000025', 'Electrical Services', 'CSC2425-0000002', 'Active', 0, 'U2023-0000001', NULL, NULL, '2024-12-17 09:44:24', NULL, NULL),
+('CS2425-0000026', 'Plumbing Services', 'CSC2425-0000002', 'Active', 0, 'U2023-0000001', NULL, NULL, '2024-12-17 09:44:24', NULL, NULL),
+('CS2425-0000027', 'Window maintenance & Repair', 'CSC2425-0000002', 'Active', 0, 'U2023-0000001', NULL, NULL, '2024-12-17 09:44:24', NULL, NULL),
+('CS2425-0000028', 'Pool Services', 'CSC2425-0000002', 'Active', 0, 'U2023-0000001', NULL, NULL, '2024-12-17 09:44:24', NULL, NULL),
+('CS2425-0000029', 'Pest Control', 'CSC2425-0000002', 'Active', 0, 'U2023-0000001', NULL, NULL, '2024-12-17 09:44:24', NULL, NULL),
+('CS2425-0000030', 'Solar Installation', 'CSC2425-0000002', 'Active', 0, 'U2023-0000001', NULL, NULL, '2024-12-17 09:44:24', NULL, NULL),
+('CS2425-0000031', 'Valuation of building', 'CSC2425-0000002', 'Active', 0, 'U2023-0000001', NULL, NULL, '2024-12-17 09:44:24', NULL, NULL),
+('CS2425-0000032', 'Completion Certificate', 'CSC2425-0000002', 'Active', 0, 'U2023-0000001', NULL, NULL, '2024-12-17 09:44:24', NULL, NULL),
+('CS2425-0000033', 'Camera', 'CSC2425-0000002', 'Active', 0, 'U2023-0000001', NULL, NULL, '2024-12-17 09:44:24', NULL, NULL),
+('CS2425-0000034', 'Automation', 'CSC2425-0000002', 'Active', 0, 'U2023-0000001', NULL, NULL, '2024-12-17 09:44:24', NULL, NULL),
+('CS2425-0000035', 'JCB', 'CSC2425-0000003', 'Active', 0, 'U2023-0000001', NULL, NULL, '2024-12-17 09:44:24', NULL, NULL),
+('CS2425-0000036', 'Bore well', 'CSC2425-0000003', 'Active', 0, 'U2023-0000001', NULL, NULL, '2024-12-17 09:44:24', NULL, NULL),
+('CS2425-0000037', 'Tractor', 'CSC2425-0000003', 'Active', 0, 'U2023-0000001', NULL, NULL, '2024-12-17 09:44:24', NULL, NULL),
+('CS2425-0000038', 'Centering Material', 'CSC2425-0000003', 'Active', 0, 'U2023-0000001', NULL, NULL, '2024-12-17 09:44:24', NULL, NULL),
+('CS2425-0000039', 'Grain Service', 'CSC2425-0000003', 'Active', 0, 'U2023-0000001', NULL, NULL, '2024-12-17 09:44:24', NULL, NULL),
+('CS2425-0000040', 'Readymix Vehicle', 'CSC2425-0000003', 'Active', 0, 'U2023-0000001', NULL, NULL, '2024-12-17 09:44:24', NULL, NULL);
+
+ALTER TABLE `tbl_construction_services`
+  ADD PRIMARY KEY (`ConServID`);
+COMMIT;
