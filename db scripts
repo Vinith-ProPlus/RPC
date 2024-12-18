@@ -70,7 +70,7 @@ ALTER TABLE `tbl_products` ADD `ThumbnailImg` TEXT NULL DEFAULT NULL AFTER `Attr
 2024-12-09
 
 CREATE TABLE `tbl_planning_services` (
-  `PServiceID` varchar(50) NOT NULL,
+  `PServiceID` varchar(50) NOT NULL PRIMARY KEY,
   `Name` varchar(200) DEFAULT NULL,
   `MobileNumber` varchar(20) DEFAULT NULL,
   `Email` varchar(50) DEFAULT NULL,
@@ -85,15 +85,8 @@ CREATE TABLE `tbl_planning_services` (
   `DeletedOn` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-
--- tbl_service_provided
-
-ALTER TABLE `tbl_planning_services`
-  ADD PRIMARY KEY (`PServiceID`);
-COMMIT;
-
 CREATE TABLE `tbl_service_provided` (
-  `ServiceID` varchar(50) NOT NULL,
+  `ServiceID` varchar(50) NOT NULL PRIMARY KEY,
   `ServiceName` varchar(50) DEFAULT NULL,
   `ActiveStatus` enum('Active','Inactive') DEFAULT NULL,
   `DFlag` tinyint(1) DEFAULT NULL
@@ -116,10 +109,6 @@ INSERT INTO `tbl_service_provided` (`ServiceID`, `ServiceName`, `ActiveStatus`, 
 ('SP2023-0000014', 'Stage payment & Completion certificate', 'Active', 0),
 ('SP2023-0000015', 'Detailed Estimation', 'Active', 0),
 ('SP2023-0000016', 'Valuation', 'Active', 0);
-
-ALTER TABLE `tbl_service_provided`
-  ADD PRIMARY KEY (`ServiceID`);
-COMMIT;
 
 2024-12-10
 
@@ -210,6 +199,23 @@ INSERT INTO `tbl_construction_services` (`ConServID`, `ConServName`, `ConServCat
 ('CS2425-0000039', 'Grain Service', 'CSC2425-0000003', 'Active', 0, 'U2023-0000001', NULL, NULL, '2024-12-17 09:44:24', NULL, NULL),
 ('CS2425-0000040', 'Readymix Vehicle', 'CSC2425-0000003', 'Active', 0, 'U2023-0000001', NULL, NULL, '2024-12-17 09:44:24', NULL, NULL);
 
+2024-12-18
+
+INSERT INTO `tbl_menus` (`MID`, `Slug`, `MenuName`, `ActiveName`, `Icon`, `PageUrl`, `ParentID`, `Level`, `hasSubMenu`, `Ordering`, `isCheckSetting`, `SettingsName`, `DefaultOrdering`, `ActiveStatus`, `DFlag`, `UpdatedOn`, `UpdatedBy`) VALUES
+ ('M2023-0000064', 'services', 'Services', 'Services', NULL, 'admin/master/general/services', 'M2023-0000009', 'L002', '0', '10', '0', NULL, '10', '1', '0', '2022-12-07 06:49:35', ''),
+ ('M2023-0000065', 'construction-service-category', 'Construction Service Category', 'Construction-Service-Category', NULL, 'admin/master/general/construction-service-category', 'M2023-0000009', 'L002', '0', '11', '0', NULL, '11', '1', '0', '2022-12-07 06:49:35', NULL),
+ ('M2023-0000066', 'construction-services', 'Construction Services', 'Construction-Services', NULL, 'admin/master/general/construction-services', 'M2023-0000009', 'L002', '0', '12', '0', NULL, '12', '1', '0', '2022-12-07 06:49:35', NULL);
+
+INSERT INTO `tbl_cruds` (`MID`, `add`, `view`, `edit`, `delete`, `copy`, `excel`, `csv`, `print`, `pdf`, `restore`, `showpwd`) VALUES
+('M2023-0000064', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '0'),
+('M2023-0000065', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '0'),
+('M2023-0000066', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '0');
+
+ALTER TABLE `tbl_service_provided` ADD `Description` TEXT NULL DEFAULT NULL AFTER `ServiceName`, ADD `CreatedBy` VARCHAR(50) NULL DEFAULT NULL AFTER `DFlag`, ADD `CreatedOn` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `CreatedBy`, ADD `UpdatedBy` VARCHAR(50) NULL DEFAULT NULL AFTER `CreatedOn`, ADD `UpdatedOn` DATETIME NULL DEFAULT NULL AFTER `UpdatedBy`, ADD `DeletedBy` VARCHAR(50) NULL DEFAULT NULL AFTER `UpdatedOn`, ADD `DeletedOn` DATETIME NULL DEFAULT NULL AFTER `DeletedBy`;
+
+ALTER TABLE `tbl_service_provided` CHANGE `DFlag` `DFlag` INT(11) NOT NULL DEFAULT '0';
+
+
 CREATE TABLE `tbl_construction_plan_services` (
   `CPServiceID` varchar(50) NOT NULL PRIMARY KEY,
   `Name` varchar(200) DEFAULT NULL,
@@ -234,7 +240,7 @@ INSERT INTO `tbl_docnum` (`SLNO`, `DocType`, `Prefix`, `Length`, `CurrNum`, `Suf
 241218
 
 INSERT INTO `tbl_menus` (`MID`, `Slug`, `MenuName`, `ActiveName`, `Icon`, `PageUrl`, `ParentID`, `Level`, `hasSubMenu`, `Ordering`, `isCheckSetting`, `SettingsName`, `DefaultOrdering`, `ActiveStatus`, `DFlag`, `UpdatedOn`, `UpdatedBy`) VALUES ('M2023-0000065', 'construction-service-plan', 'Construction Service Plan', 'Construction-Service-Plan', NULL, 'admin/users-and-permissions/construction-service-plan/', 'M2023-0000006', 'L002', NULL, '7', '0', NULL, '7', '1', '0', '2024-12-05 16:14:24', NULL);
-INSERT INTO `tbl_cruds` (`MID`, `add`, `view`, `edit`, `delete`, `copy`, `excel`, `csv`, `print`, `pdf`, `restore`, `showpwd`) VALUES ('M2023-0000065', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '0');
+INSERT INTO `tbl_cruds` (`MID`, `add`, `view`, `edit`, `delete`, `copy`, `excel`, `csv`, `print`, `pdf`, `restore`, `showpwd`) VALUES ('M2023-0000067', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '0');
 
 
 ALTER DATABASE builderssupply_fy_2425 CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;

@@ -88,7 +88,7 @@ enum docTypes:string{
 
     //home updated
     case PlanningServices="Planning-Services";
-    case ServicesProvided="Services-Provided";
+    case Services="Services-Provided";
     case ConstructionServiceCategory="Construction-Service-Category";
     case ConstructionServices="Construction-Services";
     case ConstructionPlanServices="Construction-Plan-Services";
