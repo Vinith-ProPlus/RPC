@@ -2,11 +2,14 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\web\masters\general\CityController;
+use App\Http\Controllers\web\masters\general\ConstructionServiceCategoryController;
+use App\Http\Controllers\web\masters\general\ConstructionServicesController;
 use App\Http\Controllers\web\masters\general\ConstructionTypeController;
 use App\Http\Controllers\web\masters\general\CountryController;
 use App\Http\Controllers\web\masters\general\DistrictsController;
 use App\Http\Controllers\web\masters\general\PostalCodesController;
 use App\Http\Controllers\web\masters\general\RejectReasonController;
+use App\Http\Controllers\web\masters\general\ServicesController;
 use App\Http\Controllers\web\masters\general\StagesController;
 use App\Http\Controllers\web\masters\general\StatesController;
 use App\Http\Controllers\web\masters\general\TaluksController;
@@ -148,6 +151,51 @@ Route::group(['prefix'=>'reject-reason'],function (){
 });
 Route::group(['prefix'=>'construction-type'],function (){
     Route::controller(ConstructionTypeController::class)->group(function () {
+        Route::get('/', 'view');
+        Route::get('/trash', 'TrashView');
+        Route::get('/create', 'Create');
+        Route::get('/edit/{ID}', 'Edit');
+
+        Route::post('/data', 'TableView');
+        Route::post('/create', 'Save');
+        Route::POST('/edit/{ID}', 'Update');
+        Route::POST('/delete/{ID}', 'Delete');
+        Route::POST('/restore/{ID}', 'Restore');
+        Route::post('/trash-data', 'TrashTableView');
+    });
+});
+Route::group(['prefix'=>'services'],function (){
+    Route::controller(ServicesController::class)->group(function () {
+        Route::get('/', 'view');
+        Route::get('/trash', 'TrashView');
+        Route::get('/create', 'Create');
+        Route::get('/edit/{ID}', 'Edit');
+
+        Route::post('/data', 'TableView');
+        Route::post('/create', 'Save');
+        Route::POST('/edit/{ID}', 'Update');
+        Route::POST('/delete/{ID}', 'Delete');
+        Route::POST('/restore/{ID}', 'Restore');
+        Route::post('/trash-data', 'TrashTableView');
+    });
+});
+Route::group(['prefix'=>'construction-service-category'],function (){
+    Route::controller(ConstructionServiceCategoryController::class)->group(function () {
+        Route::get('/', 'view');
+        Route::get('/trash', 'TrashView');
+        Route::get('/create', 'Create');
+        Route::get('/edit/{ID}', 'Edit');
+
+        Route::post('/data', 'TableView');
+        Route::post('/create', 'Save');
+        Route::POST('/edit/{ID}', 'Update');
+        Route::POST('/delete/{ID}', 'Delete');
+        Route::POST('/restore/{ID}', 'Restore');
+        Route::post('/trash-data', 'TrashTableView');
+    });
+});
+Route::group(['prefix'=>'construction-services'],function (){
+    Route::controller(ConstructionServicesController::class)->group(function () {
         Route::get('/', 'view');
         Route::get('/trash', 'TrashView');
         Route::get('/create', 'Create');

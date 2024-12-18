@@ -216,3 +216,19 @@ INSERT INTO `tbl_construction_services` (`ConServID`, `ConServName`, `ConServCat
 ALTER TABLE `tbl_construction_services`
   ADD PRIMARY KEY (`ConServID`);
 COMMIT;
+
+2024-12-18
+
+INSERT INTO `tbl_menus` (`MID`, `Slug`, `MenuName`, `ActiveName`, `Icon`, `PageUrl`, `ParentID`, `Level`, `hasSubMenu`, `Ordering`, `isCheckSetting`, `SettingsName`, `DefaultOrdering`, `ActiveStatus`, `DFlag`, `UpdatedOn`, `UpdatedBy`) VALUES
+ ('M2023-0000064', 'services', 'Services', 'Services', NULL, 'admin/master/general/services', 'M2023-0000009', 'L002', '0', '10', '0', NULL, '10', '1', '0', '2022-12-07 06:49:35', ''),
+ ('M2023-0000065', 'construction-service-category', 'Construction Service Category', 'Construction-Service-Category', NULL, 'admin/master/general/construction-service-category', 'M2023-0000009', 'L002', '0', '11', '0', NULL, '11', '1', '0', '2022-12-07 06:49:35', NULL),
+ ('M2023-0000066', 'construction-services', 'Construction Services', 'Construction-Services', NULL, 'admin/master/general/construction-services', 'M2023-0000009', 'L002', '0', '12', '0', NULL, '12', '1', '0', '2022-12-07 06:49:35', NULL);
+
+INSERT INTO `tbl_cruds` (`MID`, `add`, `view`, `edit`, `delete`, `copy`, `excel`, `csv`, `print`, `pdf`, `restore`, `showpwd`) VALUES 
+('M2023-0000064', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '0'),
+('M2023-0000065', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '0'),
+('M2023-0000066', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '0');
+
+ALTER TABLE `tbl_service_provided` ADD `Description` TEXT NULL DEFAULT NULL AFTER `ServiceName`, ADD `CreatedBy` VARCHAR(50) NULL DEFAULT NULL AFTER `DFlag`, ADD `CreatedOn` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `CreatedBy`, ADD `UpdatedBy` VARCHAR(50) NULL DEFAULT NULL AFTER `CreatedOn`, ADD `UpdatedOn` DATETIME NULL DEFAULT NULL AFTER `UpdatedBy`, ADD `DeletedBy` VARCHAR(50) NULL DEFAULT NULL AFTER `UpdatedOn`, ADD `DeletedOn` DATETIME NULL DEFAULT NULL AFTER `DeletedBy`;
+
+ALTER TABLE `tbl_service_provided` CHANGE `DFlag` `DFlag` INT(11) NOT NULL DEFAULT '0';
