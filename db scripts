@@ -230,3 +230,52 @@ CREATE TABLE `tbl_construction_plan_services` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 INSERT INTO `tbl_docnum` (`SLNO`, `DocType`, `Prefix`, `Length`, `CurrNum`, `Suffix`, `Year`) VALUES (NULL, 'Construction-Plan-Services', 'CPS', '7', '1', NULL, '');
+
+241218
+
+INSERT INTO `tbl_menus` (`MID`, `Slug`, `MenuName`, `ActiveName`, `Icon`, `PageUrl`, `ParentID`, `Level`, `hasSubMenu`, `Ordering`, `isCheckSetting`, `SettingsName`, `DefaultOrdering`, `ActiveStatus`, `DFlag`, `UpdatedOn`, `UpdatedBy`) VALUES ('M2023-0000065', 'construction-service-plan', 'Construction Service Plan', 'Construction-Service-Plan', NULL, 'admin/users-and-permissions/construction-service-plan/', 'M2023-0000006', 'L002', NULL, '7', '0', NULL, '7', '1', '0', '2024-12-05 16:14:24', NULL);
+INSERT INTO `tbl_cruds` (`MID`, `add`, `view`, `edit`, `delete`, `copy`, `excel`, `csv`, `print`, `pdf`, `restore`, `showpwd`) VALUES ('M2023-0000065', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '0');
+
+
+ALTER DATABASE builderssupply_fy_2425 CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+ALTER DATABASE builderssupply_general CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+ALTER DATABASE builderssupply_log CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+ALTER DATABASE builderssupply_main CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+ALTER DATABASE builderssupply_stock_fy_2425 CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+ALTER DATABASE builderssupply_support CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+ALTER DATABASE builderssupply_tmp CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+
+SELECT CONCAT('ALTER TABLE `', TABLE_NAME, '` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;')
+FROM INFORMATION_SCHEMA.TABLES
+WHERE TABLE_SCHEMA = 'builderssupply_fy_2425';
+
+SELECT CONCAT('ALTER TABLE `', TABLE_NAME, '` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;')
+FROM INFORMATION_SCHEMA.TABLES
+WHERE TABLE_SCHEMA = 'builderssupply_general';
+
+SELECT CONCAT('ALTER TABLE `', TABLE_NAME, '` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;')
+FROM INFORMATION_SCHEMA.TABLES
+WHERE TABLE_SCHEMA = 'builderssupply_log';
+
+SELECT CONCAT('ALTER TABLE `', TABLE_NAME, '` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;')
+FROM INFORMATION_SCHEMA.TABLES
+WHERE TABLE_SCHEMA = 'builderssupply_main';
+
+SELECT CONCAT('ALTER TABLE `', TABLE_NAME, '` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;')
+FROM INFORMATION_SCHEMA.TABLES
+WHERE TABLE_SCHEMA = 'builderssupply_stock_fy_2425';
+
+SELECT CONCAT('ALTER TABLE `', TABLE_NAME, '` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;')
+FROM INFORMATION_SCHEMA.TABLES
+WHERE TABLE_SCHEMA = 'builderssupply_support';
+
+SELECT CONCAT('ALTER TABLE `', TABLE_NAME, '` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;')
+FROM INFORMATION_SCHEMA.TABLES
+WHERE TABLE_SCHEMA = 'builderssupply_tmp';
+
+ALTER TABLE builderssupply_general.tbl_states CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+ALTER TABLE builderssupply_general.tbl_districts CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+
+ALTER TABLE builderssupply_main.tbl_construction_plan_services CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+ALTER TABLE builderssupply_main.tbl_construction_service_category CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+ALTER TABLE builderssupply_main.tbl_construction_services CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
