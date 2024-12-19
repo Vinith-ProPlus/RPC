@@ -52,12 +52,31 @@
             background-color: #0f3b70 !important;
         }
 
-        #get-app {
-            padding: 15%;
+        @media screen and (min-width: 310px) {
+            #get-app {
+                padding: 3% !important;
+            }
+        }
+        @media screen and (min-width: 550px) {
+            #get-app {
+                padding: 5% 15% !important;
+            }
+        }
+
+        @media screen and (min-width: 768px) {
+            #get-app {
+                padding: 5% 0% 5% 35% !important;
+            }
+        }
+
+        @media screen and (min-width: 1200px) {
+            #get-app {
+                padding: 0% !important;
+            }
         }
 
         #send-app-link-mobile {
-            margin: 40px 0 40px;
+            margin: 25px 0;
         }
 
         #send-app-link-mobile input[type=text] {
@@ -663,14 +682,14 @@
                 <div class="col-md-8 col-sm-12 d-flex justify-content-center align-items-center">
                     <div id="get-app">
                         <h3><b>Get RPC App</b></h3>
-                        <p>Search for products/services and connect with verified sellers on the go!</p>
+                        <p class="mt-1">Search for products/services and connect with verified sellers on the go!</p>
                         <div id="send-app-link-mobile">
                             <label style="font-weight: 600; margin: 0;">+91</label>
                             <input type="text" placeholder="Enter Mobile Number" id="appLinkMobileNumberInput"
                                    maxlength="10" autocomplete="off">
                             <button class="sent-me-link-btn btn">Sent me the link</button>
                             <div id="app-link-err-msg"></div>
-                            <p>We will send you a link, open it on your phone to download the App</p>
+                            <p class="mt-1">We will send you a link, open it on your phone to download the App</p>
                         </div>
                         <div id="download-app-buttons" style="width: 150px !important;">
                             <a target="_blank" href="{{ $AndroidAppUrl ?? '#' }}"><img alt="Google PlayStore logo"
@@ -1039,7 +1058,7 @@
             </div>
         </div>
     </div>
-    <button title="Close (Esc)" type="button" class="mfp-close" id="modal-close-btn">×</button>
+    <button title="Close (Esc)" type="button" class="mfp-close mr-2" id="modal-close-btn">×</button>
 </div>
 <div class="newsletter-popup mfp-hide modal-sm bg-img p-0 h-auto" id="construction-serv-form"
      style="background: #ffffff no-repeat center/cover">
@@ -1131,7 +1150,7 @@
             </div>
         </div>
     </div>
-    <button title="Close (Esc)" type="button" class="mfp-close" id="modal-close-btn">×</button>
+    <button title="Close (Esc)" type="button" class="mfp-close mr-2" id="modal-close-btn" style="font-weight: bolder !important;">×</button>
 </div>
 
 <a id="scroll-top" href="#top" title="Top" role="button"><i class="icon-angle-up"></i></a>
@@ -1144,7 +1163,6 @@
 <script src="{{url('/')}}/home/assets/js/jquery.appear.min.js"></script>
 <script src="{{url('/')}}/home/assets/js/jquery.plugin.min.js"></script>
 <script src="{{url('/')}}/home/assets/js/main.js"></script>
-updated
 <script src="{{url('/')}}/assets/js/toastr.min.js"></script>
 
 <script>

@@ -11504,7 +11504,7 @@ img.slide-bg {
 	top: 3px
 }
 
-@media (min-width:576px) {
+@media (min-width:991px) {
 	.sticky-navbar {
 		display: none
 	}
