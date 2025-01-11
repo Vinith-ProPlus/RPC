@@ -92,28 +92,6 @@
                             <span class="ratings" style="width:100%"></span>
                         </div>
                     </div>
-
-                    <hr class="short-divider">
-                    <div class="product-desc">
-{{--                        <iframe id="productIFrame" src="{{ route('productShortDescription', $product->ProductID) }}" style="width: 100%; min-height: 200px; overflow: hidden;" frameborder="0"></iframe>--}}
-                        {!! $product->ShortDescription !!}
-                    </div>
-
-                    <ul class="single-info-list">
-                        <li>
-                            CATEGORY:
-                            <strong>
-                                <a href="{{ route('products.customer.subCategoryList', ['CID' => $product->PCID]) }}" class="product-category">{{ $product->CategoryName }}</a>
-                            </strong>
-                        </li>
-                        <li>
-                            SUB CATEGORY:
-                            <strong>
-                                <a href="{{ route('products.customer.productsList', ['SCID' => $product->PSCID]) }}" class="product-category">{{ $product->SubCategoryName }}</a>
-                            </strong>
-                        </li>
-                    </ul>
-
                     <div class="product-action">
                         <div class="row col-12">
                             <div class="col-8">
@@ -136,6 +114,26 @@
                             </div>
                         </div>
                     </div>
+                    <hr class="short-divider" style="border-top: 1px solid #e7e7e7; width: 100%;">
+                    <div class="product-desc">
+                        {{--                        <iframe id="productIFrame" src="{{ route('productShortDescription', $product->ProductID) }}" style="width: 100%; min-height: 200px; overflow: hidden;" frameborder="0"></iframe>--}}
+                        {!! $product->ShortDescription !!}
+                    </div>
+
+                    <ul class="single-info-list">
+                        <li>
+                            CATEGORY:
+                            <strong>
+                                <a href="{{ route('products.customer.subCategoryList', ['CID' => $product->PCID]) }}" class="product-category">{{ $product->CategoryName }}</a>
+                            </strong>
+                        </li>
+                        <li>
+                            SUB CATEGORY:
+                            <strong>
+                                <a href="{{ route('products.customer.productsList', ['SCID' => $product->PSCID]) }}" class="product-category">{{ $product->SubCategoryName }}</a>
+                            </strong>
+                        </li>
+                    </ul>
                 </div>
             </div>
 

@@ -80,27 +80,6 @@
                         <span class="ratings" style="width:100%"></span>
                     </div>
                 </div>
-
-                <hr class="short-divider">
-                <div class="product-desc">
-                    {!! $product->Description !!}
-                </div>
-
-                <ul class="single-info-list">
-                    <li>
-                        CATEGORY:
-                        <strong>
-                            <a href="{{ route('products.customer.subCategoryList', ['CID' => $product->PCID]) }}" class="product-category">{{ $product->CategoryName }}</a>
-                        </strong>
-                    </li>
-                    <li>
-                        SUB CATEGORY:
-                        <strong>
-                            <a href="{{ route('products.customer.productsList', ['SCID' => $product->PSCID]) }}" class="product-category">{{ $product->SubCategoryName }}</a>
-                        </strong>
-                    </li>
-                </ul>
-
                 <div class="product-action">
                     <div class="row col-12">
                         <div class="col-6">
@@ -121,6 +100,25 @@
                         </div>
                     </div>
                 </div>
+                <hr class="short-divider" style="border-top: 1px solid #e7e7e7; width: 100%;">
+                <div class="product-desc">
+                    {!! $product->Description !!}
+                </div>
+
+                <ul class="single-info-list">
+                    <li>
+                        CATEGORY:
+                        <strong>
+                            <a href="{{ route('products.customer.subCategoryList', ['CID' => $product->PCID]) }}" class="product-category">{{ $product->CategoryName }}</a>
+                        </strong>
+                    </li>
+                    <li>
+                        SUB CATEGORY:
+                        <strong>
+                            <a href="{{ route('products.customer.productsList', ['SCID' => $product->PSCID]) }}" class="product-category">{{ $product->SubCategoryName }}</a>
+                        </strong>
+                    </li>
+                </ul>
             </div>
         </div>
 
@@ -237,7 +235,7 @@
                 }
             });
         });
-        
+
         $('.btnBuyNow').click(function () {
             let thiss = $(this);
             let FormData = {

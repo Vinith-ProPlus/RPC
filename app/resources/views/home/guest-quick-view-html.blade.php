@@ -81,7 +81,24 @@
                     </div>
                 </div>
 
-                <hr class="short-divider">
+                <div class="product-action">
+                    <div class="row col-12">
+                        <div class="col-6">
+                            <a href="#" class="btn btn-dark add-cart mr-2" onclick="$('#loginBtn').click();" title="Add to Cart" id="{{ $product->ProductID }}">Add to Cart</a>
+                        </div>
+                        @if($product->ProductBrochure)
+                            <div class="col-6 text-right">
+                                <a href="{{ $product->ProductBrochure }}" class="btn btn-dark" target="new">
+                                    View Brochure
+                                </a>
+                            </div>
+                        @endif
+                        <div class="col-12 my-2">
+                            <a href="#" class="btn btn-block btn-dark mr-2" onclick="$('#loginBtn').click();" title="Buy Now" id="{{ $product->ProductID }}">Buy Now</a>
+                        </div>
+                    </div>
+                </div>
+                <hr class="short-divider" style="border-top: 1px solid #e7e7e7; width: 100%;">
                 <div class="product-desc">
                     {!! $product->Description !!}
                 </div>
@@ -100,24 +117,6 @@
                         </strong>
                     </li>
                 </ul>
-
-                <div class="product-action">
-                    <div class="row col-12">
-                        <div class="col-6">
-                            <a href="#" class="btn btn-dark add-cart mr-2" onclick="$('#loginBtn').click();" title="Add to Cart" id="{{ $product->ProductID }}">Add to Cart</a>
-                        </div>
-                        @if($product->ProductBrochure)
-                            <div class="col-6 text-right">
-                                <a href="{{ $product->ProductBrochure }}" class="btn btn-dark" target="new">
-                                    View Brochure
-                                </a>
-                            </div>
-                        @endif
-                        <div class="col-12 my-2">
-                            <a href="#" class="btn btn-block btn-dark mr-2" onclick="$('#loginBtn').click();" title="Buy Now" id="{{ $product->ProductID }}">Buy Now</a>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
 

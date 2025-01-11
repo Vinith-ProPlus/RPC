@@ -325,34 +325,11 @@
                             <div class="product-single-details mb-0 ml-md-4 product-div">
                                 <h1 class="product-title"> {{ $product->ProductName }}</h1>
 
-                                <div class="ratings-container">
+                                <div class="ratings-container mb-1">
                                     <div class="product-ratings">
                                         <span class="ratings" style="width:100%"></span>
                                     </div>
                                 </div>
-
-                                <hr class="short-divider">
-                                <div class="product-desc">
-                                    {!! $product->ShortDescription !!}
-                                </div>
-
-                                <ul class="single-info-list">
-                                    <li>
-                                        CATEGORY:
-                                        <strong>
-                                            <a href="{{ route('products.guest.subCategoryList', ['CID' => $product->PCID]) }}"
-                                               class="product-category">{{ $product->CategoryName }}</a>
-                                        </strong>
-                                    </li>
-                                    <li>
-                                        SUB CATEGORY:
-                                        <strong>
-                                            <a href="{{ route('products.guest.productsList', ['SCID' => $product->PSCID]) }}"
-                                               class="product-category">{{ $product->SubCategoryName }}</a>
-                                        </strong>
-                                    </li>
-                                </ul>
-
                                 <div class="product-action">
                                     <div class="row col-12">
                                         <div class="col-8">
@@ -374,6 +351,28 @@
                                         </div>
                                     </div>
                                 </div>
+                                <hr class="short-divider" style="border-top: 1px solid #e7e7e7; width: 100%;">
+                                <div class="product-desc">
+                                    {!! $product->ShortDescription !!}
+                                </div>
+
+                                <ul class="single-info-list">
+                                    <li>
+                                        CATEGORY:
+                                        <strong>
+                                            <a href="{{ route('products.guest.subCategoryList', ['CID' => $product->PCID]) }}"
+                                               class="product-category">{{ $product->CategoryName }}</a>
+                                        </strong>
+                                    </li>
+                                    <li>
+                                        SUB CATEGORY:
+                                        <strong>
+                                            <a href="{{ route('products.guest.productsList', ['SCID' => $product->PSCID]) }}"
+                                               class="product-category">{{ $product->SubCategoryName }}</a>
+                                        </strong>
+                                    </li>
+                                </ul>
+
 
                                 {{--                <hr class="divider mb-0 mt-0">--}}
 
