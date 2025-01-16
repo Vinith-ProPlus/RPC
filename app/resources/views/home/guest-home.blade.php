@@ -389,32 +389,17 @@
     </header><!-- End .header -->
 
         <main class="main">
-
-            <section class="intro-section">
-                <div class="home-slider slide-animate owl-carousel owl-theme owl-carousel-lazy dot-inside" data-owl-options="{
-                    'nav': false,
-                    'dots': true,
-                    'responsive': {
-                        '576': {
-                            'dots': false
-                        }
-                    }
-                }">
-                @foreach($Banners as $Banner)
-                    <div class="home-slide banner" style="background-image: url('{{ $Banner->BannerImage }}');"></div>
-                @endforeach
-            </div>
-
-            <div class="home-slider-sidebar d-none d-sm-block">
-                <div class="container">
-                    <ul id="homeBannerList">
-                        @foreach($Banners as $index => $Banner)
-                            <li {{ ($index == 0) ? "class=active" : '' }}>{{ $Banner->BannerTitle }}</li>
+        <section class="intro-section">
+                <div id="bannerCarousel" class="carousel slide" data-ride="carousel">
+                    <div class="carousel-inner">
+                        @foreach($Banners as $Banner)
+                            <div class="carousel-item {{ $loop->first ? 'active' : '' }}">
+                                <img class="d-block w-100" src="{{ $Banner->BannerImage }}" alt="Banner {{ $loop->iteration }}">
+                            </div>
                         @endforeach
-                    </ul>
+                    </div>
                 </div>
-            </div>
-        </section>
+            </section>
 
         <section class="building-modeling">
             <div class="container">
