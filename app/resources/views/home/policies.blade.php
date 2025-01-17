@@ -285,65 +285,50 @@
         </div>
 
         <div class="header-bottom sticky-header d-none d-lg-flex" data-sticky-options="{'mobile': false}">
-            <div class="container">
-                <nav class="main-nav w-100">
-                    <ul class="menu w-100" id="customerNavigationBar">
-                        <li class="menu-item d-flex align-items-center">
-                            <a href="#" class="d-inline-flex align-items-center sf-with-ul">
-                                <i class="custom-icon-toggle-menu d-inline-table"></i><span>All
-                                        Categories</span></a>
-                            <div class="menu-depart">
-                                @foreach ($PCategories->take(5) as $row)
-                                    <a href="{{ route('products.guest.subCategoryList', [ 'CID' => $row->PCID ]) }}">{{$row->PCName}}</a>
-                                @endforeach
-                                    <div style="text-align: center; display: flex; justify-content: center; align-items: center;">
-                                        <a href="{{ auth()->check() ? route('products.customer.categoriesList') : route('products.guest.categoriesList') }}" class="text-center">More</a>
-                                    </div>
-                            </div>
-                        </li>
-                        <li class="">
-                            <a href="{{ route('homepage') }}">Home</a>
-                        </li>
-                        <li>
-                            <a href="{{ route('products') }}">Products</a>
-                            <div class="megamenu megamenu-fixed-width">
-                                <div class="row">
-                                    <div class="col-lg-12">
-                                        <a href="#" class="nolink">PRODUCT CATEGORIES</a>
-                                    </div>
-                                    @php
-                                        $PCategories = $PCategories->take(9);
-                                        $chunks = $PCategories->chunk(3);
-                                    @endphp
-
-                                    @foreach ($chunks as $chunk)
-                                        <div class="col-lg-4">
-                                            <ul class="submenu">
-                                                @foreach ($chunk as $category)
-                                                    <li><a href="{{ auth()->check() ? route('products.customer.subCategoryList', ['CID' => $category->PCID]) : route('products.guest.subCategoryList', ['CID' => $category->PCID]) }}">{{ $category->PCName }}</a></li>
-                                                @endforeach
-                                            </ul>
-                                        </div>
-                                    @endforeach
-
-                                    <div class="col-lg-12 p-1">
-                                        <div class="row justify-content-end">
-                                            <div class="col-lg-4">
-                                                <a href="{{ route('products') }}" class="btn btn-sm btn-dark mr-0">View More</a>
-                                            </div>
+            <div class="container px-0">
+                <!-- Navigation and Category Menu -->
+                <div class="row align-items-center w-100">
+                    <!-- Main Navigation -->
+                    <div class="col-4">
+                        <nav class="main-nav">
+                            <ul class="menu list-unstyled sf-js-enabled sf-arrows" style="touch-action: pan-y;">
+                                <li class="menu-item d-flex align-items-center">
+                                    <a href="#" class="d-inline-flex align-items-center sf-with-ul">
+                                        <i class="custom-icon-toggle-menu d-inline-table"></i>
+                                        <span>All Categories</span>
+                                    </a>
+                                    <!-- Category Dropdown -->
+                                    <div class="menu-depart">
+                                        @foreach ($PCategories->take(5) as $row)
+                                            <a href="{{ route('products.guest.subCategoryList', [ 'CID' => $row->PCID ]) }}">{{$row->PCName}}</a>
+                                        @endforeach
+                                        <div
+                                            style="text-align: center; display: flex; justify-content: center; align-items: center;">
+                                            <a href="{{ route('products.guest.categoriesList') }}" class="text-center">More</a>
                                         </div>
                                     </div>
-                                </div><!-- End .row -->
-                            </div><!-- End .megamenu -->
-                        </li>
-                        @if(auth()->check() && !$isRegister)
-                            <li>
-                                <a href="{{ route('my-account') }}">My Account</a>
-                            </li>
-                        @endif
-                    </ul>
-                </nav>
-            </div><!-- End .container -->
+                                </li>
+                                <li class="{{ (Route::currentRouteName() === "homepage") ? 'active' : '' }}">
+                                    <a href="{{ route('homepage') }}">Home</a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('guest.products') }}">Products</a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+
+                    <!-- Buttons Section -->
+                    <div class="col-8 d-flex text-right justify-content-end p-0">
+                        <a href="#AppLinkDiv" class="btn btn-md text-white mx-2 btnHighLight" id="btnBecVen"
+                           style="background-color: #ff8800;">Become&nbsp;a&nbsp;vendor</a>
+                        <a href="#" class="btn btn-md text-white mx-2 btnHighLight" id="btnPlanServ"
+                           style="background-color: #03489c;white-space: nowrap;width: auto !important;">FREE&nbsp;Building&nbsp;Plan</a>
+                        <a href="#" class="btn btn-md text-white mx-2 btnHighLight" id="btnConstructionServ"
+                           style="background-color: #ff8800;">Construction&nbsp;Service&nbsp;Plan</a>
+                    </div>
+                </div>
+            </div>
         </div><!-- End .header-bottom -->
     </header><!-- End .header -->
 
@@ -356,6 +341,34 @@
     </main>
     <!-- End .main -->
 
+    <div class="container" id="AppLinkDiv" style="border-top: 1px solid #e7e7e7;">
+        <div class="row" style="padding: 50px 15px;">
+            <div class="col-md-4 col-sm-12 d-flex justify-content-center align-items-center">
+                <div style="padding: 15px;">
+                    <img src="{{url('assets/images/rpc-apps.png')}}" alt="Get RPC App" class="app-img">
+                </div>
+            </div>
+            <div class="col-md-8 col-sm-12 d-flex justify-content-center align-items-center">
+                <div id="get-app">
+                    <h3><b>Get RPC App</b></h3>
+                    <p class="mt-1">Search for products/services and connect with verified sellers on the go!</p>
+                    <div id="send-app-link-mobile">
+                        <label style="font-weight: 600; margin: 0;">+91</label>
+                        <input type="text" placeholder="Enter Mobile Number" id="appLinkMobileNumberInput"
+                               maxlength="10" autocomplete="off">
+                        <button class="sent-me-link-btn btn">Sent me the link</button>
+                        <div id="app-link-err-msg"></div>
+                        <p class="mt-1">We will send you a link, open it on your phone to download the App</p>
+                    </div>
+                    <div id="download-app-buttons" style="width: 150px !important;">
+                        <a target="_blank" href="{{ $AndroidAppUrl ?? '#' }}"><img alt="Google PlayStore logo"
+                                                                                   src="{{ url('assets/images/logo/google-play-badge-logo.png') }}"
+                                                                                   style="width:150px;"></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <footer class="footer bg-dark position-relative">
         <div class="footer-middle">
             <div class="container position-static">
@@ -570,6 +583,179 @@
         </div>
     </div>
     <button title="Close (Esc)" type="button" class="mfp-close" id="modal-close-btn">×</button>
+</div>
+<div class="newsletter-popup mfp-hide modal-sm bg-img p-0 h-auto" id="plan-serv-form"
+     style="background: #ffffff no-repeat center/cover">
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="card border-0 mt-4">
+                    <div class="card-header text-center border-0" @style('background:#ffffff')><h4 class="m-0">Get a
+                            FREE Building Plan</h4></div>
+                    <div class="card-body">
+                        <div class="row my-3">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label for="txtPlanCustomerName">Name <span class="required">*</span></label>
+                                    <input type="text" id="txtPlanCustomerName" class="form-control" placeholder="Name">
+                                    <span class="errors Customer err-sm" id="txtPlanCustomerName-err"></span>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 mt-20">
+                                <div class="form-group">
+                                    <label for="txtPlanMobileNo1">Mobile Number <span class="required">*</span></label>
+                                    <input type="number" id="txtPlanMobileNo1" class="form-control"
+                                           placeholder="Mobile Number">
+                                    <span class="errors Customer err-sm" id="txtPlanMobileNo1-err"></span>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label for="txtPlanEmail">Email</label>
+                                    <input type="text" id="txtPlanEmail" class="form-control" placeholder="Email" value="">
+                                    <span class="errors Customer err-sm" id="txtPlanEmail-err"></span>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 mt-20">
+                                <div class="form-group">
+                                    <label for="lstPlanServices">Services <span class="required">*</span></label>
+                                    <select class="form-control" id="lstPlanServices">
+                                        <option value="">Select a Service</option>
+                                        @foreach($ServiceProvided as $items)
+                                            <option value="{{$items->ServiceID}}">{{$items->ServiceName}}</option>
+                                        @endforeach
+                                    </select>
+                                    <span class="errors Customer err-sm" id="lstPlanServices-err"></span>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 mt-20">
+                                <div class="form-group">
+                                    <label for="lstPlanState">State <span class="required">*</span></label>
+                                    <select class="form-control" id="lstPlanState">
+                                        <option value="">Select a State</option>
+                                    </select>
+                                    <span class="errors Customer err-sm" id="lstPlanState-err"></span>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 mt-20">
+                                <div class="form-group">
+                                    <label for="lstPlanDistricts">District <span class="required">*</span></label>
+                                    <select class="form-control" id="lstPlanDistricts">
+                                        <option value="">Select a District</option>
+                                    </select>
+                                    <span class="errors Customer err-sm" id="lstPlanDistricts-err"></span>
+                                </div>
+                            </div>
+                            <div class="col-sm-12">
+                                <div class="form-group">
+                                    <label for="txtPlanMessage">Message <span class="required">*</span></label>
+                                    <textarea class="form-control" id="txtPlanMessage" cols="0" rows="0"
+                                              placeholder="Message"></textarea>
+                                    <span class="errors Customer err-sm" id="txtPlanMessage-err"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <button class="btn btn-success mr-2" id="btnPlanServSave" type="button">Submit</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <button title="Close (Esc)" type="button" class="mfp-close mr-2" id="modal-close-btn">×</button>
+</div>
+<div class="newsletter-popup mfp-hide modal-sm bg-img p-0 h-auto" id="construction-serv-form"
+     style="background: #ffffff no-repeat center/cover; max-width: 940px;">
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="card border-0 mt-4">
+                    <div class="card-header text-center border-0" style="background: #ffffff;"><h4 class="m-0">Get a
+                            Construction Service Plan</h4></div>
+                    <div class="card-body">
+                        <div class="row my-3">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label for="txtConCustomerName">Name <span class="required">*</span></label>
+                                    <input type="text" id="txtConCustomerName" class="form-control" placeholder="Name">
+                                    <span class="errors ConCustomer err-sm" id="txtConCustomerName-err"></span>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 mt-20">
+                                <div class="form-group">
+                                    <label for="txtConMobileNo1">Mobile Number <span class="required">*</span></label>
+                                    <input type="number" id="txtConMobileNo1" class="form-control"
+                                           placeholder="Mobile Number">
+                                    <span class="errors ConCustomer err-sm" id="txtConMobileNo1-err"></span>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label for="txtConEmail">Email (Optional)</label>
+                                    <input type="text" id="txtConEmail" class="form-control" placeholder="Email" value="">
+                                    <span class="errors ConCustomer err-sm" id="txtConEmail-err"></span>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 mt-20">
+                                <div class="form-group">
+                                    <label for="lstConServiceType" class="text-nowrap">Do you require any service related to construction(Please click here):
+                                        <span class="required">*</span></label>
+                                    <select class="form-control" id="lstConServiceType">
+                                        <option value="">Select a Construction Type</option>
+                                        @foreach($ConServiceCategories as $items)
+                                            <option value="{{$items->ConServCatID}}">{{$items->ConServCatName}}</option>
+                                        @endforeach
+                                    </select>
+                                    <span class="errors ConCustomer err-sm" id="lstConServiceType-err"></span>
+                                </div>
+                            </div>
+                            <div class="col-sm-12 mt-20">
+                                <div class="form-group">
+                                    <label for="lstConService">Construction Service (Please click here):
+                                        <span class="required">*</span></label>
+                                    <select class="form-control" id="lstConService">
+                                        <option value="">Select a Construction Service</option>
+                                    </select>
+                                    <span class="errors ConCustomer err-sm" id="lstConService-err"></span>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 mt-20">
+                                <div class="form-group">
+                                    <label for="lstConState">State <span class="required">*</span></label>
+                                    <select class="form-control" id="lstConState">
+                                        <option value="">Select a State</option>
+                                    </select>
+                                    <span class="errors ConCustomer err-sm" id="lstConState-err"></span>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 mt-20">
+                                <div class="form-group">
+                                    <label for="lstConDistricts">District <span class="required">*</span></label>
+                                    <select class="form-control" id="lstConDistricts">
+                                        <option value="">Select a District</option>
+                                    </select>
+                                    <span class="errors ConCustomer err-sm" id="lstConDistricts-err"></span>
+                                </div>
+                            </div>
+                            <div class="col-sm-12">
+                                <div class="form-group">
+                                    <label for="txtConMessage">Message <span class="required">*</span></label>
+                                    <textarea class="form-control" id="txtConMessage" cols="0" rows="0"
+                                              placeholder="Message"></textarea>
+                                    <span class="errors ConCustomer err-sm" id="txtConMessage-err"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <button class="btn btn-success mr-2" id="btnConServSave" type="button">Submit</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <button title="Close (Esc)" type="button" class="mfp-close mr-2" id="modal-close-btn" style="font-weight: bolder !important;">×</button>
 </div>
 
 <a id="scroll-top" href="#top" title="Top" role="button"><i class="icon-angle-up"></i></a>
@@ -1166,6 +1352,286 @@
                     $('#txtUserOtp-err').text('Error verifying OTP. Please try again.');
                 }
             });
+        });
+
+        const getDistricts = async (data, id) => {
+            $('#' + id + ' option').remove();
+            $('#' + id).append('<option value="">Select a District</option>');
+            $.ajax({
+                type: "post",
+                url: "{{url('/')}}/get/districts",
+                headers: {'X-CSRF-Token': '{{ csrf_token() }}'},
+                data: data,
+                dataType: "json",
+                async: true,
+                complete: function (e, x, settings, exception) {
+                },
+                success: function (response) {
+                    for (let Item of response) {
+                        let selected = "";
+                        if (Item.DistrictID == $('#' + id).attr('data-selected')) {
+                            selected = "selected";
+                        }
+                        $('#' + id).append('<option ' + selected + ' data-taluk=""  value="' + Item.DistrictID + '">' + Item.DistrictName + ' </option>');
+                    }
+                    if ($('#' + id).val() != "") {
+                        $('#' + id).trigger('change');
+                    }
+                }
+            });
+        }
+        const getStates = async (data, id) => {
+            $('#' + id + ' option').remove();
+            $('#' + id).append('<option value="">Select a State</option>');
+            $.ajax({
+                type: "post",
+                url: "{{url('/')}}/get/states",
+                headers: {'X-CSRF-Token': '{{ csrf_token() }}'},
+                data: data,
+                dataType: "json",
+                async: true,
+                complete: function (e, x, settings, exception) {
+                },
+                success: function (response) {
+                    for (let Item of response) {
+                        let selected = "";
+                        if (Item.StateID == $('#' + id).attr('data-selected')) {
+                            selected = "selected";
+                        }
+                        $('#' + id).append('<option ' + selected + '  value="' + Item.StateID + '">' + Item.StateName + ' </option>');
+                    }
+                    if ($('#' + id).val() != "") {
+                        $('#' + id).trigger('change');
+                    }
+                }
+            });
+        }
+        $('#btnPlanServSave').click(function () {
+            $('.errors.Customer').text('');
+            var customerName = $('#txtPlanCustomerName').val().trim();
+            var customerMobile = $('#txtPlanMobileNo1').val();
+            var customerEmail = $('#txtPlanEmail').val().trim();
+            var customerServices = $('#lstPlanServices').val();
+            var StateID = $('#lstPlanState').val();
+            var DistrictID = $('#lstPlanDistricts').val();
+            var customerMessage = $('#txtPlanMessage').val();
+            const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+            let status = true;
+            if (!customerName) {
+                status = false;
+                $('#txtPlanCustomerName-err').text('Name is required!');
+            }
+            if (!customerMobile) {
+                status = false;
+                $('#txtPlanMobileNo1-err').text('Mobile Number is required!');
+            }
+            if (customerMobile && customerMobile.length !== 10) {
+                status = false;
+                $('#txtPlanMobileNo1-err').text('Invalid Mobile Number!');
+            }
+            if (customerEmail && !emailPattern.test(customerEmail)) {
+                status = false;
+                $('#txtPlanEmail-err').text('Invalid Email!');
+            }
+            if (!customerServices) {
+                status = false;
+                $('#lstPlanServices-err').text('Service is required!');
+            }
+            if (!StateID) {
+                status = false;
+                $('#lstPlanState-err').text('State is required!');
+            }
+            if (!DistrictID) {
+                status = false;
+                $('#lstPlanDistricts-err').text('District is required!');
+            }
+            if (!customerMessage) {
+                status = false;
+                $('#txtPlanMessage-err').text('Message is required!');
+            }
+
+            let formData = new FormData();
+
+            formData.append('CustomerName', customerName);
+            formData.append('CustomerMobile', customerMobile);
+            formData.append('CustomerEmail', customerEmail);
+            formData.append('CustomerServices', customerServices);
+            formData.append('StateID', StateID);
+            formData.append('DistrictID', DistrictID);
+            formData.append('CustomerMessage', customerMessage);
+
+            if (status) {
+                $.ajax({
+                    url: '{{ route('save-planning-services') }}',
+                    method: 'POST',
+                    headers: {'X-CSRF-Token': '{{ csrf_token() }}'},
+                    processData: false,
+                    contentType: false,
+                    data: formData,
+                    success: function (response) {
+                        toastr.success(`${response.message}`, "", {
+                            positionClass: "toast-top-right",
+                            containerId: "toast-top-right",
+                            showMethod: "slideDown",
+                            hideMethod: "slideUp",
+                            progressBar: !0
+                        })
+                        if (response.status) {
+                            $.magnificPopup.close();
+                            $('#txtPlanCustomerName, #txtPlanMobileNo1, #txtPlanEmail, #lstPlanServices, #txtPlanMessage').val('');
+                            $('.errors.Customer').text('');
+                        }
+                    },
+                    error: function () {
+                        toastr.error(`Error occured while saving!`, "", {
+                            positionClass: "toast-top-right",
+                            containerId: "toast-top-right",
+                            showMethod: "slideDown",
+                            hideMethod: "slideUp",
+                            progressBar: !0
+                        })
+                    }
+                });
+            }
+
+        });
+
+        getStates({CountryID: 'C2020-00000101'}, 'lstPlanState');
+        $(document).on("change", '#lstPlanState', function () {
+            getDistricts({CountryID: 'C2020-00000101', StateID: $('#lstPlanState').val()}, 'lstPlanDistricts');
+        });
+
+        $('#btnConServSave').click(function () {
+            $('.errors.ConCustomer').text('');
+            var customerName = $('#txtConCustomerName').val().trim();
+            var customerMobile = $('#txtConMobileNo1').val();
+            var customerEmail = $('#txtConEmail').val().trim();
+            var ConServiceType = $('#lstConServiceType').val();
+            var ConService = $('#lstConService').val();
+            var StateID = $('#lstConState').val();
+            var DistrictID = $('#lstConDistricts').val();
+            var customerMessage = $('#txtConMessage').val();
+            const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+            let status = true;
+            if (!customerName) {
+                status = false;
+                $('#txtConCustomerName-err').text('Name is required!');
+            }
+            if (!customerMobile) {
+                status = false;
+                $('#txtConMobileNo1-err').text('Mobile Number is required!');
+            }
+            if (customerMobile && customerMobile.length !== 10) {
+                status = false;
+                $('#txtConMobileNo1-err').text('Invalid Mobile Number!');
+            }
+            if (customerEmail && !emailPattern.test(customerEmail)) {
+                status = false;
+                $('#txtConEmail-err').text('Invalid Email!');
+            }
+            if (!ConServiceType) {
+                status = false;
+                $('#lstConServiceType-err').text('Construction Service Type is required!');
+            }
+            if (!ConService) {
+                status = false;
+                $('#lstConService-err').text('Construction Service is required!');
+            }
+            if (!StateID) {
+                status = false;
+                $('#lstConState-err').text('State is required!');
+            }
+            if (!DistrictID) {
+                status = false;
+                $('#lstConDistricts-err').text('District is required!');
+            }
+            if (!customerMessage) {
+                status = false;
+                $('#txtConMessage-err').text('Message is required!');
+            }
+
+            let formData = new FormData();
+
+            formData.append('CustomerName', customerName);
+            formData.append('CustomerMobile', customerMobile);
+            formData.append('CustomerEmail', customerEmail);
+            formData.append('ConServiceType', ConServiceType);
+            formData.append('ConService', ConService);
+            formData.append('StateID', StateID);
+            formData.append('DistrictID', DistrictID);
+            formData.append('CustomerMessage', customerMessage);
+
+            if (status) {
+                $.ajax({
+                    url: '{{ route('save-construction-services') }}',
+                    method: 'POST',
+                    headers: {'X-CSRF-Token': '{{ csrf_token() }}'},
+                    processData: false,
+                    contentType: false,
+                    data: formData,
+                    success: function (response) {
+                        toastr.success(`${response.message}`, "", {
+                            positionClass: "toast-top-right",
+                            containerId: "toast-top-right",
+                            showMethod: "slideDown",
+                            hideMethod: "slideUp",
+                            progressBar: !0
+                        })
+                        if (response.status) {
+                            $.magnificPopup.close();
+                            $('#txtConCustomerName, #txtConMobileNo1, #txtConEmail, #lstConServiceType, #lstConService, #txtConMessage').val('');
+                            $('.errors.ConCustomer').text('');
+                        }
+                    },
+                    error: function () {
+                        toastr.error(`Error occurred while saving!`, "", {
+                            positionClass: "toast-top-right",
+                            containerId: "toast-top-right",
+                            showMethod: "slideDown",
+                            hideMethod: "slideUp",
+                            progressBar: !0
+                        })
+                    }
+                });
+            }
+        });
+
+        getStates({CountryID: 'C2020-00000101'}, 'lstConState');
+        $(document).on("change", '#lstConState', function () {
+            getDistricts({CountryID: 'C2020-00000101', StateID: $('#lstConState').val()}, 'lstConDistricts');
+        });
+
+        const getConService = async (data, id) => {
+            $('#' + id + ' option').remove();
+            $('#' + id).append('<option value="">Select a Construction Service</option>');
+            $.ajax({
+                type: "post",
+                url: "{{route('getConstructionService')}}",
+                headers: {'X-CSRF-Token': '{{ csrf_token() }}'},
+                data: data,
+                dataType: "json",
+                async: true,
+                complete: function (e, x, settings, exception) {
+                },
+                success: function (response) {
+                    for (let Item of response) {
+                        let selected = "";
+                        if (Item.ConServID == $('#' + id).attr('data-selected')) {
+                            selected = "selected";
+                        }
+                        $('#' + id).append('<option ' + selected + ' value="' + Item.ConServID + '">' + Item.ConServName + ' </option>');
+                    }
+                    if ($('#' + id).val() != "") {
+                        $('#' + id).trigger('change');
+                    }
+                }
+            });
+        }
+
+        $(document).on("change", '#lstConServiceType', function () {
+            getConService({ConServCatID: $('#lstConServiceType').val()}, 'lstConService');
         });
     });
 </script>

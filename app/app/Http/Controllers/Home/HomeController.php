@@ -227,6 +227,9 @@ class HomeController extends Controller{
                 ->select('CA.AID', 'CA.Address', 'CA.isDefault', 'CA.CountryID', 'C.CountryName', 'CA.StateID', 'S.StateName', 'CA.DistrictID', 'D.DistrictName', 'CA.TalukID', 'T.TalukName', 'CA.CityID', 'CI.CityName', 'CA.PostalCodeID', 'PC.PostalCode')
                 ->get();
         }
+        $FormData['ServiceProvided'] = DB::table('tbl_service_provided')->where('ActiveStatus','Active')->where('DFlag',0)->get();
+        $FormData['ConServiceCategories'] = DB::table('tbl_construction_service_category')->where('ActiveStatus','Active')->where('DFlag',0)->get();
+        $FormData['AndroidAppUrl'] = DB::table('tbl_settings')->where('KeyName','android-app-url')->value('KeyValue');
         return view('home.policies', $FormData);
     }
 
@@ -258,6 +261,10 @@ class HomeController extends Controller{
         $FormData['isRegister'] = false;
         $FormData['Cart'] = [];
         $FormData['Company']=$this->Company;
+        $FormData['ServiceProvided'] = DB::table('tbl_service_provided')->where('ActiveStatus','Active')->where('DFlag',0)->get();
+        $FormData['ConServiceCategories'] = DB::table('tbl_construction_service_category')->where('ActiveStatus','Active')->where('DFlag',0)->get();
+        $FormData['AndroidAppUrl'] = DB::table('tbl_settings')->where('KeyName','android-app-url')->value('KeyValue');
+
         return view('home.guest-products', $FormData);
     }
 
@@ -682,6 +689,9 @@ class HomeController extends Controller{
         $FormData['isRegister'] = false;
         $FormData['Cart'] = [];
         $FormData['Company']=$this->Company;
+        $FormData['ServiceProvided'] = DB::table('tbl_service_provided')->where('ActiveStatus','Active')->where('DFlag',0)->get();
+        $FormData['ConServiceCategories'] = DB::table('tbl_construction_service_category')->where('ActiveStatus','Active')->where('DFlag',0)->get();
+        $FormData['AndroidAppUrl'] = DB::table('tbl_settings')->where('KeyName','android-app-url')->value('KeyValue');
         return view('home.guest.category-list', $FormData);
     }
 
@@ -783,6 +793,9 @@ class HomeController extends Controller{
         $FormData['isRegister'] = false;
         $FormData['Cart'] = [];
         $FormData['Company']=$this->Company;
+        $FormData['ServiceProvided'] = DB::table('tbl_service_provided')->where('ActiveStatus','Active')->where('DFlag',0)->get();
+        $FormData['ConServiceCategories'] = DB::table('tbl_construction_service_category')->where('ActiveStatus','Active')->where('DFlag',0)->get();
+        $FormData['AndroidAppUrl'] = DB::table('tbl_settings')->where('KeyName','android-app-url')->value('KeyValue');
         return view('home.guest.sub-category-list', $FormData);
     }
 
@@ -1050,7 +1063,9 @@ class HomeController extends Controller{
         $FormData['isRegister'] = false;
         $FormData['Cart'] = [];
         $FormData['Company']=$this->Company;
-
+        $FormData['ServiceProvided'] = DB::table('tbl_service_provided')->where('ActiveStatus','Active')->where('DFlag',0)->get();
+        $FormData['ConServiceCategories'] = DB::table('tbl_construction_service_category')->where('ActiveStatus','Active')->where('DFlag',0)->get();
+        $FormData['AndroidAppUrl'] = DB::table('tbl_settings')->where('KeyName','android-app-url')->value('KeyValue');
         return view('home.guest-product-view', $FormData);
     }
 

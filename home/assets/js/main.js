@@ -1372,7 +1372,7 @@
 			}
 		},
 		PlanServPopup: function () {
-			$('#txtCustomerName, #txtMobileNo1, #txtEmail, #lstServices, #txtMessage').val('');
+			$('#txtPlanCustomerName, #txtPlanMobileNo1, #txtPlanEmail, #lstPlanServices, #lstPlanState, #lstPlanDistricts, #txtPlanMessage').val('');
 			$('.errors.Customer').text('');
 			var mpInstance = $.magnificPopup.instance;
 			if ( mpInstance.isOpen ) {
@@ -1404,7 +1404,7 @@
 			}
 		},
 		ConstructionServPopup: function () {
-			$('#txtConCustomerName, #txtConMobileNo1, #txtConEmail, #lstConServiceType, #lstConService, #txtConMessage').val('');
+			$('#txtConCustomerName, #txtConMobileNo1, #txtConEmail, #lstConServiceType, #lstConService, #lstConState, #lstConDistricts, #txtConMessage').val('');
 			$('.errors.ConCustomer').text('');
 			var mpInstance = $.magnificPopup.instance;
 			if ( mpInstance.isOpen ) {
@@ -2779,4 +2779,3 @@
 		Porto.ConstructionServPopup();
 	});
 } )( jQuery );
-

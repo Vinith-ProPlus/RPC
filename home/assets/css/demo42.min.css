@@ -19660,3 +19660,138 @@ svg .appear-animate {
     max-height: 100px;
     overflow: hidden;
 }
+
+@media screen and (min-width: 310px) {
+	#get-app {
+		padding: 3% !important;
+	}
+}
+@media screen and (min-width: 550px) {
+	#get-app {
+		padding: 5% 15% !important;
+	}
+}
+
+@media screen and (min-width: 768px) {
+	#get-app {
+		padding: 5% 0% 5% 35% !important;
+	}
+}
+
+@media screen and (min-width: 1200px) {
+	#get-app {
+		padding: 0% !important;
+	}
+}
+
+#send-app-link-mobile {
+	margin: 25px 0;
+}
+
+#send-app-link-mobile input[type=text] {
+	border: 1px solid #C4C4C4;
+	border-left: none;
+	border-top-right-radius: 4px;
+	border-bottom-right-radius: 4px;
+	padding: 9px 10px 9px;
+	margin-left: -5px;
+}
+
+#send-app-link-mobile label {
+	border: 1px solid #C4C4C4;
+	border-top-left-radius: 4px;
+	border-bottom-left-radius: 4px;
+	padding: 9px 5px;
+	font-size: 1.4rem;
+	color: #333333;
+}
+
+.app-img {
+	max-width: 500px;
+}
+
+.sent-me-link-btn {
+	background-color: #1a67c5;
+	color: #fff;
+	padding: 10px 20px;
+	border: none;
+	margin: 0;
+	text-decoration: none;
+	border-radius: 4px;
+}
+
+.sent-me-link-btn::first-letter {
+	text-transform: uppercase;
+}
+
+#appLinkMobileNumberInput:focus-visible {
+	outline: 0px;
+}
+
+.sent-me-link-btn:hover {
+	background-color: #0f3b70 !important;
+}
+
+#lstPlanServices, select.form-control:not([size]):not([multiple]) {
+	height: 4.6rem;
+}
+
+#btnConstructionServ {
+	display: inline-block;
+	position: relative;
+}
+
+#btnConstructionServ::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: -100%;
+	width: 100%;
+	height: 100%;
+	background: linear-gradient(120deg, rgba(255, 255, 255, 0) 30%, rgba(255, 255, 255, 0.5) 50%, rgba(255, 255, 255, 0) 70%);
+	transform: skewX(-25deg);
+	animation: glareAnimation 1.5s infinite;
+}
+
+#btnPlanServ {
+	display: inline-block;
+	position: relative;
+}
+
+#btnPlanServ::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: -100%;
+	width: 100%;
+	height: 100%;
+	background: linear-gradient(120deg, rgba(255, 255, 255, 0) 30%, rgba(255, 255, 255, 0.5) 50%, rgba(255, 255, 255, 0) 70%);
+	transform: skewX(-25deg);
+	animation: glareAnimation 1.5s infinite;
+}
+
+#btnBecVen {
+	display: inline-block;
+	position: relative;
+}
+
+#btnBecVen::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: -100%;
+	width: 100%;
+	height: 100%;
+	background: linear-gradient(120deg, rgba(255, 255, 255, 0) 30%, rgba(255, 255, 255, 0.5) 50%, rgba(255, 255, 255, 0) 70%);
+	transform: skewX(-25deg);
+	animation: glareAnimation 1.5s infinite;
+}
+
+@keyframes glareAnimation {
+	0% {
+		left: -100%;
+	}
+	100% {
+		left: 100%;
+	}
+}

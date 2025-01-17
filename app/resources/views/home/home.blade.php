@@ -2,16 +2,16 @@
 @section('content')
 
 <section class="intro-section">
-        <div id="bannerCarousel" class="carousel slide" data-ride="carousel">
-            <div class="carousel-inner">
-                @foreach($Banners as $Banner)
-                    <div class="carousel-item {{ $loop->first ? 'active' : '' }}">
-                        <img class="d-block w-100" src="{{ $Banner->BannerImage }}" alt="Banner {{ $loop->iteration }}">
-                    </div>
-                @endforeach
-            </div>
+    <div id="bannerCarousel" class="carousel slide" data-ride="carousel">
+        <div class="carousel-inner">
+            @foreach($Banners as $Banner)
+                <div class="carousel-item {{ $loop->first ? 'active' : '' }}">
+                    <img class="d-block w-100" src="{{ $Banner->BannerImage }}" alt="Banner {{ $loop->iteration }}">
+                </div>
+            @endforeach
         </div>
-    </section>
+    </div>
+</section>
 
 <section class="building-modeling">
     <div class="container">

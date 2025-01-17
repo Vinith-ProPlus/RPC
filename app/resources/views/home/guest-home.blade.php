@@ -51,141 +51,6 @@
         a.btn.text-right.text-white:hover {
             background-color: #0f3b70 !important;
         }
-
-        @media screen and (min-width: 310px) {
-            #get-app {
-                padding: 3% !important;
-            }
-        }
-        @media screen and (min-width: 550px) {
-            #get-app {
-                padding: 5% 15% !important;
-            }
-        }
-
-        @media screen and (min-width: 768px) {
-            #get-app {
-                padding: 5% 0% 5% 35% !important;
-            }
-        }
-
-        @media screen and (min-width: 1200px) {
-            #get-app {
-                padding: 0% !important;
-            }
-        }
-
-        #send-app-link-mobile {
-            margin: 25px 0;
-        }
-
-        #send-app-link-mobile input[type=text] {
-            border: 1px solid #C4C4C4;
-            border-left: none;
-            border-top-right-radius: 4px;
-            border-bottom-right-radius: 4px;
-            padding: 9px 10px 9px;
-            margin-left: -5px;
-        }
-
-        #send-app-link-mobile label {
-            border: 1px solid #C4C4C4;
-            border-top-left-radius: 4px;
-            border-bottom-left-radius: 4px;
-            padding: 9px 5px;
-            font-size: 1.4rem;
-            color: #333333;
-        }
-
-        .app-img {
-            max-width: 500px;
-        }
-
-        .sent-me-link-btn {
-            background-color: #1a67c5;
-            color: #fff;
-            padding: 10px 20px;
-            border: none;
-            margin: 0;
-            text-decoration: none;
-            border-radius: 4px;
-        }
-
-        .sent-me-link-btn::first-letter {
-            text-transform: uppercase;
-        }
-
-        #appLinkMobileNumberInput:focus-visible {
-            outline: 0px;
-        }
-
-        .sent-me-link-btn:hover {
-            background-color: #0f3b70 !important;
-        }
-
-        #lstServices, select.form-control:not([size]):not([multiple]) {
-            height: 4.6rem;
-        }
-
-        #btnConstructionServ {
-            display: inline-block;
-            position: relative;
-        }
-
-        #btnConstructionServ::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(120deg, rgba(255, 255, 255, 0) 30%, rgba(255, 255, 255, 0.5) 50%, rgba(255, 255, 255, 0) 70%);
-            transform: skewX(-25deg);
-            animation: glareAnimation 1.5s infinite;
-        }
-
-        #btnPlanServ {
-            display: inline-block;
-            position: relative;
-        }
-
-        #btnPlanServ::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(120deg, rgba(255, 255, 255, 0) 30%, rgba(255, 255, 255, 0.5) 50%, rgba(255, 255, 255, 0) 70%);
-            transform: skewX(-25deg);
-            animation: glareAnimation 1.5s infinite;
-        }
-
-        #btnBecVen {
-            display: inline-block;
-            position: relative;
-        }
-
-        #btnBecVen::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(120deg, rgba(255, 255, 255, 0) 30%, rgba(255, 255, 255, 0.5) 50%, rgba(255, 255, 255, 0) 70%);
-            transform: skewX(-25deg);
-            animation: glareAnimation 1.5s infinite;
-        }
-
-        @keyframes glareAnimation {
-            0% {
-                left: -100%;
-            }
-            100% {
-                left: 100%;
-            }
-        }
     </style>
 
 </head>
@@ -193,15 +58,6 @@
 <body>
 <input type="hidden" style="display:none!important" id="txtRootUrl" value="{{url('/')}}/">
 <div class="page-wrapper">
-    {{--        <div class="top-notice bg-dark text-white pt-3">--}}
-    {{--            <div class="container text-center d-flex align-items-center justify-content-center flex-wrap">--}}
-    {{--                <h4 class="text-uppercase font-weight-bold mr-2">Deal of the week</h4>--}}
-    {{--                <h6>- 15% OFF in All Construction Materials, -</h6>--}}
-
-    {{--                <a href="#" class="ml-2">Shop Now</a>--}}
-    {{--            </div><!-- End .container -->--}}
-    {{--        </div><!-- End .top-notice -->--}}
-
     <header class="header">
         <div class="header-top">
             <div class="container">
@@ -657,37 +513,37 @@
                 </div>
             </div>
         </section>
-        <div class="container" id="AppLinkDiv" style="border-top: 1px solid #e7e7e7;">
-            <div class="row" style="padding: 50px 15px;">
-                <div class="col-md-4 col-sm-12 d-flex justify-content-center align-items-center">
-                    <div style="padding: 15px;">
-                        <img src="{{url('assets/images/rpc-apps.png')}}" alt="Get RPC App" class="app-img">
-                    </div>
+    </main>
+    <!-- End .main -->
+
+    <div class="container" id="AppLinkDiv" style="border-top: 1px solid #e7e7e7;">
+        <div class="row" style="padding: 50px 15px;">
+            <div class="col-md-4 col-sm-12 d-flex justify-content-center align-items-center">
+                <div style="padding: 15px;">
+                    <img src="{{url('assets/images/rpc-apps.png')}}" alt="Get RPC App" class="app-img">
                 </div>
-                <div class="col-md-8 col-sm-12 d-flex justify-content-center align-items-center">
-                    <div id="get-app">
-                        <h3><b>Get RPC App</b></h3>
-                        <p class="mt-1">Search for products/services and connect with verified sellers on the go!</p>
-                        <div id="send-app-link-mobile">
-                            <label style="font-weight: 600; margin: 0;">+91</label>
-                            <input type="text" placeholder="Enter Mobile Number" id="appLinkMobileNumberInput"
-                                   maxlength="10" autocomplete="off">
-                            <button class="sent-me-link-btn btn">Sent me the link</button>
-                            <div id="app-link-err-msg"></div>
-                            <p class="mt-1">We will send you a link, open it on your phone to download the App</p>
-                        </div>
-                        <div id="download-app-buttons" style="width: 150px !important;">
-                            <a target="_blank" href="{{ $AndroidAppUrl ?? '#' }}"><img alt="Google PlayStore logo"
-                                                                                       src="{{ url('assets/images/logo/google-play-badge-logo.png') }}"
-                                                                                       style="width:150px;"></a>
-                        </div>
+            </div>
+            <div class="col-md-8 col-sm-12 d-flex justify-content-center align-items-center">
+                <div id="get-app">
+                    <h3><b>Get RPC App</b></h3>
+                    <p class="mt-1">Search for products/services and connect with verified sellers on the go!</p>
+                    <div id="send-app-link-mobile">
+                        <label style="font-weight: 600; margin: 0;">+91</label>
+                        <input type="text" placeholder="Enter Mobile Number" id="appLinkMobileNumberInput"
+                               maxlength="10" autocomplete="off">
+                        <button class="sent-me-link-btn btn">Sent me the link</button>
+                        <div id="app-link-err-msg"></div>
+                        <p class="mt-1">We will send you a link, open it on your phone to download the App</p>
+                    </div>
+                    <div id="download-app-buttons" style="width: 150px !important;">
+                        <a target="_blank" href="{{ $AndroidAppUrl ?? '#' }}"><img alt="Google PlayStore logo"
+                                                                                   src="{{ url('assets/images/logo/google-play-badge-logo.png') }}"
+                                                                                   style="width:150px;"></a>
                     </div>
                 </div>
             </div>
         </div>
-    </main>
-    <!-- End .main -->
-
+    </div>
     <footer class="footer bg-dark position-relative">
         <div class="footer-middle">
             <div class="container position-static">
@@ -821,37 +677,6 @@
         </a>
     </div>
 </div>
-
-{{-- <div class="newsletter-popup mfp-hide bg-img p-0 h-auto" id="newsletter-popup-form" style="background: #f1f1f1 no-repeat center/cover">
-    <div class="row">
-        <div class="col-sm-7">
-            <div class="row justify-content-center mt-3">
-                <div class="col-6">
-                    <img loading="lazy" src="{{url('/')}}/{{$Company['Logo']}}" alt="Logo" class="logo-newsletter" width="50" height="50">
-                    <span class="ml-3 font-weight-bold text-dark">{{$Company['CompanyName']}}</span>
-                </div>
-            </div>
-            <div class="row justify-content-center">
-                <div class="col-9">
-                    <h2>KINDLY TURN ON YOUR LOCATION</h2>
-                    <p>for location Offers!</p>
-                </div>
-            </div>
-            <div class="row my-1 justify-content-center">
-                <div class="col-12 newsletter-popup-content">
-                    <div class="input-group">
-                        <input type="email" class="form-control" id="newsletter-email" name="newsletter-email" placeholder="Enter your delivery location" required />
-                        <input type="submit" class="btn btn-warning" value="locate me" />
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-5">
-            <img loading="lazy" src="{{url('/')}}/home/assets/images/location-pop-up/MapAnime.gif" alt="">
-        </div>
-    </div>
-    <button title="Close (Esc)" type="button" class="mfp-close">×</button>
-</div> --}}
 @if(!$PostalCode)
     <div class="newsletter-popup mfp-hide bg-img p-0 h-auto" id="newsletter-popup-form"
          style="background: #f1f1f1 no-repeat center/cover">
@@ -976,62 +801,62 @@
                         <div class="row my-3">
                             <div class="col-sm-6">
                                 <div class="form-group">
-                                    <label for="txtCustomerName">Name <span class="required">*</span></label>
-                                    <input type="text" id="txtCustomerName" class="form-control" placeholder="Name">
-                                    <span class="errors Customer err-sm" id="txtCustomerName-err"></span>
+                                    <label for="txtPlanCustomerName">Name <span class="required">*</span></label>
+                                    <input type="text" id="txtPlanCustomerName" class="form-control" placeholder="Name">
+                                    <span class="errors Customer err-sm" id="txtPlanCustomerName-err"></span>
                                 </div>
                             </div>
                             <div class="col-sm-6 mt-20">
                                 <div class="form-group">
-                                    <label for="txtMobileNo1">Mobile Number <span class="required">*</span></label>
-                                    <input type="number" id="txtMobileNo1" class="form-control"
+                                    <label for="txtPlanMobileNo1">Mobile Number <span class="required">*</span></label>
+                                    <input type="number" id="txtPlanMobileNo1" class="form-control"
                                            placeholder="Mobile Number">
-                                    <span class="errors Customer err-sm" id="txtMobileNo1-err"></span>
+                                    <span class="errors Customer err-sm" id="txtPlanMobileNo1-err"></span>
                                 </div>
                             </div>
                             <div class="col-sm-6">
                                 <div class="form-group">
-                                    <label for="txtEmail">Email</label>
-                                    <input type="text" id="txtEmail" class="form-control" placeholder="Email" value="">
-                                    <span class="errors Customer err-sm" id="txtEmail-err"></span>
+                                    <label for="txtPlanEmail">Email</label>
+                                    <input type="text" id="txtPlanEmail" class="form-control" placeholder="Email" value="">
+                                    <span class="errors Customer err-sm" id="txtPlanEmail-err"></span>
                                 </div>
                             </div>
                             <div class="col-sm-6 mt-20">
                                 <div class="form-group">
-                                    <label for="lstServices">Services <span class="required">*</span></label>
-                                    <select class="form-control" id="lstServices">
+                                    <label for="lstPlanServices">Services <span class="required">*</span></label>
+                                    <select class="form-control" id="lstPlanServices">
                                         <option value="">Select a Service</option>
                                         @foreach($ServiceProvided as $items)
                                             <option value="{{$items->ServiceID}}">{{$items->ServiceName}}</option>
                                         @endforeach
                                     </select>
-                                    <span class="errors Customer err-sm" id="lstServices-err"></span>
+                                    <span class="errors Customer err-sm" id="lstPlanServices-err"></span>
                                 </div>
                             </div>
                             <div class="col-sm-6 mt-20">
                                 <div class="form-group">
-                                    <label for="lstState">State <span class="required">*</span></label>
-                                    <select class="form-control" id="lstState">
+                                    <label for="lstPlanState">State <span class="required">*</span></label>
+                                    <select class="form-control" id="lstPlanState">
                                         <option value="">Select a State</option>
                                     </select>
-                                    <span class="errors Customer err-sm" id="lstState-err"></span>
+                                    <span class="errors Customer err-sm" id="lstPlanState-err"></span>
                                 </div>
                             </div>
                             <div class="col-sm-6 mt-20">
                                 <div class="form-group">
-                                    <label for="lstDistricts">District <span class="required">*</span></label>
-                                    <select class="form-control" id="lstDistricts">
+                                    <label for="lstPlanDistricts">District <span class="required">*</span></label>
+                                    <select class="form-control" id="lstPlanDistricts">
                                         <option value="">Select a District</option>
                                     </select>
-                                    <span class="errors Customer err-sm" id="lstDistricts-err"></span>
+                                    <span class="errors Customer err-sm" id="lstPlanDistricts-err"></span>
                                 </div>
                             </div>
                             <div class="col-sm-12">
                                 <div class="form-group">
-                                    <label for="txtMessage">Message <span class="required">*</span></label>
-                                    <textarea class="form-control" id="txtMessage" cols="0" rows="0"
+                                    <label for="txtPlanMessage">Message <span class="required">*</span></label>
+                                    <textarea class="form-control" id="txtPlanMessage" cols="0" rows="0"
                                               placeholder="Message"></textarea>
-                                    <span class="errors Customer err-sm" id="txtMessage-err"></span>
+                                    <span class="errors Customer err-sm" id="txtPlanMessage-err"></span>
                                 </div>
                             </div>
                         </div>
@@ -1046,7 +871,7 @@
     <button title="Close (Esc)" type="button" class="mfp-close mr-2" id="modal-close-btn">×</button>
 </div>
 <div class="newsletter-popup mfp-hide modal-sm bg-img p-0 h-auto" id="construction-serv-form"
-     style="background: #ffffff no-repeat center/cover">
+     style="background: #ffffff no-repeat center/cover; max-width: 940px;">
     <div class="container">
         <div class="row">
             <div class="col-sm-12">
@@ -1079,7 +904,7 @@
                             </div>
                             <div class="col-sm-6 mt-20">
                                 <div class="form-group">
-                                    <label for="lstConServiceType">Do you require any service related to construction(Please click here):
+                                    <label for="lstConServiceType" class="text-nowrap">Do you require any service related to construction(Please click here):
                                         <span class="required">*</span></label>
                                     <select class="form-control" id="lstConServiceType">
                                         <option value="">Select a Construction Type</option>
@@ -1161,11 +986,6 @@
         }
 
         setInterval(showNextSlide, 5000);
-
-        $('#appLinkMobileNumberInput').on('input', function () {
-            var sanitizedValue = $(this).val().replace(/\D/g, '');
-            $(this).val(sanitizedValue);
-        });
 
         $('.redirectLogin').on('click', function () {
             $('#loginBtn').click();
@@ -1394,47 +1214,47 @@
         }
         $('#btnPlanServSave').click(function () {
             $('.errors.Customer').text('');
-            var customerName = $('#txtCustomerName').val().trim();
-            var customerMobile = $('#txtMobileNo1').val();
-            var customerEmail = $('#txtEmail').val().trim();
-            var customerServices = $('#lstServices').val();
-            var StateID = $('#lstState').val();
-            var DistrictID = $('#lstDistricts').val();
-            var customerMessage = $('#txtMessage').val();
+            var customerName = $('#txtPlanCustomerName').val().trim();
+            var customerMobile = $('#txtPlanMobileNo1').val();
+            var customerEmail = $('#txtPlanEmail').val().trim();
+            var customerServices = $('#lstPlanServices').val();
+            var StateID = $('#lstPlanState').val();
+            var DistrictID = $('#lstPlanDistricts').val();
+            var customerMessage = $('#txtPlanMessage').val();
             const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
             let status = true;
             if (!customerName) {
                 status = false;
-                $('#txtCustomerName-err').text('Name is required!');
+                $('#txtPlanCustomerName-err').text('Name is required!');
             }
             if (!customerMobile) {
                 status = false;
-                $('#txtMobileNo1-err').text('Mobile Number is required!');
+                $('#txtPlanMobileNo1-err').text('Mobile Number is required!');
             }
-            if (customerMobile && customerMobile.length != 10) {
+            if (customerMobile && customerMobile.length !== 10) {
                 status = false;
-                $('#txtMobileNo1-err').text('Invalid Mobile Number!');
+                $('#txtPlanMobileNo1-err').text('Invalid Mobile Number!');
             }
             if (customerEmail && !emailPattern.test(customerEmail)) {
                 status = false;
-                $('#txtEmail-err').text('Invalid Email!');
+                $('#txtPlanEmail-err').text('Invalid Email!');
             }
             if (!customerServices) {
                 status = false;
-                $('#lstServices-err').text('Service is required!');
+                $('#lstPlanServices-err').text('Service is required!');
             }
             if (!StateID) {
                 status = false;
-                $('#lstState-err').text('State is required!');
+                $('#lstPlanState-err').text('State is required!');
             }
             if (!DistrictID) {
                 status = false;
-                $('#lstDistricts-err').text('District is required!');
+                $('#lstPlanDistricts-err').text('District is required!');
             }
             if (!customerMessage) {
                 status = false;
-                $('#txtMessage-err').text('Message is required!');
+                $('#txtPlanMessage-err').text('Message is required!');
             }
 
             let formData = new FormData();
@@ -1465,7 +1285,7 @@
                         })
                         if (response.status) {
                             $.magnificPopup.close();
-                            $('#txtCustomerName, #txtMobileNo1, #txtEmail, #lstServices, #txtMessage').val('');
+                            $('#txtPlanCustomerName, #txtPlanMobileNo1, #txtPlanEmail, #lstPlanServices, #txtPlanMessage').val('');
                             $('.errors.Customer').text('');
                         }
                     },
@@ -1483,9 +1303,9 @@
 
         });
 
-        getStates({CountryID: 'C2020-00000101'}, 'lstState');
-        $(document).on("change", '#lstState', function () {
-            getDistricts({CountryID: 'C2020-00000101', StateID: $('#lstState').val()}, 'lstDistricts');
+        getStates({CountryID: 'C2020-00000101'}, 'lstPlanState');
+        $(document).on("change", '#lstPlanState', function () {
+            getDistricts({CountryID: 'C2020-00000101', StateID: $('#lstPlanState').val()}, 'lstPlanDistricts');
         });
 
         $('#btnConServSave').click(function () {
