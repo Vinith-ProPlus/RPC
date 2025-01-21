@@ -11505,6 +11505,12 @@ img.slide-bg {
 }
 
 @media (min-width:991px) {
+	.mobileVendorDropdown {
+		display: none !important;
+	}
+}
+
+@media (min-width:991px) {
 	.sticky-navbar {
 		display: none
 	}
@@ -19760,12 +19766,12 @@ svg .appear-animate {
 	height: 4.6rem;
 }
 
-#btnConstructionServ {
+.btnConstructionServ {
 	display: inline-block;
 	position: relative;
 }
 
-#btnConstructionServ::before {
+.btnConstructionServ::before {
 	content: '';
 	position: absolute;
 	top: 0;
@@ -19777,12 +19783,12 @@ svg .appear-animate {
 	animation: glareAnimation 1.5s infinite;
 }
 
-#btnPlanServ {
+.btnPlanServ {
 	display: inline-block;
 	position: relative;
 }
 
-#btnPlanServ::before {
+.btnPlanServ::before {
 	content: '';
 	position: absolute;
 	top: 0;
@@ -19817,5 +19823,21 @@ svg .appear-animate {
 	}
 	100% {
 		left: 100%;
+	}
+}
+
+.text-nowrap-430 {
+	white-space: nowrap;
+}
+
+@media (min-width: 0px) and (max-width: 430px) {
+	.text-nowrap-430 {
+		white-space: normal;
+	}
+}
+
+@media (min-width: 580px) and (max-width: 885px) {
+	.hide-at-580-885 {
+		display: none !important;
 	}
 }

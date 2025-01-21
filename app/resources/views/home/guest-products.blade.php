@@ -144,7 +144,17 @@
                         </div>
                     </a>
                     <span class="separator d-block"></span>
-
+                    <div class="dropdown mobileVendorDropdown ml-0 pr-5">
+                        <a href="#" role="button" id="threeDotsDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right hide" aria-labelledby="threeDotsDropdown" x-placement="bottom-end"
+                             style="position: absolute; transform: translate3d(-76px, 28px, 0px); top: 0px; left: 0px; will-change: transform;">
+                            <a class="dropdown-item border-bottom" href="#AppLinkDiv" style="font-size: 1.4rem;" id="btnBecVen">Become&nbsp;a&nbsp;vendor</a>
+                            <a class="dropdown-item border-bottom btnPlanServ" href="#" style="font-size: 1.4rem;">FREE&nbsp;Building&nbsp;Plan</a>
+                            <a class="dropdown-item btnConstructionServ" href="#" style="font-size: 1.4rem;">Construction&nbsp;Service&nbsp;Plan</a>
+                        </div>
+                    </div>
                     <div class="dropdown cart-dropdown">
                         <a href="#" title="Cart" class="dropdown-toggle dropdown-arrow cart-toggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-display="static">
                             <i class="icon-cart-thick"></i>
@@ -221,9 +231,9 @@
                     <div class="col-8 d-flex text-right justify-content-end p-0">
                         <a href="#AppLinkDiv" class="btn btn-md text-white mx-2 btnHighLight" id="btnBecVen"
                            style="background-color: #ff8800;">Become&nbsp;a&nbsp;vendor</a>
-                        <a href="#" class="btn btn-md text-white mx-2 btnHighLight" id="btnPlanServ"
+                        <a href="#" class="btn btn-md text-white mx-2 btnHighLight btnPlanServ"
                            style="background-color: #03489c;white-space: nowrap;width: auto !important;">FREE&nbsp;Building&nbsp;Plan</a>
-                        <a href="#" class="btn btn-md text-white mx-2 btnHighLight" id="btnConstructionServ"
+                        <a href="#" class="btn btn-md text-white mx-2 btnHighLight btnConstructionServ"
                            style="background-color: #ff8800;">Construction&nbsp;Service&nbsp;Plan</a>
                     </div>
                 </div>
@@ -658,7 +668,7 @@
             <div class="col-sm-12">
                 <div class="card border-0 mt-4">
                     <div class="card-header text-center border-0" style="background: #ffffff;"><h4 class="m-0">Get a
-                            Construction Service Plan</h4></div>
+                            Construction Service Plan</h4></div>
                     <div class="card-body">
                         <div class="row my-3">
                             <div class="col-sm-6">
@@ -685,7 +695,7 @@
                             </div>
                             <div class="col-sm-6 mt-20">
                                 <div class="form-group">
-                                    <label for="lstConServiceType" class="text-nowrap">Do you require any service related to construction(Please click here):
+                                    <label for="lstConServiceType" class="text-nowrap-430">Do you require any service related to construction<span class="hide-at-580-885">(Please click here)</span>:
                                         <span class="required">*</span></label>
                                     <select class="form-control" id="lstConServiceType">
                                         <option value="">Select a Construction Type</option>

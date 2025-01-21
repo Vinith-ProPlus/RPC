@@ -128,107 +128,6 @@
             border-radius:0px;
         }
 
-        /*.badge-notification {*/
-        /*    position: absolute;*/
-        /*    top: 15px;*/
-        /*    right: 142px;*/
-        /*    width: 1.6rem;*/
-        /*    border-radius: 75%;*/
-        /*    color: #fff;*/
-        /*    background: #ff5b5b;*/
-        /*    font-weight: 600;*/
-        /*    font-size: 1.1rem;*/
-        /*    line-height: 1.6rem;*/
-        /*    font-family: "Open Sans", sans-serif;*/
-        /*    text-align: center;*/
-        /*}*/
-
-        /*.badge-notification {*/
-        /*    position: absolute;*/
-        /*    top: 20%;*/
-        /*    right: 12%;*/
-        /*    width: 1.6rem;*/
-        /*    border-radius: 75%;*/
-        /*    color: #fff;*/
-        /*    background: #ff5b5b;*/
-        /*    font-weight: 600;*/
-        /*    font-size: 1.1rem;*/
-        /*    line-height: 1.6rem;*/
-        /*    font-family: "Open Sans", sans-serif;*/
-        /*    text-align: center;*/
-        /*}*/
-
-        /*@media (max-width: 1220px) {*/
-        /*    .notification-count {*/
-        /*        right: 13%;*/
-        /*    }*/
-        /*}*/
-        /*@media (max-width: 1195px) {*/
-        /*    .notification-count {*/
-        /*        right: 15%;*/
-        /*    }*/
-        /*}*/
-        /*@media (max-width: 1190px) {*/
-        /*    .notification-count {*/
-        /*        right: 15%;*/
-        /*    }*/
-        /*}*/
-        /*@media (max-width: 995px) {*/
-        /*    .notification-count {*/
-        /*        right: 10%;*/
-        /*    }*/
-        /*}*/
-        /*@media (max-width: 992px) {*/
-        /*    .notification-count {*/
-        /*        right: 13%;*/
-        /*    }*/
-        /*}*/
-        /*@media (max-width: 974px) {*/
-        /*    .notification-count {*/
-        /*        right: 10%;*/
-        /*    }*/
-        /*}*/
-        /*@media (max-width: 967px) {*/
-        /*    .notification-count {*/
-        /*        right: 10%;*/
-        /*    }*/
-        /*}*/
-        /*@media (max-width: 940px) {*/
-        /*    .notification-count {*/
-        /*        right: 13%;*/
-        /*    }*/
-        /*}*/
-        /*@media (max-width: 660px) {*/
-        /*    .notification-count {*/
-        /*        right: 15%;*/
-        /*    }*/
-        /*}*/
-        /*@media (max-width: 488px) {*/
-        /*    .notification-count {*/
-        /*        right: 15%;*/
-        /*    }*/
-        /*}*/
-        /*@media (max-width: 495px) {*/
-        /*    .notification-count {*/
-        /*        right: 17%;*/
-        /*    }*/
-        /*}*/
-        /*@media (max-width: 460px) {*/
-        /*    .notification-count {*/
-        /*        right: 19%;*/
-        /*    }*/
-        /*}*/
-        /*@media (max-width: 442px) {*/
-        /*    .notification-count {*/
-        /*        right: 22%;*/
-        /*    }*/
-        /*}*/
-        /*@media (max-width: 378px) {*/
-        /*    .notification-count {*/
-        /*        right: 26%;*/
-        /*    }*/
-        /*}*/
-
         .btn-wrapper {
             position: relative;
             display: inline-block;
@@ -293,7 +192,7 @@
                     </div>
                 @endif
 
-                <div class="header-right header-dropdowns ml-0 ml-md-auto w-md-100">
+                <div class="header-right header-dropdowns ml-0 ml-md-auto w-md-auto">
                     <div class="header-dropdown mr-auto mr-md-0">
                         <div class="header-menu">
 
@@ -377,8 +276,7 @@
                     </a>
 
                     @if(!$isRegister)
-                        <span class="separator d-block"></span>
-
+                        <span class="separator d-md-block"></span>
                         <div class="dropdown cart-dropdown">
                             <a href="#" title="Cart" class="dropdown-toggle dropdown-arrow cart-toggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-display="static">
                                 <i class="icon-cart-thick"></i>
@@ -440,6 +338,17 @@
                     @endif
                     <span class="separator d-none d-lg-block mr-4"></span>
 
+                    <div class="dropdown mobileVendorDropdown ml-0 show">
+                        <a href="#" role="button" id="threeDotsDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right hide" aria-labelledby="threeDotsDropdown" x-placement="bottom-end"
+                             style="position: absolute; transform: translate3d(-76px, 28px, 0px); top: 0px; left: 0px; will-change: transform;">
+                            <a class="dropdown-item border-bottom" href="#AppLinkDiv" style="font-size: 1.4rem;" id="btnBecVen">Become&nbsp;a&nbsp;vendor</a>
+                            <a class="dropdown-item border-bottom btnPlanServ" href="#" style="font-size: 1.4rem;">FREE&nbsp;Building&nbsp;Plan</a>
+                            <a class="dropdown-item btnConstructionServ" href="#" style="font-size: 1.4rem;">Construction&nbsp;Service&nbsp;Plan</a>
+                        </div>
+                    </div>
                     <a class="d-lg-block">
                         <div class="header-user" id="btnLogout">
                             <i class="sicon-logout fa-flip-horizontal"></i>
@@ -533,9 +442,9 @@
                     <div class="col-4 d-flex text-right justify-content-end p-0">
                         <a href="#AppLinkDiv" class="btn btn-md text-white mx-2 btnHighLight" id="btnBecVen"
                            style="background-color: #ff8800;">Become&nbsp;a&nbsp;vendor</a>
-                        <a href="#" class="btn btn-md text-white mx-2 btnHighLight" id="btnPlanServ"
+                        <a href="#" class="btn btn-md text-white mx-2 btnHighLight btnPlanServ"
                            style="background-color: #03489c;white-space: nowrap;width: auto !important;">FREE&nbsp;Building&nbsp;Plan</a>
-                        <a href="#" class="btn btn-md text-white mx-2 btnHighLight" id="btnConstructionServ"
+                        <a href="#" class="btn btn-md text-white mx-2 btnHighLight btnConstructionServ"
                            style="background-color: #ff8800;">Construction&nbsp;Service&nbsp;Plan</a>
                     </div>
                 </div>
@@ -835,7 +744,7 @@
             <div class="col-sm-12">
                 <div class="card border-0 mt-4">
                     <div class="card-header text-center border-0" style="background: #ffffff;"><h4 class="m-0">Get a
-                            Construction Service Plan</h4></div>
+                            Construction Service Plan</h4></div>
                     <div class="card-body">
                         <div class="row my-3">
                             <div class="col-sm-6">
@@ -862,7 +771,7 @@
                             </div>
                             <div class="col-sm-6 mt-20">
                                 <div class="form-group">
-                                    <label for="lstConServiceType" class="text-nowrap">Do you require any service related to construction(Please click here):
+                                    <label for="lstConServiceType" class="text-nowrap-430">Do you require any service related to construction<span class="hide-at-580-885">(Please click here)</span>:
                                         <span class="required">*</span></label>
                                     <select class="form-control" id="lstConServiceType">
                                         <option value="">Select a Construction Type</option>

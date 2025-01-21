@@ -2772,10 +2772,10 @@
 		Porto.mobileLoginPopup();
 	});
 
-	$('#btnPlanServ').on('click', function() {
+	$('.btnPlanServ').on('click', function() {
 		Porto.PlanServPopup();
 	});
-	$('#btnConstructionServ').on('click', function() {
+	$('.btnConstructionServ').on('click', function() {
 		Porto.ConstructionServPopup();
 	});
 } )( jQuery );
