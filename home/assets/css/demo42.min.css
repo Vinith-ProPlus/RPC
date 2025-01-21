@@ -19674,7 +19674,7 @@ svg .appear-animate {
 
 @media screen and (min-width: 768px) {
 	#get-app {
-		padding: 5% 0% 5% 35% !important;
+		padding: 5% 0% 5% 15% !important;
 	}
 }
 
@@ -19683,6 +19683,28 @@ svg .appear-animate {
 		padding: 0% !important;
 	}
 }
+
+.app-img {
+	max-width: 350px;
+}
+
+@media screen and (min-width: 768px) and (max-width: 992px) {
+	.app-img {
+		max-width: 250px;
+	}
+}
+
+@media screen and (max-width: 370px) {
+	.app-img {
+		max-width: 250px;
+	}
+}
+
+/*@media screen and (max-width: 769px) {*/
+/*	.app-img {*/
+/*		max-width: 350px;*/
+/*	}*/
+/*}*/
 
 #send-app-link-mobile {
 	margin: 25px 0;
@@ -19706,10 +19728,6 @@ svg .appear-animate {
 	color: #333333;
 }
 
-.app-img {
-	max-width: 500px;
-}
-
 .sent-me-link-btn {
 	background-color: #1a67c5;
 	color: #fff;
@@ -19718,6 +19736,12 @@ svg .appear-animate {
 	margin: 0;
 	text-decoration: none;
 	border-radius: 4px;
+}
+
+@media screen and (max-width: 450px) {
+	.sent-me-link-btn {
+		margin-top: 5px !important;
+	}
 }
 
 .sent-me-link-btn::first-letter {
