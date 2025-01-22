@@ -137,10 +137,6 @@
                     </ul>
                 </div>
             </div>
-
-            <button title="Close (Esc)" type="button" class="mfp-close">
-                ×
-            </button>
         </div><!-- End .row -->
     </div>
         <!-- End .product-single-container -->

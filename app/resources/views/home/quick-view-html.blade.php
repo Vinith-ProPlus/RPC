@@ -95,7 +95,7 @@
                                 </a>
                             </div>
                         @endif
-                        <div class="col-12 my-2">
+                        <div class="@if($product->ProductBrochure) col-12 my-2 @else col-6 @endif">
                             <a href="#" class="btn btn-block btn-dark mr-2 btnBuyNow" title="Buy Now" id="{{ $product->ProductID }}">Buy Now</a>
                         </div>
                     </div>
