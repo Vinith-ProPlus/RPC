@@ -93,21 +93,22 @@
                         </div>
                     </div>
                     <div class="product-action">
-                        <div class="row col-12">
-                            <div class="col-8">
-                                <a href="#" class="btn btn-dark mr-2 product-type-simple btn-shop btnBuyNow" title="BUY NOW" id="{{ $product->ProductID }}">
+                        <div class="row col-12 p-0">
+                            <div class="col-lg-4 col-md-4 col-6 mb-1 order-lg-1 order-sm-1 order-md-1 order-1 pl-0 pr-md-3">
+                                <a href="#" class="btn btn-dark product-type-simple btn-shop btnBuyNow w-100" title="BUY NOW" id="{{ $product->ProductID }}">
                                     BUY NOW
                                 </a>
+                            </div>
+                            <div class="col-lg-4 col-md-4 col-12 order-lg-2 order-sm-3 order-md-2 order-3 p-0 pr-md-3">
                                 <a href="#"
-                                   class="btn btn-dark mr-2 product-type-simple btn-shop {{ $cartProducts->contains('ProductID', $product->ProductID) ? 'added-in-cart' : 'wishlistCartBtn btnAddCart' }}"
+                                   class="btn btn-dark product-type-simple btn-shop w-100 {{ $cartProducts->contains('ProductID', $product->ProductID) ? 'added-in-cart' : 'wishlistCartBtn btnAddCart' }}"
                                    title="Add to Cart" id="{{ $product->ProductID }}">
                                     {{ $cartProducts->contains('ProductID', $product->ProductID) ? 'Added in Cart' : 'ADD TO CART' }}
                                 </a>
-                                <a href="#" class="btn view-cart d-none">View cart</a>
                             </div>
-                            <div class="col-4 text-right">
+                            <div class="col-lg-4 col-md-4 col-6 mb-1 order-lg-3 order-sm-2 order-md-3 order-2 pr-0 pr-md-0">
                                 @if($product->ProductBrochure)
-                                    <a href="{{ $product->ProductBrochure }}" class="btn btn-dark" target="new">
+                                    <a href="{{ $product->ProductBrochure }}" class="btn btn-dark w-100" target="new">
                                         View Brochure
                                     </a>
                                 @endif
