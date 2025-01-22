@@ -9,14 +9,15 @@ use docTypes;
 use Helper;
 class DocNum extends Model{
     public static function getDocNum($DocType,$DBName="",$FY=null){
+
 		$FY = $FY == null ? date('Y') : $FY;
 		$result = DB::Select("SELECT SLNO,DocType,Prefix,Length,CurrNum,IFNULL(Suffix,'') as Suffix,IFNULL(Year,'') as Year FROM ".$DBName."tbl_docnum Where DocType='".$DocType."'");
 		if(count($result)>0){
 			$DocNum=$result[0];
 			if($DocNum->Year!=""){
 				if(intval($DocNum->Year)!=intval(date("Y"))){
-					DB::table($DBName.'tbl_docnum')->where('DocType', $DocType)->update(array("Year"=>date("Y"),"CurrNum"=>1));
-					return self::getDocNum($DocType);
+					DB::table($DBName.'tbl_docnum')->where('DocType', $DocType)->update(array("Year"=>date("Y")));
+					return self::getDocNum($DocType,$DBName,$FY);
 				}
 			}
 			$return=$DocNum->Prefix.$FY."-".str_pad($DocNum->CurrNum, $DocNum->Length, '0', STR_PAD_LEFT);
@@ -54,6 +55,63 @@ class DocNum extends Model{
 			return count($t)>0?true:false;
         }elseif($DocType==docTypes::ProductGallery->value){
 			$t=DB::Table($DBName.'tbl_products_gallery')->where('SLNo',$DocNum)->get();
+			return count($t)>0?true:false;
+        }elseif($DocType==docTypes::VendorServiceLocation->value){
+			$t=DB::Table($DBName.'tbl_vendors_service_locations')->where('DetailID',$DocNum)->get();
+			return count($t)>0?true:false;
+        }elseif($DocType==docTypes::RejectReason->value){
+			$t=DB::Table($DBName.'tbl_reject_reason')->where('RReasonID',$DocNum)->get();
+			return count($t)>0?true:false;
+        }elseif($DocType==docTypes::RejectReason->value){
+			$t=DB::Table($DBName.'tbl_reject_reason')->where('RReasonID',$DocNum)->get();
+			return count($t)>0?true:false;
+        }elseif($DocType==docTypes::ConstructionType->value){
+			$t=DB::Table($DBName.'tbl_construction_type')->where('ConTypeID',$DocNum)->get();
+			return count($t)>0?true:false;
+        }elseif($DocType==docTypes::VendorCategory->value){
+			$t=DB::Table($DBName.'tbl_vendor_category')->where('VCID',$DocNum)->get();
+			return count($t)>0?true:false;
+        }elseif($DocType==docTypes::VendorType->value){
+			$t=DB::Table($DBName.'tbl_vendor_type')->where('VendorTypeID',$DocNum)->get();
+			return count($t)>0?true:false;
+        }elseif($DocType==docTypes::Vendor->value){
+			$t=DB::Table($DBName.'tbl_vendors')->where('VendorID',$DocNum)->get();
+			return count($t)>0?true:false;
+        }elseif($DocType==docTypes::VendorVehicle->value){
+			$t=DB::Table($DBName.'tbl_vendors_vehicle')->where('VehicleID',$DocNum)->get();
+			return count($t)>0?true:false;
+        }elseif($DocType==docTypes::VendorVehicleImages->value){
+			$t=DB::Table($DBName.'tbl_vendors_vehicle_images')->where('SLNO',$DocNum)->get();
+			return count($t)>0?true:false;
+        }elseif($DocType==docTypes::VendorSupply->value){
+			$t=DB::Table($DBName.'tbl_vendors_supply')->where('DetailID',$DocNum)->get();
+			return count($t)>0?true:false;
+        }elseif($DocType==docTypes::VendorStockPoint->value){
+			$t=DB::Table($DBName.'tbl_vendors_stock_point')->where('StockPointID',$DocNum)->get();
+			return count($t)>0?true:false;
+        }elseif($DocType==docTypes::VendorDocuments->value){
+			$t=DB::Table($DBName.'tbl_vendors_document')->where('SLNO',$DocNum)->get();
+			return count($t)>0?true:false;
+        }elseif($DocType==docTypes::VendorProductMapping->value){
+			$t=DB::Table($DBName.'tbl_vendors_product_mapping')->where('DetailID',$DocNum)->get();
+			return count($t)>0?true:false;
+        }elseif($DocType==docTypes::ProductCategory->value){
+			$t=DB::Table($DBName.'tbl_product_category')->where('PCID',$DocNum)->get();
+			return count($t)>0?true:false;
+        }elseif($DocType==docTypes::ProductSubCategory->value){
+			$t=DB::Table($DBName.'tbl_product_subcategory')->where('PSCID',$DocNum)->get();
+			return count($t)>0?true:false;
+        }elseif($DocType==docTypes::AttributeValues->value){
+			$t=DB::Table($DBName.'tbl_attributes_details')->where('ValueID',$DocNum)->get();
+			return count($t)>0?true:false;
+        }elseif($DocType==docTypes::Attributes->value){
+			$t=DB::Table($DBName.'tbl_attributes')->where('AttrID',$DocNum)->get();
+			return count($t)>0?true:false;
+        }elseif($DocType==docTypes::VendorQuotation->value){
+			$t=DB::Table($DBName.'tbl_vendor_quotation')->where('VQuoteID',$DocNum)->get();
+			return count($t)>0?true:false;
+        }elseif($DocType==docTypes::VendorOrderDetails->value){
+			$t=DB::Table($DBName.'tbl_vendor_order_details')->where('DetailID',$DocNum)->get();
 			return count($t)>0?true:false;
         }
         return false;
