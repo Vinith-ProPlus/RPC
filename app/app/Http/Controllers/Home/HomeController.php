@@ -1181,4 +1181,68 @@ class HomeController extends Controller{
         DB::rollback();
         return array('status' => false, 'message' => "Construction Service Plan Form Submission Failed");
     }
+    public static function SendBecomeVendorWhatsappMsg(Request $request)
+    {
+        $request->validate([
+            'MobileNumber' => 'required|digits:10'
+        ], [
+            'MobileNumber.required' => 'Mobile Number is required',
+            'MobileNumber.digits' => 'Mobile Number must be 10 digits'
+        ]);
+
+        try {
+            $mobileNumber = "91" . $request->MobileNumber;
+            $postData = [
+                "to" => $mobileNumber,
+                "type" => "template",
+                "template" => [
+                    "language" => [
+                        "policy" => "deterministic",
+                        "code" => "en"
+                    ],
+                    "name" => "rpc_become_a_vendor",
+                    "components" => [
+                        [
+                            "type" => "body"
+                        ]
+                    ]
+                ]
+            ];
+
+            $curl = curl_init();
+            curl_setopt_array($curl, [
+                CURLOPT_URL => 'https://backend.askeva.io/v1/message/send-message?token='.config('app.WHATSAPP_API_KEY'),
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_POST => true,
+                CURLOPT_POSTFIELDS => json_encode($postData, JSON_THROW_ON_ERROR),
+                CURLOPT_HTTPHEADER => [
+                    'Content-Type: application/json'
+                ]
+            ]);
+
+            $response = curl_exec($curl);
+            $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+            curl_close($curl);
+            $responseData = json_decode($response, true);
+
+            if ($httpCode === 200 && isset($responseData['messages'][0]['id'])) {
+                return response()->json([
+                    "status" => true,
+                    "message" => "Mobile application link sent through WhatsApp"
+                ]);
+            }
+            return response()->json([
+                "status" => false,
+                "message" => "Failed to send mobile link through WhatsApp",
+                "error" => $responseData ?? "No response from API"
+            ]);
+        } catch (\Exception $e) {
+            logger("Error in SendBecomeVendorWhatsappMsg: " . $e->getMessage());
+            return response()->json([
+                "status" => false,
+                "message" => "Failed to send WhatsApp message",
+                "error" => $e->getMessage()
+            ], 500);
+        }
+    }
 }

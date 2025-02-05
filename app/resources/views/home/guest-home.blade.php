@@ -541,7 +541,7 @@
                         <label style="font-weight: 600; margin: 0;">+91</label>
                         <input type="text" placeholder="Enter Mobile Number" id="appLinkMobileNumberInput"
                                maxlength="10" autocomplete="off">
-                        <button class="sent-me-link-btn btn">Sent me the link</button>
+                        <button type="button" class="sent-me-link-btn btn">Sent me the link</button>
                         <div id="app-link-err-msg"></div>
                         <p class="mt-1">We will send you a link, open it on your phone to download the App</p>
                     </div>
@@ -562,7 +562,6 @@
                         <div class="widget m-b-3">
                             <img loading="lazy" src="{{url('/')}}/{{$Company['Logo']}}"
                                  alt="{{$Company['CompanyName']}}" width="202" height="54" class="logo-footer">
-
                         </div><!-- End .widget -->
                     </div><!-- End .col-lg-3 -->
 
@@ -594,7 +593,6 @@
                     <div class="col-lg-3 col-sm-6 pb-2 pb-sm-0">
                         <div class="widget">
                             <h4 class="widget-title pb-1">Customer Service</h4>
-
                             <ul class="links">
                                 @foreach(DB::table('tbl_page_content')->select('Slug', 'PageName')->get() as $Policy)
                                     <li>

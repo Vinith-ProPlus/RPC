@@ -121,6 +121,7 @@ Route::controller(HomeController::class)->group(function () {
     // updated
     Route::post('/save-planning-services','SavePlanningServices')->name('save-planning-services');
     Route::post('/save-construction-services','SaveConstructionServices')->name('save-construction-services');
+    Route::post('/send-become-vendor-whatsapp-msg','SendBecomeVendorWhatsappMsg')->name('send-become-vendor-whatsapp-msg');
 });
 
 Route::controller(tableConfigController::class)->group(function () {

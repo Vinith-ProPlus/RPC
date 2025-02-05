@@ -526,7 +526,7 @@
                         <label style="font-weight: 600; margin: 0;">+91</label>
                         <input type="text" placeholder="Enter Mobile Number" id="appLinkMobileNumberInput"
                                maxlength="10" autocomplete="off">
-                        <button class="sent-me-link-btn btn">Sent me the link</button>
+                        <button type="button" class="sent-me-link-btn btn">Sent me the link</button>
                         <div id="app-link-err-msg"></div>
                         <p class="mt-1">We will send you a link, open it on your phone to download the App</p>
                     </div>

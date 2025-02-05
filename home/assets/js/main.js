@@ -2778,4 +2778,35 @@
 	$('.btnConstructionServ').on('click', function() {
 		Porto.ConstructionServPopup();
 	});
+	$('.sent-me-link-btn').on('click', function(e) {
+		e.preventDefault();
+		var $this = $(this);
+		$this.addClass('load-more-overlay loading');
+		let RootUrl = $('#txtRootUrl').val();
+		let MobileNumber = $('#appLinkMobileNumberInput').val();
+		var formData = new FormData();
+		formData.append('MobileNumber', MobileNumber);
+		$.ajax({
+			url: RootUrl + 'send-become-vendor-whatsapp-msg',
+			type: 'POST',
+			data: formData,
+			processData: false,
+			contentType: false,
+			success: function (response) {
+				$('#appLinkMobileNumberInput').val("");
+				let messageElement = $('#app-link-err-msg');
+				messageElement.text(response.message).removeClass('text-success text-danger')
+					.addClass(response.status ? 'text-success' : 'text-danger');
+				setTimeout(function () {
+					messageElement.text("").removeClass('text-success text-danger');
+				}, 5000);
+			},
+			error: function (xhr, status, error) {
+					alert('An error occurred: ' + xhr.responseText);
+			},
+			complete: function () {
+				$this.removeClass('load-more-overlay loading');
+			}
+		});
+	});
 } )( jQuery );
