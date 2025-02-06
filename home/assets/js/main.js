@@ -2778,12 +2778,23 @@
 	$('.btnConstructionServ').on('click', function() {
 		Porto.ConstructionServPopup();
 	});
+	$('#appLinkMobileNumberInput').on('input', function () {
+		let sanitizedValue = $(this).val().replace(/\D/g, '');
+		$(this).val(sanitizedValue);
+	});
 	$('.sent-me-link-btn').on('click', function(e) {
 		e.preventDefault();
 		var $this = $(this);
-		$this.addClass('load-more-overlay loading');
 		let RootUrl = $('#txtRootUrl').val();
 		let MobileNumber = $('#appLinkMobileNumberInput').val();
+		let messageElement = $('#app-link-err-msg');
+		if (!/^\d{10}$/.test(MobileNumber)) {
+			messageElement.text("Please enter a valid 10-digit mobile number.")
+				.removeClass('text-success')
+				.addClass('text-danger');
+			return;
+		}
+		$this.addClass('load-more-overlay loading');
 		var formData = new FormData();
 		formData.append('MobileNumber', MobileNumber);
 		$.ajax({
@@ -2794,7 +2805,6 @@
 			contentType: false,
 			success: function (response) {
 				$('#appLinkMobileNumberInput').val("");
-				let messageElement = $('#app-link-err-msg');
 				messageElement.text(response.message).removeClass('text-success text-danger')
 					.addClass(response.status ? 'text-success' : 'text-danger');
 				setTimeout(function () {
