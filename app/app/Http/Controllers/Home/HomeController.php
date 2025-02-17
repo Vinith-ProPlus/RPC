@@ -171,9 +171,8 @@ class HomeController extends Controller{
                     ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')
                     ->select('P.ProductID', 'P.ProductName', 'P.ProductImage', 'PSC.PSCName','P.ThumbnailImg', 'PSC.PSCID', 'PSC.PCID',
                         DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(P.ProductImage, ""), "")) AS ProductImage'))
-                    ->where('P.DFlag',0)
+                    ->where('P.DFlag',0)->where('P.ActiveStatus','Active')
                     ->inRandomOrder()->take(10)
-
                     ->get();
                 $FormData['PCategories'] = $PCatagories;
                 $FormData['HotProducts'] = $RecentProducts->shuffle();
@@ -1046,27 +1045,31 @@ class HomeController extends Controller{
             ->select('P.ProductID','P.ProductName','P.ShortDescription','P.Description', 'PC.PCID', 'PSC.PSCID',
                 'PC.PCName as CategoryName','PSC.PSCName as SubCategoryName', 'P.ProductImage','P.ThumbnailImg', 'P.ProductBrochure', 'P.VideoURL')
             ->first();
-        $product->ProductImage = (new Helper)->fileCheckAndUrl($product->ProductImage, 'assets/images/no-image-b.png');
-        $product->ThumbnailImg = file_exists($product->ThumbnailImg)?$product->ThumbnailImg:$product->ProductImage;
-        $product->ProductBrochure = (new Helper)->fileCheckAndUrl($product->ProductBrochure, '');
+        if($product) {
+            $product->ProductImage = (new Helper)->fileCheckAndUrl($product->ProductImage, 'assets/images/no-image-b.png');
+            $product->ThumbnailImg = file_exists($product->ThumbnailImg) ? $product->ThumbnailImg : $product->ProductImage;
+            $product->ProductBrochure = (new Helper)->fileCheckAndUrl($product->ProductBrochure, '');
 
-        $product->GalleryImages = DB::table('tbl_products_gallery')
-            ->where('ProductID', $ProductID)
-            ->pluck('gImage')
-            ->map(function ($image) {
-                return (new Helper)->fileCheckAndUrl($image, 'assets/images/no-image-b.png');
-            })
-            ->toArray();
-        $FormData['product'] = $product;
-        $FormData['PCategories'] = $PCatagories;
-        $FormData['RelatedProducts'] = $RelatedProducts;
-        $FormData['isRegister'] = false;
-        $FormData['Cart'] = [];
-        $FormData['Company']=$this->Company;
-        $FormData['ServiceProvided'] = DB::table('tbl_service_provided')->where('ActiveStatus','Active')->where('DFlag',0)->get();
-        $FormData['ConServiceCategories'] = DB::table('tbl_construction_service_category')->where('ActiveStatus','Active')->where('DFlag',0)->get();
-        $FormData['AndroidAppUrl'] = DB::table('tbl_settings')->where('KeyName','android-app-url')->value('KeyValue');
-        return view('home.guest-product-view', $FormData);
+            $product->GalleryImages = DB::table('tbl_products_gallery')
+                ->where('ProductID', $ProductID)
+                ->pluck('gImage')
+                ->map(function ($image) {
+                    return (new Helper)->fileCheckAndUrl($image, 'assets/images/no-image-b.png');
+                })
+                ->toArray();
+            $FormData['product'] = $product;
+            $FormData['PCategories'] = $PCatagories;
+            $FormData['RelatedProducts'] = $RelatedProducts;
+            $FormData['isRegister'] = false;
+            $FormData['Cart'] = [];
+            $FormData['Company'] = $this->Company;
+            $FormData['ServiceProvided'] = DB::table('tbl_service_provided')->where('ActiveStatus', 'Active')->where('DFlag', 0)->get();
+            $FormData['ConServiceCategories'] = DB::table('tbl_construction_service_category')->where('ActiveStatus', 'Active')->where('DFlag', 0)->get();
+            $FormData['AndroidAppUrl'] = DB::table('tbl_settings')->where('KeyName', 'android-app-url')->value('KeyValue');
+            return view('home.guest-product-view', $FormData);
+        } else {
+            return view('errors.404');
+        }
     }
 
     public static function getAvailableVendors($PostalCodeID){

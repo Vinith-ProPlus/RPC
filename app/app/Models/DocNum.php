@@ -9,25 +9,22 @@ use docTypes;
 use Helper;
 class DocNum extends Model{
     public static function getDocNum($DocType,$DBName="",$FY=null){
-
-		$FY = $FY == null ? date('Y') : $FY;
-		$result = DB::Select("SELECT SLNO,DocType,Prefix,Length,CurrNum,IFNULL(Suffix,'') as Suffix,IFNULL(Year,'') as Year FROM ".$DBName."tbl_docnum Where DocType='".$DocType."'");
-		if(count($result)>0){
-			$DocNum=$result[0];
-			if($DocNum->Year!=""){
-				if(intval($DocNum->Year)!=intval(date("Y"))){
-					DB::table($DBName.'tbl_docnum')->where('DocType', $DocType)->update(array("Year"=>date("Y")));
-					return self::getDocNum($DocType,$DBName,$FY);
-				}
-			}
-			$return=$DocNum->Prefix.$FY."-".str_pad($DocNum->CurrNum, $DocNum->Length, '0', STR_PAD_LEFT);
-			if(self::checkDocNum($DocType,$return)==true){
-				self::updateDocNum($DocType,$DBName);
-				return self::getDocNum($DocType,$DBName);
-			}
-			return $return;
-		}
-		return '';
+        $FY = $FY === null ? date('Y') : $FY;
+        $result = DB::Select("SELECT SLNO,DocType,Prefix,Length,CurrNum,IFNULL(Suffix,'') as Suffix,IFNULL(Year,'') as Year FROM ".$DBName."tbl_docnum Where DocType='".$DocType."'");
+        if(count($result)>0){
+            $DocNum=$result[0];
+            if(!empty($DocNum->Year) && (int)$DocNum->Year !== (int)date("Y")){
+                DB::table($DBName.'tbl_docnum')->where('DocType', $DocType)->update(array("Year"=>date("Y")));
+                return self::getDocNum($DocType,$DBName,$FY);
+            }
+            $return=$DocNum->Prefix.$FY."-".str_pad($DocNum->CurrNum, $DocNum->Length, '0', STR_PAD_LEFT);
+            if(self::checkDocNum($DocType, $return, $DBName)){
+                self::updateDocNum($DocType,$DBName);
+                return self::getDocNum($DocType,$DBName);
+            }
+            return $return;
+        }
+        return '';
     }
     public static function updateDocNum($DocType,$DBName=""){
 		$sql="Update ".$DBName."tbl_docnum SET CurrNum=CurrNum+1 WHERE DocType='".$DocType."'";
