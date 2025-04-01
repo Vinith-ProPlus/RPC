@@ -45,7 +45,8 @@
                                     <div class="product-default inner-quickview inner-icon product-div">
                                         <figure>
                                             <div class="image-container">
-                                                <img loading="lazy" src="{{ file_exists($PCategory->ThumbnailImg)?url('/'.$PCategory->ThumbnailImg): $PCategory->PCImage }}" alt="{{ $PCategory->PCName }}">
+                                                <img loading="lazy" src="{{ file_exists($PCategory->ThumbnailImg) ?url('/'.$PCategory->ThumbnailImg): $PCategory->PCImage }}" alt="{{ $PCategory->PCName }}">
+{{--                                                <img loading="lazy" src="{{ file_exists($PCategory->ThumbnailImg) ? $PCategory->ThumbnailImg : (file_exists($PCategory->PCImage) ? $PCategory->PCImage : URL('assets/images/no-image-b.png')) }}" alt="{{ $PCategory->PCName }}">--}}
                                             </div>
                                             <div class="label-group"></div>
                                         </figure>

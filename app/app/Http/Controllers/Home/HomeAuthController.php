@@ -951,7 +951,8 @@ class HomeAuthController extends Controller
                 })
                 ->distinct()
                 ->select('PC.PCID', 'PC.PCName',
-                    DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PCImage, ""), "assets/images/no-image-b.png")) AS PCImage'))
+                    DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PC.PCImage, ""), "assets/images/no-image-b.png")) AS PCImage'),
+                    DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PC.ThumbnailImg, ""), "assets/images/no-image-b.png")) AS ThumbnailImg'))
                 ->skip(($pageNo - 1) * $productCount)
                 ->take($productCount)
                 ->get();
@@ -1052,7 +1053,8 @@ class HomeAuthController extends Controller
                 })
                 ->distinct()
                 ->select('PSC.PSCID', 'PSC.PSCName',
-                    DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PSCImage, ""), "assets/images/no-image-b.png")) AS PSCImage'))
+                    DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PSC.PSCImage, ""), "assets/images/no-image-b.png")) AS PSCImage'),
+                    DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(PSC.ThumbnailImg, ""), "assets/images/no-image-b.png")) AS ThumbnailImg'))
                 ->skip(($pageNo - 1) * $productCount)
                 ->take($productCount)
                 ->get();
