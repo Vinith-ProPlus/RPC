@@ -52,6 +52,7 @@ Route::controller(CustomerAPIController::class)->group(function () {
     Route::post('/login','Login');
     Route::post('/google-register','GoogleRegister');
     Route::post('/mobile-no-register','MobileNoRegister');
+    Route::post('/delete-account','deleteAccount')->middleware('auth:api');
 });
 
 Route::controller(CustomerTransactionAPIController::class)->group(function () {
