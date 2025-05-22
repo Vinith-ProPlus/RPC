@@ -373,4 +373,15 @@ class GeneralAPIController extends Controller{
     public function getCompanyDetails(){
         return collect(DB::Table('tbl_company_settings')->pluck('KeyValue', 'KeyName'));
     }
+
+    public function getAppUpdate(Request $req){
+        $sql="SELECT Title,NewVersion as versionKey,SubmitText,IgnoreText,IFNULL(Image,'') as Image,Description,IOSLink,AndroidLink,forceUpdate,CASE WHEN UpdateTo<>'IOS' THEN 1 ELSE 0 END as Android,CASE WHEN UpdateTo<>'Android' THEN 1 ELSE 0 END as IOS FROM tbl_app_update";
+        $result=DB::SELECT($sql);
+        if(count($result)>0){
+            $result[0]->Image=file_exists($result[0]->Image)?url('/')."/".$result[0]->Image:"";
+            return array("status"=>true,"message"=>"success","data"=>$result);
+        }else{
+            return array("status"=>false,"message"=>"failed","data"=>$result);
+        }
+    }
 }

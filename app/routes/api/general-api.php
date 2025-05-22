@@ -38,4 +38,5 @@ Route::controller(GeneralAPIController::class)->group(function () {
     Route::post('/get/co-ordinates','getCoordinates');
     Route::post('/get/distance','calculateDistance');
     Route::get('/get/company-details','getCompanyDetails');
+    Route::POST('get/app-update','getAppUpdate');
 });

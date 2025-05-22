@@ -7,6 +7,7 @@ use App\Http\Controllers\web\Settings\CompanyController;
 use App\Http\Controllers\web\Settings\GeneralSettingsController;
 use App\Http\Controllers\web\Settings\StepperController;
 use App\Http\Controllers\web\Settings\ChatSuggestionsController;
+use App\Http\Controllers\web\Settings\appUpdateController;
 
 Route::group(['prefix'=>'company'],function (){
     Route::controller(CompanyController::class)->group(function () {
@@ -64,5 +65,12 @@ Route::group(['prefix'=>'chat-suggestions'],function (){
         Route::post('/trash-data', 'TrashTableView');
 
         Route::post('/get/chat-suggestions', 'GetChatSuggestions');
+    });
+});
+
+Route::group(['prefix'=>'app-update'],function (){
+    Route::controller(appUpdateController::class)->group(function () {
+        Route::get('/', 'index');
+        Route::POST('/update/{SLNO}', 'update');
     });
 });

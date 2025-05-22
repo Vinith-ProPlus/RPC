@@ -465,3 +465,42 @@ ALTER TABLE `tbl_cruds`
   ADD PRIMARY KEY (`MID`),
   ADD KEY `MID` (`MID`);
 COMMIT;
+
+25-05-22
+
+INSERT INTO `tbl_menus` (`MID`, `Slug`, `MenuName`, `ActiveName`, `Icon`, `PageUrl`, `ParentID`, `Level`, `hasSubMenu`, `Ordering`, `isCheckSetting`, `SettingsName`, `DefaultOrdering`, `ActiveStatus`, `DFlag`, `UpdatedOn`, `UpdatedBy`) VALUES ('M2023-0000071', 'app-update', 'App Update', 'App-Update', NULL, 'admin/settings/app-update', 'M2023-0000007', 'L002', '0', '6', '0', NULL, '1', '1', '0', '2022-12-07 01:19:35', NULL);
+
+INSERT INTO `tbl_cruds` (`MID`, `add`, `view`, `edit`, `delete`, `copy`, `excel`, `csv`, `print`, `pdf`, `restore`, `showpwd`) VALUES ('M2023-0000071', '0', '1', '1', '0', '0', '0', '0', '0', '0', '0', '0');
+
+CREATE TABLE `tbl_app_update` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `title` VARCHAR(100),
+  `current_version` VARCHAR(20),
+  `new_version` VARCHAR(50),
+  `submit_text` VARCHAR(50),
+  `ignore_text` VARCHAR(50),
+  `image` TEXT,
+  `description` TEXT,
+  `ios_link` TEXT,
+  `android_link` TEXT,
+  `force_update` TINYINT(1) DEFAULT 0,
+  `update_to` ENUM('All', 'Android', 'IOS') NOT NULL DEFAULT 'All',
+  `is_android` TINYINT(1) DEFAULT 0,
+  `is_ios` TINYINT(1) DEFAULT 0,
+  `updated_on` TIMESTAMP NULL DEFAULT NULL,
+  `updated_by` VARCHAR(50)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+INSERT INTO `tbl_app_update` (
+  `title`, `current_version`, `new_version`, `submit_text`, `ignore_text`, `image`,
+  `description`, `ios_link`, `android_link`, `force_update`, `update_to`,
+  `is_android`, `is_ios`, `updated_on`, `updated_by`
+) VALUES (
+  'Update Available', NULL, '1.0.4', 'Install', 'Skip', NULL,
+  'Please update to the latest version of the Builders Supply app. Enjoy our cool features',
+  'https://apps.apple.com/nz/app/10hp/id6478903227',
+  'market://details?id=com.app.ten_hp',
+  1, 'Android', 0, 0, '2024-12-09 03:50:04', 'U2023-0000001'
+);
+
+
