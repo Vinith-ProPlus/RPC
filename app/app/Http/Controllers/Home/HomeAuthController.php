@@ -1210,27 +1210,52 @@ class HomeAuthController extends Controller
     {
         if ($req->AID) {
             if ($req->SearchText) {
+                $baseUrl = url('/');
                 $AllVendors = Helper::getAvailableVendorsForCustomer($req->AID);
+                $maxResults = 10;
 
-                $PCategories = DB::table('tbl_product_category as PC')
+                // Get available counts first
+                $productCount = DB::table('tbl_products as P')
+                    ->leftJoin('tbl_product_subcategory as PSC', 'P.SCID', 'PSC.PSCID')
+                    ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'PSC.PCID')
+                    ->rightJoin('tbl_vendors_product_mapping as VPM', 'P.ProductID', 'VPM.ProductID')
+                    ->where('VPM.Status', 1)
+                    ->whereIn('VPM.VendorID', $AllVendors)
+                    ->where('P.ActiveStatus', 'Active')->where('P.DFlag', 0)
+                    ->where('P.ProductName', 'like', '%' . $req->SearchText . '%')
+                    ->count();
+
+                $categoryCount = DB::table('tbl_product_category as PC')
                     ->rightJoin('tbl_vendors_product_mapping as VPM', 'PC.PCID', 'VPM.PCID')
                     ->where('VPM.Status', 1)
                     ->whereIn('VPM.VendorID', $AllVendors)
                     ->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)
                     ->where('PC.PCName', 'like', '%' . $req->SearchText . '%')
-                    ->groupBy('PC.PCID', 'PC.PCName')
-                    ->select('PC.PCID', 'PC.PCName')->take(3)->get();
+                    ->count();
 
-                $PSCategories = DB::table('tbl_product_subcategory as PSC')
+                $subcategoryCount = DB::table('tbl_product_subcategory as PSC')
                     ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'PSC.PCID')
                     ->rightJoin('tbl_vendors_product_mapping as VPM', 'PSC.PSCID', 'VPM.PSCID')
                     ->where('VPM.Status', 1)
                     ->whereIn('VPM.VendorID', $AllVendors)
                     ->where('PSC.ActiveStatus', 'Active')->where('PSC.DFlag', 0)
                     ->where('PSC.PSCName', 'like', '%' . $req->SearchText . '%')
-                    ->groupBy('PC.PCID', 'PC.PCName', 'PSC.PSCID', 'PSC.PSCName')
-                    ->select('PC.PCID', 'PC.PCName', 'PSC.PSCID', 'PSC.PSCName')->take(3)->get();
+                    ->count();
 
+                // Calculate distribution
+                $totalAvailable = $productCount + $categoryCount + $subcategoryCount;
+                if ($totalAvailable <= $maxResults) {
+                    $productLimit = $productCount;
+                    $categoryLimit = $categoryCount;
+                    $subcategoryLimit = $subcategoryCount;
+                } else {
+                    // Proportional distribution
+                    $productLimit = min($productCount, max(1, floor(($productCount / $totalAvailable) * $maxResults)));
+                    $categoryLimit = min($categoryCount, max(1, floor(($categoryCount / $totalAvailable) * $maxResults)));
+                    $subcategoryLimit = $maxResults - $productLimit - $categoryLimit;
+                }
+
+                // Fetch actual data with calculated limits
                 $Products = DB::table('tbl_products as P')
                     ->leftJoin('tbl_product_subcategory as PSC', 'P.SCID', 'PSC.PSCID')
                     ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'PSC.PCID')
@@ -1239,8 +1264,37 @@ class HomeAuthController extends Controller
                     ->whereIn('VPM.VendorID', $AllVendors)
                     ->where('P.ActiveStatus', 'Active')->where('P.DFlag', 0)
                     ->where('P.ProductName', 'like', '%' . $req->SearchText . '%')
-                    ->groupBy('P.ProductID', 'P.ProductName', 'PC.PCID', 'PC.PCName', 'PSC.PSCID', 'PSC.PSCName')
-                    ->select('P.ProductID', 'P.ProductName', 'PC.PCID', 'PC.PCName', 'PSC.PSCID', 'PSC.PSCName')->take(3)->get();
+                    ->groupBy('P.ProductID', 'P.ProductName', 'P.ThumbnailImg', 'P.ProductImage', 'PC.PCID', 'PC.PCName', 'PSC.PSCID', 'PSC.PSCName')
+                    ->select('P.ProductID', 'P.ProductName', 'PC.PCID', 'PC.PCName', 'PSC.PSCID', 'PSC.PSCName',
+                        DB::raw('CONCAT("' . $baseUrl . '/", COALESCE(NULLIF(P.ThumbnailImg, ""), "assets/images/no-image-b.png")) AS ThumbnailImg'),
+                        DB::raw('CONCAT("' . $baseUrl . '/", COALESCE(NULLIF(P.ProductImage, ""), "assets/images/no-image-b.png")) AS ProductImage')
+                    )->inRandomOrder()->take($productLimit)->get();
+
+                $PCategories = DB::table('tbl_product_category as PC')
+                    ->rightJoin('tbl_vendors_product_mapping as VPM', 'PC.PCID', 'VPM.PCID')
+                    ->where('VPM.Status', 1)
+                    ->whereIn('VPM.VendorID', $AllVendors)
+                    ->where('PC.ActiveStatus', 'Active')->where('PC.DFlag', 0)
+                    ->where('PC.PCName', 'like', '%' . $req->SearchText . '%')
+                    ->groupBy('PC.PCID', 'PC.PCName', 'PC.ThumbnailImg', 'PC.PCImage')
+                    ->select('PC.PCID', 'PC.PCName',
+                        DB::raw('CONCAT("' . $baseUrl . '/", COALESCE(NULLIF(PC.ThumbnailImg, ""), "assets/images/no-image-b.png")) AS ThumbnailImg'),
+                        DB::raw('CONCAT("' . $baseUrl . '/", COALESCE(NULLIF(PC.PCImage, ""), "assets/images/no-image-b.png")) AS PCImage')
+                    )->inRandomOrder()->take($categoryLimit)->get();
+
+                $PSCategories = DB::table('tbl_product_subcategory as PSC')
+                    ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'PSC.PCID')
+                    ->rightJoin('tbl_vendors_product_mapping as VPM', 'PSC.PSCID', 'VPM.PSCID')
+                    ->where('VPM.Status', 1)
+                    ->whereIn('VPM.VendorID', $AllVendors)
+                    ->where('PSC.ActiveStatus', 'Active')->where('PSC.DFlag', 0)
+                    ->where('PSC.PSCName', 'like', '%' . $req->SearchText . '%')
+                    ->groupBy('PC.PCID', 'PC.PCName', 'PSC.PSCID', 'PSC.PSCName', 'PSC.ThumbnailImg', 'PSC.PSCImage')
+                    ->select('PC.PCID', 'PC.PCName', 'PSC.PSCID', 'PSC.PSCName',
+                        DB::raw('CONCAT("' . $baseUrl . '/", COALESCE(NULLIF(PSC.ThumbnailImg, ""), "assets/images/no-image-b.png")) AS ThumbnailImg'),
+                        DB::raw('CONCAT("' . $baseUrl . '/", COALESCE(NULLIF(PSC.PSCImage, ""), "assets/images/no-image-b.png")) AS PSCImage')
+                    )->inRandomOrder()->take($subcategoryLimit)->get();
+
                 $resultHtml = view('home.customer.search-html', compact('PCategories', 'PSCategories', 'Products'))->render();
 
                 return response()->json(['status' => true, 'searchResults' => $resultHtml]);
