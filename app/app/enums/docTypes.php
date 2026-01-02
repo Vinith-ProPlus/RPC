@@ -81,6 +81,7 @@ enum docTypes:string{
     case Withdraw="Withdraw";
     case Notification="Notification";
     case ChatSuggestions="Chat-Suggestions";
+    case MetaData="Meta-Data";
 
     //chat
     case Chat="Chat";

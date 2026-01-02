@@ -60,5 +60,6 @@ enum activeMenuNames:string{
     case Company="Company-Settings";
     case SupportTickets="Support-Tickets";
     case ChatSuggestions="Chat-Suggestions";
+    case MetaData="Meta-Data";
 
 }
