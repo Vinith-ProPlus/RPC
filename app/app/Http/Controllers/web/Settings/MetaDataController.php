@@ -168,104 +168,91 @@ class MetaDataController extends Controller
         }
     }
 
-    public function update(Request $req, $CSID)
+
+    public function update(Request $req, $Id = null)
     {
-        if ($this->general->isCrudAllow($this->CRUD, "edit")) {
-            $OldData = [];
-            $NewData = [];
-
-            $rules = [
-                'Question' => ['required', 'min:3', 'max:100', new ValidUnique(["TABLE" => 'tbl_chat_suggestions', "WHERE" => " Question='" . $req->Question . "' and CSID<>'" . $CSID . "'  "], "This Chat Suggestion is already taken.")],
-                'Answer' => ['required', 'min:3'],
-            ];
-            $message = [];
-            $validator = Validator::make($req->all(), $rules, $message);
-
-            if ($validator->fails()) {
-                return ['status' => false, 'message' => "Chat Suggestion Update Failed", 'errors' => $validator->errors()];
-            }
-            DB::beginTransaction();
-            $status = false;
-            try {
-                $OldData = DB::table('tbl_chat_suggestions')->where('CSID', $CSID)->get();
-                $data = [
-                    "Question" => $req->Question,
-                    "Answer" => $req->Answer,
-                    "ActiveStatus" => $req->ActiveStatus,
-                    "UpdatedBy" => $this->UserID,
-                    "UpdatedOn" => date("Y-m-d H:i:s")
-                ];
-                $status = DB::Table('tbl_chat_suggestions')->where('CSID', $CSID)->update($data);
-            } catch (Exception $e) {
-                logger("Error in ChatSuggestionsController@update: " . $e->getMessage());
-                $status = false;
-            }
-
-            if ($status == true) {
-                $NewData = DB::table('tbl_chat_suggestions')->where('CSID', $CSID)->get();
-                $logData = ["Description" => "Chat Suggestion Updated ", "ModuleName" => $this->ActiveMenuName, "Action" => cruds::UPDATE->value, "ReferID" => $CSID, "OldData" => $OldData, "NewData" => $NewData, "UserID" => $this->UserID, "IP" => $req->ip()];
-                logs::Store($logData);
-                DB::commit();
-                return ['status' => true, 'message' => "Chat Suggestion Updated Successfully"];
-            } else {
-                DB::rollback();
-                return ['status' => false, 'message' => "Chat Suggestion Update Failed"];
-            }
-        } else {
+        if (!$this->general->isCrudAllow($this->CRUD, "edit")) {
             return ['status' => false, 'message' => 'Access denied'];
         }
-    }
 
-    public function Delete(Request $req, $CSID)
-    {
-        $OldData = $NewData = [];
-        if ($this->general->isCrudAllow($this->CRUD, "delete")) {
-            DB::beginTransaction();
-            $status = false;
-            try {
-                $OldData = DB::table('tbl_chat_suggestions')->where('CSID', $CSID)->get();
-                $status = DB::table('tbl_chat_suggestions')->where('CSID', $CSID)->update(["DFlag" => 1, "DeletedBy" => $this->UserID, "DeletedOn" => date("Y-m-d H:i:s")]);
-            } catch (Exception $e) {
-                logger("Error in ChatSuggestionsController@Delete: " . $e->getMessage());
-            }
-            if ($status) {
-                DB::commit();
-                $logData = ["Description" => "Chat Suggestion has been Deleted ", "ModuleName" => $this->ActiveMenuName, "Action" => cruds::DELETE->value, "ReferID" => $CSID, "OldData" => $OldData, "NewData" => $NewData, "UserID" => $this->UserID, "IP" => $req->ip()];
-                logs::Store($logData);
-                return ['status' => true, 'message' => "Chat Suggestion Deleted Successfully"];
-            } else {
-                DB::rollback();
-                return ['status' => false, 'message' => "Chat Suggestion Delete Failed"];
-            }
-        } else {
-            return response(['status' => false, 'message' => "Access Denied"], 403);
+        $rules = [
+            'page_id' => 'required',
+        ];
+
+        $validator = Validator::make($req->all(), $rules);
+
+        if ($validator->fails()) {
+            return [
+                'status' => false,
+                'message' => "Meta data Update Failed",
+                'errors' => $validator->errors()
+            ];
         }
-    }
 
-    public function Restore(Request $req, $CSID)
-    {
-        $OldData = $NewData = [];
-        if ($this->general->isCrudAllow($this->CRUD, "restore")) {
-            DB::beginTransaction();
-            $status = false;
-            try {
-                $OldData = DB::table('tbl_chat_suggestions')->where('CSID', $CSID)->get();
-                $status = DB::table('tbl_chat_suggestions')->where('CSID', $CSID)->update(["DFlag" => 0, "UpdatedBy" => $this->UserID, "UpdatedOn" => date("Y-m-d H:i:s")]);
-            } catch (Exception $e) {
-                logger("Error in ChatSuggestionsController@Restore: " . $e->getMessage());
+        DB::beginTransaction();
+
+        try {
+            // Check if record exists
+            $exists = DB::table('tbl_metadata')->where('Id', $Id)->exists();
+
+            // Generate new ID only if inserting
+            if (!$exists) {
+                $Id = DocNum::getDocNum(docTypes::MetaData->value);
             }
-            if ($status) {
-                DB::commit();
-                $NewData = DB::table('tbl_chat_suggestions')->where('CSID', $CSID)->get();
-                $logData = ["Description" => "Chat Suggestion has been Restored", "ModuleName" => $this->ActiveMenuName, "Action" => cruds::RESTORE->value, "ReferID" => $CSID, "OldData" => $OldData, "NewData" => $NewData, "UserID" => $this->UserID, "IP" => $req->ip()];
-                logs::Store($logData);
-                return ['status' => true, 'message' => "Chat Suggestion Restored Successfully"];
-            } else {
-                DB::rollback();
-                return ['status' => false, 'message' => "Chat Suggestion Restore Failed"];
+
+            $oldData = $exists
+                ? DB::table('tbl_metadata')->where('Id', $Id)->get()
+                : [];
+
+            $data = [
+                "Id" => $Id,
+                "PageId" => $req->page_id,
+                "MetaTitle" => $req->meta_title,
+                "MetaDescription" => $req->meta_description,
+                "IsHomeContent" => 1,
+                "UpdatedBy" => $this->UserID,
+                "UpdatedOn" => now()
+            ];
+
+            DB::table('tbl_metadata')->updateOrInsert(
+                ['Id' => $Id],
+                $data
+            );
+
+            if (!$exists) {
+                DocNum::updateDocNum(docTypes::MetaData->value);
             }
-        } else {
-            return response(['status' => false, 'message' => "Access Denied"], 403);
+
+            $newData = DB::table('tbl_metadata')->where('Id', $Id)->get();
+
+            logs::Store([
+                "Description" => $exists ? "Meta Data Updated" : "Meta Data Created",
+                "ModuleName" => $this->ActiveMenuName,
+                "Action" => $exists ? cruds::UPDATE->value : cruds::CREATE->value,
+                "ReferID" => $Id,
+                "OldData" => $oldData,
+                "NewData" => $newData,
+                "UserID" => $this->UserID,
+                "IP" => $req->ip()
+            ]);
+
+            DB::commit();
+
+            return [
+                'status' => true,
+                'message' => $exists
+                    ? "Meta Data Updated Successfully"
+                    : "Meta Data Created Successfully"
+            ];
+
+        } catch (\Exception $e) {
+            DB::rollback();
+            logger("Error in MetaDataController@update: " . $e->getMessage());
+
+            return [
+                'status' => false,
+                'message' => "Meta Data Operation Failed"
+            ];
         }
     }
 
@@ -273,25 +260,39 @@ class MetaDataController extends Controller
     {
         if ($this->general->isCrudAllow($this->CRUD, "view")) {
             $columns = [
-                ['db' => 'CSID', 'dt' => '0'],
-                ['db' => 'Question', 'dt' => '1'],
-                ['db' => 'ActiveStatus', 'dt' => '2',
+                ['db' => 'C.PCID', 'dt' => '0'],
+                ['db' => 'C.PCName', 'dt' => '1'],
+                ['db' => 'M.MetaTitle', 'dt' => '2'],
+                ['db' => 'M.MetaDescription', 'dt' => '3'],
+                ['db' => 'M.Id', 'dt' => '4'],
+                ['db' => 'M.IsHomeContent', 'dt' => '5'],
+            ];
+            $columns1 = [
+                ['db' => 'PCID', 'dt' => '0'],
+                ['db' => 'PCName', 'dt' => '1'],
+                [
+                    'db' => 'MetaTitle',
+                    'dt' => '2',
                     'formatter' => function ($d, $row) {
-                        if ($d == "Active") {
-                            return "<span class='badge badge-success m-1'>Active</span>";
-                        } else {
-                            return "<span class='badge badge-danger m-1'>Inactive</span>";
-                        }
+                        $html = '<input class="form-control meta-title" type="text" value="' . $d . '">';
+                        return $html;
                     }
                 ],
-                ['db' => 'CSID', 'dt' => '3',
+                [
+                    'db' => 'MetaDescription',
+                    'dt' => '3',
+                    'formatter' => function ($d, $row) {
+                        $html = '<textarea class="form-control meta-description">' . $d . '</textarea>';
+                        return $html;
+                    }
+                ],
+                [
+                    'db' => 'Id',
+                    'dt' => '4',
                     'formatter' => function ($d, $row) {
                         $html = '';
-                        if ($this->general->isCrudAllow($this->CRUD, "edit") && ($row['Question'] !== 'Others')) {
-                            $html .= '<button type="button" data-id="' . $d . '" class="btn  btn-outline-success ' . $this->general->UserInfo['Theme']['button-size'] . ' m-5 mr-10 btnEdit" data-original-title="Edit"><i class="fa fa-pencil"></i></button>';
-                        }
-                        if ($this->general->isCrudAllow($this->CRUD, "delete") && ($row['Question'] !== 'Others')) {
-                            $html .= '<button type="button" data-id="' . $d . '" class="btn  btn-outline-danger ' . $this->general->UserInfo['Theme']['button-size'] . ' m-5 btnDelete" data-original-title="Delete"><i class="fa fa-trash" aria-hidden="true"></i></button>';
+                        if ($this->general->isCrudAllow($this->CRUD, "edit")) {
+                            $html .= '<button type="button" data-id="' . $d . '" class="btn btn-edit btn-outline-success ' . $this->general->UserInfo['Theme']['button-size'] . ' m-5 mr-10 btnEdit" data-original-title="Edit">Save</button>';
                         }
                         return $html;
                     }
@@ -300,10 +301,10 @@ class MetaDataController extends Controller
             $Where = " DFlag=0 ";
             $data = [];
             $data['POSTDATA'] = $req;
-            $data['TABLE'] = 'tbl_chat_suggestions';
-            $data['PRIMARYKEY'] = 'CSID';
+            $data['TABLE'] = 'tbl_product_category AS C LEFT JOIN tbl_metadata AS M ON C.PCID = M.PageId';
+            $data['PRIMARYKEY'] = 'C.PCID';
             $data['COLUMNS'] = $columns;
-            $data['COLUMNS1'] = $columns;
+            $data['COLUMNS1'] = $columns1;
             $data['GROUPBY'] = null;
             $data['WHERERESULT'] = null;
             $data['WHEREALL'] = $Where;
@@ -313,45 +314,4 @@ class MetaDataController extends Controller
         }
     }
 
-    public function TrashTableView(Request $req)
-    {
-        if ($this->general->isCrudAllow($this->CRUD, "restore")) {
-            $columns = [
-                ['db' => 'CSID', 'dt' => '0'],
-                ['db' => 'Question', 'dt' => '1'],
-                ['db' => 'ActiveStatus', 'dt' => '2',
-                    'formatter' => function ($d, $row) {
-                        if ($d == "Active") {
-                            return "<span class='badge badge-success m-1'>Active</span>";
-                        } else {
-                            return "<span class='badge badge-danger m-1'>Inactive</span>";
-                        }
-                    }
-                ],
-                ['db' => 'CSID', 'dt' => '3',
-                    'formatter' => function ($d, $row) {
-                        $html = '<button type="button" data-id="' . $d . '" class="btn btn-outline-success ' . $this->general->UserInfo['Theme']['button-size'] . '  m-2 btnRestore"> <i class="fa fa-repeat" aria-hidden="true"></i> </button>';
-                        return $html;
-                    }
-                ]
-            ];
-            $data = [];
-            $data['POSTDATA'] = $req;
-            $data['TABLE'] = 'tbl_chat_suggestions';
-            $data['PRIMARYKEY'] = 'CSID';
-            $data['COLUMNS'] = $columns;
-            $data['COLUMNS1'] = $columns;
-            $data['GROUPBY'] = null;
-            $data['WHERERESULT'] = null;
-            $data['WHEREALL'] = " DFlag=1 ";
-            return SSP::SSP($data);
-        } else {
-            return response(['status' => false, 'message' => "Access Denied"], 403);
-        }
-    }
-
-    public function GetChatSuggestions(request $req)
-    {
-        return DB::Table('tbl_chat_suggestions')->where('ActiveStatus', 'Active')->where('DFlag', 0)->get();
-    }
 }

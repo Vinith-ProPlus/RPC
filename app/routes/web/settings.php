@@ -73,9 +73,9 @@ Route::group(['prefix'=>'meta-data'],function (){
         Route::get('/', 'view');
         // Route::get('/trash', 'TrashView');
         // Route::get('/create', 'Create');
-        // Route::get('/edit/{ID}', 'Edit');
+        Route::post('/edit/{ID}', 'Update');
 
-        // Route::post('/data', 'TableView');
+        Route::post('/data', 'TableView');
         // Route::post('/create', 'Save');
         // Route::POST('/edit/{ID}', 'Update');
         // Route::POST('/delete/{ID}', 'Delete');
