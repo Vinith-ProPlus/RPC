@@ -4,7 +4,7 @@ namespace App\helper;
 use App\Http\Controllers\MailController;
 use App\Mail\MailSender;
 use App\Models\EmailSender;
-use App\Models\TextLocal;
+// TextLocal not used anymore; SMSAlert will be used for sending OTPs
 use DocNum;
 use Exception;
 use Illuminate\Support\Facades\Config;
@@ -1196,8 +1196,9 @@ class helper{
             DB::table(self::getCurrFYDB() . 'tbl_sms_otps')->where('MobileNumber', $MobNo)->update(['isOtpExpired' => 1]);
 			$status = DB::table(self::getCurrFYDB() . 'tbl_sms_otps')->insert($Ndata);
 			if ($status) {
-				$TextLocal = new TextLocal();
-				$result = $TextLocal->sendOTP($MobNo, $Message);
+				// Use SMSAlert provider only; pass the full template text in $Message
+				$smsProvider = new \App\Models\SMSAlert();
+				$result = $smsProvider->sendOTP($MobNo, $Message);
 				if ($result['status']) {
 					DB::commit();
 					DocNum::updateDocNum("SMS-OTP", self::getCurrFYDB());

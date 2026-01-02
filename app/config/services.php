@@ -29,6 +29,13 @@ return [
         'key' => env('AWS_ACCESS_KEY_ID'),
         'secret' => env('AWS_SECRET_ACCESS_KEY'),
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
-    ]
+    ],
 
+    'smsalert' => [
+        'username' => env('SMSALERT_USERNAME'),
+        'password' => env('SMSALERT_PASSWORD'),
+        'sender_id' => env('SMSALERT_SENDER_ID'),
+    ],
+
+    // TextLocal removed: using SMSAlert only
 ];
