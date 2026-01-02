@@ -162,6 +162,7 @@ class VendorAPIController extends Controller{
         }
 	}
     public function MobileNoRegister(request $req){
+        logger($req);
         if(!$req->OTP){
             $OTP = Helper::getOTP(6);
             $Message = "Your RPC OTP for login is $OTP. Please enter this code to proceed.";
