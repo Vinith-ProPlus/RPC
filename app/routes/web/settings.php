@@ -72,8 +72,6 @@ Route::group(['prefix'=>'meta-data'],function (){
     Route::controller(MetaDataController::class)->group(function () {
         Route::get('/', 'view');
         Route::post('/edit/{ID}', 'Update');
-
         Route::post('/data', 'TableView');
-        Route::post('/delete/{ID}', 'Delete');
     });
 });

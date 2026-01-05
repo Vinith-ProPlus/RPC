@@ -138,41 +138,6 @@ class MetaDataController extends Controller
         }
     }
 
-
-    public function delete(Request $req, $Id)
-    {
-        if (!$this->general->isCrudAllow($this->CRUD, "delete")) {
-            return response(['status' => false, 'message' => 'Access Denied'], 403);
-        }
-
-        DB::beginTransaction();
-
-        try {
-            // Fetch data for logging BEFORE deletion
-            $oldData = DB::table('tbl_metadata')->where('Id', $Id)->first();
-
-            if (!$oldData) {
-                DB::rollback();
-                return ['status' => false, 'message' => 'Record not found'];
-            }
-
-            // HARD DELETE
-            DB::table('tbl_metadata')->where('Id', $Id)->delete();
-
-            DB::commit();
-
-            return ['status' => true, 'message' => 'Meta Data Deleted Permanently'];
-
-        } catch (\Exception $e) {
-            DB::rollback();
-            logger("Error in MetaDataController@delete: " . $e->getMessage());
-
-            return ['status' => false, 'message' => 'Meta Data Delete Failed'];
-        }
-    }
-
-
-
     public function TableView(Request $req)
     {
         if ($this->general->isCrudAllow($this->CRUD, "view")) {
