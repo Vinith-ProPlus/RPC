@@ -58,7 +58,7 @@
                                     <thead>
                                         <tr>
                                             <th>ID</th>
-                                            <th>Category</th>
+                                            <th id="thName">Name</th>
                                             <th class="text-center">Title</th>
                                             <th class="text-center noExport">Description</th>
                                             <th class="text-center noExport">Action</th>
@@ -101,6 +101,21 @@
                     let filterOptions = {
                         ActiveStatus: $('#lstFActiveStatus').val(),
                     }
+                    
+                    // Update table header based on selected content type
+                    const contentType = $('#lstFActiveStatus').val();
+                    let headerName = 'Name';
+                    if (contentType === 'category') {
+                        headerName = 'Category';
+                    } else if (contentType === 'sub-category') {
+                        headerName = 'Sub Category';
+                    } else if (contentType === 'products') {
+                        headerName = 'Product Slug';
+                    } else if (contentType === 'home-content') {
+                        headerName = 'Page';
+                    }
+                    $('#thName').text(headerName);
+                    
                     tblMetadata = $('#tblMetadata').dataTable({
                         bProcessing: true,
                         bServerSide: true,
@@ -185,9 +200,15 @@
                             @endif
                         ],
                         columnDefs: [{
-                            "className": "dt-center",
-                            "targets": [2, 3]
-                        }, ]
+                                targets: [0],
+                                visible: false,
+                                searchable: false
+                            },
+                            {
+                                "className": "dt-center",
+                                "targets": [2, 3]
+                            },
+                        ]
                     });
                 @endif
             }
@@ -198,9 +219,10 @@
                 let ID = $(this).data('id') || null;
                 let row = $(this).closest('tr');
 
-                let pageId = row.find('td').eq(0).text().trim();
+                let pageId = $(this).data('page-id');
                 let title = row.find('.meta-title').val();
                 let description = row.find('.meta-description').val();
+                let isHomeContent = $('#lstFActiveStatus').val() === 'home-content' ? 1 : 0;
 
                 $.ajax({
                     type: "POST",
@@ -211,7 +233,8 @@
                     data: {
                         page_id: pageId,
                         meta_title: title,
-                        meta_description: description
+                        meta_description: description,
+                        is_home_content: isHomeContent
                     },
                     dataType: "json",
                     success: function(response) {
@@ -231,51 +254,6 @@
                 });
             });
 
-            $(document).on('click', '.btnDelete', function() {
-                let ID = $(this).attr('data-id');
-                swal({
-                        title: "Are you sure?",
-                        text: "You want Delete this Country!",
-                        type: "warning",
-                        showCancelButton: true,
-                        confirmButtonClass: "btn-outline-danger",
-                        confirmButtonText: "Yes, Delete it!",
-                        closeOnConfirm: false
-                    },
-                    function() {
-                        swal.close();
-                        $.ajax({
-                            type: "post",
-                            url: "{{ url('/') }}/admin/master/general/country/delete/" +
-                                ID,
-                            headers: {
-                                'X-CSRF-Token': $('meta[name=_token]').attr('content')
-                            },
-                            dataType: "json",
-                            success: function(response) {
-                                swal.close();
-                                if (response.status == true) {
-                                    $('#tblMetadata').DataTable().ajax.reload();
-                                    toastr.success(response.message, "Success", {
-                                        positionClass: "toast-top-right",
-                                        containerId: "toast-top-right",
-                                        showMethod: "slideDown",
-                                        hideMethod: "slideUp",
-                                        progressBar: !0
-                                    })
-                                } else {
-                                    toastr.error(response.message, "Failed", {
-                                        positionClass: "toast-top-right",
-                                        containerId: "toast-top-right",
-                                        showMethod: "slideDown",
-                                        hideMethod: "slideUp",
-                                        progressBar: !0
-                                    })
-                                }
-                            }
-                        });
-                    });
-            });
             LoadTable();
         });
     </script>

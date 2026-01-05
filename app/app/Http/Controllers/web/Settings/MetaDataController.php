@@ -62,129 +62,20 @@ class MetaDataController extends Controller
         }
     }
 
-    public function TrashView(Request $req)
-    {
-        if ($this->general->isCrudAllow($this->CRUD, "restore")) {
-            $FormData = $this->general->UserInfo;
-            $FormData['menus'] = $this->Menus;
-            $FormData['crud'] = $this->CRUD;
-            $FormData['ActiveMenuName'] = $this->ActiveMenuName;
-            $FormData['PageTitle'] = $this->PageTitle;
-            return view('app.settings.chat-suggestions.trash', $FormData);
-        } elseif ($this->general->isCrudAllow($this->CRUD, "view")) {
-            return Redirect::to('/admin/settings/chat-suggestions/');
-        } else {
-            return view('errors.403');
-        }
-    }
-
-    public function create(Request $req)
-    {
-        if ($this->general->isCrudAllow($this->CRUD, "add")) {
-            $FormData = $this->general->UserInfo;
-            $FormData['menus'] = $this->Menus;
-            $FormData['crud'] = $this->CRUD;
-            $FormData['ActiveMenuName'] = $this->ActiveMenuName;
-            $FormData['PageTitle'] = $this->PageTitle;
-            $FormData['isEdit'] = false;
-            return view('app.settings.chat-suggestions.create', $FormData);
-        } elseif ($this->general->isCrudAllow($this->CRUD, "view")) {
-            return Redirect::to('/admin/settings/chat-suggestions/');
-        } else {
-            return view('errors.403');
-        }
-    }
-
-    public function edit(Request $req, $CSID)
-    {
-        if ($this->general->isCrudAllow($this->CRUD, "edit")) {
-            $FormData = $this->general->UserInfo;
-            $FormData['menus'] = $this->Menus;
-            $FormData['crud'] = $this->CRUD;
-            $FormData['ActiveMenuName'] = $this->ActiveMenuName;
-            $FormData['PageTitle'] = $this->PageTitle;
-            $FormData['isEdit'] = true;
-            $FormData['CSID'] = $CSID;
-            $FormData['EditData'] = DB::Table('tbl_chat_suggestions')->where('DFlag', 0)->Where('CSID', $CSID)->get();
-            if (count($FormData['EditData']) > 0) {
-                return view('app.settings.chat-suggestions.create', $FormData);
-            } else {
-                return view('errors.403');
-            }
-        } elseif ($this->general->isCrudAllow($this->CRUD, "view")) {
-            return Redirect::to('/admin/settings/chat-suggestions/');
-        } else {
-            return view('errors.403');
-        }
-    }
-
-    public function save(Request $req)
-    {
-        if ($this->general->isCrudAllow($this->CRUD, "add")) {
-            $OldData = [];
-            $NewData = [];
-            $CSID = "";
-            $rules = [
-                'Question' => ['required', 'min:3', 'max:100', new ValidUnique(["TABLE" => 'tbl_chat_suggestions', "WHERE" => " Question='" . $req->Question . "' "], "This Question is already taken.")],
-                'Answer' => ['required', 'min:3'],
-            ];
-            $message = [];
-            $validator = Validator::make($req->all(), $rules, $message);
-
-            if ($validator->fails()) {
-                return ['status' => false, 'message' => "Chat suggestion Create Failed", 'errors' => $validator->errors()];
-            }
-            DB::beginTransaction();
-            $status = false;
-            try {
-                $CSID = DocNum::getDocNum(docTypes::ChatSuggestions->value);
-                $data = [
-                    "CSID" => $CSID,
-                    "Question" => $req->Question,
-                    "Answer" => $req->Answer,
-                    "ActiveStatus" => $req->ActiveStatus,
-                    "CreatedBy" => $this->UserID,
-                    "CreatedOn" => date("Y-m-d H:i:s")
-                ];
-                $status = DB::Table('tbl_chat_suggestions')->insert($data);
-            } catch (Exception $e) {
-                logger("Error in ChatSuggestionsController@save: " . $e->getMessage());
-                $status = false;
-            }
-
-            if ($status == true) {
-                DocNum::updateDocNum(docTypes::ChatSuggestions->value);
-                $NewData = DB::table('tbl_chat_suggestions')->where('CSID', $CSID)->get();
-                $logData = ["Description" => "New Chat Suggestion Created", "ModuleName" => $this->ActiveMenuName, "Action" => cruds::ADD->value, "ReferID" => $CSID, "OldData" => $OldData, "NewData" => $NewData, "UserID" => $this->UserID, "IP" => $req->ip()];
-                logs::Store($logData);
-                DB::commit();
-                return ['status' => true, 'message' => "Chat Suggestion Created Successfully"];
-            } else {
-                DB::rollback();
-                return ['status' => false, 'message' => "Chat Suggestion Create Failed"];
-            }
-        } else {
-            return ['status' => false, 'message' => 'Access denied'];
-        }
-    }
-
-
-    public function update(Request $req, $Id = null)
+    public function update(Request $req)
     {
         if (!$this->general->isCrudAllow($this->CRUD, "edit")) {
             return ['status' => false, 'message' => 'Access denied'];
         }
 
-        $rules = [
+        $validator = Validator::make($req->all(), [
             'page_id' => 'required',
-        ];
-
-        $validator = Validator::make($req->all(), $rules);
+        ]);
 
         if ($validator->fails()) {
             return [
                 'status' => false,
-                'message' => "Meta data Update Failed",
+                'message' => 'Validation failed',
                 'errors' => $validator->errors()
             ];
         }
@@ -192,84 +83,146 @@ class MetaDataController extends Controller
         DB::beginTransaction();
 
         try {
-            // Check if record exists
-            $exists = DB::table('tbl_metadata')->where('Id', $Id)->exists();
+            // CHECK BY PageId (THIS IS THE KEY FIX)
+            $existing = DB::table('tbl_metadata')
+                ->where('PageId', $req->page_id)
+                ->first();
 
-            // Generate new ID only if inserting
-            if (!$exists) {
-                $Id = DocNum::getDocNum(docTypes::MetaData->value);
-            }
+            // If exists, reuse Id. Else create new one
+            $Id = $existing
+                ? $existing->Id
+                : DocNum::getDocNum(docTypes::MetaData->value);
 
-            $oldData = $exists
-                ? DB::table('tbl_metadata')->where('Id', $Id)->get()
-                : [];
+            $oldData = $existing ? [$existing] : [];
 
             $data = [
-                "Id" => $Id,
-                "PageId" => $req->page_id,
-                "MetaTitle" => $req->meta_title,
-                "MetaDescription" => $req->meta_description,
-                "IsHomeContent" => 1,
-                "UpdatedBy" => $this->UserID,
-                "UpdatedOn" => now()
+                'Id' => $Id,
+                'PageId' => $req->page_id,
+                'MetaTitle' => $req->meta_title,
+                'MetaDescription' => $req->meta_description,
+                'IsHomeContent' => $req->is_home_content ?? 0,
+                'UpdatedBy' => $this->UserID,
+                'UpdatedOn' => now()
             ];
 
             DB::table('tbl_metadata')->updateOrInsert(
-                ['Id' => $Id],
+                ['PageId' => $req->page_id],
                 $data
             );
 
-            if (!$exists) {
+            if (!$existing) {
                 DocNum::updateDocNum(docTypes::MetaData->value);
             }
 
-            $newData = DB::table('tbl_metadata')->where('Id', $Id)->get();
-
-            logs::Store([
-                "Description" => $exists ? "Meta Data Updated" : "Meta Data Created",
-                "ModuleName" => $this->ActiveMenuName,
-                "Action" => $exists ? cruds::UPDATE->value : cruds::CREATE->value,
-                "ReferID" => $Id,
-                "OldData" => $oldData,
-                "NewData" => $newData,
-                "UserID" => $this->UserID,
-                "IP" => $req->ip()
-            ]);
+            $newData = DB::table('tbl_metadata')
+                ->where('PageId', $req->page_id)
+                ->get();
 
             DB::commit();
 
             return [
                 'status' => true,
-                'message' => $exists
-                    ? "Meta Data Updated Successfully"
-                    : "Meta Data Created Successfully"
+                'message' => $existing
+                    ? 'Meta Data Updated Successfully'
+                    : 'Meta Data Created Successfully'
             ];
 
         } catch (\Exception $e) {
             DB::rollback();
-            logger("Error in MetaDataController@update: " . $e->getMessage());
+            logger($e->getMessage());
 
             return [
                 'status' => false,
-                'message' => "Meta Data Operation Failed"
+                'message' => 'Operation failed'
             ];
         }
     }
 
+
+    public function delete(Request $req, $Id)
+    {
+        if (!$this->general->isCrudAllow($this->CRUD, "delete")) {
+            return response(['status' => false, 'message' => 'Access Denied'], 403);
+        }
+
+        DB::beginTransaction();
+
+        try {
+            // Fetch data for logging BEFORE deletion
+            $oldData = DB::table('tbl_metadata')->where('Id', $Id)->first();
+
+            if (!$oldData) {
+                DB::rollback();
+                return ['status' => false, 'message' => 'Record not found'];
+            }
+
+            // HARD DELETE
+            DB::table('tbl_metadata')->where('Id', $Id)->delete();
+
+            DB::commit();
+
+            return ['status' => true, 'message' => 'Meta Data Deleted Permanently'];
+
+        } catch (\Exception $e) {
+            DB::rollback();
+            logger("Error in MetaDataController@delete: " . $e->getMessage());
+
+            return ['status' => false, 'message' => 'Meta Data Delete Failed'];
+        }
+    }
+
+
+
     public function TableView(Request $req)
     {
         if ($this->general->isCrudAllow($this->CRUD, "view")) {
-            $columns = [
-                ['db' => 'C.PCID', 'dt' => '0'],
-                ['db' => 'C.PCName', 'dt' => '1'],
-                ['db' => 'M.MetaTitle', 'dt' => '2'],
-                ['db' => 'M.MetaDescription', 'dt' => '3'],
-                ['db' => 'M.Id', 'dt' => '4'],
-                ['db' => 'M.IsHomeContent', 'dt' => '5'],
-            ];
+            $contentType = $req->input('ActiveStatus', 'home-content');
+            
+            // Define columns and table based on content type
+            if ($contentType === 'category') {
+                $columns = [
+                    ['db' => 'C.PCID', 'dt' => '0'],
+                    ['db' => 'C.PCName', 'dt' => '1'],
+                    ['db' => 'M.MetaTitle', 'dt' => '2'],
+                    ['db' => 'M.MetaDescription', 'dt' => '3'],
+                    ['db' => 'M.Id', 'dt' => '4'],
+                ];
+                $table = 'tbl_product_category AS C LEFT JOIN tbl_metadata AS M ON C.PCID = M.PageId';
+                $primaryKey = 'C.PCID';
+                $where = " C.DFlag=0 ";
+                $idField = 'PCID';
+            } elseif ($contentType === 'sub-category') {
+                $columns = [
+                    ['db' => 'SC.PSCID', 'dt' => '0'],
+                    ['db' => 'SC.PSCName', 'dt' => '1'],
+                    ['db' => 'M.MetaTitle', 'dt' => '2'],
+                    ['db' => 'M.MetaDescription', 'dt' => '3'],
+                    ['db' => 'M.Id', 'dt' => '4'],
+                ];
+                $table = 'tbl_product_subcategory AS SC LEFT JOIN tbl_metadata AS M ON SC.PSCID = M.PageId';
+                $primaryKey = 'SC.PSCID';
+                $where = " SC.DFlag=0 ";
+                $idField = 'PSCID';
+            } elseif ($contentType === 'products') {
+                $columns = [
+                    ['db' => 'P.ProductID', 'dt' => '0'],
+                    ['db' => 'P.Slug', 'dt' => '1'],
+                    ['db' => 'M.MetaTitle', 'dt' => '2'],
+                    ['db' => 'M.MetaDescription', 'dt' => '3'],
+                    ['db' => 'M.Id', 'dt' => '4'],
+                ];
+                $table = 'tbl_products AS P LEFT JOIN tbl_metadata AS M ON P.ProductID = M.PageId';
+                $primaryKey = 'P.ProductID';
+                $where = " P.DFlag=0 ";
+                $idField = 'ProductID';
+            } else { // home-content
+                // Handle home content specially
+                return $this->getHomeContentData($req);
+            }
+
             $columns1 = [
-                ['db' => 'PCID', 'dt' => '0'],
-                ['db' => 'PCName', 'dt' => '1'],
+                ['db' => $idField, 'dt' => '0'],
+                ['db' => $idField === 'PCID' ? 'PCName' : ($idField === 'PSCID' ? 'PSCName' : 'Slug'), 'dt' => '1'],
                 [
                     'db' => 'MetaTitle',
                     'dt' => '2',
@@ -282,36 +235,80 @@ class MetaDataController extends Controller
                     'db' => 'MetaDescription',
                     'dt' => '3',
                     'formatter' => function ($d, $row) {
-                        $html = '<textarea class="form-control meta-description">' . $d . '</textarea>';
+                        $html = '<textarea class="form-control meta-description" rows="1">' . $d . '</textarea>';
                         return $html;
                     }
                 ],
                 [
                     'db' => 'Id',
                     'dt' => '4',
-                    'formatter' => function ($d, $row) {
-                        $html = '';
+                    'formatter' => function ($d, $row) use ($idField) {
+                        $html = '<div class="d-flex justify-content-center">';
                         if ($this->general->isCrudAllow($this->CRUD, "edit")) {
-                            $html .= '<button type="button" data-id="' . $d . '" class="btn btn-edit btn-outline-success ' . $this->general->UserInfo['Theme']['button-size'] . ' m-5 mr-10 btnEdit" data-original-title="Edit">Save</button>';
+                            $pageId = $row[$idField];
+                            $html .= '<button type="button" data-id="' . $d . '" data-page-id="' . $pageId . '" class="btn btn-edit btn-outline-success ' . $this->general->UserInfo['Theme']['button-size'] . ' m-5 mr-10 btnEdit" title="Save" data-original-title="Save"><i class="fa fa-save" aria-hidden="true"></i></button>';
                         }
+                        $html .= "</div>";
                         return $html;
                     }
                 ]
             ];
-            $Where = " DFlag=0 ";
+
             $data = [];
             $data['POSTDATA'] = $req;
-            $data['TABLE'] = 'tbl_product_category AS C LEFT JOIN tbl_metadata AS M ON C.PCID = M.PageId';
-            $data['PRIMARYKEY'] = 'C.PCID';
+            $data['TABLE'] = $table;
+            $data['PRIMARYKEY'] = $primaryKey;
             $data['COLUMNS'] = $columns;
             $data['COLUMNS1'] = $columns1;
             $data['GROUPBY'] = null;
             $data['WHERERESULT'] = null;
-            $data['WHEREALL'] = $Where;
+            $data['WHEREALL'] = $where;
             return SSP::SSP($data);
         } else {
             return response(['status' => false, 'message' => "Access Denied"], 403);
         }
     }
 
+    private function getHomeContentData(Request $req)
+    {
+        $homePages = [
+            ['PageId' => 'home', 'Title' => 'Home'],
+            ['PageId' => 'about-us', 'Title' => 'About Us'],
+            ['PageId' => 'contact-us', 'Title' => 'Contact Us'],
+        ];
+
+        $data = [];
+        foreach ($homePages as $page) {
+            $metadata = DB::table('tbl_metadata')->where('PageId', $page['PageId'])->first();
+            
+            // Format input field for MetaTitle
+            $titleInput = '<input class="form-control meta-title" type="text" value="' . ($metadata->MetaTitle ?? '') . '">';
+            
+            // Format textarea for MetaDescription
+            $descriptionInput = '<textarea class="form-control meta-description" rows="1">' . ($metadata->MetaDescription ?? '') . '</textarea>';
+            
+            // Format action button
+            $actionButton = '<div class="d-flex justify-content-center">';
+            if ($this->general->isCrudAllow($this->CRUD, "edit")) {
+                $actionButton .= '<button type="button" data-id="' . ($metadata->Id ?? '') . '" data-page-id="' . $page['PageId'] . '" class="btn btn-edit btn-outline-success ' . $this->general->UserInfo['Theme']['button-size'] . ' m-5 mr-10 btnEdit" title="Save" data-original-title="Save"><i class="fa fa-save" aria-hidden="true"></i></button>';
+            }
+            $actionButton .= '</div>';
+            
+            // Data array must be indexed by column position (dt value)
+            $data[] = [
+                $page['PageId'],        // dt: 0 - PageId
+                $page['Title'],         // dt: 1 - Title
+                $titleInput,            // dt: 2 - MetaTitle (formatted as input)
+                $descriptionInput,      // dt: 3 - MetaDescription (formatted as textarea)
+                $actionButton,          // dt: 4 - Action buttons
+            ];
+        }
+
+        return response()->json([
+            'draw' => intval($req->input('draw', 0)),
+            'recordsTotal' => count($data),
+            'recordsFiltered' => count($data),
+            'data' => $data
+        ]);
+    }
 }

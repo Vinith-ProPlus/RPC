@@ -71,15 +71,9 @@ Route::group(['prefix'=>'chat-suggestions'],function (){
 Route::group(['prefix'=>'meta-data'],function (){
     Route::controller(MetaDataController::class)->group(function () {
         Route::get('/', 'view');
-        // Route::get('/trash', 'TrashView');
-        // Route::get('/create', 'Create');
         Route::post('/edit/{ID}', 'Update');
 
         Route::post('/data', 'TableView');
-        // Route::post('/create', 'Save');
-        // Route::POST('/edit/{ID}', 'Update');
-        // Route::POST('/delete/{ID}', 'Delete');
-        // Route::POST('/restore/{ID}', 'Restore');
-        // Route::post('/trash-data', 'TrashTableView');
+        Route::post('/delete/{ID}', 'Delete');
     });
 });
