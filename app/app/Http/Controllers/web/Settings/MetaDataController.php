@@ -120,11 +120,13 @@ class MetaDataController extends Controller
 
             DB::commit();
 
+            $updated_content = $req->updated_content;
+
             return [
                 'status' => true,
                 'message' => $existing
-                    ? 'Meta Data Updated Successfully'
-                    : 'Meta Data Created Successfully'
+                    ? 'Meta Data for '.$updated_content.' Updated Successfully'
+                    : 'Meta Data for '.$updated_content.' Created Successfully'
             ];
 
         } catch (\Exception $e) {

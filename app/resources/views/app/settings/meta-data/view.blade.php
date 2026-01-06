@@ -24,18 +24,6 @@
                             <div class="col-sm-4 my-2">
                                 <h5>{{ $PageTitle }}</h5>
                             </div>
-                            <div class="col-sm-4 my-2 text-right text-md-right">
-                                @if ($crud['restore'] == 1)
-                                    <a href="{{ url('/') }}/admin/master/general/country/trash"
-                                        class="btn  btn-outline-dark {{ $Theme['button-size'] }} m-r-10" type="button">
-                                        Trash </a>
-                                @endif
-                                @if ($crud['add'] == 1)
-                                    <a href="{{ url('/') }}/admin/master/general/country/create"
-                                        class="btn  btn-outline-success btn-air-success {{ $Theme['button-size'] }}"
-                                        type="button">Create</a>
-                                @endif
-                            </div>
                         </div>
                     </div>
                     <div class="card-body">
@@ -138,66 +126,6 @@
                         ],
                         buttons: [
                             'pageLength'
-                            @if ($crud['excel'] == 1)
-                                , {
-                                    extend: 'excel',
-                                    className: "{{ $Theme['button-size'] }}",
-                                    footer: true,
-                                    title: "{{ $PageTitle }}",
-                                    action: DataTableExportOption,
-                                    exportOptions: {
-                                        columns: "thead th:not(.noExport)"
-                                    }
-                                }
-                            @endif
-                            @if ($crud['copy'] == 1)
-                                , {
-                                    extend: 'copy',
-                                    className: "{{ $Theme['button-size'] }}",
-                                    footer: true,
-                                    title: "{{ $PageTitle }}",
-                                    "action": DataTableExportOption,
-                                    exportOptions: {
-                                        columns: "thead th:not(.noExport)"
-                                    }
-                                }
-                            @endif
-                            @if ($crud['csv'] == 1)
-                                , {
-                                    extend: 'csv',
-                                    className: "{{ $Theme['button-size'] }}",
-                                    footer: true,
-                                    title: "{{ $PageTitle }}",
-                                    "action": DataTableExportOption,
-                                    exportOptions: {
-                                        columns: "thead th:not(.noExport)"
-                                    }
-                                }
-                            @endif
-                            @if ($crud['print'] == 1)
-                                , {
-                                    extend: 'print',
-                                    className: "{{ $Theme['button-size'] }}",
-                                    footer: true,
-                                    title: "{{ $PageTitle }}",
-                                    "action": DataTableExportOption,
-                                    exportOptions: {
-                                        columns: "thead th:not(.noExport)"
-                                    }
-                                }
-                            @endif
-                            @if ($crud['pdf'] == 1)
-                                , {
-                                    extend: 'pdf',
-                                    className: "{{ $Theme['button-size'] }}",
-                                    footer: true,
-                                    title: "{{ $PageTitle }}",
-                                    "action": DataTableExportOption,
-                                    exportOptions: {
-                                        columns: "thead th:not(.noExport)"
-                                    }
-                                }
-                            @endif
                         ],
                         columnDefs: [{
                                 targets: [0],
@@ -220,6 +148,7 @@
                 let row = $(this).closest('tr');
 
                 let pageId = $(this).data('page-id');
+                let content = row.find('td:first').text();
                 let title = row.find('.meta-title').val();
                 let description = row.find('.meta-description').val();
                 let isHomeContent = $('#lstFActiveStatus').val() === 'home-content' ? 1 : 0;
@@ -234,7 +163,8 @@
                         page_id: pageId,
                         meta_title: title,
                         meta_description: description,
-                        is_home_content: isHomeContent
+                        is_home_content: isHomeContent,
+                        updated_content: content
                     },
                     dataType: "json",
                     success: function(response) {
