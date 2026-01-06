@@ -10,7 +10,8 @@
     <title>{{$Company['CompanyName']}}</title>
 
     <meta name="keywords" content="HTML5 Template"/>
-    <meta name="description" content="{{$Company['CompanyName']}}">
+    <meta name="title" content="{{ $MetaData?->MetaTitle ?? $Company['CompanyName'] }}">
+    <meta name="description" content="{{ $MetaData?->MetaDescription ?? $Company['CompanyName'] }}">
     <meta name="author" content="SW-THEMES">
 
     <!-- Favicon -->

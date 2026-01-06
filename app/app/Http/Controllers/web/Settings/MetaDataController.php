@@ -192,7 +192,7 @@ class MetaDataController extends Controller
                     'db' => 'MetaTitle',
                     'dt' => '2',
                     'formatter' => function ($d, $row) {
-                        $html = '<input class="form-control meta-title" type="text" value="' . $d . '">';
+                        $html = '<input class="form-control meta-title" type="text" value="' . $d . '" style="border: 1px solid #ced4da;">';
                         return $html;
                     }
                 ],
@@ -239,7 +239,12 @@ class MetaDataController extends Controller
         $homePages = [
             ['PageId' => 'home', 'Title' => 'Home'],
             ['PageId' => 'about-us', 'Title' => 'About Us'],
+            ['PageId' => 'terms-conditions', 'Title' => 'Terms-Conditions'],
+            ['PageId' => 'privacy-policy', 'Title' => 'Privacy Policy'],
             ['PageId' => 'contact-us', 'Title' => 'Contact Us'],
+            ['PageId' => 'return-policy', 'Title' => 'Return Policy'],
+            ['PageId' => 'products', 'Title' => 'Products'],
+            ['PageId' => 'category-list', 'Title' => 'Categories'],
         ];
 
         $data = [];
@@ -247,7 +252,7 @@ class MetaDataController extends Controller
             $metadata = DB::table('tbl_metadata')->where('PageId', $page['PageId'])->first();
             
             // Format input field for MetaTitle
-            $titleInput = '<input class="form-control meta-title" type="text" value="' . ($metadata->MetaTitle ?? '') . '">';
+            $titleInput = '<input class="form-control meta-title" type="text" value="' . ($metadata->MetaTitle ?? '') . '" style="border: 1px solid #ced4da;">';
             
             // Format textarea for MetaDescription
             $descriptionInput = '<textarea class="form-control meta-description" rows="1">' . ($metadata->MetaDescription ?? '') . '</textarea>';

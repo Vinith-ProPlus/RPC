@@ -43,6 +43,7 @@ class HomeController extends Controller{
     }
     public function GuestView(Request $req){
         $FormData['Company']=$this->Company;
+        $FormData['MetaData']=DB::table('tbl_metadata')->where('PageId', 'home')->first();
         $FormData['Banners'] = DB::Table('tbl_banner_images')->where('BannerType', 'Web')->where('DFlag', 0)
             ->select('BannerTitle', 'BannerType', DB::raw('CONCAT("' . url('/') . '/", BannerImage) AS BannerImage'))->get();
         $FormData['steppers'] = DB::Table('tbl_stepper_images')->where('StepperType', 'Web')->where('DFlag', 0)->orderBy('TranNo')
@@ -196,6 +197,7 @@ class HomeController extends Controller{
         $FormData['isEdit'] = false;
         $FormData['Cart'] = [];
         $FormData['Company']=$this->Company;
+        $FormData['MetaData']=DB::table('tbl_metadata')->where('PageId', $Slug)->first();
         $PCatagories = DB::Table('tbl_product_category')->where('ActiveStatus', 'Active')->where('DFlag', 0)
             ->inRandomOrder()->take(10)->get();
         foreach ($PCatagories as $row) {
@@ -260,6 +262,7 @@ class HomeController extends Controller{
         $FormData['isRegister'] = false;
         $FormData['Cart'] = [];
         $FormData['Company']=$this->Company;
+        $FormData['MetaData']=DB::table('tbl_metadata')->where('PageId', 'products')->first();
         $FormData['ServiceProvided'] = DB::table('tbl_service_provided')->where('ActiveStatus','Active')->where('DFlag',0)->get();
         $FormData['ConServiceCategories'] = DB::table('tbl_construction_service_category')->where('ActiveStatus','Active')->where('DFlag',0)->get();
         $FormData['AndroidAppUrl'] = DB::table('tbl_settings')->where('KeyName','android-app-url')->value('KeyValue');
@@ -688,6 +691,7 @@ class HomeController extends Controller{
         $FormData['isRegister'] = false;
         $FormData['Cart'] = [];
         $FormData['Company']=$this->Company;
+        $FormData['MetaData']=DB::table('tbl_metadata')->where('PageId', 'category-list')->first();
         $FormData['ServiceProvided'] = DB::table('tbl_service_provided')->where('ActiveStatus','Active')->where('DFlag',0)->get();
         $FormData['ConServiceCategories'] = DB::table('tbl_construction_service_category')->where('ActiveStatus','Active')->where('DFlag',0)->get();
         $FormData['AndroidAppUrl'] = DB::table('tbl_settings')->where('KeyName','android-app-url')->value('KeyValue');
@@ -792,6 +796,7 @@ class HomeController extends Controller{
         $FormData['isRegister'] = false;
         $FormData['Cart'] = [];
         $FormData['Company']=$this->Company;
+        $FormData['MetaData']=DB::table('tbl_metadata')->where('PageId', $request->CID ?? '0')->first();
         $FormData['ServiceProvided'] = DB::table('tbl_service_provided')->where('ActiveStatus','Active')->where('DFlag',0)->get();
         $FormData['ConServiceCategories'] = DB::table('tbl_construction_service_category')->where('ActiveStatus','Active')->where('DFlag',0)->get();
         $FormData['AndroidAppUrl'] = DB::table('tbl_settings')->where('KeyName','android-app-url')->value('KeyValue');
@@ -909,6 +914,7 @@ class HomeController extends Controller{
         $FormData['isRegister'] = false;
         $FormData['Cart'] = [];
         $FormData['Company']=$this->Company;
+        $FormData['MetaData']=DB::table('tbl_metadata')->where('PageId', $request->SCID ?? '0')->first();
         return view('home.guest.products-list', $FormData);
     }
 
@@ -1063,6 +1069,7 @@ class HomeController extends Controller{
             $FormData['isRegister'] = false;
             $FormData['Cart'] = [];
             $FormData['Company'] = $this->Company;
+            $FormData['MetaData']=DB::table('tbl_metadata')->where('PageId', $ProductID)->first();
             $FormData['ServiceProvided'] = DB::table('tbl_service_provided')->where('ActiveStatus', 'Active')->where('DFlag', 0)->get();
             $FormData['ConServiceCategories'] = DB::table('tbl_construction_service_category')->where('ActiveStatus', 'Active')->where('DFlag', 0)->get();
             $FormData['AndroidAppUrl'] = DB::table('tbl_settings')->where('KeyName', 'android-app-url')->value('KeyValue');
