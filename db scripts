@@ -467,8 +467,8 @@ ALTER TABLE `tbl_cruds`
 COMMIT;
 
 -- Fri  2 Jan 11:51:06 IST 2026
-INSERT INTO `tbl_menus` (`MID`, `Slug`, `MenuName`, `ActiveName`, `Icon`, `PageUrl`, `ParentID`, `Level`, `hasSubMenu`, `Ordering`, `isCheckSetting`, `SettingsName`, `DefaultOrdering`, `ActiveStatus`, `DFlag`, `UpdatedOn`, `UpdatedBy`) VALUES ('M2023-0000071', 'meta-data', 'Meta Data', 'Meta-Data', NULL, 'admin/settings/meta-data', 'M2023-0000007', 'L002', '0', '6', '0', NULL, '1', '1', '0', '2022-12-06 19:49:35', NULL);
-INSERT INTO `tbl_cruds` (`MID`, `add`, `view`, `edit`, `delete`, `copy`, `excel`, `csv`, `print`, `pdf`, `restore`, `showpwd`) VALUES ('M2023-0000071', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '0'); 
+INSERT INTO `tbl_menus` (`MID`, `Slug`, `MenuName`, `ActiveName`, `Icon`, `PageUrl`, `ParentID`, `Level`, `hasSubMenu`, `Ordering`, `isCheckSetting`, `SettingsName`, `DefaultOrdering`, `ActiveStatus`, `DFlag`, `UpdatedOn`, `UpdatedBy`) VALUES ('M2023-0000072', 'meta-data', 'Meta Data', 'Meta-Data', NULL, 'admin/settings/meta-data', 'M2023-0000007', 'L002', '0', '6', '0', NULL, '1', '1', '0', '2022-12-06 19:49:35', NULL);
+INSERT INTO `tbl_cruds` (`MID`, `add`, `view`, `edit`, `delete`, `copy`, `excel`, `csv`, `print`, `pdf`, `restore`, `showpwd`) VALUES ('M2023-0000072', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '0'); 
 
 CREATE TABLE `tbl_metadata` (
   `Id` varchar(20) NOT NULL,
@@ -480,5 +480,7 @@ CREATE TABLE `tbl_metadata` (
   `UpdatedOn` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 COMMIT;
+
+ALTER TABLE `tbl_metadata` ADD `MetaKeyword` TEXT NULL AFTER `PageId`; 
 
 INSERT INTO `tbl_docnum` (`SLNO`, `DocType`, `Prefix`, `Length`, `CurrNum`, `Suffix`, `Year`) VALUES (NULL, 'Meta-Data', 'MD', '7', '1', NULL, ''); 

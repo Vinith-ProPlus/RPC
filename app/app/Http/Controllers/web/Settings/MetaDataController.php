@@ -98,6 +98,7 @@ class MetaDataController extends Controller
             $data = [
                 'Id' => $Id,
                 'PageId' => $req->page_id,
+                'MetaKeyword' => $req->meta_keyword,
                 'MetaTitle' => $req->meta_title,
                 'MetaDescription' => $req->meta_description,
                 'IsHomeContent' => $req->is_home_content ?? 0,
@@ -150,9 +151,10 @@ class MetaDataController extends Controller
                 $columns = [
                     ['db' => 'C.PCID', 'dt' => '0'],
                     ['db' => 'C.PCName', 'dt' => '1'],
-                    ['db' => 'M.MetaTitle', 'dt' => '2'],
-                    ['db' => 'M.MetaDescription', 'dt' => '3'],
-                    ['db' => 'M.Id', 'dt' => '4'],
+                    ['db' => 'M.MetaKeyword', 'dt' => '2'],
+                    ['db' => 'M.MetaTitle', 'dt' => '3'],
+                    ['db' => 'M.MetaDescription', 'dt' => '4'],
+                    ['db' => 'M.Id', 'dt' => '5'],
                 ];
                 $table = 'tbl_product_category AS C LEFT JOIN tbl_metadata AS M ON C.PCID = M.PageId';
                 $primaryKey = 'C.PCID';
@@ -162,9 +164,10 @@ class MetaDataController extends Controller
                 $columns = [
                     ['db' => 'SC.PSCID', 'dt' => '0'],
                     ['db' => 'SC.PSCName', 'dt' => '1'],
-                    ['db' => 'M.MetaTitle', 'dt' => '2'],
-                    ['db' => 'M.MetaDescription', 'dt' => '3'],
-                    ['db' => 'M.Id', 'dt' => '4'],
+                    ['db' => 'M.MetaKeyword', 'dt' => '2'],
+                    ['db' => 'M.MetaTitle', 'dt' => '3'],
+                    ['db' => 'M.MetaDescription', 'dt' => '4'],
+                    ['db' => 'M.Id', 'dt' => '5'],
                 ];
                 $table = 'tbl_product_subcategory AS SC LEFT JOIN tbl_metadata AS M ON SC.PSCID = M.PageId';
                 $primaryKey = 'SC.PSCID';
@@ -174,9 +177,10 @@ class MetaDataController extends Controller
                 $columns = [
                     ['db' => 'P.ProductID', 'dt' => '0'],
                     ['db' => 'P.Slug', 'dt' => '1'],
-                    ['db' => 'M.MetaTitle', 'dt' => '2'],
-                    ['db' => 'M.MetaDescription', 'dt' => '3'],
-                    ['db' => 'M.Id', 'dt' => '4'],
+                    ['db' => 'M.MetaKeyword', 'dt' => '2'],
+                    ['db' => 'M.MetaTitle', 'dt' => '3'],
+                    ['db' => 'M.MetaDescription', 'dt' => '4'],
+                    ['db' => 'M.Id', 'dt' => '5'],
                 ];
                 $table = 'tbl_products AS P LEFT JOIN tbl_metadata AS M ON P.ProductID = M.PageId';
                 $primaryKey = 'P.ProductID';
@@ -191,8 +195,16 @@ class MetaDataController extends Controller
                 ['db' => $idField, 'dt' => '0'],
                 ['db' => $idField === 'PCID' ? 'PCName' : ($idField === 'PSCID' ? 'PSCName' : 'Slug'), 'dt' => '1'],
                 [
-                    'db' => 'MetaTitle',
+                    'db' => 'MetaKeyword',
                     'dt' => '2',
+                    'formatter' => function ($d, $row) {
+                        $html = '<input class="form-control meta-keyword" type="text" value="' . $d . '" style="border: 1px solid #ced4da;">';
+                        return $html;
+                    }
+                ],
+                [
+                    'db' => 'MetaTitle',
+                    'dt' => '3',
                     'formatter' => function ($d, $row) {
                         $html = '<input class="form-control meta-title" type="text" value="' . $d . '" style="border: 1px solid #ced4da;">';
                         return $html;
@@ -200,7 +212,7 @@ class MetaDataController extends Controller
                 ],
                 [
                     'db' => 'MetaDescription',
-                    'dt' => '3',
+                    'dt' => '4',
                     'formatter' => function ($d, $row) {
                         $html = '<textarea class="form-control meta-description" rows="1">' . $d . '</textarea>';
                         return $html;
@@ -208,7 +220,7 @@ class MetaDataController extends Controller
                 ],
                 [
                     'db' => 'Id',
-                    'dt' => '4',
+                    'dt' => '5',
                     'formatter' => function ($d, $row) use ($idField) {
                         $html = '<div class="d-flex justify-content-center">';
                         if ($this->general->isCrudAllow($this->CRUD, "edit")) {
@@ -253,6 +265,9 @@ class MetaDataController extends Controller
         foreach ($homePages as $page) {
             $metadata = DB::table('tbl_metadata')->where('PageId', $page['PageId'])->first();
             
+            // Format input field for MetaKeyword
+            $keywordInput = '<input class="form-control meta-keyword" type="text" value="' . ($metadata->MetaKeyword ?? '') . '" style="border: 1px solid #ced4da;">';
+            
             // Format input field for MetaTitle
             $titleInput = '<input class="form-control meta-title" type="text" value="' . ($metadata->MetaTitle ?? '') . '" style="border: 1px solid #ced4da;">';
             
@@ -270,9 +285,10 @@ class MetaDataController extends Controller
             $data[] = [
                 $page['PageId'],        // dt: 0 - PageId
                 $page['Title'],         // dt: 1 - Title
-                $titleInput,            // dt: 2 - MetaTitle (formatted as input)
-                $descriptionInput,      // dt: 3 - MetaDescription (formatted as textarea)
-                $actionButton,          // dt: 4 - Action buttons
+                $keywordInput,          // dt: 2 - MetaKeyword (formatted as input)
+                $titleInput,            // dt: 3 - MetaTitle (formatted as input)
+                $descriptionInput,      // dt: 4 - MetaDescription (formatted as textarea)
+                $actionButton,          // dt: 5 - Action buttons
             ];
         }
 

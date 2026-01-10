@@ -47,6 +47,7 @@
                                         <tr>
                                             <th>ID</th>
                                             <th id="thName">Name</th>
+                                            <th class="text-center">Keyword</th>
                                             <th class="text-center">Title</th>
                                             <th class="text-center noExport">Description</th>
                                             <th class="text-center noExport">Action</th>
@@ -134,7 +135,7 @@
                             },
                             {
                                 "className": "dt-center",
-                                "targets": [2, 3]
+                                "targets": [2, 3, 4]
                             },
                         ]
                     });
@@ -149,6 +150,7 @@
 
                 let pageId = $(this).data('page-id');
                 let content = row.find('td:first').text();
+                let keyword = row.find('.meta-keyword').val();
                 let title = row.find('.meta-title').val();
                 let description = row.find('.meta-description').val();
                 let isHomeContent = $('#lstFActiveStatus').val() === 'home-content' ? 1 : 0;
@@ -161,6 +163,7 @@
                     },
                     data: {
                         page_id: pageId,
+                        meta_keyword: keyword,
                         meta_title: title,
                         meta_description: description,
                         is_home_content: isHomeContent,
