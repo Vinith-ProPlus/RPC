@@ -7,7 +7,7 @@
 				<ol class="breadcrumb">
 					<li class="breadcrumb-item"><a href="{{ url('/') }}" data-original-title="" title=""><i class="f-16 fa fa-home"></i></a></li>
 					<li class="breadcrumb-item">Vendor Master</li>
-					<li class="breadcrumb-item"><a href="{{ url('/') }}/admin/master/vendor/manage-vendors/" data-original-title="" title="">{{$PageTitle}}</a></li>
+					<li class="breadcrumb-item"><a href="{{ url('/') }}/admin/master/vendor/vendors/" data-original-title="" title="">{{$PageTitle}}</a></li>
 					<li class="breadcrumb-item">Trash</li>
 				</ol>
 			</div>
@@ -24,9 +24,9 @@
 						<div class="col-sm-4 my-2"><h5>{{$PageTitle}} Trash</h5></div>
 						<div class="col-sm-4 my-2 text-right text-md-right">
 							@if($crud['view']==1)
-								<a href="{{ url('/') }}/admin/master/vendor/manage-vendors/" class="btn  btn-outline-dark {{$Theme['button-size']}}" type="button" > Back </a>
+								<a href="{{ url('/') }}/admin/master/vendor/vendors/" class="btn  btn-outline-dark {{$Theme['button-size']}}" type="button" > Back </a>
 							@elseif($crud['add']==1)
-								<a href="{{ url('/') }}/admin/master/vendor/manage-vendors/create" class="btn  btn-outline-dark {{$Theme['button-size']}}" type="button" >Back</a> <!-- full-right -->
+								<a href="{{ url('/') }}/admin/master/vendor/vendors/create" class="btn  btn-outline-dark {{$Theme['button-size']}}" type="button" >Back</a> <!-- full-right -->
 							@endif
 						</div>
 					</div>
@@ -67,7 +67,7 @@
 			$('#tblVendors').dataTable( {
 				"bProcessing": true,
 				"bServerSide": true,
-                "ajax": {"url": "{{url('/')}}/admin/master/vendor/manage-vendors/trash-data?_token="+$('meta[name=_token]').attr('content'),"headers":{ 'X-CSRF-Token' : $('meta[name=_token]').attr('content') } ,"type": "POST"},
+                "ajax": {"url": "{{url('/')}}/admin/master/vendor/vendors/trash-data?_token="+$('meta[name=_token]').attr('content'),"headers":{ 'X-CSRF-Token' : $('meta[name=_token]').attr('content') } ,"type": "POST"},
 				deferRender: true,
 				responsive: true,
 				dom: 'Bfrtip',
@@ -103,7 +103,7 @@
                 swal.close();
             	$.ajax({
             		type:"post",
-                    url:"{{url('/')}}/admin/master/vendor/manage-vendors/restore/"+ID,
+                    url:"{{url('/')}}/admin/master/vendor/vendors/restore/"+ID,
                     headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
                     dataType:"json",
                     error:function(e, x, settings, exception){ajax_errors(e, x, settings, exception);swal.close();},

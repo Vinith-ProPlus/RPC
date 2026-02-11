@@ -63,7 +63,7 @@
 						</div>
 					</div>
 					<div class="row mt-20">
-						<div class="col-12 col-sm-12">
+						<div class="col-12 col-sm-12 overflow-auto">
 							<table class="table  {{$Theme['table-size']}} table-bordered" id="tblUserRights">
 								<thead>
 									<tr>
