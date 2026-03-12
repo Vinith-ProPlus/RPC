@@ -81,11 +81,16 @@ enum docTypes:string{
     case Withdraw="Withdraw";
     case Notification="Notification";
     case ChatSuggestions="Chat-Suggestions";
+    case MetaData="Meta-Data";
 
     //chat
     case Chat="Chat";
     case ChatMessage="Chat-Message";
-    
+
     //home updated
     case PlanningServices="Planning-Services";
+    case Services="Services-Provided";
+    case ConstructionServiceCategory="Construction-Service-Category";
+    case ConstructionServices="Construction-Services";
+    case ConstructionPlanServices="Construction-Plan-Services";
 }

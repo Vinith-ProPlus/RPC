@@ -1222,7 +1222,7 @@
             }
         }
         const tmpImageUpload=async(formData,id)=>{
-            console.log(formData);
+            // console.log(formData);
             $.ajax({
                 type: "post",
                 url: "{{url('/')}}/tmp/upload-image",
@@ -1707,17 +1707,18 @@
             return formData;
         }
         const formValidation=async(data)=>{
-            console.log(data);
             $('.errors').html('');
             let vData=JSON.parse(data.variationData)
             let status=true;
             let isGeneral=false;
-            if(data.ProductName==""){
-                $('#txtProductName-err').html('Product Name is required');status=false;
-            }else if(data.ProductName.length<2){
-                $('#txtProductName-err').html('The Product Name must be greater than 2 characters');status=false;
-            }else if(data.ProductName.length>150){
-                $('#txtProductName-err').html('The Product Name may not be greater than 150 characters');status=false;
+            if (data.ProductName == "") {
+                $('#txtProductName-err').html('Product Name is required');status = false;isGeneral=true;
+            } else if (data.ProductName.length < 2) {
+                $('#txtProductName-err').html('The Product Name must be greater than 2 characters');status = false;isGeneral=true;
+            } else if (data.ProductName.length > 150) {
+                $('#txtProductName-err').html('The Product Name may not be greater than 150 characters');status = false;isGeneral=true;
+            } else if (data.ProductName.includes("'") || data.ProductName.includes('"')) { 
+                $('#txtProductName-err').html("Product Name cannot contain single (') or double (\") quotation marks");status = false;isGeneral=true;
             }
             if(data.ProductType==""){
                 $('#lstProductType-err').html('Product Type is required');status=false;isGeneral=true;
@@ -2021,7 +2022,7 @@
                         }
                     }
                 }
-                console.log(deletedImages)
+                // console.log(deletedImages)
             }
         });
         $(document).on('change','#lstAttributes',async function(){
@@ -2221,6 +2222,8 @@
                 $('#txtProductName-err').html('The Product Name must be greater than 2 characters');status=false;
             }else if(ProductName.length>150){
                 $('#txtProductName-err').html('The Product Name may not be greater than 150 characters');status=false;
+            }else if (ProductName.includes("'") || ProductName.includes('"')) { 
+                $('#txtProductName-err').html("Product Name cannot contain single (') or double (\") quotation marks");status = false;
             }
         });
         $(document).on('click','#btnSave',async function(){

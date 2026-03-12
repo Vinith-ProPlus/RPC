@@ -11,6 +11,10 @@ enum activeMenuNames:string{
     case Stages="Stages";
     case RejectReason="Reject-Reason";
     case ConstructionType="Construction-Type";
+    case PlanningServices="Planning-Services";
+    case Services="Services";
+    case ConstructionServiceCategory="Construction-Service-Category";
+    case ConstructionServices="Construction-Services";
 
     case VendorCategory="Vendor-Category";
     case VendorType="Vendor-Type";
@@ -51,10 +55,11 @@ enum activeMenuNames:string{
     case ManageCustomers="Manage-Customers";
     case UnregisteredUsers="Unregistered-Users";
     case PasswordChange="Change-Password";
-    case PlanningServices="Planning-Services";
+    case ConstructionServicePlan="Construction-Service-Plan";
 
     case Company="Company-Settings";
     case SupportTickets="Support-Tickets";
     case ChatSuggestions="Chat-Suggestions";
+    case MetaData="Meta-Data";
 
 }

@@ -52,6 +52,8 @@ return [
     'firebase_server_key' => env('FIREBASE_SERVER_KEY', ''),
     'geo_names_user_name' => env('GEO_NAMES_USER_NAME', ''),
 
+    'WHATSAPP_API_KEY' => env('WHATSAPP_API_KEY', ''),
+
     'FIREBASE_API_KEY' => env('FIREBASE_API_KEY', ''),
     'FIREBASE_AUTH_DOMAIN' => env('FIREBASE_AUTH_DOMAIN', ''),
     'FIREBASE_DATABASE_URL' => env('FIREBASE_DATABASE_URL', ''),
@@ -60,7 +62,7 @@ return [
     'FIREBASE_SENDER_ID' => env('FIREBASE_SENDER_ID', ''),
     'FIREBASE_APP_ID' => env('FIREBASE_APP_ID', ''),
     'FIREBASE_MEASUREMENT_ID' => env('FIREBASE_MEASUREMENT_ID', ''),
-    
+
     // TEXT LOCAL
     'TEXT_LOCAL_API_KEY' => env('TEXT_LOCAL_API_KEY', ''),
     'TEXT_LOCAL_SENDER_NAME' => env('TEXT_LOCAL_SENDER_NAME', ''),

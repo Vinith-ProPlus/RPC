@@ -80,8 +80,27 @@
                         <span class="ratings" style="width:100%"></span>
                     </div>
                 </div>
-
-                <hr class="short-divider">
+                <div class="product-action">
+                    <div class="row col-12">
+                        <div class="col-6">
+                            <a href="#" class="btn btn-dark mr-2 product-type-simple btn-shop {{ $cartProducts->contains('ProductID', $product->ProductID) ? 'added-in-cart' : 'wishlistCartBtn btnAddCart' }}" title="Add to Cart" id="{{ $product->ProductID }}">
+                                {{ $cartProducts->contains('ProductID', $product->ProductID) ? 'Added in Cart' : 'ADD TO CART' }}
+                            </a>
+                            <a href="#" class="btn view-cart d-none">View cart</a>
+                        </div>
+                        @if($product->ProductBrochure)
+                            <div class="col-6 text-right">
+                                <a href="{{ $product->ProductBrochure }}" class="btn btn-dark" target="new">
+                                    View Brochure
+                                </a>
+                            </div>
+                        @endif
+                        <div class="@if($product->ProductBrochure) col-12 my-2 @else col-6 @endif">
+                            <a href="#" class="btn btn-block btn-dark mr-2 btnBuyNow" title="Buy Now" id="{{ $product->ProductID }}">Buy Now</a>
+                        </div>
+                    </div>
+                </div>
+                <hr class="short-divider" style="border-top: 1px solid #e7e7e7; width: 100%;">
                 <div class="product-desc">
                     {!! $product->Description !!}
                 </div>
@@ -100,27 +119,6 @@
                         </strong>
                     </li>
                 </ul>
-
-                <div class="product-action">
-                    <div class="row col-12">
-                        <div class="col-6">
-                            <a href="#" class="btn btn-dark mr-2 product-type-simple btn-shop {{ $cartProducts->contains('ProductID', $product->ProductID) ? 'added-in-cart' : 'wishlistCartBtn btnAddCart' }}" title="Add to Cart" id="{{ $product->ProductID }}">
-                                {{ $cartProducts->contains('ProductID', $product->ProductID) ? 'Added in Cart' : 'ADD TO CART' }}
-                            </a>
-                            <a href="#" class="btn view-cart d-none">View cart</a>
-                        </div>
-                        @if($product->ProductBrochure)
-                            <div class="col-6 text-right">
-                                <a href="{{ $product->ProductBrochure }}" class="btn btn-dark" target="new">
-                                    View Brochure
-                                </a>
-                            </div>
-                        @endif
-                        <div class="col-12 my-2">
-                            <a href="#" class="btn btn-block btn-dark mr-2 btnBuyNow" title="Buy Now" id="{{ $product->ProductID }}">Buy Now</a>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
 
@@ -237,7 +235,7 @@
                 }
             });
         });
-        
+
         $('.btnBuyNow').click(function () {
             let thiss = $(this);
             let FormData = {

@@ -133,6 +133,7 @@ class HomeAuthController extends Controller
     {
         $CustomerID = $this->ReferID;
         $FormData['Company'] = $this->Company;
+        $FormData['MetaData']=DB::table('tbl_metadata')->where('PageId', 'products')->first();
         $PCatagories = DB::Table('tbl_product_category')->where('ActiveStatus', 'Active')->where('DFlag', 0)->select('PCName', 'PCID', 'PCImage')
             ->inRandomOrder()->take(10)->get();
         $FormData['PCategories'] = $PCatagories;
@@ -876,6 +877,7 @@ class HomeAuthController extends Controller
     {
         $CustomerID = $this->ReferID;
         $FormData['Company'] = $this->Company;
+        $FormData['MetaData']=DB::table('tbl_metadata')->where('PageId', 'category-list')->first();
         $AllVendors = Helper::getAvailableVendorsForCustomer($request->AID);
         $PCatagories = DB::table('tbl_vendors_product_mapping as VPM')
             ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'VPM.PCID')
@@ -972,6 +974,7 @@ class HomeAuthController extends Controller
     {
         $CustomerID = $this->ReferID;
         $FormData['Company'] = $this->Company;
+        $FormData['MetaData']=DB::table('tbl_metadata')->where('PageId', $request->CID ?? '0')->first();
         $AllVendors = Helper::getAvailableVendorsForCustomer($request->AID);
         $PCatagories = DB::table('tbl_vendors_product_mapping as VPM')
             ->leftJoin('tbl_product_category as PC', 'PC.PCID', 'VPM.PCID')
@@ -2292,6 +2295,7 @@ class HomeAuthController extends Controller
         $FormData['product'] = $product;
         $FormData['RelatedProducts'] = $RelatedProducts;
         $FormData['Company'] = $this->Company;
+        $FormData['MetaData']=DB::table('tbl_metadata')->where('PageId', $ProductID)->first();
         $PCategories = $this->getRandomProductCategories();
         $FormData['PCategories'] = $PCategories;
         $FormData['isRegister'] = false;

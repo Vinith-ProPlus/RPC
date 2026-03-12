@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\web\Settings\MetaDataController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\web\Settings\BannersController;
 use App\Http\Controllers\web\Settings\CMSController;
@@ -64,5 +65,13 @@ Route::group(['prefix'=>'chat-suggestions'],function (){
         Route::post('/trash-data', 'TrashTableView');
 
         Route::post('/get/chat-suggestions', 'GetChatSuggestions');
+    });
+});
+
+Route::group(['prefix'=>'meta-data'],function (){
+    Route::controller(MetaDataController::class)->group(function () {
+        Route::get('/', 'view');
+        Route::post('/edit/{ID}', 'Update');
+        Route::post('/data', 'TableView');
     });
 });

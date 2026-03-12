@@ -45,12 +45,13 @@
                             <table class="table table-sm" id="tblUsers">
                                 <thead>
                                     <tr>
-                                        <th class="">Service ID</th>
                                         <th class="">Name</th>
                                         <th class="">Date</th>
-                                        <th class="">Service Name</th>
+                                        <th class="">Service</th>
                                         <th class="">Mobile Number</th>
                                         <th class="">Email</th>
+                                        <th class="">District</th>
+                                        <th class="">State</th>
                                         <th class="">Actions</th>
                                     </tr>
                                 </thead>
@@ -117,6 +118,15 @@
         $(document).on('change','#lstLoginType',function(){
             LoadTable();
         });
+		$(document).on('click', '.btnView', function () {
+			let message = $(this).data('message');
+
+			bootbox.alert({
+				title: "Message",
+				message: message,
+				size: 'medium'
+			});
+		});
     });
 </script>
 @endsection

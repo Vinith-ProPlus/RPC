@@ -1372,6 +1372,8 @@
 			}
 		},
 		PlanServPopup: function () {
+			$('#txtPlanCustomerName, #txtPlanMobileNo1, #txtPlanEmail, #lstPlanServices, #lstPlanState, #lstPlanDistricts, #txtPlanMessage').val('');
+			$('.errors.Customer').text('');
 			var mpInstance = $.magnificPopup.instance;
 			if ( mpInstance.isOpen ) {
 				mpInstance.close();
@@ -1383,6 +1385,8 @@
 						type: 'inline',
 						mainClass: 'mfp-newsletter',
 						removalDelay: 350,
+						closeOnBgClick: false,
+						closeBtnInside: true 
 					} );
 				}, 360 );
 			}
@@ -1394,6 +1398,40 @@
 					type: 'inline',
 					mainClass: 'mfp-newsletter',
 					removalDelay: 350,
+					closeOnBgClick: false,
+					closeBtnInside: true 
+				} );
+			}
+		},
+		ConstructionServPopup: function () {
+			$('#txtConCustomerName, #txtConMobileNo1, #txtConEmail, #lstConServiceType, #lstConService, #lstConState, #lstConDistricts, #txtConMessage').val('');
+			$('.errors.ConCustomer').text('');
+			var mpInstance = $.magnificPopup.instance;
+			if ( mpInstance.isOpen ) {
+				mpInstance.close();
+				setTimeout( function () {
+					$.magnificPopup.open({
+						items: {
+							src: '#construction-serv-form'
+						},
+						type: 'inline',
+						mainClass: 'mfp-newsletter',
+						removalDelay: 350,
+						closeOnBgClick: false,
+						closeBtnInside: true
+					});
+				}, 360 );
+			}
+			else {
+				$.magnificPopup.open( {
+					items: {
+						src: '#construction-serv-form'
+					},
+					type: 'inline',
+					mainClass: 'mfp-newsletter',
+					removalDelay: 350,
+					closeOnBgClick: false,
+					closeBtnInside: true
 				} );
 			}
 		},
@@ -2734,8 +2772,51 @@
 		Porto.mobileLoginPopup();
 	});
 
-	$('#btnPlanServ').on('click', function() {
+	$('.btnPlanServ').on('click', function() {
 		Porto.PlanServPopup();
 	});
+	$('.btnConstructionServ').on('click', function() {
+		Porto.ConstructionServPopup();
+	});
+	$('#appLinkMobileNumberInput').on('input', function () {
+		let sanitizedValue = $(this).val().replace(/\D/g, '');
+		$(this).val(sanitizedValue);
+	});
+	$('.sent-me-link-btn').on('click', function(e) {
+		e.preventDefault();
+		var $this = $(this);
+		let RootUrl = $('#txtRootUrl').val();
+		let MobileNumber = $('#appLinkMobileNumberInput').val();
+		let messageElement = $('#app-link-err-msg');
+		if (!/^\d{10}$/.test(MobileNumber)) {
+			messageElement.text("Please enter a valid 10-digit mobile number.")
+				.removeClass('text-success')
+				.addClass('text-danger');
+			return;
+		}
+		$this.addClass('load-more-overlay loading');
+		var formData = new FormData();
+		formData.append('MobileNumber', MobileNumber);
+		$.ajax({
+			url: RootUrl + 'send-become-vendor-whatsapp-msg',
+			type: 'POST',
+			data: formData,
+			processData: false,
+			contentType: false,
+			success: function (response) {
+				$('#appLinkMobileNumberInput').val("");
+				messageElement.text(response.message).removeClass('text-success text-danger')
+					.addClass(response.status ? 'text-success' : 'text-danger');
+				setTimeout(function () {
+					messageElement.text("").removeClass('text-success text-danger');
+				}, 5000);
+			},
+			error: function (xhr, status, error) {
+					alert('An error occurred: ' + xhr.responseText);
+			},
+			complete: function () {
+				$this.removeClass('load-more-overlay loading');
+			}
+		});
+	});
 } )( jQuery );
-

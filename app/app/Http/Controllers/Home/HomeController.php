@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Home;
 
 use SSP;
 use logs;
-use DocNum;
-use docTypes;
+use App\Models\DocNum;
+use App\enums\docTypes;
 use App\helper\helper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -43,6 +43,7 @@ class HomeController extends Controller{
     }
     public function GuestView(Request $req){
         $FormData['Company']=$this->Company;
+        $FormData['MetaData']=DB::table('tbl_metadata')->where('PageId', 'home')->first();
         $FormData['Banners'] = DB::Table('tbl_banner_images')->where('BannerType', 'Web')->where('DFlag', 0)
             ->select('BannerTitle', 'BannerType', DB::raw('CONCAT("' . url('/') . '/", BannerImage) AS BannerImage'))->get();
         $FormData['steppers'] = DB::Table('tbl_stepper_images')->where('StepperType', 'Web')->where('DFlag', 0)->orderBy('TranNo')
@@ -171,15 +172,15 @@ class HomeController extends Controller{
                     ->leftJoin('tbl_product_subcategory as PSC', 'PSC.PSCID', 'P.SCID')
                     ->select('P.ProductID', 'P.ProductName', 'P.ProductImage', 'PSC.PSCName','P.ThumbnailImg', 'PSC.PSCID', 'PSC.PCID',
                         DB::raw('CONCAT("' . url('/') . '/", COALESCE(NULLIF(P.ProductImage, ""), "")) AS ProductImage'))
-                    ->where('P.DFlag',0)
+                    ->where('P.DFlag',0)->where('P.ActiveStatus','Active')
                     ->inRandomOrder()->take(10)
-                    
                     ->get();
                 $FormData['PCategories'] = $PCatagories;
                 $FormData['HotProducts'] = $RecentProducts->shuffle();
                 $FormData['RecentProducts'] = $RecentProducts->shuffle();
             }
             $FormData['ServiceProvided'] = DB::table('tbl_service_provided')->where('ActiveStatus','Active')->where('DFlag',0)->get();
+            $FormData['ConServiceCategories'] = DB::table('tbl_construction_service_category')->where('ActiveStatus','Active')->where('DFlag',0)->get();
             $FormData['AndroidAppUrl'] = DB::table('tbl_settings')->where('KeyName','android-app-url')->value('KeyValue');
             return view('home.guest-home', $FormData);
         }
@@ -196,6 +197,7 @@ class HomeController extends Controller{
         $FormData['isEdit'] = false;
         $FormData['Cart'] = [];
         $FormData['Company']=$this->Company;
+        $FormData['MetaData']=DB::table('tbl_metadata')->where('PageId', $Slug)->first();
         $PCatagories = DB::Table('tbl_product_category')->where('ActiveStatus', 'Active')->where('DFlag', 0)
             ->inRandomOrder()->take(10)->get();
         foreach ($PCatagories as $row) {
@@ -226,6 +228,9 @@ class HomeController extends Controller{
                 ->select('CA.AID', 'CA.Address', 'CA.isDefault', 'CA.CountryID', 'C.CountryName', 'CA.StateID', 'S.StateName', 'CA.DistrictID', 'D.DistrictName', 'CA.TalukID', 'T.TalukName', 'CA.CityID', 'CI.CityName', 'CA.PostalCodeID', 'PC.PostalCode')
                 ->get();
         }
+        $FormData['ServiceProvided'] = DB::table('tbl_service_provided')->where('ActiveStatus','Active')->where('DFlag',0)->get();
+        $FormData['ConServiceCategories'] = DB::table('tbl_construction_service_category')->where('ActiveStatus','Active')->where('DFlag',0)->get();
+        $FormData['AndroidAppUrl'] = DB::table('tbl_settings')->where('KeyName','android-app-url')->value('KeyValue');
         return view('home.policies', $FormData);
     }
 
@@ -257,6 +262,11 @@ class HomeController extends Controller{
         $FormData['isRegister'] = false;
         $FormData['Cart'] = [];
         $FormData['Company']=$this->Company;
+        $FormData['MetaData']=DB::table('tbl_metadata')->where('PageId', 'products')->first();
+        $FormData['ServiceProvided'] = DB::table('tbl_service_provided')->where('ActiveStatus','Active')->where('DFlag',0)->get();
+        $FormData['ConServiceCategories'] = DB::table('tbl_construction_service_category')->where('ActiveStatus','Active')->where('DFlag',0)->get();
+        $FormData['AndroidAppUrl'] = DB::table('tbl_settings')->where('KeyName','android-app-url')->value('KeyValue');
+
         return view('home.guest-products', $FormData);
     }
 
@@ -681,6 +691,10 @@ class HomeController extends Controller{
         $FormData['isRegister'] = false;
         $FormData['Cart'] = [];
         $FormData['Company']=$this->Company;
+        $FormData['MetaData']=DB::table('tbl_metadata')->where('PageId', 'category-list')->first();
+        $FormData['ServiceProvided'] = DB::table('tbl_service_provided')->where('ActiveStatus','Active')->where('DFlag',0)->get();
+        $FormData['ConServiceCategories'] = DB::table('tbl_construction_service_category')->where('ActiveStatus','Active')->where('DFlag',0)->get();
+        $FormData['AndroidAppUrl'] = DB::table('tbl_settings')->where('KeyName','android-app-url')->value('KeyValue');
         return view('home.guest.category-list', $FormData);
     }
 
@@ -782,6 +796,10 @@ class HomeController extends Controller{
         $FormData['isRegister'] = false;
         $FormData['Cart'] = [];
         $FormData['Company']=$this->Company;
+        $FormData['MetaData']=DB::table('tbl_metadata')->where('PageId', $request->CID ?? '0')->first();
+        $FormData['ServiceProvided'] = DB::table('tbl_service_provided')->where('ActiveStatus','Active')->where('DFlag',0)->get();
+        $FormData['ConServiceCategories'] = DB::table('tbl_construction_service_category')->where('ActiveStatus','Active')->where('DFlag',0)->get();
+        $FormData['AndroidAppUrl'] = DB::table('tbl_settings')->where('KeyName','android-app-url')->value('KeyValue');
         return view('home.guest.sub-category-list', $FormData);
     }
 
@@ -896,6 +914,7 @@ class HomeController extends Controller{
         $FormData['isRegister'] = false;
         $FormData['Cart'] = [];
         $FormData['Company']=$this->Company;
+        $FormData['MetaData']=DB::table('tbl_metadata')->where('PageId', $request->SCID ?? '0')->first();
         return view('home.guest.products-list', $FormData);
     }
 
@@ -1032,25 +1051,32 @@ class HomeController extends Controller{
             ->select('P.ProductID','P.ProductName','P.ShortDescription','P.Description', 'PC.PCID', 'PSC.PSCID',
                 'PC.PCName as CategoryName','PSC.PSCName as SubCategoryName', 'P.ProductImage','P.ThumbnailImg', 'P.ProductBrochure', 'P.VideoURL')
             ->first();
-        $product->ProductImage = (new Helper)->fileCheckAndUrl($product->ProductImage, 'assets/images/no-image-b.png');
-        $product->ThumbnailImg = file_exists($product->ThumbnailImg)?$product->ThumbnailImg:$product->ProductImage;
-        $product->ProductBrochure = (new Helper)->fileCheckAndUrl($product->ProductBrochure, '');
+        if($product) {
+            $product->ProductImage = (new Helper)->fileCheckAndUrl($product->ProductImage, 'assets/images/no-image-b.png');
+            $product->ThumbnailImg = file_exists($product->ThumbnailImg) ? $product->ThumbnailImg : $product->ProductImage;
+            $product->ProductBrochure = (new Helper)->fileCheckAndUrl($product->ProductBrochure, '');
 
-        $product->GalleryImages = DB::table('tbl_products_gallery')
-            ->where('ProductID', $ProductID)
-            ->pluck('gImage')
-            ->map(function ($image) {
-                return (new Helper)->fileCheckAndUrl($image, 'assets/images/no-image-b.png');
-            })
-            ->toArray();
-        $FormData['product'] = $product;
-        $FormData['PCategories'] = $PCatagories;
-        $FormData['RelatedProducts'] = $RelatedProducts;
-        $FormData['isRegister'] = false;
-        $FormData['Cart'] = [];
-        $FormData['Company']=$this->Company;
-
-        return view('home.guest-product-view', $FormData);
+            $product->GalleryImages = DB::table('tbl_products_gallery')
+                ->where('ProductID', $ProductID)
+                ->pluck('gImage')
+                ->map(function ($image) {
+                    return (new Helper)->fileCheckAndUrl($image, 'assets/images/no-image-b.png');
+                })
+                ->toArray();
+            $FormData['product'] = $product;
+            $FormData['PCategories'] = $PCatagories;
+            $FormData['RelatedProducts'] = $RelatedProducts;
+            $FormData['isRegister'] = false;
+            $FormData['Cart'] = [];
+            $FormData['Company'] = $this->Company;
+            $FormData['MetaData']=DB::table('tbl_metadata')->where('PageId', $ProductID)->first();
+            $FormData['ServiceProvided'] = DB::table('tbl_service_provided')->where('ActiveStatus', 'Active')->where('DFlag', 0)->get();
+            $FormData['ConServiceCategories'] = DB::table('tbl_construction_service_category')->where('ActiveStatus', 'Active')->where('DFlag', 0)->get();
+            $FormData['AndroidAppUrl'] = DB::table('tbl_settings')->where('KeyName', 'android-app-url')->value('KeyValue');
+            return view('home.guest-product-view', $FormData);
+        } else {
+            return view('errors.404');
+        }
     }
 
     public static function getAvailableVendors($PostalCodeID){
@@ -1064,30 +1090,24 @@ class HomeController extends Controller{
         return $AllVendors;
     }
 
-    //updated
     public static function SavePlanningServices(Request $request){
 		$OldData=$NewData=array();
 
         $rules=array(
-            'CustomerName' => 'required|string|max:255', 
+            'CustomerName' => 'required|string|max:255',
             'CustomerMobile' => 'required|digits:10',
             'CustomerEmail' => 'nullable|email',
-            'CustomerServices' => 'required|string|max:50',
-            'CustomerMessage' => 'nullable|string|max:500',
         );
 
         $message=array(
             'CustomerName.required'=>'Name is required',
             'CustomerMobile.required'=>'Mobile Number is required',
-            'CustomerEmail.email' => 'Invalid email format',
-            'CustomerServices.required' => 'Service is required',
-            // 'CustomerMessage.required' => 'Message is required',
         );
-        
+
         $validator = Validator::make($request->all(), $rules,$message);
 
         if ($validator->fails()) {
-            return array('status'=>false,'message'=>"Customer Creation Failed",'errors'=>$validator->errors());
+            return array('status'=>false,'message'=>"Building Plan Form Submission Failed",'errors'=>$validator->errors());
         }
 
         DB::beginTransaction();
@@ -1101,10 +1121,11 @@ class HomeController extends Controller{
                 'MobileNumber'=>$request->CustomerMobile,
                 'Email'=>$request->CustomerEmail,
                 'ServiceID'=>$request->CustomerServices,
+                'StateID'=>$request->StateID,
+                'DistrictID'=>$request->DistrictID,
                 'Message'=>$request->CustomerMessage,
                 'DFlag'=>0,
-                // 'CreatedBy'=>$this->UserID,
-                'CreatedOn'=>now(), 
+                'CreatedOn'=>now(),
             );
 
             $status=DB::Table('tbl_planning_services')->insert($data);
@@ -1115,13 +1136,123 @@ class HomeController extends Controller{
         if($status==true){
             DB::commit();
             DocNum::updateDocNum(docTypes::PlanningServices->value);
-            $NewData=DB::Table('tbl_planning_services')->where('PServiceID',$PServiceID)->get();
-            // $logData=array("Description"=>"New Service saved ",/* "ModuleName"=>$this->ActiveMenuName, */"Action"=>cruds::ADD->value,"ReferID"=>$PServiceID,"OldData"=>$OldData,"NewData"=>$NewData,"UserID"=>$this->UserID,"IP"=>$req->ip());
-            // logs::Store($logData);
-            return array('status'=>true,'message'=>"Service saved Successfully","PServiceID"=>$PServiceID);
+            return array('status'=>true,'message'=>"Form Submitted Successfully! Will get back to you shortly.","PServiceID"=>$PServiceID);
         }else{
             DB::rollback();
-            return array('status'=>false,'message'=>"Service Creation Failed");
+            return array('status'=>false,'message'=>"Building Plan Form Submission Failed");
+        }
+    }
+
+    public static function SaveConstructionServices(Request $request)
+    {
+        $rules = [
+            'CustomerName' => 'required|string|max:255',
+            'CustomerMobile' => 'required|digits:10',
+            'ConServiceType' => 'required',
+            'ConService' => 'required',
+            'CustomerEmail' => 'nullable|email',
+        ];
+        $message = [
+            'CustomerName.required' => 'Name is required',
+            'CustomerMobile.required' => 'Mobile Number is required',
+            'ConServiceType.required' => 'Construction Service Type is required',
+            'ConService.required' => 'Construction Service is required',
+        ];
+        $validator = Validator::make($request->all(), $rules, $message);
+        if ($validator->fails()) {
+            return array('status' => false, 'message' => "Construction Service Plan Form Submission Failed", 'errors' => $validator->errors());
+        }
+        DB::beginTransaction();
+        $status = false;
+        try {
+            $CPServiceID = DocNum::getDocNum(docTypes::ConstructionPlanServices->value);
+            $data = array(
+                'CPServiceID' => $CPServiceID,
+                'Name' => $request->CustomerName,
+                'MobileNumber' => $request->CustomerMobile,
+                'Email' => $request->CustomerEmail,
+                'CSCID' => $request->ConServiceType,
+                'CSID' => $request->ConService,
+                'StateID' => $request->StateID,
+                'DistrictID' => $request->DistrictID,
+                'Message' => $request->CustomerMessage,
+                'DFlag' => 0,
+                'CreatedOn' => now(),
+            );
+            $status = DB::Table('tbl_construction_plan_services')->insert($data);
+        } catch (\Exception $e) {
+            logger("Error in HomeController@SaveConstructionServices: " . $e->getMessage());
+        }
+        if ($status) {
+            DB::commit();
+            DocNum::updateDocNum(docTypes::ConstructionPlanServices->value);
+            return array('status' => true, 'message' => "Form Submitted Successfully! Will get back to you shortly.", "CPServiceID" => $CPServiceID);
+        }
+        DB::rollback();
+        return array('status' => false, 'message' => "Construction Service Plan Form Submission Failed");
+    }
+    public static function SendBecomeVendorWhatsappMsg(Request $request)
+    {
+        $request->validate([
+            'MobileNumber' => 'required|digits:10'
+        ], [
+            'MobileNumber.required' => 'Mobile Number is required',
+            'MobileNumber.digits' => 'Mobile Number must be 10 digits'
+        ]);
+
+        try {
+            $mobileNumber = "91" . $request->MobileNumber;
+            $postData = [
+                "to" => $mobileNumber,
+                "type" => "template",
+                "template" => [
+                    "language" => [
+                        "policy" => "deterministic",
+                        "code" => "en"
+                    ],
+                    "name" => "rpc_become_a_vendor",
+                    "components" => [
+                        [
+                            "type" => "body"
+                        ]
+                    ]
+                ]
+            ];
+
+            $curl = curl_init();
+            curl_setopt_array($curl, [
+                CURLOPT_URL => 'https://backend.askeva.io/v1/message/send-message?token='.config('app.WHATSAPP_API_KEY'),
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_POST => true,
+                CURLOPT_POSTFIELDS => json_encode($postData, JSON_THROW_ON_ERROR),
+                CURLOPT_HTTPHEADER => [
+                    'Content-Type: application/json'
+                ]
+            ]);
+
+            $response = curl_exec($curl);
+            $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+            curl_close($curl);
+            $responseData = json_decode($response, true);
+
+            if ($httpCode === 200 && isset($responseData['messages'][0]['id'])) {
+                return response()->json([
+                    "status" => true,
+                    "message" => "Mobile application link sent through WhatsApp"
+                ]);
+            }
+            return response()->json([
+                "status" => false,
+                "message" => "Failed to send mobile link through WhatsApp",
+                "error" => $responseData ?? "No response from API"
+            ]);
+        } catch (\Exception $e) {
+            logger("Error in SendBecomeVendorWhatsappMsg: " . $e->getMessage());
+            return response()->json([
+                "status" => false,
+                "message" => "Failed to send WhatsApp message",
+                "error" => $e->getMessage()
+            ], 500);
         }
     }
 }

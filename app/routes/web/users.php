@@ -1,9 +1,13 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\web\users\{CustomerController, userRoleController,
-                                    userController, PasswordChangeController,
-                                    PlanningServiceController, UnregisteredUsersController};
+use App\Http\Controllers\web\users\{ConstructionPlanningServiceController,
+    CustomerController,
+    userRoleController,
+    userController,
+    PasswordChangeController,
+    PlanningServiceController,
+    UnregisteredUsersController};
 
 Route::group(['prefix'=>'user-roles'],function (){
     Route::controller(userRoleController::class)->group(function () {
@@ -81,6 +85,12 @@ Route::group(['prefix'=>'planning-services'],function (){
     Route::controller(PlanningServiceController::class)->group(function () {
         Route::get('/', 'view');
         Route::post('/data', 'TableView');
+    });
+});
 
+Route::group(['prefix'=>'construction-service-plan'],function (){
+    Route::controller(ConstructionPlanningServiceController::class)->group(function () {
+        Route::get('/', 'view');
+        Route::post('/data', 'TableView');
     });
 });

@@ -23,12 +23,11 @@
                         <div class="col-sm-12">
 							<ul class="nav nav-pills nav-primary justify-content-center" id="pills-icontab" role="tablist">
 								<li class="nav-item"><a class="nav-link active" id="pills-general-tab" data-bs-toggle="pill" href="#pills-general" role="tab" aria-controls="pills-general" aria-selected="true"><i class="fa fa-cogs" aria-hidden="true"></i>General</a></li>
-								<li class="nav-item"><a class="nav-link" id="pills-map-tab" data-bs-toggle="pill" href="#pills-map" role="tab" aria-controls="pills-map" aria-selected="false"><i class="fa fa-files-o" aria-hidden="true"></i>Map</a></li>
+								<li class="nav-item d-none"><a class="nav-link" id="pills-map-tab" data-bs-toggle="pill" href="#pills-map" role="tab" aria-controls="pills-map" aria-selected="false"><i class="fa fa-files-o" aria-hidden="true"></i>Map</a></li>
 								<!--<li class="nav-item"><a class="nav-link " id="pills-social-media-links-tab" data-toggle="pill" href="#pills-social-media-links" role="tab" aria-controls="pills-social-media-links" aria-selected="false" data-original-title="" title=""><i class="fa fa-facebook-square" aria-hidden="true"></i> Social Media Links</a></li> -->
 							</ul>
                             <div class="tab-content m-t-30" id="pills-icontabContent">
                                 <div class="tab-pane fade active show" id="pills-general" role="tabpanel" aria-labelledby="pills-general-tab">
-
 									<div class="form-row">
 										<div class="col-sm-6"><b>Date Format :</b></div>
 										<div class="col-sm-6">
