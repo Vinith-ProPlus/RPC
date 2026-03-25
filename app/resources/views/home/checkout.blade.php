@@ -111,11 +111,11 @@
                                 <form action="#">
                                     <div class="form-group form-group-sm">
                                         <label for="receiver_name"><strong>Receiver Name</strong></label>
-                                        <input type="text" class="form-control" id="receiver_name" placeholder="Receiver name" value="">
+                                        <input type="text" class="form-control" id="receiver_name" placeholder="Receiver name" value="{{ $CustomerData->CustomerName }}">
                                     </div>
                                     <div class="form-group form-group-sm">
                                         <label for="receiver_mobile_no"><strong>Receiver Mobile No</strong></label>
-                                        <input type="number" class="form-control" id="receiver_mobile_no" placeholder="Receiver mobile no" value="">
+                                        <input type="number" class="form-control" id="receiver_mobile_no" placeholder="Receiver mobile no" value="{{ $CustomerData->MobileNo1 }}">
                                     </div>
                                     <div class="form-group form-group-sm">
                                         <label for="expected_date"><strong>Expected Delivery Date</strong></label>
@@ -181,11 +181,24 @@
                             <td colspan="2" class="text-left">
                                 <h5 class="text-center">DELIVERY ADDRESS</h5>
 
-                                <b>{{ $CustomerData->CustomerName }}</b>,<br>
-                                {{ $DeliveryAddress->Address }},<br>
-                                {{ $DeliveryAddress->CityName }}, {{ $DeliveryAddress->TalukName }},<br>
-                                {{ $DeliveryAddress->DistrictName }}, {{ $DeliveryAddress->StateName }},<br>
-                                {{ $DeliveryAddress->CountryName }} - {{ $DeliveryAddress->PostalCode }}.
+                                <div class="form-group">
+                                    <label for="delivery_address_select">Select Delivery Address</label>
+                                    <select id="delivery_address_select" class="form-control">
+                                        @foreach($DeliveryAddresses as $addr)
+                                            <option value="{{ $addr->AID }}" data-address="{{ $addr->Address }}" data-city="{{ $addr->CityName }}" data-taluk="{{ $addr->TalukName }}" data-district="{{ $addr->DistrictName }}" data-state="{{ $addr->StateName }}" data-country="{{ $addr->CountryName }}" data-postal="{{ $addr->PostalCode }}" {{ $addr->isDefault == 1 ? 'selected' : '' }}>
+                                                {{ $addr->Address }}, {{ $addr->CityName }}, {{ $addr->TalukName }}, {{ $addr->DistrictName }}, {{ $addr->StateName }}, {{ $addr->CountryName }} - {{ $addr->PostalCode }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <div id="delivery_address_display">
+                                    <b>{{ $CustomerData->CustomerName }}</b>,<br>
+                                    {{ $DeliveryAddresses[0]->Address }},<br>
+                                    {{ $DeliveryAddresses[0]->CityName }}, {{ $DeliveryAddresses[0]->TalukName }},<br>
+                                    {{ $DeliveryAddresses[0]->DistrictName }}, {{ $DeliveryAddresses[0]->StateName }},<br>
+                                    {{ $DeliveryAddresses[0]->CountryName }} - {{ $DeliveryAddresses[0]->PostalCode }}.
+                                </div>
                             </td>
                         </tr>
                     </tbody>
@@ -252,7 +265,7 @@
             });
         });
 
-        $('#btnMConfirm').on('click', function () {
+        $(document).on('click', '#btnMConfirm', function () {
             let receiver_name = $('#receiver_name').val();
             let receiver_mobile_no = $('#receiver_mobile_no').val();
             let expected_date = $('#expected_date').val();
@@ -279,6 +292,7 @@
                 formData.append('BuildingMeasurement', $('#BuildingMeasurement').val());
                 formData.append('BuildingMeasurementID', $('#BuildingMeasurementID').val());
                 formData.append('BuildingImage', $('#BuildingImage')[0].files[0] ?? '');
+                formData.append('DeliveryAID', $('#delivery_address_select').val());
                 $.ajax({
                     type: "post",
                     url: "{{url('/')}}/place-order",
@@ -310,6 +324,24 @@
 
         $('#btnMCancel').on('click', function () {
             $.magnificPopup.close();
+        });
+
+        $('#delivery_address_select').on('change', function() {
+            var selected = $(this).find('option:selected');
+            var address = selected.data('address');
+            var city = selected.data('city');
+            var taluk = selected.data('taluk');
+            var district = selected.data('district');
+            var state = selected.data('state');
+            var country = selected.data('country');
+            var postal = selected.data('postal');
+            $('#delivery_address_display').html(
+                '<b>{{ $CustomerData->CustomerName }}</b>,<br>' +
+                address + ',<br>' +
+                city + ', ' + taluk + ',<br>' +
+                district + ', ' + state + ',<br>' +
+                country + ' - ' + postal + '.'
+            );
         });
 
     });
