@@ -656,7 +656,8 @@ class HomeAuthController extends Controller
             ->select('CU.Address', 'CU.CountryID', 'C.CountryName', 'CU.StateID', 'S.StateName', 'CU.DistrictID', 'D.DistrictName', 'CU.TalukID', 'T.TalukName', 'CU.CityID', 'CI.CityName', 'CU.PostalCodeID', 'PC.PostalCode', 'CU.MobileNo1', 'CU.CustomerName')
             ->first();
 
-        $FormData['DeliveryAddress'] = DB::table('tbl_customer_address as CA')->where('CA.AID', $AID)->where('CA.DFlag', 0)
+        $FormData['DeliveryAddresses'] = DB::table('tbl_customer_address as CA')
+            ->where('CA.CustomerID', $CustomerID)->where('CA.DFlag', 0)
             ->join($this->generalDB . 'tbl_countries as C', 'C.CountryID', 'CA.CountryID')
             ->join($this->generalDB . 'tbl_states as S', 'S.StateID', 'CA.StateID')
             ->join($this->generalDB . 'tbl_districts as D', 'D.DistrictID', 'CA.DistrictID')
@@ -664,7 +665,7 @@ class HomeAuthController extends Controller
             ->join($this->generalDB . 'tbl_cities as CI', 'CI.CityID', 'CA.CityID')
             ->join($this->generalDB . 'tbl_postalcodes as PC', 'PC.PID', 'CA.PostalCodeID')
             ->select('CA.AID', 'CA.Address', 'CA.isDefault', 'CA.CountryID', 'C.CountryName', 'CA.StateID', 'S.StateName', 'CA.DistrictID', 'D.DistrictName', 'CA.TalukID', 'T.TalukName', 'CA.CityID', 'CI.CityName', 'CA.PostalCodeID', 'PC.PostalCode')
-            ->first();
+            ->get();
         if(!$FormData['CustomerData']){
             return redirect()->route('customer-profile');
         }
@@ -705,18 +706,7 @@ class HomeAuthController extends Controller
                     }
                 }
             }
-            $customerAid = Session::get('selected_aid');
-            $customerDefaultAid = DB::table('tbl_customer_address')
-                ->where('CustomerID', $CustomerID)
-                ->where('DFlag', 0)
-                ->where('isDefault', 1)
-                ->value('AID');
-
-            if ($customerAid && DB::table('tbl_customer_address')->where('CustomerID', $CustomerID)->where('AID', $customerAid)->where('DFlag', 0)->exists()) {
-                $AID = $customerAid;
-            } else {
-                $AID = $customerDefaultAid;
-            }
+            $AID = $req->DeliveryAID ;
             $AddressData = DB::table('tbl_customer_address')->where('DFlag', 0)->where('AID', $AID)->first();
             $data = [
                 'EnqID' => $EnqID,
