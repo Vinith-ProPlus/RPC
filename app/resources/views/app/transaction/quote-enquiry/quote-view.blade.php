@@ -30,7 +30,15 @@
         height: auto;
         overflow-y: auto;
     }
+    .td-product-rate{
+        width: 235px;
+    }
 
+    @media only screen and (max-width:774px){
+        .td-product-rate{
+            width: 135px;
+        }
+    }
 </style>
 <div class="container-fluid">
 	<div class="page-header">
@@ -124,7 +132,7 @@
                                         </div>
                                     </div>
                                     <div class="card-body table-responsive">
-                                        <table class="table width-max-content" id="tblProductDetails">
+                                        <table class="table width-auto" id="tblProductDetails">
                                             <thead>
                                                 <tr>
                                                     <th class="text-center align-middle">S.No</th>
@@ -152,6 +160,7 @@
                                                                 @php
                                                                     $vendorID = $item['VendorID'];
                                                                     $vendorExists = false;
+                                                                    $isAdmin = isset($item['isAdmin']) ? $item['isAdmin'] : 0;
 
                                                                     foreach ($AllVendors as &$vendor) {
                                                                         if ($vendor['VendorID'] === $vendorID) {
@@ -166,10 +175,11 @@
                                                                             'VendorID' => $vendorID,
                                                                             'VendorName' => $item['VendorName'],
                                                                             'Rating' => $item['OverAll'],
-                                                                            'VendorCount' => 1
+                                                                            'VendorCount' => 1,
+                                                                            'isAdmin' => $isAdmin
                                                                         ];
                                                                         $AllVendors[] = $Vendors;
-                                                                    }
+                                                                        }
                                                                 @endphp
                                                             @endforeach
                                                         </td>
@@ -177,6 +187,70 @@
                                                 @endforeach
                                             </tbody>
                                         </table>
+                                        <div class="my-5">
+                                            <h6 class="text-center"><strong>Pricing table</strong></h6>
+                                            <table class="table width-auto" id="tblProductCharges">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="text-center align-middle">S.No</th>
+                                                        <th class="text-center align-middle">Product</th>
+                                                        <th class="text-center align-middle">Qty</th>
+                                                        <th class="text-end align-middle">Price</th>
+                                                        <th class="text-end align-middle">Total</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @php $netTotal = 0; @endphp
+
+                                                    @foreach ($PData as $key=>$row)
+                                                    @php 
+                                                        $total = $row->Qty * $row->SRate;
+                                                        $netTotal += $total;
+                                                    @endphp
+                                                    <tr>
+                                                        <td>{{ $loop->iteration }}</td>
+                                                        <td data-product-id="{{ $row->ProductID }}">{{$row->ProductName}}</td>
+                                                        <td class="text-center" data-qty="{{$row->Qty}}">{{$row->Qty}}</td>
+                                                        <td class="d-flex justify-content-end"><input type="number" class="form-control td-product-rate" value="{{$row->SRate}}"></td>
+                                                        <td class="text-end" data-total="{{$row->Qty * $row->SRate}}">{{ number_format($row->Qty * $row->SRate, 2) }}</td>
+                                                    </tr>
+                                                    @endforeach
+                                                    <tr>
+                                                        <th class="text-end align-middle" colspan="4">Net Total</th>
+                                                        <th class="text-end align-middle" data-net-total="{{ number_format($netTotal, 2) }}">{{ number_format($netTotal, 2) }}</th>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="text-end align-middle" colspan="5">
+                                                            <input type="checkbox" id="additionalCharges">
+                                                            <label for="additionalCharges">
+                                                                Additional charges are included</td>
+                                                            </label>
+                                                        <td class="text-end align-middle"></td>
+                                                    </tr>
+                                                    </tbody>
+                                                    <tfoot>
+                                                    <tr class="d-none" id="transportCharges">
+                                                    <td colspan="5">
+                                                            <div class="charge-row float-end">
+                                                                <span class="">Transport Charges</span>
+                                                                <input type="number" class="form-control" value="0">
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                    <tr class="d-none" id="labourCharges">
+                                                        <td colspan="5">
+                                                            <div class="charge-row float-end">
+                                                                <span class="">Labour Charges</span>
+                                                                <input type="number" class="form-control" value="0">
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                </tfoot>
+                                            </table>
+                                            <div class="text-center">
+                                                <button class="btn btn-success" id="btnConvertToQuotation">Convert to Quotation</button>
+                                            </div>
+                                        </div>
                                     </div>
                                     <div class="card-footer d-flex">
                                         <div class="row">
@@ -193,7 +267,7 @@
                                                                 @if (count($FinalQuoteData) == 0 && !in_array($item['VendorID'], $RequestedVendors))
                                                                     <div class="col-3 width-max-content">
                                                                         <span class="checkbox checkbox-secondary">
-                                                                            <input class="chkVendors" id="{{$item['VendorID']}}" type="checkbox">
+                                                                            <input class="chkVendors" id="{{$item['VendorID']}}" data-admin="{{$item['isAdmin'] }}" type="checkbox">
                                                                             <label for="{{$item['VendorID']}}"></label>
                                                                         </span>
                                                                     </div>
@@ -463,6 +537,107 @@
 
             return starsHtml;
         };
+
+        $('#btnConvertToQuotation').on('click', function(){
+            //     let AdminVendor;
+            //     $('.chkVendors').each(function () {
+            //         if ($(this).data('admin') && $(this).is(':checked')) {
+            //             AdminVendor = $(this).attr('id');
+            //         }
+            //     });
+                
+            //     if(!AdminVendor) {
+            //         status = false;
+            //         toastr.error("Please select an Admin Vendor!", "Failed", {positionClass: "toast-top-right",containerId: "toast-top-right",showMethod: "slideDown",hideMethod: "slideUp",progressBar: !0})
+            //         return;
+            //     }
+                let AdminVendor = "xxxxxx"
+                let FinalQuote = [];
+                AdditionalCost = [];
+                let formData = new FormData();
+
+                $('#tblProductCharges tbody tr').each(function () {
+                    let productCell = $(this).find('td[data-product-id]');
+                    
+                    if (productCell.length > 0) {
+                        let PData = {
+                            ProductID: productCell.data('product-id'), // .data() is cleaner for data-* attributes
+                            Qty: $(this).find('td[data-qty]').data('qty'),
+                            FinalPrice: $(this).find('td[data-total]').data('total'),
+                            VendorID :  AdminVendor,
+                            VQuoteID : '',
+                            DetailID : '',
+                        };
+                        
+                        FinalQuote.push(PData);
+                    }
+                });
+
+                if ($('#additionalCharges:not(:disabled)').length > 0) {
+                    
+                    let transportCharges = parseFloat($('#transportCharges input').val()) || 0;
+                    let labourCharges = parseFloat($('#labourCharges input').val()) || 0;
+                    AdditionalCost.push({
+                        ACost: transportCharges + labourCharges 
+                    });
+                }else{
+                    AdditionalCost.push({
+                        ACost: 0 
+                    });
+                }
+
+                formData.append('AdditionalCost', JSON.stringify(AdditionalCost));
+                formData.append('FinalQuote', JSON.stringify(FinalQuote));
+                swal({
+                    title: "Are you sure?",
+                    text: "You want to Convert Quotation",
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonClass: "btn-outline-success",
+                    confirmButtonText: "Yes, Convert it!",
+                    closeOnConfirm: false
+                },function(){
+                    swal.close();
+                    btnLoading($('#btnQuoteConvert'));
+                    let postUrl="{{ url('/') }}/admin/transaction/quote-enquiry/quote-convert/{{$EnqData->EnqID}}";
+                    $.ajax({
+                        type:"post",
+                        url:postUrl,
+                        headers: { 'X-CSRF-Token' : $('meta[name=_token]').attr('content') },
+                        data:formData,
+                        cache: false,
+                        processData: false,
+                        contentType: false,
+                        error:function(e, x, settings, exception){ajaxErrors(e, x, settings, exception);},
+                        complete: function(e, x, settings, exception){btnReset($('#btnQuoteConvert'));ajaxIndicatorStop();$("html, body").animate({ scrollTop: 0 }, "slow");},
+                        success:function(response){
+                            if(response.status==true){
+                                swal({
+                                    title: "SUCCESS",
+                                    text: response.message,
+                                    type: "success",
+                                    showCancelButton: false,
+                                    confirmButtonClass: "btn-outline-success",
+                                    confirmButtonText: "Okay",
+                                    closeOnConfirm: false
+                                },function(){
+                                    window.location.replace("{{url('/')}}/admin/transaction/quote-enquiry");
+                                });
+
+                            }else{
+                                toastr.error(response.message, "Failed", {
+                                    positionClass: "toast-top-right",
+                                    containerId: "toast-top-right",
+                                    showMethod: "slideDown",
+                                    hideMethod: "slideUp",
+                                    progressBar: !0
+                                })
+                            }
+                        }
+                    });
+                });
+        });
+
         $(document).on('click', '#btnQuoteConvert', function (e) {
             let status = false;
             $('#tblVendorQuote tbody tr').each(function () {
@@ -496,7 +671,6 @@
                 });
 
 
-                console.log(FinalQuote);
                 let formData = new FormData();
                 formData.append('AdditionalCost', JSON.stringify(AdditionalCost));
                 formData.append('FinalQuote', JSON.stringify(FinalQuote));
@@ -670,6 +844,33 @@
 
         $(document).on('change', '.chkAmount', function () {
             LoadAdditionalCost();
+        });
+
+        $('.td-product-rate').on('input', function(){
+
+            let row = $(this).closest('tr');
+            let qty = row.find('td[data-qty]').data('qty');
+
+            row.find('td[data-total]').text((qty * $(this).val()).toFixed(2));
+        });
+
+        if ($('#additionalCharges').prop('checked')) {
+            $('#transportCharges, #labourCharges').removeClass('d-none');
+        } else {
+            $('#transportCharges, #labourCharges').addClass('d-none');
+        }
+
+        $('#additionalCharges').on('change', function () {
+            if (this.checked) {
+                $('#transportCharges, #labourCharges').removeClass('d-none')
+                    .find('.charge-row').hide()
+                    .slideDown(300);
+            } else {
+                $('#transportCharges, #labourCharges').find('.charge-row')
+                    .slideUp(300, function () {
+                        $(this).closest('tr').addClass('d-none');
+                });
+            }
         });
 
         $(document).on('click', '.btnVendorRatings', function (e) {

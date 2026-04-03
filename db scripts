@@ -484,3 +484,8 @@ COMMIT;
 ALTER TABLE `tbl_metadata` ADD `MetaKeyword` TEXT NULL AFTER `PageId`; 
 
 INSERT INTO `tbl_docnum` (`SLNO`, `DocType`, `Prefix`, `Length`, `CurrNum`, `Suffix`, `Year`) VALUES (NULL, 'Meta-Data', 'MD', '7', '1', NULL, ''); 
+
+-- Tue 17 Mar 17:30:50 IST 2026
+
+ALTER TABLE tbl_vendors 
+ADD isAdmin INT DEFAULT 0;

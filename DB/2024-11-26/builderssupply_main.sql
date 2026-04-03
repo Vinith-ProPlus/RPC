@@ -2056,6 +2056,11 @@ INSERT INTO `tbl_customer_type` (`CusTypeID`, `CusTypeName`, `Description`, `Act
 ('CUS2324-000002', 'Engineer', NULL, 'Active', 0, NULL, NULL, NULL, '2024-02-16 12:27:20', NULL, NULL),
 ('CUS2324-000003', 'Site Supervisor', NULL, 'Active', 0, NULL, NULL, NULL, '2024-02-16 12:29:13', NULL, NULL);
 
+-- Thu 12 Mar 17:43:01 IST 2026
+INSERT INTO `tbl_customer_type` (`CusTypeID`, `CusTypeName`, `Description`, `ActiveStatus`, `DFlag`, `CreatedBy`, `UpdatedBy`, `DeletedBy`, `CreatedOn`, `UpdatedOn`, `DeletedOn`) VALUES
+('CUS2324-000004', 'Others', NULL, 'Active', 0, NULL, NULL, NULL, '2024-02-16 12:29:13', NULL, NULL);
+
+
 -- --------------------------------------------------------
 
 --

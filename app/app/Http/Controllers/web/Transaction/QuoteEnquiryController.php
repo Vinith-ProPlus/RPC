@@ -174,7 +174,7 @@ class QuoteEnquiryController extends Controller{
 			if($status==true){
 				DB::commit();
 				DocNum::updateDocNum(docTypes::Enquiry->value,$this->currfyDB);
-				DocNum::updateInvNo(docTypes::Enquiry->value);
+				DocNum::updateInvNo($this->ActiveMenuName);
 				$NewData=DB::table($this->currfyDB.'tbl_enquiry_details as ED')->leftJoin($this->currfyDB.'tbl_enquiry as E','E.EnqID','ED.EnqID')->where('ED.EnqID',$EnqID)->get();
 				$logData=array("Description"=>"New Quote Enquiry Created","ModuleName"=>$this->ActiveMenuName,"Action"=>cruds::ADD->value,"ReferID"=>$EnqID,"OldData"=>$OldData,"NewData"=>$NewData,"UserID"=>$this->UserID,"IP"=>$req->ip());
 				logs::Store($logData);
@@ -314,7 +314,7 @@ class QuoteEnquiryController extends Controller{
 			if($EnqData){
 				$VendorQuote = [];
 				$FinalQuoteData = [];
-				$PData=DB::table($this->currfyDB.'tbl_enquiry_details as ED')->leftJoin('tbl_products as P','P.ProductID','ED.ProductID')->leftJoin('tbl_uom as UOM','UOM.UID','ED.UOMID')->where('ED.EnqID',$EnqID)->select('ED.ProductID','ED.CID','ED.SCID','ED.Qty','P.ProductName','UOM.UID','UOM.UName','UOM.UCode')->get();
+				$PData=DB::table($this->currfyDB.'tbl_enquiry_details as ED')->leftJoin('tbl_products as P','P.ProductID','ED.ProductID')->leftJoin('tbl_uom as UOM','UOM.UID','ED.UOMID')->where('ED.EnqID',$EnqID)->select('ED.ProductID','ED.CID','ED.SCID','ED.Qty','P.ProductName','UOM.UID','UOM.UName','UOM.UCode','P.SRate')->get();
 				if(count($PData) > 0){
 					foreach($PData as $row){
 						$row->AvailableVendors=[];
@@ -653,6 +653,11 @@ class QuoteEnquiryController extends Controller{
 						$totalQuoteValue += $totalAmount;
 
 						$QDetailID = DocNum::getDocNum(docTypes::QuotationDetails->value, $this->currfyDB,Helper::getCurrentFy());
+						
+						if($item->VendorID =="xxxxxx"){
+							$adminVendorId = DB::table('tbl_vendors')->where('isAdmin', 1)->value('VendorID');
+							$item->VendorID = $adminVendorId;
+						}
 						$data1=[
 							"DetailID" => $QDetailID,
 							"QID" => $QID,
