@@ -160,7 +160,6 @@
                                                                 @php
                                                                     $vendorID = $item['VendorID'];
                                                                     $vendorExists = false;
-                                                                    $isAdmin = isset($item['isAdmin']) ? $item['isAdmin'] : 0;
 
                                                                     foreach ($AllVendors as &$vendor) {
                                                                         if ($vendor['VendorID'] === $vendorID) {
@@ -176,10 +175,9 @@
                                                                             'VendorName' => $item['VendorName'],
                                                                             'Rating' => $item['OverAll'],
                                                                             'VendorCount' => 1,
-                                                                            'isAdmin' => $isAdmin
                                                                         ];
                                                                         $AllVendors[] = $Vendors;
-                                                                        }
+                                                                    }
                                                                 @endphp
                                                             @endforeach
                                                         </td>
@@ -267,7 +265,7 @@
                                                                 @if (count($FinalQuoteData) == 0 && !in_array($item['VendorID'], $RequestedVendors))
                                                                     <div class="col-3 width-max-content">
                                                                         <span class="checkbox checkbox-secondary">
-                                                                            <input class="chkVendors" id="{{$item['VendorID']}}" data-admin="{{$item['isAdmin'] }}" type="checkbox">
+                                                                            <input class="chkVendors" id="{{$item['VendorID']}}" type="checkbox">
                                                                             <label for="{{$item['VendorID']}}"></label>
                                                                         </span>
                                                                     </div>

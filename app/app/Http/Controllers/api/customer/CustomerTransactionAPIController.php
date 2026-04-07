@@ -368,7 +368,7 @@ class CustomerTransactionAPIController extends Controller{
 			$VOrderID=DocNum::getDocNum(docTypes::VendorOrders->value, $this->currfyDB,Helper::getCurrentFy());
 			$VOrderNo=DocNum::getInvNo(docTypes::VendorOrders->value);
 			if($status){
-				$sql =" SELECT OD.DetailID as ODetailID, OD.QID, OD.QDID, OD.OrderID, OD.ProductID, VQD.Qty, VQD.Price, VQD.TaxType, VQD.TaxID, VQD.TaxPer, VQD.Taxable, VQD.DiscountType, VQD.DiscountPer, VQD.DiscountAmt, VQD.TaxAmt, VQD.CGSTPer, VQD.SGSTPer, VQD.IGSTPer, VQD.CGSTAmt, VQD.SGSTAmt, VQD.IGSTAmt, VQD.TotalAmt ";
+				$sql =" SELECT OD.DetailID as ODetailID, OD.QID, OD.QDID, OD.OrderID, OD.ProductID, QD.Qty, QD.Price, QD.TaxType, QD.TaxPer, QD.Taxable, QD.DiscountType, QD.DiscountPer, QD.DiscountAmt, QD.TaxAmt, QD.CGSTPer, QD.SGSTPer, QD.IGSTPer, QD.CGSTAmt, QD.SGSTAmt, QD.IGSTAmt, QD.TotalAmt ";
 				$sql.=" FROM ".$this->currfyDB."tbl_order_details as OD LEFT JOIN ".$this->currfyDB."tbl_quotation_details as QD ON QD.DetailID=OD.QDID AND QD.QID=OD.QID LEFT JOIN ".$this->currfyDB."tbl_vendor_quotation_details as VQD ON VQD.DetailID=QD.VQDetailID AND VQD.ProductID=QD.ProductID ";
 				$sql.=" Where QD.isCancelled = 0 and OD.OrderID='".$OrderID."' and OD.VendorID='".$VendorID."'";
 				$result=DB::SELECT($sql);
