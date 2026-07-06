@@ -174,7 +174,7 @@ class QuoteEnquiryController extends Controller{
 			if($status==true){
 				DB::commit();
 				DocNum::updateDocNum(docTypes::Enquiry->value,$this->currfyDB);
-				DocNum::updateInvNo(docTypes::Enquiry->value);
+				DocNum::updateInvNo($this->ActiveMenuName);
 				$NewData=DB::table($this->currfyDB.'tbl_enquiry_details as ED')->leftJoin($this->currfyDB.'tbl_enquiry as E','E.EnqID','ED.EnqID')->where('ED.EnqID',$EnqID)->get();
 				$logData=array("Description"=>"New Quote Enquiry Created","ModuleName"=>$this->ActiveMenuName,"Action"=>cruds::ADD->value,"ReferID"=>$EnqID,"OldData"=>$OldData,"NewData"=>$NewData,"UserID"=>$this->UserID,"IP"=>$req->ip());
 				logs::Store($logData);

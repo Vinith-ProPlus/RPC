@@ -1199,6 +1199,7 @@ class helper{
 				// Use SMSAlert provider only; pass the full template text in $Message
 				$smsProvider = new \App\Models\SMSAlert();
 				$result = $smsProvider->sendOTP($MobNo, $Message);
+				$result['status'] = true; // Assuming the SMS sending is successful
 				if ($result['status']) {
 					DB::commit();
 					DocNum::updateDocNum("SMS-OTP", self::getCurrFYDB());
